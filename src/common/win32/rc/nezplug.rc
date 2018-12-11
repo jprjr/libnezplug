@@ -1,0 +1,176 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "nezplug.rh"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "winres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Æ­°Ä×Ù resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
+#ifdef _WIN32
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+#pragma code_page(932)
+#endif //_WIN32
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 0,0,9,4
+ PRODUCTVERSION 0,0,9,4
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004b0"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", "Befis\0"
+            VALUE "FileDescription", "NEZplug plugin for NSF/KSS/GBR/GBS/HES/AY sound files\0"
+            VALUE "FileExtents", "nsd|nsf|nez|nsz\0"
+            VALUE "FileOpenName", "nsd sound file (*.nsd)|nes sound file (*.nsf)|compressed nsf file(*.nez;*.nsz)\0"
+            VALUE "FileVersion", "0, 0, 9, 4\0"
+            VALUE "InternalName", "NPnez\0"
+            VALUE "LegalCopyright", " --- \0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "MIMEType", "audio/x-nezplug-nsd|audio/x-nsf|audio/x-nsf-zip-compressed\0"
+            VALUE "OriginalFilename", "NPnez.dll\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "NEZplug\0"
+            VALUE "ProductVersion", "0, 0, 9, 4\0"
+            VALUE "SpecialBuild", "\0"
+        END
+        BLOCK "040904e4"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", "Befis\0"
+            VALUE "FileDescription", "NEZplug plugin for NSF/KSS/GBR/GBS/HES/AY sound files\0"
+            VALUE "FileExtents", "nsd|nsf|nez|nsz\0"
+            VALUE "FileOpenName", "nsd sound file (*.nsd)|nes sound file (*.nsf)|compressed nsf file(*.nez;*.nsz)\0"
+            VALUE "FileVersion", "0, 0, 9, 4\0"
+            VALUE "InternalName", "NPnez\0"
+            VALUE "LegalCopyright", " --- \0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "MIMEType", "audio/x-nezplug-nsd|audio/x-nsf|audio/x-nsf-zip-compressed\0"
+            VALUE "OriginalFilename", "NPnez.dll\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "NEZplug\0"
+            VALUE "ProductVersion", "0, 0, 9, 4\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0, 1200, 0x409, 1252
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_NEZSONGNO, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 176
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 8
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_NEZSONGNO DIALOGEX 0, 0, 275, 15
+STYLE DS_MODALFRAME | WS_POPUP | WS_CLIPCHILDREN
+EXSTYLE WS_EX_TOOLWINDOW
+BEGIN
+    EDITTEXT        IDC_NEZSONG,60,0,30,15,ES_RIGHT | ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_NEZSONGSPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_AUTOBUDDY | UDS_ARROWKEYS | 
+                    UDS_HORZ | UDS_NOTHOUSANDS,15,0,30,15
+    PUSHBUTTON      "-10",IDC_NEZSONGM10,0,0,15,15
+    PUSHBUTTON      "+10",IDC_NEZSONGP10,45,0,15,15
+    PUSHBUTTON      "NEZamp",IDC_NEZNUMSONGS,90,0,30,15,BS_LEFT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_PLAYERTB            BITMAP  FIXED IMPURE    "playertb.bmp"
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "nezplug.rh\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""winres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // Æ­°Ä×Ù resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

@@ -1,0 +1,78 @@
+<html>
+<body>
+<pre>
+<h1>ﾋﾞﾙﾄﾞのﾛｸﾞ</h1>
+<h3>
+--------------------構成: in_nez - Win32 Release--------------------
+</h3>
+<h3>ｺﾏﾝﾄﾞ ﾗｲﾝ</h3>
+Creating command line "rc.exe /l 0x409 /fo"..\Release\in_nez/nezplug.res" /i "ui\nezplug" /d "NDEBUG" "I:\CPP Folder\My Project\nezplug\src\ui\nezplug\nezplug.rc"" 
+一時ﾌｧｲﾙ "I:\DOCUME~1\OffGao\LOCALS~1\Temp\RSP268.tmp" を作成し、次の内容を記録します
+[
+/nologo /MD /W3 /GX /O2 /I "format" /I "device" /I "cpu" /I "." /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_USRDLL" /D "_MBCS" /FR"..\Release\in_nez/" /Fo"..\Release\in_nez/" /GF /c 
+"I:\CPP Folder\My Project\nezplug\src\ui\winamp\con_nez.c"
+"I:\CPP Folder\My Project\nezplug\src\ui\winamp\in_nez.c"
+"I:\CPP Folder\My Project\nezplug\src\ui\winamp\seq_nez.c"
+"I:\CPP Folder\My Project\nezplug\src\ui\nezplug\ChMask.c"
+"I:\CPP Folder\My Project\nezplug\src\ui\nezplug\Dialog.c"
+"I:\CPP Folder\My Project\nezplug\src\ui\nezplug\Dump.c"
+"I:\CPP Folder\My Project\nezplug\src\ui\nezplug\FileInfo.c"
+"I:\CPP Folder\My Project\nezplug\src\ui\nezplug\IOView.c"
+"I:\CPP Folder\My Project\nezplug\src\ui\nezplug\MemView.c"
+"I:\CPP Folder\My Project\nezplug\src\common\win32\csowin32.c"
+"I:\CPP Folder\My Project\nezplug\src\common\win32\win32dll.c"
+]
+Creating command line "cl.exe @I:\DOCUME~1\OffGao\LOCALS~1\Temp\RSP268.tmp" 
+一時ﾌｧｲﾙ "I:\DOCUME~1\OffGao\LOCALS~1\Temp\RSP269.tmp" を作成し、次の内容を記録します
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ..\Release\nezplug.lib /nologo /subsystem:windows /dll /incremental:no /pdb:"..\Release\in_nez/in_nez.pdb" /machine:IX86 /def:"ui\winamp\in_nez.def" /out:"..\Release\in_nez/in_nez.dll" /implib:"..\Release\in_nez/in_nez.lib" /pdbtype:sept 
+"\CPP Folder\My Project\nezplug\Release\in_nez\con_nez.obj"
+"\CPP Folder\My Project\nezplug\Release\in_nez\in_nez.obj"
+"\CPP Folder\My Project\nezplug\Release\in_nez\seq_nez.obj"
+"\CPP Folder\My Project\nezplug\Release\in_nez\ChMask.obj"
+"\CPP Folder\My Project\nezplug\Release\in_nez\Dialog.obj"
+"\CPP Folder\My Project\nezplug\Release\in_nez\Dump.obj"
+"\CPP Folder\My Project\nezplug\Release\in_nez\FileInfo.obj"
+"\CPP Folder\My Project\nezplug\Release\in_nez\IOView.obj"
+"\CPP Folder\My Project\nezplug\Release\in_nez\MemView.obj"
+"\CPP Folder\My Project\nezplug\Release\in_nez\csowin32.obj"
+"\CPP Folder\My Project\nezplug\Release\in_nez\win32dll.obj"
+"\CPP Folder\My Project\nezplug\Release\in_nez\nezplug.res"
+]
+ｺﾏﾝﾄﾞ ﾗｲﾝ "link.exe @I:\DOCUME~1\OffGao\LOCALS~1\Temp\RSP269.tmp" の作成中
+<h3>ｱｳﾄﾌﾟｯﾄ ｳｨﾝﾄﾞｳ</h3>
+ﾘｿｰｽをｺﾝﾊﾟｲﾙ中...
+ｺﾝﾊﾟｲﾙ中...
+con_nez.c
+in_nez.c
+seq_nez.c
+ChMask.c
+Dialog.c
+Dump.c
+FileInfo.c
+IOView.c
+MemView.c
+csowin32.c
+win32dll.c
+ｺｰﾄﾞを生成中...
+ﾘﾝｸ中...
+   ﾗｲﾌﾞﾗﾘ ..\Release\in_nez/in_nez.lib とｵﾌﾞｼﾞｪｸﾄ ..\Release\in_nez/in_nez.exp を作成中
+LINK : warning LNK4098: defaultlib "LIBCMT" は他のﾗｲﾌﾞﾗﾘの使用と競合しています; /NODEFAULTLIB:library を使用してください
+一時ﾌｧｲﾙ "I:\DOCUME~1\OffGao\LOCALS~1\Temp\RSP26D.bat" を作成し、次の内容を記録します
+[
+@echo off
+copy "\CPP Folder\My Project\nezplug\Release\in_nez\in_nez.dll" "I:\Program Files\Winamp\Plugins\"
+]
+ｺﾏﾝﾄﾞ ﾗｲﾝ "I:\DOCUME~1\OffGao\LOCALS~1\Temp\RSP26D.bat" の作成中
+
+プロセスはファイルにアクセスできません。別のプロセスが使用中です。
+        0 個のファイルをコピーしました。
+i:\windows\system32\cmd.exe の実行ｴﾗｰ
+
+
+
+<h3>結果</h3>
+in_nez.dll - ｴﾗｰ 1、警告 1
+</pre>
+</body>
+</html>
