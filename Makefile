@@ -1,6 +1,7 @@
 .PHONY: all clean
 
 CC = cc
+AR = ar
 CFLAGS = -g -O0 -Wall -Wextra -Werror $(CFLAGS_EXTRA)
 
 LIBNEZPLUG_SRCS = \
@@ -50,10 +51,10 @@ LIBNEZPLUG_OBJS = $(LIBNEZPLUG_SRCS:.c=.o)
 all: libnezplug.a libnezplug.so
 
 libnezplug.a: $(LIBNEZPLUG_OBJS)
-	ar rcs $@ $^
+	$(AR) rcs $@ $^
 
 libnezplug.so: $(LIBNEZPLUG_OBJS)
-	gcc -shared -o $@ $^
+	$(CC) -shared -o $@ $^
 
 clean:
 	rm -f libnezplug.a
