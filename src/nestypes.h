@@ -6,7 +6,7 @@
 #elif defined(__BORLANDC__)
 #define __fastcall __msfastcall
 #elif defined(__GNUC__)
-#define __inline		__inline__
+#define __inline        __attribute__((always_inline)) inline
 #ifndef __fastcall
 #define __fastcall
 #endif
@@ -18,37 +18,34 @@
 #define NEVER_REACH
 #endif
 
-typedef int				Int;
-typedef unsigned int	Uint;
-typedef signed int		Int32;
-typedef signed long		Int64;
-typedef unsigned long	Uint64;
-#ifndef Uint32
-#define Uint32 unsigned int
-#endif
-#ifndef Uint8
-#define Uint8 unsigned char
-#endif
-typedef signed short	Int16;
-typedef unsigned short	Uint16;
-typedef signed char		Int8;
-typedef char			Char;
+#include "pstdint.h"
 
-#include <malloc.h>
+typedef int32_t         Int;
+typedef uint32_t        Uint;
+typedef int8_t          Int8;
+typedef uint8_t         Uint8;
+typedef int16_t         Int16;
+typedef uint16_t        Uint16;
+typedef int32_t         Int32;
+typedef uint32_t        Uint32;
+typedef int64_t         Int64;
+typedef uint64_t        Uint64;
+typedef char            Char;
+
+#include <stdlib.h>
 #include <memory.h>
 
-#ifdef WIN32
-#include <stdlib.h>
-#define XSLEEP(t)		_sleep(t)
-#else
+#if defined(_WIN32) || defined(WIN32)
 #include <windows.h>
-#include <stdlib.h>
-#define XSLEEP(t)		sleep(t)
+#define XSLEEP(t)         _sleep(t)
+#else
+#include <unistd.h>
+#define XSLEEP(t)         sleep(t)
 #endif
-#define XMALLOC(s)		malloc(s)
-#define XREALLOC(p,s)	realloc(p,s)
-#define XFREE(p)		free(p)
-#define XMEMCPY(d,s,n)	memcpy(d,s,n)
-#define XMEMSET(d,c,n)	memset(d,c,n)
+#define XMALLOC(s)        malloc(s)
+#define XREALLOC(p,s)     realloc(p,s)
+#define XFREE(p)          free(p)
+#define XMEMCPY(d,s,n)    memcpy(d,s,n)
+#define XMEMSET(d,c,n)    memset(d,c,n)
 
 #endif /* NESTYPES_H__ */
