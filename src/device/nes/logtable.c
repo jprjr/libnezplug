@@ -1,4 +1,4 @@
-#include "../nestypes.h"
+#include "../../nestypes.h"
 #include "logtable.h"
 #include <math.h>
 

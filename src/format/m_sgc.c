@@ -1,15 +1,15 @@
-#include "neserr.h"
+#include "../neserr.h"
 #include "handler.h"
 #include "audiosys.h"
 #include "songinfo.h"
 
 #include "m_sgc.h"
 
-#include "device/s_sng.h"
-#include "device/opl/s_opl.h"
-#include "device/divfix.h"
+#include "../device/s_sng.h"
+#include "../device/opl/s_opl.h"
+#include "../device/divfix.h"
 
-#include "kmz80/kmz80.h"
+#include "../cpu/kmz80/kmz80.h"
 
 #include <stdio.h>
 
@@ -193,6 +193,8 @@ static void play_setup(SGCSEQ *THIS_, Uint32 pc)
 
 static Uint32 busread_event(void *ctx, Uint32 a)
 {
+    (void)ctx;
+    (void)a;
 	return 0x38;
 }
 
@@ -255,6 +257,8 @@ static void write_event(void *ctx, Uint32 a, Uint32 v)
 
 static Uint32 ioread_eventSMS(void *ctx, Uint32 a)
 {
+    (void)ctx;
+    (void)a;
 	return 0xff;
 }
 
@@ -273,6 +277,8 @@ static void iowrite_eventSMS(void *ctx, Uint32 a, Uint32 v)
 
 static Uint32 ioread_eventCV(void *ctx, Uint32 a)
 {
+    (void)ctx;
+    (void)a;
 	return 0xff;
 }
 
@@ -286,21 +292,22 @@ static void iowrite_eventCV(void *ctx, Uint32 a, Uint32 v)
 
 static void vsync_event(KMEVENT *event, KMEVENT_ITEM_ID curid, SGCSEQ *THIS_)
 {
+    (void)event;
+    (void)curid;
 	vsync_setup(THIS_);
 	if (THIS_->ctx.regs8[REGID_HALTED]) play_setup(THIS_, THIS_->playaddr);
 }
 
-//‚±‚±‚©‚çƒƒ‚ƒŠ[ƒrƒ…ƒA[İ’è
+//ã“ã“ã‹ã‚‰ãƒ¡ãƒ¢ãƒªãƒ¼ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 Uint32 (*memview_memread)(Uint32 a);
 SGCSEQ* memview_context;
 int MEM_MAX,MEM_IO,MEM_RAM,MEM_ROM;
 Uint32 memview_memread_sgc(Uint32 a){
 	return read_event(memview_context,a);
 }
-//‚±‚±‚Ü‚Åƒƒ‚ƒŠ[ƒrƒ…ƒA[İ’è
+//ã“ã“ã¾ã§ãƒ¡ãƒ¢ãƒªãƒ¼ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 
-//‚±‚±‚©‚çƒ_ƒ“ƒvİ’è
-static NEZ_PLAY *pNezPlayDump;
+//ã“ã“ã‹ã‚‰ãƒ€ãƒ³ãƒ—è¨­å®š
 Uint32 (*dump_MEM_MSX)(Uint32 a,unsigned char* mem);
 static Uint32 dump_MEM_MSX_bf(Uint32 menu,unsigned char* mem){
 	int i;
@@ -434,7 +441,7 @@ static void reset(NEZ_PLAY *pNezPlay)
 
 		XMEMSET(THIS_->bios, 0xc9, sizeof(THIS_->bios));
 
-		{	//BIOS‚Ìƒ[ƒh 
+		{	//BIOSã®ãƒ­ãƒ¼ãƒ‰ 
 			static FILE *fp = NULL;
 			fp = fopen(ColecoBIOSFilePath, "rb");
 			if (fp){
@@ -513,11 +520,11 @@ static void reset(NEZ_PLAY *pNezPlay)
 	}
 	THIS_->total_cycles = 0;
 
-	//‚±‚±‚©‚çƒƒ‚ƒŠ[ƒrƒ…ƒA[İ’è
+	//ã“ã“ã‹ã‚‰ãƒ¡ãƒ¢ãƒªãƒ¼ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 	memview_context = THIS_;
 	MEM_MAX=0xffff;
 	memview_memread = memview_memread_sgc;
-	//‚±‚±‚Ü‚Åƒƒ‚ƒŠ[ƒrƒ…ƒA[İ’è
+	//ã“ã“ã¾ã§ãƒ¡ãƒ¢ãƒªãƒ¼ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 
 }
 
@@ -525,11 +532,11 @@ static void terminate(SGCSEQ *THIS_)
 {
 	Uint32 i;
 
-	//‚±‚±‚©‚çƒ_ƒ“ƒvİ’è
+	//ã“ã“ã‹ã‚‰ãƒ€ãƒ³ãƒ—è¨­å®š
 	dump_MEM_MSX     = NULL;
 	dump_DEV_SN76489 = NULL;
 	dump_DEV_OPLL    = NULL;
-	//‚±‚±‚Ü‚Åƒ_ƒ“ƒvİ’è
+	//ã“ã“ã¾ã§ãƒ€ãƒ³ãƒ—è¨­å®š
 	for (i = 0; i < SND_MAX; i++)
 	{
 		if (THIS_->sndp[i]) THIS_->sndp[i]->release(THIS_->sndp[i]->ctx);
@@ -636,19 +643,19 @@ RAM Bank      (8000-BFFF): %d\r\n\
 
 	XMEMSET(titlebuffer, 0, 0x21);
 	XMEMCPY(titlebuffer, pData + 0x0040, 0x20);
-	songinfodata.title=titlebuffer;
+	songinfodata.title=(char *)titlebuffer;
 
 	XMEMSET(artistbuffer, 0, 0x21);
 	XMEMCPY(artistbuffer, pData + 0x0060, 0x20);
-	songinfodata.artist=artistbuffer;
+	songinfodata.artist=(char *)artistbuffer;
 
 	XMEMSET(copyrightbuffer, 0, 0x21);
 	XMEMCPY(copyrightbuffer, pData + 0x0080, 0x20);
-	songinfodata.copyright=copyrightbuffer;
+	songinfodata.copyright=(char *)copyrightbuffer;
 
-	//‚±‚±‚©‚çƒ_ƒ“ƒvİ’è
+	//ã“ã“ã‹ã‚‰ãƒ€ãƒ³ãƒ—è¨­å®š
 	dump_MEM_MSX     = dump_MEM_MSX_bf;
-	//‚±‚±‚Ü‚Åƒ_ƒ“ƒvİ’è
+	//ã“ã“ã¾ã§ãƒ€ãƒ³ãƒ—è¨­å®š
 
 	switch(THIS_->systype){
 	case SYNTHMODE_SMS:
@@ -656,10 +663,10 @@ RAM Bank      (8000-BFFF): %d\r\n\
 		THIS_->sndp[SND_FMUNIT] = OPLSoundAlloc(OPL_TYPE_SMSFMUNIT);
 		if (!THIS_->sndp[SND_FMUNIT]) return NESERR_SHORTOFMEMORY;
 		SONGINFO_SetChannel(pNezPlay->song, 1);
-		//‚±‚±‚©‚çƒ_ƒ“ƒvİ’è
+		//ã“ã“ã‹ã‚‰ãƒ€ãƒ³ãƒ—è¨­å®š
 		dump_DEV_SN76489 = dump_DEV_SN76489_bf;
 		dump_DEV_OPLL = dump_DEV_OPLL_bf;
-		//‚±‚±‚Ü‚Åƒ_ƒ“ƒvİ’è
+		//ã“ã“ã¾ã§ãƒ€ãƒ³ãƒ—è¨­å®š
 		THIS_->datasize = uSize - headersize;
 		THIS_->banknum = ((THIS_->datasize+THIS_->loadaddr)>>14)+1;
 		if(THIS_->banknum < 3)THIS_->banknum = 3;
@@ -679,9 +686,9 @@ RAM Bank      (8000-BFFF): %d\r\n\
 	case SYNTHMODE_GG:
 		THIS_->sndp[SND_SNG] = SNGSoundAlloc(SNG_TYPE_GAMEGEAR);
 		SONGINFO_SetChannel(pNezPlay->song, 2);
-		//‚±‚±‚©‚çƒ_ƒ“ƒvİ’è
+		//ã“ã“ã‹ã‚‰ãƒ€ãƒ³ãƒ—è¨­å®š
 		dump_DEV_SN76489 = dump_DEV_SN76489_bf2;
-		//‚±‚±‚Ü‚Åƒ_ƒ“ƒvİ’è
+		//ã“ã“ã¾ã§ãƒ€ãƒ³ãƒ—è¨­å®š
 		THIS_->datasize = uSize - headersize;
 		THIS_->banknum = ((THIS_->datasize+THIS_->loadaddr)>>14)+1;
 		if(THIS_->banknum < 3)THIS_->banknum = 3;
@@ -701,9 +708,9 @@ RAM Bank      (8000-BFFF): %d\r\n\
 	case SYNTHMODE_CV:
 		THIS_->sndp[SND_SNG] = SNGSoundAlloc(SNG_TYPE_SN76489AN);
 		SONGINFO_SetChannel(pNezPlay->song, 1);
-		//‚±‚±‚©‚çƒ_ƒ“ƒvİ’è
+		//ã“ã“ã‹ã‚‰ãƒ€ãƒ³ãƒ—è¨­å®š
 		dump_DEV_SN76489 = dump_DEV_SN76489_bf;
-		//‚±‚±‚Ü‚Åƒ_ƒ“ƒvİ’è
+		//ã“ã“ã¾ã§ãƒ€ãƒ³ãƒ—è¨­å®š
 		THIS_->banknum = 4;
 		THIS_->banksize = 0x2000;
 		THIS_->datasize = uSize - headersize;
@@ -747,9 +754,9 @@ static Int32 __fastcall SGCSEQSoundRenderMono(void *pNezPlay)
 }
 
 const static NES_AUDIO_HANDLER sgcseq_audio_handler[] = {
-	{ 0, SGCSEQExecuteZ80CPU, 0, },
-	{ 3, SGCSEQSoundRenderMono, SGCSEQSoundRenderStereo },
-	{ 0, 0, 0, },
+	{ 0, SGCSEQExecuteZ80CPU, 0, NULL },
+	{ 3, SGCSEQSoundRenderMono, SGCSEQSoundRenderStereo, NULL },
+	{ 0, 0, 0, NULL },
 };
 
 static void __fastcall SGCSEQVolume(void *pNezPlay, Uint32 v)
@@ -761,8 +768,8 @@ static void __fastcall SGCSEQVolume(void *pNezPlay, Uint32 v)
 }
 
 const static NES_VOLUME_HANDLER sgcseq_volume_handler[] = {
-	{ SGCSEQVolume, }, 
-	{ 0, }, 
+	{ SGCSEQVolume, NULL }, 
+	{ 0, NULL }, 
 };
 
 static void __fastcall SGCSEQReset(void *pNezPlay)
@@ -771,8 +778,8 @@ static void __fastcall SGCSEQReset(void *pNezPlay)
 }
 
 const static NES_RESET_HANDLER sgcseq_reset_handler[] = {
-	{ NES_RESET_SYS_LAST, SGCSEQReset, },
-	{ 0,                  0, },
+	{ NES_RESET_SYS_LAST, SGCSEQReset, NULL },
+	{ 0,                  0, NULL },
 };
 
 static void __fastcall SGCSEQTerminate(void *pNezPlay)
@@ -785,15 +792,15 @@ static void __fastcall SGCSEQTerminate(void *pNezPlay)
 }
 
 const static NES_TERMINATE_HANDLER sgcseq_terminate_handler[] = {
-	{ SGCSEQTerminate, },
-	{ 0, },
+	{ SGCSEQTerminate, NULL },
+	{ 0, NULL },
 };
 
 Uint32 SGCLoad(NEZ_PLAY *pNezPlay, Uint8 *pData, Uint32 uSize)
 {
 	Uint32 ret;
 	SGCSEQ *THIS_;
-	if (pNezPlay->sgcseq) *((char *)(0)) = 0;	/* ASSERT */
+	if (pNezPlay->sgcseq) __builtin_trap();	/* ASSERT */
 	THIS_ = XMALLOC(sizeof(SGCSEQ));
 	if (!THIS_) return NESERR_SHORTOFMEMORY;
 	ret = load(pNezPlay, THIS_, pData, uSize);

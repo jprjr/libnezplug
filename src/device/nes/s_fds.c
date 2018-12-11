@@ -4,7 +4,6 @@
 extern void FDSSoundInstall1(NEZ_PLAY*);
 extern void FDSSoundInstall2(NEZ_PLAY*);
 extern void FDSSoundInstall3(NEZ_PLAY*);
-extern int FDSSoundInstallExt(NEZ_PLAY*);
 
 void FDSSoundInstall(NEZ_PLAY *pNezPlay)
 {
@@ -16,11 +15,6 @@ void FDSSoundInstall(NEZ_PLAY *pNezPlay)
 	case 3:
 		FDSSoundInstall2(pNezPlay);
 		break;
-#if 0
-	case 0:
-		if (FDSSoundInstallExt(pNezPlay)) break;
-		/* fall down */
-#endif
 	default:
 	case 2:
 		FDSSoundInstall3(pNezPlay);

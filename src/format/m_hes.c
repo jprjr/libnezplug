@@ -1,11 +1,11 @@
-#include "neserr.h"
+#include "../neserr.h"
 #include "handler.h"
 #include "audiosys.h"
 #include "songinfo.h"
 
-#include "device/s_hes.h"
-#include "device/s_hesad.h"
-#include "device/divfix.h"
+#include "../device/s_hes.h"
+#include "../device/s_hesad.h"
+#include "../device/divfix.h"
 
 #include "m_hes.h"
 #include <stdio.h>
@@ -18,8 +18,8 @@
 #define USE_INLINEMMC 0
 #define USE_USERPOINTER 1
 #define External __inline static
-#include "kmz80/kmevent.h"
-#include "km6502/km6280m.h"
+#include "../cpu/kmz80/kmevent.h"
+#include "../cpu/km6502/km6280m.h"
 
 #define SHIFT_CPS 15
 #define HES_BASECYCLES (21477270)
@@ -109,23 +109,23 @@ static Uint32 km6280_exec(struct K6280_Context *ctx, Uint32 cycles)
 		else
 		{
 			Uint32 nextcount;
-			/* breakŽž‚ÍŽŸ‚ÌƒCƒxƒ“ƒg‚Ü‚Åˆê“x‚Éi‚ß‚é */
+			/* breakæ™‚ã¯æ¬¡ã®ã‚¤ãƒ™ãƒ³ãƒˆã¾ã§ä¸€åº¦ã«é€²ã‚ã‚‹ */
 			nextcount = THIS_->kme.item[THIS_->kme.item[0].next].count;
 			if (kmevent_gettimer(&THIS_->kme, 0, &nextcount))
 			{
-				/* ƒCƒxƒ“ƒg—L‚è */
+				/* ã‚¤ãƒ™ãƒ³ãƒˆæœ‰ã‚Š */
 				if (ctx->clock + nextcount < cycles)
-					ctx->clock += nextcount;	/* ŠúŠÔ’†‚ÉƒCƒxƒ“ƒg—L‚è */
+					ctx->clock += nextcount;	/* æœŸé–“ä¸­ã«ã‚¤ãƒ™ãƒ³ãƒˆæœ‰ã‚Š */
 				else
-					ctx->clock = cycles;		/* ŠúŠÔ’†‚ÉƒCƒxƒ“ƒg–³‚µ */
+					ctx->clock = cycles;		/* æœŸé–“ä¸­ã«ã‚¤ãƒ™ãƒ³ãƒˆç„¡ã— */
 			}
 			else
 			{
-				/* ƒCƒxƒ“ƒg–³‚µ */
+				/* ã‚¤ãƒ™ãƒ³ãƒˆç„¡ã— */
 				ctx->clock = cycles;
 			}
 		}
-		/* ƒCƒxƒ“ƒgis */
+		/* ã‚¤ãƒ™ãƒ³ãƒˆé€²è¡Œ */
 		kmevent_process(&THIS_->kme, ctx->clock - kmecycle);
 		kmecycle = ctx->clock;
 	}
@@ -205,7 +205,7 @@ static Uint32 read_6270(HESHES *THIS_, Uint32 a)
 		}
 		THIS_->ctx.iRequest &= ~K6280_INT1;
 #if 0
-		v = 0x20;	/* í‚ÉVSYNCŠúŠÔ */
+		v = 0x20;	/* å¸¸ã«VSYNCæœŸé–“ */
 #endif
 	}
 	return v;
@@ -259,8 +259,8 @@ static Uint32 read_io(HESHES *THIS_, Uint32 a)
 				case 0x0b:
 				case 0x0c:
 				case 0x0d:
-				case 0x0e://ƒfƒoƒbƒO—p
-				case 0x0f://ƒfƒoƒbƒO—p
+				case 0x0e://ãƒ‡ãƒãƒƒã‚°ç”¨
+				case 0x0f://ãƒ‡ãƒãƒƒã‚°ç”¨
 					return THIS_->hespcm->read(THIS_->hespcm->ctx, a & 0xf);
 			}
 		default:
@@ -379,6 +379,8 @@ static void Callback write6270_event(void *ctx, Uword a, Uword v)
 
 static void vsync_event(KMEVENT *event, KMEVENT_ITEM_ID curid, HESHES *THIS_)
 {
+    (void)event;
+    (void)curid;
 	vsync_setup(THIS_);
 	if (THIS_->hesvdc_CR & 8)
 	{
@@ -390,6 +392,8 @@ static void vsync_event(KMEVENT *event, KMEVENT_ITEM_ID curid, HESHES *THIS_)
 
 static void timer_event(KMEVENT *event, KMEVENT_ITEM_ID curid, HESHES *THIS_)
 {
+    (void)event;
+    (void)curid;
 	if (THIS_->hestim_START && THIS_->hestim_COUNTER-- == 0)
 	{
 		THIS_->hestim_COUNTER = THIS_->hestim_RELOAD;
@@ -399,7 +403,7 @@ static void timer_event(KMEVENT *event, KMEVENT_ITEM_ID curid, HESHES *THIS_)
 	timer_setup(THIS_);
 }
 
-//‚±‚±‚©‚çƒƒ‚ƒŠ[ƒrƒ…ƒA[Ý’è
+//ã“ã“ã‹ã‚‰ãƒ¡ãƒ¢ãƒªãƒ¼ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 Uint32 (*memview_memread)(Uint32 a);
 HESHES* memview_context;
 int MEM_MAX,MEM_IO,MEM_RAM,MEM_ROM;
@@ -407,9 +411,9 @@ Uint32 memview_memread_hes(Uint32 a){
 	if(a>=0x1800&&a<0x1c00&&(a&0xf)==0xa)return 0xff;
 	return read_event(memview_context,a);
 }
-//‚±‚±‚Ü‚Åƒƒ‚ƒŠ[ƒrƒ…ƒA[Ý’è
+//ã“ã“ã¾ã§ãƒ¡ãƒ¢ãƒªãƒ¼ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 
-//‚±‚±‚©‚çƒ_ƒ“ƒvÝ’è
+//ã“ã“ã‹ã‚‰ãƒ€ãƒ³ãƒ—è¨­å®š
 static NEZ_PLAY *pNezPlayDump;
 Uint32 (*dump_MEM_PCE)(Uint32 a,unsigned char* mem);
 static Uint32 dump_MEM_PCE_bf(Uint32 menu,unsigned char* mem){
@@ -548,21 +552,21 @@ static void reset(NEZ_PLAY *pNezPlay)
 
 	THIS_->cpsrem = THIS_->cpsgap = THIS_->total_cycles = 0;
 
-	//‚±‚±‚©‚çƒƒ‚ƒŠ[ƒrƒ…ƒA[Ý’è
+	//ã“ã“ã‹ã‚‰ãƒ¡ãƒ¢ãƒªãƒ¼ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 	memview_context = THIS_;
 	MEM_MAX=0xffff;
 	MEM_IO =0x0000;
 	MEM_RAM=0x2000;
 	MEM_ROM=0x4000;
 	memview_memread = memview_memread_hes;
-	//‚±‚±‚Ü‚Åƒƒ‚ƒŠ[ƒrƒ…ƒA[Ý’è
+	//ã“ã“ã¾ã§ãƒ¡ãƒ¢ãƒªãƒ¼ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 
-	//‚±‚±‚©‚çƒ_ƒ“ƒvÝ’è
+	//ã“ã“ã‹ã‚‰ãƒ€ãƒ³ãƒ—è¨­å®š
 	pNezPlayDump = pNezPlay;
 	dump_MEM_PCE     = dump_MEM_PCE_bf;
 	dump_DEV_HUC6230 = dump_DEV_HUC6230_bf;
 	dump_DEV_ADPCM   = dump_DEV_ADPCM_bf;
-	//‚±‚±‚Ü‚Åƒ_ƒ“ƒvÝ’è
+	//ã“ã“ã¾ã§ãƒ€ãƒ³ãƒ—è¨­å®š
 
 }
 
@@ -570,11 +574,11 @@ static void terminate(HESHES *THIS_)
 {
 	Uint32 i;
 
-	//‚±‚±‚©‚çƒ_ƒ“ƒvÝ’è
+	//ã“ã“ã‹ã‚‰ãƒ€ãƒ³ãƒ—è¨­å®š
 	dump_MEM_PCE     = NULL;
 	dump_DEV_HUC6230 = NULL;
 	dump_DEV_ADPCM   = NULL;
-	//‚±‚±‚Ü‚Åƒ_ƒ“ƒvÝ’è
+	//ã“ã“ã¾ã§ãƒ€ãƒ³ãƒ—è¨­å®š
 
 	if (THIS_->hessnd) THIS_->hessnd->release(THIS_->hessnd->ctx);
 	if (THIS_->hespcm) THIS_->hespcm->release(THIS_->hespcm->ctx);
@@ -726,9 +730,9 @@ static Int32 __fastcall HESSoundRenderMono(void *pNezPlay)
 }
 
 const static NES_AUDIO_HANDLER heshes_audio_handler[] = {
-	{ 0, ExecuteHES, 0, },
-	{ 3, HESSoundRenderMono, HESSoundRenderStereo },
-	{ 0, 0, 0, },
+	{ 0, ExecuteHES, 0, NULL },
+	{ 3, HESSoundRenderMono, HESSoundRenderStereo, NULL },
+	{ 0, 0, 0, NULL },
 };
 
 static void __fastcall HESHESVolume(void *pNezPlay, Uint32 v)
@@ -740,8 +744,8 @@ static void __fastcall HESHESVolume(void *pNezPlay, Uint32 v)
 }
 
 const static NES_VOLUME_HANDLER heshes_volume_handler[] = {
-	{ HESHESVolume, }, 
-	{ 0, }, 
+	{ HESHESVolume, NULL }, 
+	{ 0, NULL }, 
 };
 
 static void __fastcall HESHESReset(void *pNezPlay)
@@ -750,8 +754,8 @@ static void __fastcall HESHESReset(void *pNezPlay)
 }
 
 const static NES_RESET_HANDLER heshes_reset_handler[] = {
-	{ NES_RESET_SYS_LAST, HESHESReset, },
-	{ 0,                  0, },
+	{ NES_RESET_SYS_LAST, HESHESReset, NULL },
+	{ 0,                  0, NULL },
 };
 
 static void __fastcall HESHESTerminate(void *pNezPlay)
@@ -764,15 +768,15 @@ static void __fastcall HESHESTerminate(void *pNezPlay)
 }
 
 const static NES_TERMINATE_HANDLER heshes_terminate_handler[] = {
-	{ HESHESTerminate, },
-	{ 0, },
+	{ HESHESTerminate, NULL },
+	{ 0, NULL },
 };
 
 Uint32 HESLoad(NEZ_PLAY *pNezPlay, Uint8 *pData, Uint32 uSize)
 {
 	Uint32 ret;
 	HESHES *THIS_;
-	if (pNezPlay->heshes) *((char *)(0)) = 0;	/* ASSERT */
+	if (pNezPlay->heshes) __builtin_trap();	/* ASSERT */
 	THIS_ = (HESHES *)XMALLOC(sizeof(HESHES));
 	if (!THIS_) return NESERR_SHORTOFMEMORY;
 	ret = load(pNezPlay, THIS_, pData, uSize);

@@ -1,7 +1,7 @@
 #ifndef S_VRC7_H__
 #define S_VRC7_H__
 
-#include "../nestypes.h"
+#include "../../nestypes.h"
 #include "../kmsnddev.h"
 
 #ifdef __cplusplus

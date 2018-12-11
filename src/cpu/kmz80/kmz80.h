@@ -49,53 +49,53 @@ struct KMZ80_CONTEXT_TAG {
 	Uint8 regs8[REGID_REGS8SIZE];
 	Uint32 sp;
 	Uint32 pc;
-	/* — ƒŒƒWƒXƒ^ */
+	/* è£ãƒ¬ã‚¸ã‚¹ã‚¿ */
 	Uint32 saf;
 	Uint32 sbc;
 	Uint32 sde;
 	Uint32 shl;
-	/* ƒeƒ“ƒ|ƒ‰ƒŠƒtƒ‰ƒOƒŒƒWƒXƒ^(ˆÃ–Ù‚ÌƒLƒƒƒŠ[ƒtƒ‰ƒO) */
+	/* ãƒ†ãƒ³ãƒãƒ©ãƒªãƒ•ãƒ©ã‚°ãƒ¬ã‚¸ã‚¹ã‚¿(æš—é»™ã®ã‚­ãƒ£ãƒªãƒ¼ãƒ•ãƒ©ã‚°) */
 	Uint32 t_fl;
-	/* ƒeƒ“ƒ|ƒ‰ƒŠƒf[ƒ^[ƒŒƒWƒXƒ^(ˆÃ–Ù‚Ì35ƒtƒ‰ƒO) */
+	/* ãƒ†ãƒ³ãƒãƒ©ãƒªãƒ‡ãƒ¼ã‚¿ãƒ¼ãƒ¬ã‚¸ã‚¹ã‚¿(æš—é»™ã®35ãƒ•ãƒ©ã‚°) */
 	Uint32 t_dx;
-	/* ‚±‚±‚Ü‚Å‚Í•Û‘¶‚·‚é‚×‚« */
-	/* ƒeƒ“ƒ|ƒ‰ƒŠƒvƒƒOƒ‰ƒ€ƒJƒEƒ“ƒ^ */
+	/* ã“ã“ã¾ã§ã¯ä¿å­˜ã™ã‚‹ã¹ã */
+	/* ãƒ†ãƒ³ãƒãƒ©ãƒªãƒ—ãƒ­ã‚°ãƒ©ãƒ ã‚«ã‚¦ãƒ³ã‚¿ */
 	Uint32 t_pc;
-	/* ƒeƒ“ƒ|ƒ‰ƒŠƒIƒyƒ‰ƒ“ƒhƒŒƒWƒXƒ^ */
+	/* ãƒ†ãƒ³ãƒãƒ©ãƒªã‚ªãƒšãƒ©ãƒ³ãƒ‰ãƒ¬ã‚¸ã‚¹ã‚¿ */
 	Uint32 t_op;
-	/* ƒeƒ“ƒ|ƒ‰ƒŠƒAƒhƒŒƒXƒŒƒWƒXƒ^ */
+	/* ãƒ†ãƒ³ãƒãƒ©ãƒªã‚¢ãƒ‰ãƒ¬ã‚¹ãƒ¬ã‚¸ã‚¹ã‚¿ */
 	Uint32 t_ad;
-	/* ƒTƒCƒNƒ‹ƒJƒEƒ“ƒ^ */
+	/* ã‚µã‚¤ã‚¯ãƒ«ã‚«ã‚¦ãƒ³ã‚¿ */
 	Uint32 cycle;
-	/* ƒIƒyƒR[ƒhƒe[ƒuƒ‹ */
+	/* ã‚ªãƒšã‚³ãƒ¼ãƒ‰ãƒ†ãƒ¼ãƒ–ãƒ« */
 	void *opt;
-	/* ƒIƒyƒR[ƒhCBƒe[ƒuƒ‹ */
+	/* ã‚ªãƒšã‚³ãƒ¼ãƒ‰CBãƒ†ãƒ¼ãƒ–ãƒ« */
 	void *optcb;
-	/* ƒIƒyƒR[ƒhEDƒe[ƒuƒ‹ */
+	/* ã‚ªãƒšã‚³ãƒ¼ãƒ‰EDãƒ†ãƒ¼ãƒ–ãƒ« */
 	void *opted;
-	/* ’Ç‰ÁƒTƒCƒNƒ‹ƒe[ƒuƒ‹ */
+	/* è¿½åŠ ã‚µã‚¤ã‚¯ãƒ«ãƒ†ãƒ¼ãƒ–ãƒ« */
 	void *cyt;
-	/* R800ƒƒ‚ƒŠ[ƒy[ƒW(ƒy[ƒWƒuƒŒƒCƒN‚ÌŠm”F—p) */
+	/* R800ãƒ¡ãƒ¢ãƒªãƒ¼ãƒšãƒ¼ã‚¸(ãƒšãƒ¼ã‚¸ãƒ–ãƒ¬ã‚¤ã‚¯ã®ç¢ºèªç”¨) */
 	Uint32 mempage;
-	/* “ÁŽê—p“rŠ„‚èž‚ÝƒxƒNƒ^ */
+	/* ç‰¹æ®Šç”¨é€”å‰²ã‚Šè¾¼ã¿ãƒ™ã‚¯ã‚¿ */
 	Uint32 vector[5];
-	/* RST”ò‚ÑæŠî–{ƒAƒhƒŒƒX */
+	/* RSTé£›ã³å…ˆåŸºæœ¬ã‚¢ãƒ‰ãƒ¬ã‚¹ */
 	Uint32 rstbase;
 	//---+ [changes_rough.txt]
 	Uint32 playbase;
 	Uint32 playflag;
 	//---+
-	/* ’Ç‰Áƒtƒ‰ƒO */
-	/*   bit0: ˆÃ–Ù‚ÌƒLƒƒƒŠ[—LŒø */
-	/*   bit1: Š„‚èž‚Ý—v‹Ž©“®ƒNƒŠƒA */
+	/* è¿½åŠ ãƒ•ãƒ©ã‚° */
+	/*   bit0: æš—é»™ã®ã‚­ãƒ£ãƒªãƒ¼æœ‰åŠ¹ */
+	/*   bit1: å‰²ã‚Šè¾¼ã¿è¦æ±‚è‡ªå‹•ã‚¯ãƒªã‚¢ */
 	Uint32 exflag;
-	/* “à•”’è‹`ƒR[ƒ‹ƒoƒbƒN */
+	/* å†…éƒ¨å®šç¾©ã‚³ãƒ¼ãƒ«ãƒãƒƒã‚¯ */
 	Uint32 (*sysmemfetch)(KMZ80_CONTEXT *context);
 	Uint32 (*sysmemread)(KMZ80_CONTEXT *context, Uint32 a);
 	void (*sysmemwrite)(KMZ80_CONTEXT *context, Uint32 a, Uint32 d);
-	/* ƒ†[ƒU[ƒf[ƒ^[ƒ|ƒCƒ“ƒ^ */
+	/* ãƒ¦ãƒ¼ã‚¶ãƒ¼ãƒ‡ãƒ¼ã‚¿ãƒ¼ãƒã‚¤ãƒ³ã‚¿ */
 	void *user;
-	/* ƒ†[ƒU[’è‹`ƒR[ƒ‹ƒoƒbƒN */
+	/* ãƒ¦ãƒ¼ã‚¶ãƒ¼å®šç¾©ã‚³ãƒ¼ãƒ«ãƒãƒƒã‚¯ */
 	Uint32 (*memread)(void *u, Uint32 a);
 	void (*memwrite)(void *u, Uint32 a, Uint32 d);
 	Uint32 (*ioread)(void *u, Uint32 a);
@@ -104,7 +104,7 @@ struct KMZ80_CONTEXT_TAG {
 	Uint32 (*checkbreak)(void *u, KMZ80_CONTEXT *context, void *obj);
 	Uint32 (*patchedfe)(void *u, KMZ80_CONTEXT *context);
 	void *object;
-	/* ƒ†[ƒU[’è‹`ƒCƒxƒ“ƒgƒ^ƒCƒ} */
+	/* ãƒ¦ãƒ¼ã‚¶ãƒ¼å®šç¾©ã‚¤ãƒ™ãƒ³ãƒˆã‚¿ã‚¤ãƒž */
 	KMEVENT *kmevent;
 };
 

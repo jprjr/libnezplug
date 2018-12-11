@@ -1,7 +1,7 @@
 #ifndef AUDIOHANDLER_H__
 #define AUDIOHANDLER_H__
 
-#include "nestypes.h"
+#include "../nestypes.h"
 
 #ifdef __cplusplus
 extern "C" {

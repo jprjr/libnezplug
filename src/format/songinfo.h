@@ -1,7 +1,7 @@
 #ifndef SONGINFO_H__
 #define SONGINFO_H__
 
-#include "nestypes.h"
+#include "../nestypes.h"
 
 #ifdef __cplusplus
 extern "C" {

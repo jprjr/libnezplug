@@ -309,7 +309,7 @@ const static Uint8 kmdmg_ot_cbxx[0x20] = {
 };
 
 const static Uint8 kmdmg_ct[0x510] = {
-/* DMG ’Ç‰ÁƒNƒƒbƒN */
+/* DMG è¿½åŠ ã‚¯ãƒ­ãƒƒã‚¯ */
 /* XX		0 1 2 3 4 5 6 7  8 9 A B C D E F */
 /* 0 */		0,0,0,4,0,0,0,0, 0,4,0,4,0,0,0,0,
 /* 1 */	   28,0,0,4,0,0,0,0, 4,4,0,4,0,0,0,0,
@@ -401,21 +401,21 @@ const static Uint8 kmdmg_ct[0x510] = {
 /* F */		0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
 
 	0,	/* 0x500 DJNZ */
-	0,	/* 0x501  •s¬—§ */
+	0,	/* 0x501  ä¸æˆç«‹ */
 	1,	/* 0x502 CALL cc */
-	0,	/* 0x503  •s¬—§ */
+	0,	/* 0x503  ä¸æˆç«‹ */
 	1,	/* 0x504 JR cc */
-	0,	/* 0x505  •s¬—§ */
+	0,	/* 0x505  ä¸æˆç«‹ */
 	1,	/* 0x506 JP cc */
-	0,	/* 0x507  •s¬—§ */
+	0,	/* 0x507  ä¸æˆç«‹ */
 	0,	/* 0x508 RET cc */
-	0,	/* 0x509  •s¬—§ */
+	0,	/* 0x509  ä¸æˆç«‹ */
 	0,	/* 0x50A CPDR CPIR INDR INIR LDDR LDIR ODIR OTIR */
-	0,	/* 0x50B  •s¬—§ */
+	0,	/* 0x50B  ä¸æˆç«‹ */
 	0,	/* 0x50C */
-	0,	/* 0x50D  •s¬—§ */
+	0,	/* 0x50D  ä¸æˆç«‹ */
 	0,	/* 0x50E OTIMR OTDMR */
-	0,	/* 0x50F  •s¬—§ */
+	0,	/* 0x50F  ä¸æˆç«‹ */
 };
 
 static Uint32 kmdmg_memread(KMZ80_CONTEXT *context, Uint32 a)
@@ -433,18 +433,18 @@ static void kmdmg_memwrite(KMZ80_CONTEXT *context, Uint32 a, Uint32 d)
 
 extern void kmz80_reset_common(KMZ80_CONTEXT *context);
 
-//‚±‚±‚©‚çƒƒ‚ƒŠ[ƒrƒ…ƒA[İ’è
+//ã“ã“ã‹ã‚‰ãƒ¡ãƒ¢ãƒªãƒ¼ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 Uint32 (*memview_memread)(Uint32 a);
 KMZ80_CONTEXT* memview_context;
 int MEM_MAX,MEM_IO,MEM_RAM,MEM_ROM;
 Uint32 memview_memread_(Uint32 a){
-//	ƒ}ƒ‹ƒ`ƒRƒACPU‚¾‚ÆAƒƒ‚ƒŠƒrƒ…ƒA[ƒŠƒ[ƒh‚Å~‚Ü‚é‚±‚Æ‚ª‚ ‚Á‚½‚Ì‚ÅC³
+//	ãƒãƒ«ãƒã‚³ã‚¢CPUã ã¨ã€ãƒ¡ãƒ¢ãƒªãƒ“ãƒ¥ã‚¢ãƒ¼ãƒªãƒ­ãƒ¼ãƒ‰ã§æ­¢ã¾ã‚‹ã“ã¨ãŒã‚ã£ãŸã®ã§ä¿®æ­£
 //	return kmdmg_memread(memview_context,a);
 	
 	return memview_context->memread(memview_context->user, a);
 
 }
-//‚±‚±‚Ü‚Åƒƒ‚ƒŠ[ƒrƒ…ƒA[İ’è
+//ã“ã“ã¾ã§ãƒ¡ãƒ¢ãƒªãƒ¼ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 
 void kmdmg_reset(KMZ80_CONTEXT *context) {
 	kmz80_reset_common(context);
@@ -453,20 +453,20 @@ void kmdmg_reset(KMZ80_CONTEXT *context) {
 	M1CYCLE = 0;
 	MEMCYCLE = 4;
 	IOCYCLE = 4;
-	OPT = kmdmg_ot_xx;
-	OPTCB = kmdmg_ot_cbxx;
-	OPTED = 0;
-	CYT = kmdmg_ct;
+	context->opt = (OPT_ITEM *)kmdmg_ot_xx;
+	context->optcb = (Uint8 *)kmdmg_ot_cbxx;
+    context->opted = (OPT_ITEM *)0;
+    context->cyt = (Uint8 *)kmdmg_ct;
 	SYSMEMREAD = kmdmg_memread;
 	SYSMEMWRITE = kmdmg_memwrite;
 
-	//‚±‚±‚©‚çƒƒ‚ƒŠ[ƒrƒ…ƒA[İ’è
+	//ã“ã“ã‹ã‚‰ãƒ¡ãƒ¢ãƒªãƒ¼ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 	memview_context = context;
 	MEM_MAX=0xffff;
 	MEM_IO =0xff00;
 	MEM_RAM=0xc000;
 	MEM_ROM=0x0000;
 	memview_memread = memview_memread_;
-	//‚±‚±‚Ü‚Åƒƒ‚ƒŠ[ƒrƒ…ƒA[İ’è
+	//ã“ã“ã¾ã§ãƒ¡ãƒ¢ãƒªãƒ¼ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 }
 

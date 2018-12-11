@@ -4,7 +4,7 @@
 #include "../../format/handler.h"
 #include "../../format/nsf6502.h"
 #include "logtable.h"
-#include "m_nsf.h"
+#include "../../format/m_nsf.h"
 #include "s_fme7.h"
 #include "../s_psg.h"
 
@@ -27,19 +27,9 @@ static Int32 __fastcall PSGSoundRender(void* pNezPlay)
 	return b[0]*FME7_VOL;
 }
 
-static void __fastcall PSGSoundRender2(void* pNezPlay, Int32 *d)
-{
-	PSGSOUND *psgs = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->psgs;
-	Int32 b[2] = {0, 0};
-	psgs->psgp->synth(psgs->psgp->ctx, b);
-	d[0] += b[0]*FME7_VOL;
-	d[1] += b[0]*FME7_VOL;
-}
-
 const static NES_AUDIO_HANDLER s_psg_audio_handler[] = {
-	{ 1, PSGSoundRender}, 
-//	{ 3, PSGSoundRender, PSGSoundRender2, }, 
-	{ 0, 0, 0, }, 
+	{ 1, PSGSoundRender, NULL, NULL }, 
+	{ 0, 0, 0, NULL }, 
 };
 
 static void __fastcall PSGSoundVolume(void* pNezPlay, Uint volume)
@@ -49,33 +39,29 @@ static void __fastcall PSGSoundVolume(void* pNezPlay, Uint volume)
 }
 
 const static NES_VOLUME_HANDLER s_psg_volume_handler[] = {
-	{ PSGSoundVolume, }, 
-	{ 0, }, 
+	{ PSGSoundVolume, NULL }, 
+	{ 0, NULL }, 
 };
-
-static Uint __fastcall PSGSoundReadData(void *pNezPlay, Uint address)
-{
-	PSGSOUND *psgs = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->psgs;
-	return psgs->psgp->read(psgs->psgp->ctx, 0);
-}
 
 static void __fastcall PSGSoundWrireAddr(void *pNezPlay, Uint address, Uint value)
 {
+    (void)address;
 	PSGSOUND *psgs = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->psgs;
 	psgs->adr = (Uint8)value;
 	psgs->psgp->write(psgs->psgp->ctx, 0, value);
 }
 static void __fastcall PSGSoundWrireData(void *pNezPlay, Uint address, Uint value)
 {
+    (void)address;
 	PSGSOUND *psgs = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->psgs;
 	psgs->psgp->write(psgs->psgp->ctx, 1, value);
 }
 
 static NES_WRITE_HANDLER s_fme7_write_handler[] =
 {
-	{ 0xC000, 0xC000, PSGSoundWrireAddr, },
-	{ 0xE000, 0xE000, PSGSoundWrireData, },
-	{ 0,      0,      0, },
+	{ 0xC000, 0xC000, PSGSoundWrireAddr, NULL },
+	{ 0xE000, 0xE000, PSGSoundWrireData, NULL },
+	{ 0,      0,      0, NULL },
 };
 
 static void __fastcall FME7SoundReset(void* pNezPlay)
@@ -85,8 +71,8 @@ static void __fastcall FME7SoundReset(void* pNezPlay)
 }
 
 const static NES_RESET_HANDLER s_fme7_reset_handler[] = {
-	{ NES_RESET_SYS_NOMAL, FME7SoundReset, }, 
-	{ 0,                   0, }, 
+	{ NES_RESET_SYS_NOMAL, FME7SoundReset, NULL }, 
+	{ 0,                   0, NULL }, 
 };
 
 static void __fastcall PSGSoundTerm(void* pNezPlay)
@@ -101,8 +87,8 @@ static void __fastcall PSGSoundTerm(void* pNezPlay)
 }
 
 const static NES_TERMINATE_HANDLER s_psg_terminate_handler[] = {
-	{ PSGSoundTerm, }, 
-	{ 0, }, 
+	{ PSGSoundTerm, NULL }, 
+	{ 0, NULL }, 
 };
 
 void FME7SoundInstall(NEZ_PLAY* pNezPlay)
@@ -113,7 +99,7 @@ void FME7SoundInstall(NEZ_PLAY* pNezPlay)
 	XMEMSET(psgs, 0, sizeof(PSGSOUND));
 	((NSFNSF*)pNezPlay->nsf)->psgs = psgs;
 
-	psgs->psgp = PSGSoundAlloc(PSG_TYPE_YM2149); //ƒGƒ“ƒxƒ[ƒv31’iŠK‚ ‚Á‚½‚ñ‚ÅYM2149Œn‚Å‚µ‚å‚¤B
+	psgs->psgp = PSGSoundAlloc(PSG_TYPE_YM2149); //ã‚¨ãƒ³ãƒ™ãƒ­ãƒ¼ãƒ—31æ®µéšŽã‚ã£ãŸã‚“ã§YM2149ç³»ã§ã—ã‚‡ã†ã€‚
 	if (!psgs->psgp) return;
 
 	LogTableInitialize();

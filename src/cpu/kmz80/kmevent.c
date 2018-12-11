@@ -48,7 +48,7 @@ KMEVENT_ITEM_ID kmevent_alloc(KMEVENT *kme)
 	return 0;
 }
 
-/* ƒŠƒXƒg‚©‚çŽæ‚èŠO‚· */
+/* ãƒªã‚¹ãƒˆã‹ã‚‰å–ã‚Šå¤–ã™ */
 static void kmevent_itemunlist(KMEVENT *kme, KMEVENT_ITEM_ID curid)
 {
 	KMEVENT_ITEM *cur, *next, *prev;
@@ -59,7 +59,7 @@ static void kmevent_itemunlist(KMEVENT *kme, KMEVENT_ITEM_ID curid)
 	prev->next = cur->next;
 }
 
-/* ƒŠƒXƒg‚ÌŽw’èˆÊ’u(baseid)‚Ì’¼‘O‚É‘}“ü */
+/* ãƒªã‚¹ãƒˆã®æŒ‡å®šä½ç½®(baseid)ã®ç›´å‰ã«æŒ¿å…¥ */
 static void kmevent_itemlist(KMEVENT *kme, KMEVENT_ITEM_ID curid, KMEVENT_ITEM_ID baseid)
 {
 	KMEVENT_ITEM *cur, *next, *prev;
@@ -72,7 +72,7 @@ static void kmevent_itemlist(KMEVENT *kme, KMEVENT_ITEM_ID curid, KMEVENT_ITEM_I
 	next->prev = curid;
 }
 
-/* ƒ\[ƒgÏƒŠƒXƒg‚É‘}“ü */
+/* ã‚½ãƒ¼ãƒˆæ¸ˆãƒªã‚¹ãƒˆã«æŒ¿å…¥ */
 static void kmevent_iteminsert(KMEVENT *kme, KMEVENT_ITEM_ID curid)
 {
 	KMEVENT_ITEM_ID baseid;
@@ -94,9 +94,9 @@ void kmevent_free(KMEVENT *kme, KMEVENT_ITEM_ID curid)
 
 void kmevent_settimer(KMEVENT *kme, KMEVENT_ITEM_ID curid, Uint32 time)
 {
-	kmevent_itemunlist(kme, curid);	/* Žæ‚èŠO‚µ */
+	kmevent_itemunlist(kme, curid);	/* å–ã‚Šå¤–ã— */
 	kme->item[curid].count = time ? kme->item[0].count + time : 0;
-	if (kme->item[curid].count) kmevent_iteminsert(kme, curid);	/* ƒ\[ƒg */
+	if (kme->item[curid].count) kmevent_iteminsert(kme, curid);	/* ã‚½ãƒ¼ãƒˆ */
 }
 
 Uint32 kmevent_gettimer(KMEVENT *kme, KMEVENT_ITEM_ID curid, Uint32 *time)
@@ -115,7 +115,7 @@ void kmevent_setevent(KMEVENT *kme, KMEVENT_ITEM_ID curid, void (*proc)(), void 
 	kme->item[curid].user = user;
 }
 
-/* Žw’èƒTƒCƒNƒ‹•ªŽÀs */
+/* æŒ‡å®šã‚µã‚¤ã‚¯ãƒ«åˆ†å®Ÿè¡Œ */
 void kmevent_process(KMEVENT *kme, Uint32 cycles)
 {
 	KMEVENT_ITEM_ID id;
@@ -123,38 +123,38 @@ void kmevent_process(KMEVENT *kme, Uint32 cycles)
 	kme->item[0].count += cycles;
 	if (kme->item[0].next == 0)
 	{
-		/* ƒŠƒXƒg‚ª‹ó‚È‚çI‚í‚è */
+		/* ãƒªã‚¹ãƒˆãŒç©ºãªã‚‰çµ‚ã‚ã‚Š */
 		kme->item[0].count = 0;
 		return;
 	}
 	nextcount = kme->item[kme->item[0].next].count;
 	while (nextcount && kme->item[0].count >= nextcount)
 	{
-		/* ƒCƒxƒ“ƒg”­¶Ïƒtƒ‰ƒO‚ÌƒŠƒZƒbƒg */
+		/* ã‚¤ãƒ™ãƒ³ãƒˆç™ºç”Ÿæ¸ˆãƒ•ãƒ©ã‚°ã®ãƒªã‚»ãƒƒãƒˆ */
 		for (id = kme->item[0].next; id; id = kme->item[id].next)
 		{
 			kme->item[id].sysflag &= ~(KMEVENT_FLAG_BREAKED + KMEVENT_FLAG_DISPATCHED);
 		}
-		/* nextcount•ªis */
+		/* nextcountåˆ†é€²è¡Œ */
 		kme->item[0].count -= nextcount;
 		for (id = kme->item[0].next; id; id = kme->item[id].next)
 		{
 			if (!kme->item[id].count) continue;
 			kme->item[id].count -= nextcount;
 			if (kme->item[id].count) continue;
-			/* ƒCƒxƒ“ƒg”­¶ƒtƒ‰ƒO‚ÌƒZƒbƒg */
+			/* ã‚¤ãƒ™ãƒ³ãƒˆç™ºç”Ÿãƒ•ãƒ©ã‚°ã®ã‚»ãƒƒãƒˆ */
 			kme->item[id].sysflag |= KMEVENT_FLAG_BREAKED;
 		}
 		for (id = kme->item[0].next; id; id = kme->item[id].next)
 		{
-			/* ƒCƒxƒ“ƒg”­¶Ïƒtƒ‰ƒO‚ÌŠm”F */
+			/* ã‚¤ãƒ™ãƒ³ãƒˆç™ºç”Ÿæ¸ˆãƒ•ãƒ©ã‚°ã®ç¢ºèª */
 			if (kme->item[id].sysflag & KMEVENT_FLAG_DISPATCHED) continue;
 			kme->item[id].sysflag |= KMEVENT_FLAG_DISPATCHED;
-			/* ƒCƒxƒ“ƒg”­¶ƒtƒ‰ƒO‚ÌŠm”F */
+			/* ã‚¤ãƒ™ãƒ³ãƒˆç™ºç”Ÿãƒ•ãƒ©ã‚°ã®ç¢ºèª */
 			if (!(kme->item[id].sysflag & KMEVENT_FLAG_BREAKED)) continue;
-			/* ‘ÎÛƒCƒxƒ“ƒg‹N“® */
+			/* å¯¾è±¡ã‚¤ãƒ™ãƒ³ãƒˆèµ·å‹• */
 			kme->item[id].proc(kme, id, kme->item[id].user);
-			/* æ“ª‚©‚çÄ‘–¸ */
+			/* å…ˆé ­ã‹ã‚‰å†èµ°æŸ» */
 			id = 0;
 		}
 		nextcount = kme->item[kme->item[0].next].count;

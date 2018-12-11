@@ -166,18 +166,17 @@ const static Int8 *(env_table[16]) =
 const static Uint32 voltbl[2][32] = {
 //0 : PSG_TYPE_AY_3_8910 : PSG
 #define V(a) ((((a * 5 * (1 << (LOG_BITS - 1))) / 13)+((0 * (1 << (LOG_BITS - 1))) / 3)) << 1)
-	LOG_KEYOFF, V(0x1e), V(0x1d),V(0x1c),V(0x1b), V(0x1a), V(0x19), V(0x18),
+  { LOG_KEYOFF, V(0x1e), V(0x1d),V(0x1c),V(0x1b), V(0x1a), V(0x19), V(0x18),
 	   V(0x17), V(0x16), V(0x15),V(0x14),V(0x13), V(0x12), V(0x11), V(0x10),
 	   V(0x0f), V(0x0e), V(0x0d),V(0x0c),V(0x0b), V(0x0a), V(0x09), V(0x08),
-	   V(0x07), V(0x06), V(0x05),V(0x04),V(0x03), V(0x02), V(0x01), V(0x00),
-//1 : PSG_TYPE_YM2149 : SSG (YM2149‚È‚Ç‚ÌAYAMAHA‚ÌPSGŒİŠ·Œn)
+	   V(0x07), V(0x06), V(0x05),V(0x04),V(0x03), V(0x02), V(0x01), V(0x00) },
+//1 : PSG_TYPE_YM2149 : SSG (YM2149ãªã©ã®ã€YAMAHAã®PSGäº’æ›ç³»)
 #undef V
 #define V(a) (((a * (1 << (LOG_BITS - 1))) / 2) << 1)
-	LOG_KEYOFF, V(0x1e), V(0x1d),V(0x1c),V(0x1b), V(0x1a), V(0x19), V(0x18),
+  { LOG_KEYOFF, V(0x1e), V(0x1d),V(0x1c),V(0x1b), V(0x1a), V(0x19), V(0x18),
 	   V(0x17), V(0x16), V(0x15),V(0x14),V(0x13), V(0x12), V(0x11), V(0x10),
 	   V(0x0f), V(0x0e), V(0x0d),V(0x0c),V(0x0b), V(0x0a), V(0x09), V(0x08),
-	   V(0x07), V(0x06), V(0x05),V(0x04),V(0x03), V(0x02), V(0x01), V(0x00),
-
+	   V(0x07), V(0x06), V(0x05),V(0x04),V(0x03), V(0x02), V(0x01), V(0x00) },
 };
 #undef V
 
@@ -215,7 +214,7 @@ __inline static Int32 PSGSoundEnvelopeStep(PSGSOUND *sndp)
 	Uint32 spd;
 	spd = (sndp->envelope.regs[1] << 8) + sndp->envelope.regs[0];
 
-	if (!spd) spd = 1; // 0‚Ì‚Í1‚Æ“¯‚¶“®ì‚É‚È‚é 
+	if (!spd) spd = 1; // 0ã®æ™‚ã¯1ã¨åŒã˜å‹•ä½œã«ãªã‚‹ 
 
 	spd <<= CPS_ENVSHIFT;
 	sndp->envelope.cycles += sndp->envelope.cps;
@@ -239,7 +238,7 @@ __inline static Int32 PSGSoundEnvelopeStep(PSGSOUND *sndp)
 
 __inline static Uint32 PSGSoundSquareSub(PSGSOUND *sndp, PSG_SQUARE *chp)
 {
-	Int32 volume, bit = 1;
+	Int32 volume;
 	Uint32 spd;
 	Int32 outputbuf=0,count=0;
 
@@ -299,6 +298,7 @@ __inline static Uint32 PSGSoundSquareSub(PSGSOUND *sndp, PSG_SQUARE *chp)
 	case 3:
 		return (outputbuf / count) * sndp->common.rngout / 256;
 	}
+    return 0;
 }
 
 __inline static void MSXSoundDaStep(PSGSOUND *sndp)
@@ -427,6 +427,7 @@ __inline static void sndwritereg(PSGSOUND *sndp, Uint32 a, Uint32 v)
 static Uint32 sndread(void *ctx, Uint32 a)
 {
 	PSGSOUND *sndp = ctx;
+    (void)a;
 	return sndreadreg(sndp, sndp->common.adr);
 }
 
@@ -509,9 +510,15 @@ static void sndrelease(void *ctx)
 	}
 }
 
-static void setinst(void *ctx, Uint32 n, void *p, Uint32 l){}
+static void setinst(void *ctx, Uint32 n, void *p, Uint32 l)
+{
+    (void)ctx;
+    (void)n;
+    (void)p;
+    (void)l;
+}
 
-//‚±‚±‚©‚çƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+//ã“ã“ã‹ã‚‰ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 static PSGSOUND *sndpr;
 Uint32 (*ioview_ioread_DEV_AY8910)(Uint32 a);
 Uint32 (*ioview_ioread_DEV_MSX)(Uint32 a);
@@ -521,7 +528,7 @@ static Uint32 ioview_ioread_bf(Uint32 a){
 static Uint32 ioview_ioread_bf2(Uint32 a){
 	if(a==0x0)return sndpr->common.daenable;else return 0x100;
 }
-//‚±‚±‚Ü‚ÅƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+//ã“ã“ã¾ã§ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 
 KMIF_SOUND_DEVICE *PSGSoundAlloc(Uint32 psg_type)
 {
@@ -544,10 +551,10 @@ KMIF_SOUND_DEVICE *PSGSoundAlloc(Uint32 psg_type)
 		sndrelease(sndp);
 		return 0;
 	}
-	//‚±‚±‚©‚çƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+	//ã“ã“ã‹ã‚‰ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 	sndpr = sndp;
 	ioview_ioread_DEV_AY8910 = ioview_ioread_bf;
 	ioview_ioread_DEV_MSX = ioview_ioread_bf2;
-	//‚±‚±‚Ü‚ÅƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+	//ã“ã“ã¾ã§ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 	return &sndp->kmif;
 }

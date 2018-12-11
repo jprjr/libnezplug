@@ -67,6 +67,8 @@ __inline static Int32 SCCSoundChSynth(SCCSOUND *sndp, SCC_CH *ch)
 
 __inline static void SCCSoundChReset(SCC_CH *ch, Uint32 clock, Uint32 freq)
 {
+    (void)clock;
+    (void)freq;
 	XMEMSET(ch, 0, sizeof(SCC_CH));
 }
 
@@ -94,6 +96,8 @@ static void sndvolume(void *ctx, Int32 volume)
 
 static Uint32 sndread(void *ctx, Uint32 a)
 {
+    (void)ctx;
+    (void)a;
 	return 0;
 }
 
@@ -166,9 +170,15 @@ static void sndrelease(void *ctx)
 	}
 }
 
-static void setinst(void *ctx, Uint32 n, void *p, Uint32 l){}
+static void setinst(void *ctx, Uint32 n, void *p, Uint32 l)
+{
+    (void)ctx;
+    (void)n;
+    (void)p;
+    (void)l;
+}
 
-//‚±‚±‚©‚çƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+//ã“ã“ã‹ã‚‰ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 static SCCSOUND *sndpr;
 Uint32 (*ioview_ioread_DEV_SCC)(Uint32 a);
 static Uint32 ioview_ioread_bf(Uint32 a){
@@ -178,7 +188,7 @@ static Uint32 ioview_ioread_bf(Uint32 a){
 		return sndpr->regs[a&0xf];
 	return 0x100;
 }
-//‚±‚±‚Ü‚ÅƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+//ã“ã“ã¾ã§ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 
 KMIF_SOUND_DEVICE *SCCSoundAlloc(void)
 {
@@ -200,9 +210,9 @@ KMIF_SOUND_DEVICE *SCCSoundAlloc(void)
 		sndrelease(sndp);
 		return 0;
 	}
-	//‚±‚±‚©‚çƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+	//ã“ã“ã‹ã‚‰ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 	sndpr = sndp;
 	ioview_ioread_DEV_SCC = ioview_ioread_bf;
-	//‚±‚±‚Ü‚ÅƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+	//ã“ã“ã¾ã§ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 	return &sndp->kmif;
 }

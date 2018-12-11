@@ -50,7 +50,7 @@ static void sndsynth(void *ctx, Int32 *p)
 	Int32 pbf[2];
 	pbf[0]=0;pbf[1]=0;
 	
-	//‚±‚ÌŠù‚ÉA“à‘ ‰¹Œ¹‚ÌƒŒƒ“ƒ_ƒŠƒ“ƒO‚ªI—¹‚µ‚Ä‚¢‚éB
+	//ã“ã®æ™‚æ—¢ã«ã€å†…è”µéŸ³æºã®ãƒ¬ãƒ³ãƒ€ãƒªãƒ³ã‚°ãŒçµ‚äº†ã—ã¦ã„ã‚‹ã€‚
 	p[0]=p[0]*PCE_VOLUME;
 	p[1]=p[1]*PCE_VOLUME;
 
@@ -251,15 +251,21 @@ static void sndrelease(void *ctx)
 		XFREE(sndp);
 }
 
-static void setinst(void *ctx, Uint32 n, void *p, Uint32 l){}
+static void setinst(void *ctx, Uint32 n, void *p, Uint32 l)
+{
+    (void)ctx;
+    (void)n;
+    (void)p;
+    (void)l;
+}
 
-//‚±‚±‚©‚çƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+//ã“ã“ã‹ã‚‰ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 static Uint8 *regdata;
 extern Uint32 (*ioview_ioread_DEV_ADPCM)(Uint32 a);
 static Uint32 ioview_ioread_bf(Uint32 a){
 	if(a>=0x8 && a<=0x15)return regdata[a];else return 0x100;
 }
-//‚±‚±‚Ü‚ÅƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+//ã“ã“ã¾ã§ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 
 KMIF_SOUND_DEVICE *HESAdPcmAlloc(void)
 {
@@ -276,12 +282,12 @@ KMIF_SOUND_DEVICE *HESAdPcmAlloc(void)
 	sndp->kmif.read = sndread;
 	sndp->kmif.setinst = setinst;
 	
-	//‚±‚±‚©‚çƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+	//ã“ã“ã‹ã‚‰ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 	regdata = sndp->regs;
 	ioview_ioread_DEV_ADPCM = ioview_ioread_bf;
-	//‚±‚±‚Ü‚ÅƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+	//ã“ã“ã¾ã§ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 
-	//”­º•”•ª
+	//ç™ºå£°éƒ¨åˆ†
 	sndp->deltadev = YMDELTATPCMSoundAlloc(3,sndp->pcmbuf);
 	return &sndp->kmif;
 }

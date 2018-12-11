@@ -12,10 +12,9 @@
     YM2413 application manual
 */
 
-
-#include "kmsnddev.h"
-#include "divfix.h"
-#include "s_logtbl.h"
+#include "../kmsnddev.h"
+#include "../divfix.h"
+#include "../s_logtbl.h"
 #include "s_opltbl.h"
 #include "s_opl.h"
 #include "s_deltat.h"
@@ -42,7 +41,7 @@
 #define FM_FREQ 44100.0
 #define VOLUME_BITS 0
 
-//1‚É‚·‚é‚ÆAƒ[ƒpƒXƒtƒBƒ‹ƒ^‚ª‚©‚©‚é‚ªAd‚·‚¬‚Äg‚¢•¨‚É‚È‚è‚Ü‚Ö‚ñB
+//1ã«ã™ã‚‹ã¨ã€ãƒ­ãƒ¼ãƒ‘ã‚¹ãƒ•ã‚£ãƒ«ã‚¿ãŒã‹ã‹ã‚‹ãŒã€é‡ã™ãã¦ä½¿ã„ç‰©ã«ãªã‚Šã¾ã¸ã‚“ã€‚
 #define LOWPASS_FILTER 0
 
 
@@ -217,10 +216,10 @@ static Uint8 romtone[3][16 * 19] =
 #include "ill/i_fmpac.h"
 	},
 	{
-#include "ill/i_fmunit.h" // ©SMS‚ÌFM‰¹Œ¹‚ÍFM-PAC‚Æ“¯‚¶uYM2413v‚ğg‚Á‚Ä‚é‚Ì‚Å‚ ‚ñ‚Ü‚èˆÓ–¡‚ª–³‚¢
+#include "ill/i_fmunit.h" // â†SMSã®FMéŸ³æºã¯FM-PACã¨åŒã˜ã€ŒYM2413ã€ã‚’ä½¿ã£ã¦ã‚‹ã®ã§ã‚ã‚“ã¾ã‚Šæ„å‘³ãŒç„¡ã„
 	},
 	{
-#include "ill/i_vrc7.h" // ©VRC7‚Í–¾‚ç‚©‚É‰¹F‚ªˆá‚¤Bƒ‰ƒOƒ‰ƒ“ƒWƒ…ƒ|ƒCƒ“ƒg‚ğYM2413‚Å–Â‚ç‚µ‚½‚çAƒx[ƒX‰¹‚ªc”O‚È‰¹F‚É‚È‚Á‚½B
+#include "ill/i_vrc7.h" // â†VRC7ã¯æ˜ã‚‰ã‹ã«éŸ³è‰²ãŒé•ã†ã€‚ãƒ©ã‚°ãƒ©ãƒ³ã‚¸ãƒ¥ãƒã‚¤ãƒ³ãƒˆã‚’YM2413ã§é³´ã‚‰ã—ãŸã‚‰ã€ãƒ™ãƒ¼ã‚¹éŸ³ãŒæ®‹å¿µãªéŸ³è‰²ã«ãªã£ãŸã€‚
 	},
 };
 
@@ -233,23 +232,6 @@ static Uint8 romtone[3][16 * 19] =
 #endif
 
 const static Uint8 ksltable[4]={15,2,1,0};
-const static Uint8 hhouttable[8]={
-	0x34, //010
-	0x0d, //001
-	0x8d, //101
-	0xb4, //110
-	0x8d, //101
-	0xb4, //110
-	0x8d, //101
-	0xb4, //110
-};
-const static Uint8 rymouttable[4]={
-	      
-	0x40, //01
-	0xc0, //11
-	0xc0, //11
-	0xc0, //11
-};
 
 __inline static void SetOpOff(OPL_OP *opp)
 {
@@ -267,16 +249,6 @@ __inline static void SetOpOff(OPL_OP *opp)
 	x = (x + y) / 2;\
 }
 #endif
-
-__inline static Int32 CalcOutputBuffer(Int32 output, Int32 *outputbf){
-	Uint8 a;
-	Int64 buffer,c;
-	for(a=OUTPUT_BUFFER-1;a>0;a--) outputbf[a]=outputbf[a-1];
-	outputbf[0] = output;
-	buffer=0;c=0;
-	for(a=0;a<OUTPUT_BUFFER;a++)buffer+=outputbf[a];
-	return buffer/OUTPUT_BUFFER;
-}
 
 __inline static void EgStep(OPLSOUND *sndp, OPL_OP *opp)
 {
@@ -521,6 +493,7 @@ __inline static Int32 OpSynthCar(OPLSOUND *sndp, OPL_OP *opp)
 
 __inline static Int32 OpSynthTom(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 {
+    (void)opp2;
 	if (opp->enable)
 	{
 		Uint32 tll;
@@ -565,8 +538,8 @@ static Int32 __fastcall OpSynthRym(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 		tll = opp2->tll + (opp2->eg.phase / EG_SHIFT2);
 		tll = (tll >= (1 << TLLTBL_BITS)) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
 		tll += opp2->tl_ofs;
-		if( (((opp->pg.pgout >> (NOISE_SHIFT - 8)) & 1) 
-			^ ((opp->pg.pgout >> (NOISE_SHIFT - 1)) & 1) 
+		if( ( ( ((opp->pg.pgout >> (NOISE_SHIFT - 8)) & 1) 
+			^ ((opp->pg.pgout >> (NOISE_SHIFT - 1)) & 1) )
 			| ((opp->pg.pgout >> (NOISE_SHIFT - 7)) & 1)) 
 			^ ( ((opp2->pg.pgout >> (NOISE_SHIFT - 7)) & 1)
 			& !((opp2->pg.pgout >> (NOISE_SHIFT - 5)) & 1))
@@ -610,8 +583,8 @@ static Int32 __fastcall OpSynthHat(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 		tll = opp->tll + (opp->eg.phase / EG_SHIFT2);
 		tll = (tll >= (1 << TLLTBL_BITS)) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
 		tll += opp->tl_ofs;
-		if( (((opp->pg.pgout >> (NOISE_SHIFT - 8)) & 1) 
-			^ ((opp->pg.pgout >> (NOISE_SHIFT - 1)) & 1) 
+		if( (( ((opp->pg.pgout >> (NOISE_SHIFT - 8)) & 1) 
+			^ ((opp->pg.pgout >> (NOISE_SHIFT - 1)) & 1) )
 			| ((opp->pg.pgout >> (NOISE_SHIFT - 7)) & 1)) 
 			^ ( ((opp2->pg.pgout >> (NOISE_SHIFT - 7)) & 1)
 			& !((opp2->pg.pgout >> (NOISE_SHIFT - 5)) & 1))
@@ -632,7 +605,7 @@ static Int32 __fastcall OpSynthSnr(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 	if (opp2->enable)
 	{
 		Uint32 tll;
-		Int32 output=0,outval;
+		Int32 outval;
 
 		tll = opp2->tll + (opp2->eg.phase / EG_SHIFT2);
 		tll = (tll >= (1 << TLLTBL_BITS)-16) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
@@ -654,9 +627,10 @@ __inline static void LfoStep(OPL_LFO *lfop)
 	lfop->output = lfop->table[lfop->adr & lfop->adrmask];
 }
 
-static void sndsynth(OPLSOUND *sndp, Int32 *p)
+static void sndsynth(void *ctx, Int32 *p)
 {
-	long accum[2] = { 0, 0 };
+    OPLSOUND *sndp = (OPLSOUND *)ctx;
+	Int32 accum[2] = { 0, 0 };
 //	int i = 0 ,count;
 //	count = (FM_FREQ-sndp->freqp)/sndp->freq;
 //	if(count){
@@ -738,8 +712,9 @@ static void sndsynth(OPLSOUND *sndp, Int32 *p)
 	p[1] += sndp->output;
 }
 
-static void sndvolume(OPLSOUND *sndp, Int32 volume)
+static void sndvolume(void *ctx, Int32 volume)
 {
+    OPLSOUND *sndp = (OPLSOUND *)ctx;
 	if (sndp->deltatpcm) sndp->deltatpcm->volume(sndp->deltatpcm->ctx, volume);
 	volume = (volume << (LOG_BITS - 8)) << 1;
 	sndp->common.mastervolume = volume;
@@ -863,10 +838,8 @@ static void __fastcall OpUpdateEG(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp)
 
 static void __fastcall OpUpdateTLL(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp)
 {
-/*	if(!opp->type)
-		opp->tll = (opp->tl) << 1;
-	else
-*/		opp->tll = (opp->tl + ((chp->ksb>>1) >> ksltable[opp->ksl])) << 1;
+    (void)sndp;
+	opp->tll = (opp->tl + ((chp->ksb>>1) >> ksltable[opp->ksl])) << 1;
 }
 
 static void __fastcall oplsetopmul(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp, Uint32 v)
@@ -909,6 +882,7 @@ static void __fastcall oplsetopslrr(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp, Ui
 
 static void __fastcall oplsetopwf(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp, Uint32 v)
 {
+    (void)chp;
 	opp->wf = v & 0x3;
 	OpUpdateWF(sndp, opp);
 }
@@ -1019,6 +993,7 @@ static void __fastcall opllsetchfreqh(OPLSOUND *sndp, OPL_CH *chp, Uint32 v)
 
 static void __fastcall SetOpTone(OPLSOUND *sndp, OPL_OP *opp, Uint8 *tonep)
 {
+    (void)sndp;
 	opp->flag &= ~(FLAG_AME | FLAG_PME | FLAG_EGT | FLAG_KSR);
 #if TESTING_OPTIMIZE_AME
 	if (tonep[0] & 0x80) opp->amin = &sndp->lfo[LFO_UNIT_AM].output; else opp->amin = &sndp->common.amzero;
@@ -1264,8 +1239,9 @@ __inline static void oplwritereg(OPLSOUND *sndp, Uint32 a, Uint32 v)
 	}
 }
 
-static void oplwrite(OPLSOUND *sndp, Uint32 a, Uint32 v)
+static void oplwrite(void *ctx, Uint32 a, Uint32 v)
 {
+    OPLSOUND *sndp = (OPLSOUND *)ctx;
 	if (a & 1)
 	{
 		sndp->regs[sndp->common.adr] = v;
@@ -1276,8 +1252,9 @@ static void oplwrite(OPLSOUND *sndp, Uint32 a, Uint32 v)
 		sndp->common.adr = v;
 }
 
-static Uint32 oplread(OPLSOUND *sndp, Uint32 a)
+static Uint32 oplread(void *ctx, Uint32 a)
 {
+    OPLSOUND *sndp = (OPLSOUND *)ctx;
 	if (a & 1)
 		return sndp->regs[sndp->common.adr];
 	else
@@ -1286,7 +1263,7 @@ static Uint32 oplread(OPLSOUND *sndp, Uint32 a)
 
 __inline static void opllwritereg(OPLSOUND *sndp, Uint32 a, Uint32 v)
 {
-	char b;
+	unsigned char b;
 	switch (a >> 3)
 	{
 		default:
@@ -1333,8 +1310,9 @@ __inline static void opllwritereg(OPLSOUND *sndp, Uint32 a, Uint32 v)
 	}
 }
 
-static void opllwrite(OPLSOUND *sndp, Uint32 a, Uint32 v)
+static void opllwrite(void *ctx, Uint32 a, Uint32 v)
 {
+    OPLSOUND *sndp = (OPLSOUND *)ctx;
 	if (a & 1)
 	{
 		if (sndp->common.adr < 0x40)
@@ -1348,13 +1326,16 @@ static void opllwrite(OPLSOUND *sndp, Uint32 a, Uint32 v)
 		sndp->common.adr = v;
 }
 
-static Uint32 opllread(OPLSOUND *sndp, Uint32 a)
+static Uint32 opllread(void *ctx, Uint32 a)
 {
+    (void)ctx;
+    (void)a;
 	return 0xFF;
 }
 
 static void __fastcall opreset(OPLSOUND *sndp, OPL_OP *opp)
 {
+    (void)sndp;
 	/* XMEMSET(opp, 0, sizeof(OPL_OP)); */
 	SetOpOff(opp);
 	opp->tl_ofs = 0x80 << (LOG_BITS - 4 + 1);
@@ -1365,6 +1346,8 @@ static void __fastcall opreset(OPLSOUND *sndp, OPL_OP *opp)
 
 static void __fastcall chreset(OPLSOUND *sndp, OPL_CH *chp, Uint32 clock, Uint32 freq)
 {
+    (void)clock;
+    (void)freq;
 	Uint32 op;
 	XMEMSET(chp, 0, sizeof(OPL_CH));
 	for (op = 0; op < 2; op++)
@@ -1374,8 +1357,9 @@ static void __fastcall chreset(OPLSOUND *sndp, OPL_CH *chp, Uint32 clock, Uint32
 	recovercon(sndp, chp);
 }
 
-static void sndreset(OPLSOUND *sndp, Uint32 clock, Uint32 freq)
+static void sndreset(void *ctx, Uint32 clock, Uint32 freq)
 {
+    OPLSOUND *sndp = (OPLSOUND *)ctx;
 	Uint32 i, cpse;
 #if LOWPASS_FILTER
 	Uint32 loop;
@@ -1464,8 +1448,9 @@ static void sndreset(OPLSOUND *sndp, Uint32 clock, Uint32 freq)
 
 }
 
-static void oplsetinst(OPLSOUND *sndp, Uint32 n, void *p, Uint32 l)
+static void oplsetinst(void *ctx, Uint32 n, void *p, Uint32 l)
 {
+    OPLSOUND *sndp = (OPLSOUND *)ctx;
 	if (sndp->deltatpcm) sndp->deltatpcm->setinst(sndp->deltatpcm->ctx, n, p, l);
 }
 
@@ -1475,8 +1460,11 @@ __inline static Uint32 GetDwordLE(Uint8 *p)
 }
 #define GetDwordLEM(p) (Uint32)((((Uint8 *)p)[0] | (((Uint8 *)p)[1] << 8) | (((Uint8 *)p)[2] << 16) | (((Uint8 *)p)[3] << 24)))
 
-static void opllsetinst(OPLSOUND *sndp, Uint32 n, Uint8 *p, Uint32 l)
+static void opllsetinst(void *ctx, Uint32 n, void *_p, Uint32 l)
 {
+    OPLSOUND *sndp = (OPLSOUND *)ctx;
+    Uint8 *p = (Uint8 *)_p;
+    (void)l;
 	Int32 i, j, sb = 9;
 	if (n) return;
 	if ((GetDwordLE(p) & 0xf0ffffff) == GetDwordLEM("ILL0"))
@@ -1501,8 +1489,9 @@ static void opllsetinst(OPLSOUND *sndp, Uint32 n, Uint8 *p, Uint32 l)
 	sndp->common.sintablemask -= (1 << (SINTBL_BITS - sb)) - 1;
 }
 
-static void sndrelease(OPLSOUND *sndp)
+static void sndrelease(void *ctx)
 {
+    OPLSOUND *sndp = (OPLSOUND *)ctx;
 	if (sndp) {
 		if (sndp->logtbl) sndp->logtbl->release(sndp->logtbl->ctx);
 		if (sndp->opltbl) sndp->opltbl->release(sndp->opltbl->ctx);
@@ -1511,7 +1500,7 @@ static void sndrelease(OPLSOUND *sndp)
 	}
 }
 
-//‚±‚±‚©‚çƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+//ã“ã“ã‹ã‚‰ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 static Uint8 *regdata;
 static Uint8 *regdata2;
 Uint32 (*ioview_ioread_DEV_OPL)(Uint32 a);
@@ -1522,7 +1511,7 @@ static Uint32 ioview_ioread_bf(Uint32 a){
 static Uint32 ioview_ioread_bf2(Uint32 a){
 	if(a<0x40)return regdata2[a];else return 0x100;
 }
-//‚±‚±‚Ü‚ÅƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+//ã“ã“ã¾ã§ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 
 KMIF_SOUND_DEVICE *OPLSoundAlloc(Uint32 opl_type)
 {
@@ -1563,7 +1552,7 @@ KMIF_SOUND_DEVICE *OPLSoundAlloc(Uint32 opl_type)
 			case OPL_TYPE_VRC7:
 				opllsetinst(sndp, 0, romtone[2], 16 * 19);//VRC7
 				break;
-		}												  //romtone[1]‚ğg‚¤•K—v‘S‘R‚È‚µ
+		}												  //romtone[1]ã‚’ä½¿ã†å¿…è¦å…¨ç„¶ãªã—
 	}
 	sndp->logtbl = LogTableAddRef();
 	sndp->opltbl = OplTableAddRef();
@@ -1572,7 +1561,7 @@ KMIF_SOUND_DEVICE *OPLSoundAlloc(Uint32 opl_type)
 		sndrelease(sndp);
 		return 0;
 	}
-	//‚±‚±‚©‚çƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+	//ã“ã“ã‹ã‚‰ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 	if (sndp->opl_type & OPL_TYPE_OPL){
 		regdata = sndp->oplregs;
 		ioview_ioread_DEV_OPL = ioview_ioread_bf;
@@ -1580,6 +1569,6 @@ KMIF_SOUND_DEVICE *OPLSoundAlloc(Uint32 opl_type)
 		regdata2 = sndp->opllregs;
 		ioview_ioread_DEV_OPLL = ioview_ioread_bf2;
 	}
-	//‚±‚±‚Ü‚ÅƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+	//ã“ã“ã¾ã§ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 	return &sndp->kmif;
 }

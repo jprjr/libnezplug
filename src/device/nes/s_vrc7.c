@@ -4,7 +4,7 @@
 #include "../../format/handler.h"
 #include "../../format/nsf6502.h"
 #include "logtable.h"
-#include "m_nsf.h"
+#include "../../format/m_nsf.h"
 #include "s_vrc7.h"
 
 #define MASTER_CLOCK        (3579545)
@@ -63,17 +63,9 @@ static Int32 __fastcall OPLLSoundRender(void* pNezPlay)
 	return b[0]*VRC7_VOL;
 }
 
-static void __fastcall OPLLSoundRender2(void* pNezPlay, Int32 *d)
-{
-	OPLLSOUND_INTF *sndp = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->sndp;
-	sndp->kmif->synth(sndp->kmif->ctx, d);
-}
-
-
 const static NES_AUDIO_HANDLER s_opll_audio_handler[] = {
-	{ 1, OPLLSoundRender}, 
-//	{ 3, OPLLSoundRender, OPLLSoundRender2, }, 
-	{ 0, 0, 0, }, 
+	{ 1, OPLLSoundRender, NULL, NULL }, 
+	{ 0, 0, 0, NULL }, 
 };
 
 static void __fastcall OPLLSoundVolume(void* pNezPlay, Uint32 volume)
@@ -83,8 +75,8 @@ static void __fastcall OPLLSoundVolume(void* pNezPlay, Uint32 volume)
 }
 
 const static NES_VOLUME_HANDLER s_opll_volume_handler[] = {
-	{ OPLLSoundVolume, },
-	{ 0, }, 
+	{ OPLLSoundVolume, NULL },
+	{ 0, NULL }, 
 };
 
 static void __fastcall VRC7SoundReset(void* pNezPlay)
@@ -95,8 +87,8 @@ static void __fastcall VRC7SoundReset(void* pNezPlay)
 }
 
 const static NES_RESET_HANDLER s_vrc7_reset_handler[] = {
-	{ NES_RESET_SYS_NOMAL, VRC7SoundReset, }, 
-	{ 0,                   0, }, 
+	{ NES_RESET_SYS_NOMAL, VRC7SoundReset, NULL }, 
+	{ 0,                   0, NULL }, 
 };
 
 static void __fastcall OPLLSoundTerm(void* pNezPlay)
@@ -112,34 +104,29 @@ static void __fastcall OPLLSoundTerm(void* pNezPlay)
 }
 
 const static NES_TERMINATE_HANDLER s_opll_terminate_handler[] = {
-	{ OPLLSoundTerm, }, 
-	{ 0, }, 
+	{ OPLLSoundTerm, NULL }, 
+	{ 0, NULL }, 
 };
 
 static void __fastcall OPLLSoundWriteAddr(void *pNezPlay, Uint32 address, Uint32 value)
 {
+    (void)address;
 	OPLLSOUND_INTF *sndp = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->sndp;
 	sndp->kmif->write(sndp->kmif->ctx, 0, value);
 }
 
 static void __fastcall OPLLSoundWriteData(void *pNezPlay, Uint32 address, Uint32 value)
 {
+    (void)address;
 	OPLLSOUND_INTF *sndp = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->sndp;
 	sndp->kmif->write(sndp->kmif->ctx, 1, value);
 }
 
-static Uint32 __fastcall MSXAUDIOSoundRead(void *pNezPlay, Uint32 address)
-{
-	OPLLSOUND_INTF *sndp = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->sndp;
-	return sndp->kmif->read(sndp->kmif->ctx, address);
-}
-
-
 static NES_WRITE_HANDLER s_vrc7_write_handler[] =
 {
-	{ 0x9010, 0x9010, OPLLSoundWriteAddr, },
-	{ 0x9030, 0x9030, OPLLSoundWriteData, },
-	{ 0,      0,      0, },
+	{ 0x9010, 0x9010, OPLLSoundWriteAddr, NULL },
+	{ 0x9030, 0x9030, OPLLSoundWriteData, NULL },
+	{ 0,      0,      0, NULL },
 };
 
 

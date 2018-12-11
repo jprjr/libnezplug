@@ -4,7 +4,7 @@
 #include "../../format/handler.h"
 #include "../../format/nsf6502.h"
 #include "logtable.h"
-#include "m_nsf.h"
+#include "../../format/m_nsf.h"
 #include "s_mmc5.h"
 
 #define NES_BASECYCLES (21477270)
@@ -67,13 +67,13 @@ static void __fastcall mmc5exram_write(void *pNezPlay, Uint address, Uint value)
 
 static NES_READ_HANDLER mmc5exram_read_handler[] =
 {
-	{ 0x5C00, 0x5FEF, mmc5exram_read, },
-	{ 0,      0,      0, },
+	{ 0x5C00, 0x5FEF, mmc5exram_read, NULL },
+	{ 0,      0,      0, NULL },
 };
 static NES_WRITE_HANDLER mmc5exram_write_handler[] =
 {
-	{ 0x5C00, 0x5FEF, mmc5exram_write, },
-	{ 0,      0,      0, },
+	{ 0x5C00, 0x5FEF, mmc5exram_write, NULL },
+	{ 0,      0,      0, NULL },
 };
 
 void MMC5ExtendRamInstall(NEZ_PLAY *pNezPlay)
@@ -108,13 +108,13 @@ static void __fastcall mmc5mul_write(void *pNezPlay, Uint address, Uint value)
 
 static NES_READ_HANDLER mmc5mul_read_handler[] =
 {
-	{ 0x5205, 0x5206, mmc5mul_read, },
-	{ 0,      0,      0, },
+	{ 0x5205, 0x5206, mmc5mul_read, NULL },
+	{ 0,      0,      0, NULL },
 };
 static NES_WRITE_HANDLER mmc5mul_write_handler[] =
 {
-	{ 0x5205, 0x5206, mmc5mul_write, },
-	{ 0,      0,      0, },
+	{ 0x5205, 0x5206, mmc5mul_write, NULL },
+	{ 0,      0,      0, NULL },
 };
 
 void MMC5MutiplierInstall(NEZ_PLAY *pNezPlay)
@@ -143,14 +143,6 @@ const static Uint vbl_length[32] =
 	V(0x50), V(0x04), V(0x1E), V(0x05), V(0x07), V(0x06), V(0x0E), V(0x07),
 	V(0x06), V(0x08), V(0x0C), V(0x09), V(0x18), V(0x0A), V(0x30), V(0x0B),
 	V(0x60), V(0x0C), V(0x24), V(0x0D), V(0x08), V(0x0E), V(0x10), V(0x0F),
-};
-#undef V
-
-#define V(x) ((x) << CPS_BITS)
-static const Uint32 spd_limit[8] =
-{
-	V(0x3FF), V(0x555), V(0x666), V(0x71C), 
-	V(0x787), V(0x7C1), V(0x7E0), V(0x7F0),
 };
 #undef V
 
@@ -301,8 +293,8 @@ static Int32 __fastcall MMC5SoundRender(void* pNezPlay)
 }
 
 const static NES_AUDIO_HANDLER s_mmc5_audio_handler[] = {
-	{ 1, MMC5SoundRender, }, 
-	{ 0, 0, }, 
+	{ 1, MMC5SoundRender, NULL, NULL }, 
+	{ 0, 0, NULL, NULL }, 
 };
 
 static void __fastcall MMC5SoundVolume(void* pNezPlay, Uint volume)
@@ -315,8 +307,8 @@ static void __fastcall MMC5SoundVolume(void* pNezPlay, Uint volume)
 }
 
 const static NES_VOLUME_HANDLER s_mmc5_volume_handler[] = {
-	{ MMC5SoundVolume, },
-	{ 0, }, 
+	{ MMC5SoundVolume, NULL },
+	{ 0, NULL }, 
 };
 
 static void __fastcall MMC5SoundWrite(void *pNezPlay, Uint address, Uint value)
@@ -364,8 +356,8 @@ static void __fastcall MMC5SoundWrite(void *pNezPlay, Uint address, Uint value)
 
 static NES_WRITE_HANDLER s_mmc5_write_handler[] =
 {
-	{ 0x5000, 0x5015, MMC5SoundWrite, },
-	{ 0,      0,      0, },
+	{ 0x5000, 0x5015, MMC5SoundWrite, NULL },
+	{ 0,      0,      0, NULL },
 };
 
 static void __fastcall MMC5SoundDaReset(MMC5_DA *ch)
@@ -391,8 +383,8 @@ static void __fastcall MMC5SoundReset(void* pNezPlay)
 }
 
 const static NES_RESET_HANDLER s_mmc5_reset_handler[] = {
-	{ NES_RESET_SYS_NOMAL, MMC5SoundReset, }, 
-	{ 0,                   0, }, 
+	{ NES_RESET_SYS_NOMAL, MMC5SoundReset, NULL }, 
+	{ 0,                   0, NULL }, 
 };
 
 static void __fastcall MMC5SoundTerm(void* pNezPlay)
@@ -403,17 +395,17 @@ static void __fastcall MMC5SoundTerm(void* pNezPlay)
 }
 
 const static NES_TERMINATE_HANDLER s_mmc5_terminate_handler[] = {
-	{ MMC5SoundTerm, }, 
-	{ 0, }, 
+	{ MMC5SoundTerm, NULL }, 
+	{ 0, NULL }, 
 };
 
-//偙偙偐傜儗僕僗僞價儏傾乕愝掕
+//銇撱亾銇嬨倝銉偢銈广偪銉撱儱銈€兗瑷畾
 Uint8 *mmc5_regdata;
 Uint32 (*ioview_ioread_DEV_MMC5)(Uint32 a);
 static Uint32 ioview_ioread_bf(Uint32 a){
 	if(a<=0x15)return mmc5_regdata[a];else return 0x100;
 }
-//偙偙傑偱儗僕僗僞價儏傾乕愝掕
+//銇撱亾銇俱仹銉偢銈广偪銉撱儱銈€兗瑷畾
 
 void MMC5SoundInstall(NEZ_PLAY *pNezPlay)
 {
@@ -430,9 +422,9 @@ void MMC5SoundInstall(NEZ_PLAY *pNezPlay)
 	NESWriteHandlerInstall(pNezPlay, s_mmc5_write_handler);
 	NESResetHandlerInstall(pNezPlay->nrh, s_mmc5_reset_handler);
 
-	//偙偙偐傜儗僕僗僞價儏傾乕愝掕
+	//銇撱亾銇嬨倝銉偢銈广偪銉撱儱銈€兗瑷畾
 	mmc5_regdata = mmc5->regs;
 	ioview_ioread_DEV_MMC5 = ioview_ioread_bf;
-	//偙偙傑偱儗僕僗僞價儏傾乕愝掕
+	//銇撱亾銇俱仹銉偢銈广偪銉撱儱銈€兗瑷畾
 
 }

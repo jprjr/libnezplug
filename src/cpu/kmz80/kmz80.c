@@ -134,7 +134,7 @@ const static OPT_ITEM kmz80_ot_edxx[0x100] = {
 };
 
 const static Uint8 kmz80_ct[0x510] = {
-/* Z80 ’Ç‰ÁƒNƒƒbƒN */ 
+/* Z80 è¿½åŠ ã‚¯ãƒ­ãƒƒã‚¯ */ 
 /* XX       0 1 2 3 4 5 6 7  8 9 A B C D E F */
 /* 0 */		0,0,0,2,0,0,0,0, 0,7,0,2,0,0,0,0,
 /* 1 */		1,0,0,2,0,0,0,0, 5,7,0,2,0,0,0,0,
@@ -225,21 +225,21 @@ const static Uint8 kmz80_ct[0x510] = {
 /* E */		0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
 /* F */		0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
 	5,	/* 0x500 DJNZ */
-	0,	/* 0x501  •s¬—§ */
+	0,	/* 0x501  ä¸æˆç«‹ */
 	1,	/* 0x502 CALL cc */
-	0,	/* 0x503  •s¬—§ */
+	0,	/* 0x503  ä¸æˆç«‹ */
 	5,	/* 0x504 JR cc */
-	0,	/* 0x505  •s¬—§ */
+	0,	/* 0x505  ä¸æˆç«‹ */
 	0,	/* 0x506 JP cc */
-	0,	/* 0x507  •s¬—§ */
+	0,	/* 0x507  ä¸æˆç«‹ */
 	0,	/* 0x508 RET cc */
-	0,	/* 0x509  •s¬—§ */
+	0,	/* 0x509  ä¸æˆç«‹ */
 	5,	/* 0x50A CPDR CPIR INDR INIR LDDR LDIR ODIR OTIR */
-	0,	/* 0x50B  •s¬—§ */
+	0,	/* 0x50B  ä¸æˆç«‹ */
 	5,	/* 0x50C */
-	0,	/* 0x50D  •s¬—§ */
+	0,	/* 0x50D  ä¸æˆç«‹ */
 	0,	/* 0x50E OTIMR OTDMR */
-	0,	/* 0x50F  •s¬—§ */
+	0,	/* 0x50F  ä¸æˆç«‹ */
 };
 
 static Uint32 kmz80_memread(KMZ80_CONTEXT *context, Uint32 a)
@@ -260,13 +260,13 @@ extern void kmz80_reset_common(KMZ80_CONTEXT *context);
 void kmz80_reset(KMZ80_CONTEXT *context) {
 	kmz80_reset_common(context);
 	EXFLAG = EXF_ICEXIST;
-	M1CYCLE = 1;	/* MSX‚È‚ç2 */
+	M1CYCLE = 1;	/* MSXãªã‚‰2 */
 	MEMCYCLE = 3;
 	IOCYCLE = 4;
-	OPT = kmz80_ot_xx;
-	OPTCB = kmz80_ot_cbxx;
-	OPTED = kmz80_ot_edxx;
-	CYT = kmz80_ct;
+	context->opt = (OPT_ITEM *)kmz80_ot_xx;
+	context->optcb = (Uint8 *)kmz80_ot_cbxx;
+	context->opted = (OPT_ITEM *)kmz80_ot_edxx;
+	context->cyt = (Uint8 *)kmz80_ct;
 	SYSMEMREAD = kmz80_memread;
 	SYSMEMWRITE = kmz80_memwrite;
 }

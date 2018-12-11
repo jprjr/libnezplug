@@ -4,7 +4,7 @@
 #include "../../format/handler.h"
 #include "../../format/nsf6502.h"
 #include "logtable.h"
-#include "m_nsf.h"
+#include "../../format/m_nsf.h"
 #include "s_fds.h"
 
 #define NES_BASECYCLES (21477270)
@@ -97,8 +97,8 @@ static Int32 __fastcall FDSSoundRender(void *pNezPlay)
 
 const static NES_AUDIO_HANDLER s_fds_audio_handler[] =
 {
-	{ 1, FDSSoundRender, }, 
-	{ 0, 0, }, 
+	{ 1, FDSSoundRender, NULL, NULL }, 
+	{ 0, 0, NULL, NULL }, 
 };
 
 static void __fastcall FDSSoundVolume(void *pNezPlay, Uint volume)
@@ -108,8 +108,8 @@ static void __fastcall FDSSoundVolume(void *pNezPlay, Uint volume)
 }
 
 const static NES_VOLUME_HANDLER s_fds_volume_handler[] = {
-	{ FDSSoundVolume, }, 
-	{ 0, }, 
+	{ FDSSoundVolume, NULL }, 
+	{ 0, NULL }, 
 };
 
 static void __fastcall FDSSoundWrite(void *pNezPlay, Uint address, Uint value)
@@ -191,8 +191,8 @@ static void __fastcall FDSSoundWrite(void *pNezPlay, Uint address, Uint value)
 
 static NES_WRITE_HANDLER s_fds_write_handler[] =
 {
-	{ 0x4040, 0x408F, FDSSoundWrite, },
-	{ 0,      0,      0, },
+	{ 0x4040, 0x408F, FDSSoundWrite, NULL },
+	{ 0,      0,      0, NULL },
 };
 
 static Uint __fastcall FDSSoundRead(void *pNezPlay, Uint address)
@@ -207,8 +207,8 @@ static Uint __fastcall FDSSoundRead(void *pNezPlay, Uint address)
 
 static NES_READ_HANDLER s_fds_read_handler[] =
 {
-	{ 0x4090, 0x409F, FDSSoundRead, },
-	{ 0,      0,      0, },
+	{ 0x4090, 0x409F, FDSSoundRead, NULL },
+	{ 0,      0,      0, NULL },
 };
 
 static Uint32 DivFix(Uint32 p1, Uint32 p2, Uint32 fix)
@@ -233,7 +233,7 @@ static void __fastcall FDSSoundReset(void *pNezPlay)
 {
 	FDSSOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
 	Uint32 i, cps, cpf;
-	XMEMSET(&fdssound, 0, sizeof(FDSSOUND));
+	XMEMSET(fdssound, 0, sizeof(FDSSOUND));
 	cps = DivFix(NES_BASECYCLES, 12 * NESAudioFrequencyGet(pNezPlay), CPS_BITS);
 	cpf = DivFix(NES_BASECYCLES, 12 * NESAudioFrequencyGet(pNezPlay), CPF_BITS);
 	fdssound->op[0].cps = fdssound->op[1].cps = cps;
@@ -253,8 +253,8 @@ static void __fastcall FDSSoundReset(void *pNezPlay)
 
 const static NES_RESET_HANDLER s_fds_reset_handler[] =
 {
-	{ NES_RESET_SYS_NOMAL, FDSSoundReset, }, 
-	{ 0,                   0, }, 
+	{ NES_RESET_SYS_NOMAL, FDSSoundReset, NULL }, 
+	{ 0,                   0, NULL }, 
 };
 
 static void __fastcall FDSSoundTerm(void* pNezPlay)
@@ -265,8 +265,8 @@ static void __fastcall FDSSoundTerm(void* pNezPlay)
 }
 
 const static NES_TERMINATE_HANDLER s_fds_terminate_handler[] = {
-	{ FDSSoundTerm, }, 
-	{ 0, }, 
+	{ FDSSoundTerm, NULL }, 
+	{ 0, NULL }, 
 };
 
 void FDSSoundInstall2(NEZ_PLAY *pNezPlay)

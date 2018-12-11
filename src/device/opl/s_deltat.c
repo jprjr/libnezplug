@@ -1,6 +1,6 @@
-#include "kmsnddev.h"
-#include "divfix.h"
-#include "s_logtbl.h"
+#include "../kmsnddev.h"
+#include "../divfix.h"
+#include "../s_logtbl.h"
 #include "s_deltat.h"
 
 #define CPS_SHIFT 16
@@ -169,8 +169,9 @@ __inline static void DelrtatStep(YMDELTATPCMSOUND *sndp, Uint32 data)
 #endif
 
 
-static void sndsynth(YMDELTATPCMSOUND *sndp, Int32 *p)
+static void sndsynth(void *ctx, Int32 *p)
 {
+    YMDELTATPCMSOUND *sndp = (YMDELTATPCMSOUND *)ctx;
 	if (sndp->common.key)
 	{
 		Uint32 step;
@@ -202,8 +203,9 @@ static void sndsynth(YMDELTATPCMSOUND *sndp, Int32 *p)
 
 
 
-static void sndwrite(YMDELTATPCMSOUND *sndp, Uint32 a, Uint32 v)
+static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 {
+    YMDELTATPCMSOUND *sndp = (YMDELTATPCMSOUND *)ctx;
 	sndp->common.regs[a] = (Uint8)v;
 	switch (a)
 	{
@@ -223,7 +225,7 @@ static void sndwrite(YMDELTATPCMSOUND *sndp, Uint32 a, Uint32 v)
 			if (v & 1) sndp->common.key = 0;
 			break;
 		/* L,R,-,-,SAMPLE,DA/AD,RAMTYPE,ROM */
-		case 0x01:	/* Control Register 2 */	//MSX-AUDIOÇ…ADPCMópROMÇÕñ≥Ç¢ÇÕÇ∏Ç»ÇÃÇ≈ñ≥å¯âª
+		case 0x01:	/* Control Register 2 */	//MSX-AUDIO„Å´ADPCMÁî®ROM„ÅØÁÑ°„ÅÑ„ÅØ„Åö„Å™„ÅÆ„ÅßÁÑ°ÂäπÂåñ
 //			sndp->romrambuf  = (sndp->common.regs[1] & 1) ? sndp->rombuf  : sndp->rambuf;
 //			sndp->romrammask = (sndp->common.regs[1] & 1) ? sndp->rommask : sndp->rammask;
 			break;
@@ -261,13 +263,16 @@ static void sndwrite(YMDELTATPCMSOUND *sndp, Uint32 a, Uint32 v)
 	}
 }
 
-static Uint32 sndread(YMDELTATPCMSOUND *sndp, Uint32 a)
+static Uint32 sndread(void *ctx, Uint32 a)
 {
+    (void)ctx;
+    (void)a;
 	return 0;
 }
 
-static void sndreset(YMDELTATPCMSOUND *sndp, Uint32 clock, Uint32 freq)
+static void sndreset(void *ctx, Uint32 clock, Uint32 freq)
 {
+    YMDELTATPCMSOUND *sndp = (YMDELTATPCMSOUND *)ctx;
 	XMEMSET(&sndp->common, 0, sizeof(sndp->common));
 	sndp->common.cps = DivFix(clock, 72 * freq, CPS_SHIFT);
 	sndp->romrambuf  = (sndp->common.regs[1] & 1) ? sndp->rombuf  : sndp->rambuf;
@@ -275,8 +280,9 @@ static void sndreset(YMDELTATPCMSOUND *sndp, Uint32 clock, Uint32 freq)
 	sndp->common.granuality = 4;
 }
 
-static void sndvolume(YMDELTATPCMSOUND *sndp, Int32 volume)
+static void sndvolume(void *ctx, Int32 volume)
 {
+    YMDELTATPCMSOUND *sndp = (YMDELTATPCMSOUND *)ctx;
 	volume = (volume << (LOG_BITS - 8)) << 1;
 	sndp->common.mastervolume = volume;
 	sndp->common.level32 = ((Int32)(sndp->common.level * LogToLin(sndp->logtbl, sndp->common.mastervolume, LOG_LIN_BITS - 15))) >> 7;
@@ -284,16 +290,18 @@ static void sndvolume(YMDELTATPCMSOUND *sndp, Int32 volume)
 	sndp->common.output = SSR(sndp->common.output, 8 + 2);
 }
 
-static void sndrelease(YMDELTATPCMSOUND *sndp)
+static void sndrelease(void *ctx)
 {
+    YMDELTATPCMSOUND *sndp = (YMDELTATPCMSOUND *)ctx;
 	if (sndp) {
 		if (sndp->logtbl) sndp->logtbl->release(sndp->logtbl->ctx);
 		XFREE(sndp);
 	}
 }
 
-static void setinst(YMDELTATPCMSOUND *sndp, Uint32 n, void *p, Uint32 l)
+static void setinst(void *ctx, Uint32 n, void *p, Uint32 l)
 {
+    YMDELTATPCMSOUND *sndp = (YMDELTATPCMSOUND *)ctx;
 	if (n) return;
 	if (p)
 	{
@@ -309,7 +317,7 @@ static void setinst(YMDELTATPCMSOUND *sndp, Uint32 n, void *p, Uint32 l)
 	}
 
 }
-//Ç±Ç±Ç©ÇÁÉåÉWÉXÉ^ÉrÉÖÉAÅ[ê›íË
+//„Åì„Åì„Åã„Çâ„É¨„Ç∏„Çπ„Çø„Éì„É•„Ç¢„ÉºË®≠ÂÆö
 static YMDELTATPCMSOUND *sndpr;
 Uint32 (*ioview_ioread_DEV_ADPCM)(Uint32 a);
 Uint32 (*ioview_ioread_DEV_ADPCM2)(Uint32 a);
@@ -319,7 +327,7 @@ static Uint32 ioview_ioread_bf(Uint32 a){
 static Uint32 ioview_ioread_bf2(Uint32 a){
 	if(a<sndpr->ram_size)return sndpr->rambuf[a];else return 0x100;
 }
-//Ç±Ç±Ç‹Ç≈ÉåÉWÉXÉ^ÉrÉÖÉAÅ[ê›íË
+//„Åì„Åì„Åæ„Åß„É¨„Ç∏„Çπ„Çø„Éì„É•„Ç¢„ÉºË®≠ÂÆö
 
 KMIF_SOUND_DEVICE *YMDELTATPCMSoundAlloc(Uint32 ymdeltatpcm_type , Uint8 *pcmbuf)
 {
@@ -383,10 +391,10 @@ KMIF_SOUND_DEVICE *YMDELTATPCMSoundAlloc(Uint32 ymdeltatpcm_type , Uint8 *pcmbuf
 		sndrelease(sndp);
 		return 0;
 	}
-	//Ç±Ç±Ç©ÇÁÉåÉWÉXÉ^ÉrÉÖÉAÅ[ê›íË
+	//„Åì„Åì„Åã„Çâ„É¨„Ç∏„Çπ„Çø„Éì„É•„Ç¢„ÉºË®≠ÂÆö
 	sndpr = sndp;
 	if(ioview_ioread_DEV_ADPCM ==NULL)ioview_ioread_DEV_ADPCM = ioview_ioread_bf;
 	if(ioview_ioread_DEV_ADPCM2==NULL)ioview_ioread_DEV_ADPCM2= ioview_ioread_bf2;
-	//Ç±Ç±Ç‹Ç≈ÉåÉWÉXÉ^ÉrÉÖÉAÅ[ê›íË
+	//„Åì„Åì„Åæ„Åß„É¨„Ç∏„Çπ„Çø„Éì„É•„Ç¢„ÉºË®≠ÂÆö
 	return &sndp->kmif;
 }

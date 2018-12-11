@@ -1,14 +1,14 @@
-#include "neserr.h"
+#include "../neserr.h"
 #include "handler.h"
 #include "audiosys.h"
 #include "songinfo.h"
 
 #include "m_zxay.h"
 
-#include "device/s_psg.h"
-#include "device/divfix.h"
+#include "../device/s_psg.h"
+#include "../device/divfix.h"
 
-#include "kmz80/kmz80.h"
+#include "../cpu/kmz80/kmz80.h"
 
 #define IRQ_PATCH 2
 
@@ -90,6 +90,8 @@ static Uint32 read_event(void *ctx, Uint32 a)
 
 static Uint32 busread_event(void *ctx, Uint32 a)
 {
+    (void)ctx;
+    (void)a;
 	return 0x38;
 }
 
@@ -101,6 +103,8 @@ static void write_event(void *ctx, Uint32 a, Uint32 v)
 
 static Uint32 ioread_event(void *ctx, Uint32 a)
 {
+    (void)ctx;
+    (void)a;
 	return 0xff;
 }
 
@@ -154,6 +158,8 @@ static void iowrite_event(void *ctx, Uint32 a, Uint32 v)
 
 static void vsync_event(KMEVENT *event, KMEVENT_ITEM_ID curid, ZXAY *THIS_)
 {
+    (void)event;
+    (void)curid;
 	vsync_setup(THIS_);
 #if IRQ_PATCH == 1
 	if (THIS_->ctx.pc == 0x0019)
@@ -388,9 +394,9 @@ static Int32 __fastcall ZXAYSoundRenderMono(void *pNezPlay)
 }
 
 const static NES_AUDIO_HANDLER zxay_audio_handler[] = {
-	{ 0, ZXAYExecuteZ80CPU, 0, },
-	{ 3, ZXAYSoundRenderMono, ZXAYSoundRenderStereo },
-	{ 0, 0, 0, },
+	{ 0, ZXAYExecuteZ80CPU, 0, NULL },
+	{ 3, ZXAYSoundRenderMono, ZXAYSoundRenderStereo, NULL },
+	{ 0, 0, 0, NULL },
 };
 
 static void __fastcall ZXAYVolume(void *pNezPlay, Uint32 v)
@@ -402,8 +408,8 @@ static void __fastcall ZXAYVolume(void *pNezPlay, Uint32 v)
 }
 
 const static NES_VOLUME_HANDLER zxay_volume_handler[] = {
-	{ ZXAYVolume, }, 
-	{ 0, }, 
+	{ ZXAYVolume, NULL }, 
+	{ 0, NULL }, 
 };
 
 static void __fastcall ZXAYReset(void *pNezPlay)
@@ -412,8 +418,8 @@ static void __fastcall ZXAYReset(void *pNezPlay)
 }
 
 const static NES_RESET_HANDLER zxay_reset_handler[] = {
-	{ NES_RESET_SYS_LAST, ZXAYReset, },
-	{ 0,                  0, },
+	{ NES_RESET_SYS_LAST, ZXAYReset, NULL },
+	{ 0,                  0, NULL },
 };
 
 static void __fastcall ZXAYTerminate(void *pNezPlay)
@@ -426,15 +432,15 @@ static void __fastcall ZXAYTerminate(void *pNezPlay)
 }
 
 const static NES_TERMINATE_HANDLER zxay_terminate_handler[] = {
-	{ ZXAYTerminate, },
-	{ 0, },
+	{ ZXAYTerminate, NULL },
+	{ 0, NULL },
 };
 
 Uint32 ZXAYLoad(NEZ_PLAY *pNezPlay, Uint8 *pData, Uint32 uSize)
 {
 	Uint32 ret;
 	ZXAY *THIS_;
-	if (pNezPlay->zxay) *((char *)(0)) = 0;	/* ASSERT */
+	if (pNezPlay->zxay) __builtin_trap();	/* ASSERT */
 	THIS_ = (ZXAY *)XMALLOC(sizeof(ZXAY));
 	if (!THIS_) return NESERR_SHORTOFMEMORY;
 	ret = load(pNezPlay, THIS_, pData, uSize);

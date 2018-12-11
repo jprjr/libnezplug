@@ -1,5 +1,7 @@
-#include "nezplug.h"
+#include "../nezplug.h"
 #include "audiosys.h"
+
+#include <stdio.h>
 
 /* ---------------------- */
 /*  Audio Render Handler  */
@@ -58,7 +60,7 @@ void NESAudioRender(NEZ_PLAY *pNezPlay, Int16 *bufp, Uint buflen)
 					output[ch] = accum[ch];
 				output[ch] >>= SHIFT_BITS;
 
-				//DCオフセットフィルタ
+				//DC繧ｪ繝輔そ繝�繝医ヵ繧｣繝ｫ繧ｿ
 				if(!(pNezPlay->naf_type&4)){
 					Int32 buffer;
 					if (output2[ch] == 0x7fffffff){

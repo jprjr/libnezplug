@@ -1,11 +1,11 @@
-#include "nezplug.h"
+#include "../nezplug.h"
 
-#include "neserr.h"
+#include "../neserr.h"
 #include "handler.h"
 #include "audiosys.h"
 #include "songinfo.h"
 
-#include "device/kmsnddev.h"
+#include "../device/kmsnddev.h"
 #include "m_hes.h"
 #include "m_gbr.h"
 #include "m_zxay.h"

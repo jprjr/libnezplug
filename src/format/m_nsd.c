@@ -1,4 +1,4 @@
-#include "neserr.h"
+#include "../neserr.h"
 #include "handler.h"
 #include "audiosys.h"
 #include "nsf6502.h"
@@ -147,8 +147,8 @@ static Int32 __fastcall ExecuteNSD(void *pNezPlay)
 }
 
 const static NES_AUDIO_HANDLER nsdplay_audio_handler[] = {
-	{ 0, ExecuteNSD, },
-	{ 0, 0, },
+	{ 0, ExecuteNSD, NULL, NULL },
+	{ 0, 0, NULL, NULL },
 };
 
 static Uint32 DivFix(Uint32 p1, Uint32 p2, Uint32 fix)
@@ -175,8 +175,9 @@ static Uint32 GetDwordLE(Uint8 *p)
 }
 
 
-static void __fastcall NSDPLAYReset(NEZ_PLAY *pNezPlay)
+static void __fastcall NSDPLAYReset(void *ctx)
 {
+    NEZ_PLAY *pNezPlay = (NEZ_PLAY *)ctx;
 	NSDSEQ *nsdplayer = pNezPlay->nsdp;
 	Uint freq = NESAudioFrequencyGet(pNezPlay);
 	nsdplayer->cleft = 0;
@@ -213,8 +214,8 @@ static void __fastcall NSDPLAYReset(NEZ_PLAY *pNezPlay)
 }
 
 const static NES_RESET_HANDLER nsdplay_reset_handler[] = {
-	{ NES_RESET_SYS_LAST, NSDPLAYReset, },
-	{ 0,                  0, },
+	{ NES_RESET_SYS_LAST, NSDPLAYReset, NULL },
+	{ 0,                  0, NULL },
 };
 
 static void __fastcall NSDPLAYTerminate(void *pNezPlay)
@@ -233,12 +234,13 @@ static void __fastcall NSDPLAYTerminate(void *pNezPlay)
 }
 
 const static NES_TERMINATE_HANDLER nsdplay_terminate_handler[] = {
-	{ NSDPLAYTerminate, },
-	{ 0, },
+	{ NSDPLAYTerminate, NULL },
+	{ 0, NULL },
 };
 
 Uint NSDPlayerInstall(NEZ_PLAY *pNezPlay, Uint8 *pData, Uint uSize)
 {
+    (void)uSize;
 	NSDSEQ *nsdplayer = pNezPlay->nsdp;
 	nsdplayer->sync1 = pData[7];
 	nsdplayer->sync2 = GetDwordLE(pData + 0x08);

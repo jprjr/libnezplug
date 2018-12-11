@@ -23,12 +23,12 @@ enum {
 
 enum {
 	OP_NOP,
-	/* ŒðŠ·–½—ß */
+	/* äº¤æ›å‘½ä»¤ */
 	OP_EX_AF_AF,
 	OP_EXX,
 	OP_EX_DE_HL,
 	OP_EX_MSP16_HL_,
-	/* 8ƒrƒbƒg‰‰ŽZ–½—ß */
+	/* 8ãƒ“ãƒƒãƒˆæ¼”ç®—å‘½ä»¤ */
 	OP_ADD,
 	OP_ADC,
 	OP_SUB,
@@ -42,18 +42,18 @@ enum {
 	OP_DAA,
 	OP_CPL,
 	OP_NEG,
-	/* 16ƒrƒbƒg‰‰ŽZ–½—ß */
+	/* 16ãƒ“ãƒƒãƒˆæ¼”ç®—å‘½ä»¤ */
 	OP_ADD16,
 	OP_ADC16,
 	OP_SBC16,
 	OP_INC16,
 	OP_DEC16,
-	/* ƒuƒƒbƒN“]‘—–½—ß */
+	/* ãƒ–ãƒ­ãƒƒã‚¯è»¢é€å‘½ä»¤ */
 	OP_LDI,
 	OP_LDD,
 	OP_CPI,
 	OP_CPD,
-	/* •ªŠò–½—ß */
+	/* åˆ†å²å‘½ä»¤ */
 	OP_JP,
 	OP_JPCC,
 	OP_JPCX,
@@ -68,7 +68,7 @@ enum {
 	OP_RETI,
 	OP_RETN,
 	OP_RST,
-	/* ƒrƒbƒgzŠÂ–½—ß*/
+	/* ãƒ“ãƒƒãƒˆå¾ªç’°å‘½ä»¤*/
 	OP_RLCA,
 	OP_RRCA,
 	OP_RLA,
@@ -83,19 +83,19 @@ enum {
 	OP_SRL,
 	OP_RLD,
 	OP_RRD,
-	/* ƒrƒbƒg‘€ì–½—ß*/
+	/* ãƒ“ãƒƒãƒˆæ“ä½œå‘½ä»¤*/
 	OP_BIT,
 	OP_RES,
 	OP_SET,
-	/* “üo—Í–½—ß */
+	/* å…¥å‡ºåŠ›å‘½ä»¤ */
 	OP_IN,
 	OP_OUT,
-	/* ƒuƒƒbƒN“üo—Í–½—ß */
+	/* ãƒ–ãƒ­ãƒƒã‚¯å…¥å‡ºåŠ›å‘½ä»¤ */
 	OP_INI,
 	OP_OUTI,
 	OP_IND,
 	OP_OUTD,
-	/* CPU§Œä–½—ß */
+	/* CPUåˆ¶å¾¡å‘½ä»¤ */
 	OP_CCF,
 	OP_SCF,
 	OP_HALT,
@@ -109,22 +109,22 @@ enum {
 	OP_PREFIX_DD,
 	OP_PREFIX_ED,
 	OP_PREFIX_FD,
-	/* maratZ80–½—ß */
+	/* maratZ80å‘½ä»¤ */
 	OP_PATCH,
-	/* HD64180–½—ß */
+	/* HD64180å‘½ä»¤ */
 	OP_TST,
 	OP_TSTIO,
 	OP_OTIM,
 	OP_OTDM,
-	/* HD64180æŽZ–½—ß */
+	/* HD64180ä¹—ç®—å‘½ä»¤ */
 	OP_MLT,
-	/* R800æŽZ–½—ß */
+	/* R800ä¹—ç®—å‘½ä»¤ */
 	OP_MULUB,
 	OP_MULUW,
-	/* DMG–½—ß */
+	/* DMGå‘½ä»¤ */
 	OP_SWAP,
 	OP_MAX,
-	OP_DMG_RLCA,//DMG‚Å‚ÍƒrƒbƒgƒVƒtƒg–½—ß‚Å‚Ìƒtƒ‰ƒO‚Ì—§‚Ä•û‚ªZ80‚Æˆá‚¤
+	OP_DMG_RLCA,//DMGã§ã¯ãƒ“ãƒƒãƒˆã‚·ãƒ•ãƒˆå‘½ä»¤ã§ã®ãƒ•ãƒ©ã‚°ã®ç«‹ã¦æ–¹ãŒZ80ã¨é•ã†
 	OP_DMG_RRCA,
 	OP_DMG_RLA,
 	OP_DMG_RRA,
@@ -134,9 +134,9 @@ enum {
 	OP_POP = OP_NOP,
 	OP_RET = OP_JP,
 	OP_ADDSP = OP_ADD16,
-	/* DMGCPU§Œä–½—ß */
+	/* DMGCPUåˆ¶å¾¡å‘½ä»¤ */
 	OP_STOP = OP_HALT,
-	/* HD64180CPU§Œä–½—ß */
+	/* HD64180CPUåˆ¶å¾¡å‘½ä»¤ */
 	OP_SLP = OP_HALT2
 } KMZ80_OP_CODE;
 
@@ -150,7 +150,7 @@ enum {
 	STO_L,		/* force l */
 	STO_M,		/* (ea) */
 	STO_A,		/* a */
-	/* ‚±‚±‚Ü‚Å‡˜ŒÅ’è */
+	/* ã“ã“ã¾ã§é †åºå›ºå®š */
 	STO_BC,		/* bc */
 	STO_DE,		/* de */
 	STO_HL,		/* force hl */
@@ -181,7 +181,7 @@ enum {
 	LDO_L,		/* force l */
 	LDO_M,		/* (ea) */
 	LDO_A,		/* a */
-	/* ‚±‚±‚Ü‚Å‡˜ŒÅ’è */
+	/* ã“ã“ã¾ã§é †åºå›ºå®š */
 	LDO_BC,		/* bc */
 	LDO_DE,		/* de */
 	LDO_HL,		/* force hl */

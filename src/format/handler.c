@@ -1,5 +1,5 @@
 #include "handler.h"
-#include "nezplug.h"
+#include "../nezplug.h"
 
 /* --------------- */
 /*  Reset Handler  */

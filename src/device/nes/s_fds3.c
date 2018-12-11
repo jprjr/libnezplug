@@ -4,7 +4,7 @@
 #include "../../format/handler.h"
 #include "../../format/nsf6502.h"
 #include "logtable.h"
-#include "m_nsf.h"
+#include "../../format/m_nsf.h"
 #include "s_fds.h"
 //#include <math.h>
 #define FDS_DYNAMIC_BIAS 1
@@ -119,10 +119,10 @@ static Int32 __fastcall FDSSoundRender(void *pNezPlay)
 	{
 		Int32 v1,v2;
 #if FDS_DYNAMIC_BIAS
-		/* ‚±‚Ì®‚ğ•Ï‚É‘‚«Š·‚¦‚é‚ÆAƒiƒ]ƒ‰[ƒ‰ƒ“ƒh‘æ‚R†‚Ì”š‘–ƒgƒ‚‚¿‚á‚ñ‚ÌBGM‚ÌFDS‰¹Œ¹‚Ìƒsƒbƒ`‚ª
-		   ‚PƒIƒNƒ^[ƒu‰º‚ª‚é‹°‚ê‚ª”ñí‚É‘å‚«‚¢B */
+		/* ã“ã®å¼ã‚’å¤‰ã«æ›¸ãæ›ãˆã‚‹ã¨ã€ãƒŠã‚¾ãƒ©ãƒ¼ãƒ©ãƒ³ãƒ‰ç¬¬ï¼“å·ã®çˆ†èµ°ãƒˆãƒ¢ã¡ã‚ƒã‚“ã®BGMã®FDSéŸ³æºã®ãƒ”ãƒƒãƒãŒ
+		   ï¼‘ã‚ªã‚¯ã‚¿ãƒ¼ãƒ–ä¸‹ãŒã‚‹æã‚ŒãŒéå¸¸ã«å¤§ãã„ã€‚ */
 /*
-	value_1 = Sweep envelopeo—Í’l * Sweep Bias;	// (1)
+	value_1 = Sweep envelopeå‡ºåŠ›å€¤ * Sweep Bias;	// (1)
 	value_2 = value_1 / 16;				// (2)
 
 	if( (value_1 % 16) != 0 ) {			// (3)
@@ -157,7 +157,7 @@ static Int32 __fastcall FDSSoundRender(void *pNezPlay)
 		if(v2>193)v2-=258;
 
 //		v1 = (((4096 + 1024 + (Int32)v1) & 0xfff)+8)/16 - 64 + (((Int32)v1 & 0xf) ? ((v1 < 0) ? -1 : 2) : 0);
-//		v1 = v1<0 ? SSR(v1-8,4) : v1>0 ? SSR(v1+8,4) : 0; //double‚Ì–³‚¢lÌŒÜ“ü
+//		v1 = v1<0 ? SSR(v1-8,4) : v1>0 ? SSR(v1+8,4) : 0; //doubleã®ç„¡ã„å››æ¨äº”å…¥
 		v1 = ((Int32)(fdssound->op[0].pg.freq * v2) / 64);
 		v1 = v1 + (Int32)fdssound->op[0].pg.freq;
 		if( v1 < 0 )
@@ -219,8 +219,8 @@ static Int32 __fastcall FDSSoundRender(void *pNezPlay)
 
 const static NES_AUDIO_HANDLER s_fds_audio_handler[] =
 {
-	{ 1, FDSSoundRender, }, 
-	{ 0, 0, }, 
+	{ 1, FDSSoundRender, NULL, NULL }, 
+	{ 0, 0, NULL, NULL }, 
 };
 
 static void __fastcall FDSSoundVolume(void *pNezPlay, Uint volume)
@@ -235,8 +235,8 @@ static void __fastcall FDSSoundVolume(void *pNezPlay, Uint volume)
 }
 
 const static NES_VOLUME_HANDLER s_fds_volume_handler[] = {
-	{ FDSSoundVolume, }, 
-	{ 0, }, 
+	{ FDSSoundVolume, NULL }, 
+	{ 0, NULL }, 
 };
 
 static const Uint8 wave_delta_table[8] = {
@@ -339,8 +339,8 @@ static void __fastcall FDSSoundWrite(void *pNezPlay, Uint address, Uint value)
 
 static NES_WRITE_HANDLER s_fds_write_handler[] =
 {
-	{ 0x4040, 0x408F, FDSSoundWrite, },
-	{ 0,      0,      0, },
+	{ 0x4040, 0x408F, FDSSoundWrite, NULL },
+	{ 0,      0,      0, NULL },
 };
 
 static Uint __fastcall FDSSoundRead(void *pNezPlay, Uint address)
@@ -365,8 +365,8 @@ static Uint __fastcall FDSSoundRead(void *pNezPlay, Uint address)
 
 static NES_READ_HANDLER s_fds_read_handler[] =
 {
-	{ 0x4040, 0x409F, FDSSoundRead, },
-	{ 0,      0,      0, },
+	{ 0x4040, 0x409F, FDSSoundRead, NULL },
+	{ 0,      0,      0, NULL },
 };
 
 static Uint32 DivFix(Uint32 p1, Uint32 p2, Uint32 fix)
@@ -405,17 +405,17 @@ static void __fastcall FDSSoundReset(void *pNezPlay)
 	}
 	fdssound->op[1].wg.pt = 0;
 
-	//ƒŠƒAƒ‹o—ÍŒvZ
+	//ãƒªã‚¢ãƒ«å‡ºåŠ›è¨ˆç®—
 #define BIT(x) ((i&(1<<x))>>x)
 	for (i = 0; i < 0x40; i++)
 	{
 		if(FDS_RealMode & 2)
-			/* FDS‰¹Œ¹o—Í‚ÌÛANOT‰ñ˜H‚ÌICiBU4069UBj‚É‚æ‚éƒ[ƒpƒXƒtƒBƒ‹ƒ^‚ğ‚©‚¯‚Ä‚¢‚é‚Ì‚ÅA”gŒ`‚ªã‰º‹t‚É‚È‚éB */
+			/* FDSéŸ³æºå‡ºåŠ›ã®éš›ã€NOTå›è·¯ã®ICï¼ˆBU4069UBï¼‰ã«ã‚ˆã‚‹ãƒ­ãƒ¼ãƒ‘ã‚¹ãƒ•ã‚£ãƒ«ã‚¿ã‚’ã‹ã‘ã¦ã„ã‚‹ã®ã§ã€æ³¢å½¢ãŒä¸Šä¸‹é€†ã«ãªã‚‹ã€‚ */
 			fdssound->realout[i]=-(i*4+(BIT(0)+BIT(1)+BIT(2)+BIT(3)+BIT(4)+BIT(5))*(0+(i*3)/0x5) - 239);
 		else
 			fdssound->realout[i]=i*7                                               - 239;
 	}
-	//ƒ[ƒpƒXŒvZ
+	//ãƒ­ãƒ¼ãƒ‘ã‚¹è¨ˆç®—
 //	fdssound->lowpass = sqrt(fdssound->srate / 500.0);
 	fdssound->lowpass = (Int32)(fdssound->srate / 11025.0 *4);
 	if(fdssound->lowpass<4)fdssound->lowpass=4;
@@ -423,8 +423,8 @@ static void __fastcall FDSSoundReset(void *pNezPlay)
 
 const static NES_RESET_HANDLER s_fds_reset_handler[] =
 {
-	{ NES_RESET_SYS_NOMAL, FDSSoundReset, }, 
-	{ 0,                   0, }, 
+	{ NES_RESET_SYS_NOMAL, FDSSoundReset, NULL }, 
+	{ 0,                   0, NULL }, 
 };
 
 static void __fastcall FDSSoundTerm(void* pNezPlay)
@@ -435,11 +435,11 @@ static void __fastcall FDSSoundTerm(void* pNezPlay)
 }
 
 const static NES_TERMINATE_HANDLER s_fds_terminate_handler[] = {
-	{ FDSSoundTerm, }, 
-	{ 0, }, 
+	{ FDSSoundTerm, NULL }, 
+	{ 0, NULL }, 
 };
 
-//‚±‚±‚©‚çƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+//ã“ã“ã‹ã‚‰ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 Uint8 *fds_regdata;
 Uint8 *fds_regdata2;
 Uint8 *fds_regdata3;
@@ -451,7 +451,7 @@ static Uint32 ioview_ioread_bf(Uint32 a){
 	else return 0x100;
 
 }
-//‚±‚±‚Ü‚ÅƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+//ã“ã“ã¾ã§ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 
 void FDSSoundInstall3(NEZ_PLAY *pNezPlay)
 {
@@ -469,10 +469,10 @@ void FDSSoundInstall3(NEZ_PLAY *pNezPlay)
 	NESWriteHandlerInstall(pNezPlay, s_fds_write_handler);
 	NESResetHandlerInstall(pNezPlay->nrh, s_fds_reset_handler);
 
-	//‚±‚±‚©‚çƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+	//ã“ã“ã‹ã‚‰ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 	fds_regdata = fdssound->reg;
 	fds_regdata2 = fdssound->op[0].wg.wavereg;
 	fds_regdata3 = fdssound->op[1].wg.wavereg;
 	ioview_ioread_DEV_FDS = ioview_ioread_bf;
-	//‚±‚±‚Ü‚ÅƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+	//ã“ã“ã¾ã§ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 }

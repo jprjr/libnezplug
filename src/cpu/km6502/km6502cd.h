@@ -707,6 +707,7 @@ static void OpcodeCall Opcode4A(__CONTEXT)	/* 4A - LSR - Accumulator */
 /* --- NOP ---  */
 static void OpcodeCall OpcodeEA(__CONTEXT)	/* EA - NOP */
 {
+    (void)pc;
 }
 
 /* --- ORA ---  */

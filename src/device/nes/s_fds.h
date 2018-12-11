@@ -1,7 +1,7 @@
 #ifndef S_FDS_H__
 #define S_FDS_H__
 
-#include "nezplug.h"
+#include "../../nezplug.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -17,17 +17,17 @@ typedef struct KMEVENT_TAG KMEVENT;
 typedef struct KMEVENT_ITEM_TAG KMEVENT_ITEM;
 typedef Uint32 KMEVENT_ITEM_ID;
 struct KMEVENT_ITEM_TAG {
-	/* ƒƒ“ƒo’¼ÚƒAƒNƒZƒX‹Ö~ */
+	/* ãƒ¡ãƒ³ãƒç›´æ¥ã‚¢ã‚¯ã‚»ã‚¹ç¦æ­¢ */
 	void *user;
 	void (*proc)(KMEVENT *event, KMEVENT_ITEM_ID curid, void *user);
-	Uint32 count;	/* ƒCƒxƒ“ƒg”­¶ŠÔ */
-	Uint8 prev;		/* ‘o•ûŒüƒŠƒ“ƒNƒŠƒXƒg */
-	Uint8 next;		/* ‘o•ûŒüƒŠƒ“ƒNƒŠƒXƒg */
-	Uint8 sysflag;	/* “à•”ó‘Ôƒtƒ‰ƒO */
-	Uint8 flag2;	/* –¢g—p */
+	Uint32 count;	/* ã‚¤ãƒ™ãƒ³ãƒˆç™ºç”Ÿæ™‚é–“ */
+	Uint8 prev;		/* åŒæ–¹å‘ãƒªãƒ³ã‚¯ãƒªã‚¹ãƒˆ */
+	Uint8 next;		/* åŒæ–¹å‘ãƒªãƒ³ã‚¯ãƒªã‚¹ãƒˆ */
+	Uint8 sysflag;	/* å†…éƒ¨çŠ¶æ…‹ãƒ•ãƒ©ã‚° */
+	Uint8 flag2;	/* æœªä½¿ç”¨ */
 };
 struct KMEVENT_TAG {
-	/* ƒƒ“ƒo’¼ÚƒAƒNƒZƒX‹Ö~ */
+	/* ãƒ¡ãƒ³ãƒç›´æ¥ã‚¢ã‚¯ã‚»ã‚¹ç¦æ­¢ */
 	KMEVENT_ITEM item[KMEVENT_ITEM_MAX + 1];
 };
 

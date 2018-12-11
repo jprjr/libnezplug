@@ -1,8 +1,8 @@
 #ifndef M_NSF_H__
 #define M_NSF_H__
 
-#include "nestypes.h"
-#include "nezplug.h"
+#include "../nestypes.h"
+#include "../nezplug.h"
 #include "nsf6502.h"
 #include "../device/kmsnddev.h"
 #include "../cpu/km6502/km6502.h"
@@ -54,9 +54,9 @@ typedef struct NSFNSF_TAG {
 	void* mmc5;
 	void* psgs;
 
-	Uint8 counter2002;		/* b’è */
+	Uint8 counter2002;		/* æš«å®š */
 	Int32 dpcmirq_ct;
-	Uint8 vsyncirq_fg;	/* $4015‚Ì6bit–Ú‚ğ—§‚½‚¹‚é‚â‚Â */
+	Uint8 vsyncirq_fg;	/* $4015ã®6bitç›®ã‚’ç«‹ãŸã›ã‚‹ã‚„ã¤ */
 } NSFNSF;
 
 /* NSF player */

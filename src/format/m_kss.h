@@ -1,7 +1,7 @@
 #ifndef M_KSS_H__
 #define M_KSS_H__
 
-#include "nestypes.h"
+#include "../nestypes.h"
 
 #ifdef __cplusplus
 extern "C" {

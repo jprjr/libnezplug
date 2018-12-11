@@ -1,9 +1,9 @@
-#include "../nestypes.h"
-#include "s_logtbl.h"
+#include "../../nestypes.h"
+#include "../s_logtbl.h"
 #include "s_opltbl.h"
 
-// https://docs.google.com/Doc?docid=0Aeywjj51RsmGZGQ4a3FuOWZfMTNjcWprZjRncA&hl=en&pli=1 ‚©‚çæ‚Á‚Ä‚«‚½B
-// ‚æ‚­‚±‚ñ‚È‚±‚Æ‚Å‚«‚é‚È‚ŸEEE
+// https://docs.google.com/Doc?docid=0Aeywjj51RsmGZGQ4a3FuOWZfMTNjcWprZjRncA&hl=en&pli=1 ã‹ã‚‰å–ã£ã¦ããŸã€‚
+// ã‚ˆãã“ã‚“ãªã“ã¨ã§ãã‚‹ãªããƒ»ãƒ»ãƒ»
 
 Uint32 sintable_base[] = {
 	2137,

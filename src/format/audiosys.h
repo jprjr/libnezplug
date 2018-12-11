@@ -1,9 +1,9 @@
 #ifndef AUDIOSYS_H__
 #define AUDIOSYS_H__
 
-#include "nestypes.h"
+#include "../nestypes.h"
 #include "audiohandler.h"
-#include "nezplug.h"
+#include "../nezplug.h"
 
 #ifdef __cplusplus
 extern "C" {

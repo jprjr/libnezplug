@@ -1,13 +1,13 @@
-#include "neserr.h"
+#include "../neserr.h"
 #include "handler.h"
 #include "audiosys.h"
 #include "songinfo.h"
 
 #include "m_gbr.h"
-#include "device/s_dmg.h"
-#include "device/divfix.h"
+#include "../device/s_dmg.h"
+#include "../device/divfix.h"
 
-#include "kmz80/kmz80.h"
+#include "../cpu/kmz80/kmz80.h"
 #include <stdio.h>
 #define SHIFT_CPS 15
 
@@ -175,11 +175,6 @@ static void vsync_setup(GBRDMG *THIS_)
 	kmevent_settimer(&THIS_->kme, THIS_->vsync, THIS_->isCGB ? (154 * 456 * 2) : (154 * 456));
 }
 
-static void vsync_setup2(GBRDMG *THIS_)
-{
-	kmevent_settimer(&THIS_->kme, THIS_->vsync, 1);
-}
-
 static void timer_setup(GBRDMG *THIS_)
 {
 	if (THIS_->gb_TMC & 0x4)
@@ -192,22 +187,10 @@ static void timer_setup(GBRDMG *THIS_)
 	}
 }
 
-static void timer_setup2(GBRDMG *THIS_)
-{
-	if (THIS_->gb_TMC & 0x4)
-	{
-		kmevent_settimer(&THIS_->kme, THIS_->timer, 1);
-	}
-	else
-	{
-		kmevent_settimer(&THIS_->kme, THIS_->timer, 0);
-	}
-}
-
 static void timer_update_TIMA(GBRDMG *THIS_)
 {
 	Uint32 cnt;
-	/* ƒ^ƒCƒ}“®ì’†‚È‚çŒ»ƒJƒEƒ“ƒ^‚ðŽæ“¾ */
+	/* ã‚¿ã‚¤ãƒžå‹•ä½œä¸­ãªã‚‰ç¾ã‚«ã‚¦ãƒ³ã‚¿ã‚’å–å¾— */
 	if (kmevent_gettimer(&THIS_->kme, THIS_->timer, &cnt))
 	{
 		cnt >>= timer_clock_table[THIS_->gb_TMC & 3];
@@ -254,10 +237,15 @@ static void map_write_mem8k(GBRDMG *THIS_, Uint32 a, Uint8 *p)
 
 static Uint32 read_null(GBRDMG *THIS_, Uint32 a)
 {
+    (void)THIS_;
+    (void)a;
 	return 0xFF;
 }
 static void write_null(GBRDMG *THIS_, Uint32 a, Uint32 v)
 {
+    (void)THIS_;
+    (void)a;
+    (void)v;
 }
 
 static Uint32 read_E000(GBRDMG *THIS_, Uint32 a)
@@ -375,12 +363,12 @@ static void force_rombank(GBRDMG *THIS_, Uint32 bank, Uint32 data)
 	if (data >= THIS_->bankromnum)
 	{
 #if 1
-		/* –³Ž‹‚µ‚Ä‚Ý‚é */
+		/* ç„¡è¦–ã—ã¦ã¿ã‚‹ */
 #else
-		/* bank #0 ‚ðŠ„‚è“–‚Ä‚Ä‚Ý‚é */
+		/* bank #0 ã‚’å‰²ã‚Šå½“ã¦ã¦ã¿ã‚‹ */
 		map_read_mem8k(THIS_, base + 0x0000, THIS_->bankrom);
 		map_read_mem8k(THIS_, base + 0x2000, THIS_->bankrom + 0x2000);
-		/* –³Œø—Ìˆæƒ}ƒbƒv‚µ‚Ä‚Ý‚é */
+		/* ç„¡åŠ¹é ˜åŸŸãƒžãƒƒãƒ—ã—ã¦ã¿ã‚‹ */
 		map_read_proc8k(THIS_, base + 0x0000, read_null);
 		map_read_proc8k(THIS_, base + 0x2000, read_null);
 #endif
@@ -517,6 +505,7 @@ static void write_rombankselect(GBRDMG *THIS_, Uint32 a, Uint32 v)
 }
 static void write_rambankselect(GBRDMG *THIS_, Uint32 a, Uint32 v)
 {
+    (void)a;
 	switch (THIS_->mapper_type)
 	{
 		case GB_MAPPER_MBC1:
@@ -537,6 +526,7 @@ static void write_rambankselect(GBRDMG *THIS_, Uint32 a, Uint32 v)
 
 static void write_romramselect(GBRDMG *THIS_, Uint32 a, Uint32 v)
 {
+    (void)a;
 	switch (THIS_->mapper_type)
 	{
 		case GB_MAPPER_MBC1:
@@ -572,6 +562,8 @@ static void write_event(void *ctx, Uint32 a, Uint32 v)
 
 static void vsync_event(KMEVENT *event, KMEVENT_ITEM_ID curid, GBRDMG *THIS_)
 {
+    (void)event;
+    (void)curid;
 
 	vsync_setup(THIS_);
 	THIS_->gb_IF |= 1;
@@ -587,6 +579,8 @@ static void vsync_event(KMEVENT *event, KMEVENT_ITEM_ID curid, GBRDMG *THIS_)
 
 static void timer_event(KMEVENT *event, KMEVENT_ITEM_ID curid, GBRDMG *THIS_)
 {
+    (void)event;
+    (void)curid;
 	THIS_->gb_TIMA = THIS_->gb_TMA;
 	timer_setup(THIS_);
 	THIS_->gb_IF |= 4;
@@ -601,7 +595,7 @@ static void timer_event(KMEVENT *event, KMEVENT_ITEM_ID curid, GBRDMG *THIS_)
 
 }
 
-//‚±‚±‚©‚çƒ_ƒ“ƒvÝ’è
+//ã“ã“ã‹ã‚‰ãƒ€ãƒ³ãƒ—è¨­å®š
 static NEZ_PLAY *pNezPlayDump;
 Uint32 (*dump_MEM_GB)(Uint32 a,unsigned char* mem);
 static Uint32 dump_MEM_GB_bf(Uint32 menu,unsigned char* mem){
@@ -711,8 +705,8 @@ static void reset(NEZ_PLAY *pNezPlay)
 #if TEKKA_PATCH_ENABLE
 #if 0
 	/*
-		TEKKA.GBR(TEKKAMAN BLADE)‘Îô (PLAY‚©‚ç‚ÌRET‘O‚É—]•ª‚ÈPOP) Ver.1(”pŽ~)
-		  ‚±‚¿‚ç‚Ì•û‚ª‚í‚©‚è‚â‚·‚¢HWizŠO“`‚ÅˆÙíB
+		TEKKA.GBR(TEKKAMAN BLADE)å¯¾ç­– (PLAYã‹ã‚‰ã®RETå‰ã«ä½™åˆ†ãªPOP) Ver.1(å»ƒæ­¢)
+		  ã“ã¡ã‚‰ã®æ–¹ãŒã‚ã‹ã‚Šã‚„ã™ã„ï¼ŸWizå¤–ä¼ã§ç•°å¸¸ã€‚
 	*/
 	THIS_->playerrom[0x05] = 0xcd;	/* CALL */
 	THIS_->playerrom[0x06] = ((THIS_->playerromioaddr + 0x0a) >> 0) & 0xFF;
@@ -740,8 +734,8 @@ static void reset(NEZ_PLAY *pNezPlay)
 	THIS_->playerrom[0x1c] = 0xfb;	/* -5 */
 #else
 	/*
-		TEKKA.GBR‘Îô (PLAY‚©‚ç‚ÌRET‘O‚É—]•ª‚ÈPOP) Ver.2
-		  Š„‚èž‚Ý‹ÖŽ~(WizŠO“`‘Îô)
+		TEKKA.GBRå¯¾ç­– (PLAYã‹ã‚‰ã®RETå‰ã«ä½™åˆ†ãªPOP) Ver.2
+		  å‰²ã‚Šè¾¼ã¿ç¦æ­¢(Wizå¤–ä¼å¯¾ç­–)
 	*/
 	THIS_->playerrom[0x05] = 0xf3;	/* DI */
 	THIS_->playerrom[0x06] = 0xcd;	/* CALL */
@@ -780,7 +774,7 @@ static void reset(NEZ_PLAY *pNezPlay)
 #else
 #if GBS2GB_EMULATION
 	/*
-		Ä¶ƒAƒhƒŒƒX‚É”ò‚ñ‚¾‚Æ‚«‚ÌƒŒƒWƒXƒ^‚Ì’l‚ðAGBS2GB‚É‡‚í‚¹‚éƒeƒXƒg
+		å†ç”Ÿã‚¢ãƒ‰ãƒ¬ã‚¹ã«é£›ã‚“ã ã¨ãã®ãƒ¬ã‚¸ã‚¹ã‚¿ã®å€¤ã‚’ã€GBS2GBã«åˆã‚ã›ã‚‹ãƒ†ã‚¹ãƒˆ
 	*/
 	THIS_->playerrom[0x05] = 0x21;	/* LD HL,0c03 */
 	THIS_->playerrom[0x06] = 0x03;	
@@ -836,20 +830,20 @@ static void reset(NEZ_PLAY *pNezPlay)
 
 	THIS_->total_cycles = 0;
 
-	//‚±‚±‚©‚çƒ_ƒ“ƒvÝ’è
+	//ã“ã“ã‹ã‚‰ãƒ€ãƒ³ãƒ—è¨­å®š
 	pNezPlayDump = pNezPlay;
 	dump_MEM_GB  = dump_MEM_GB_bf;
 	dump_DEV_DMG = dump_DEV_DMG_bf;
-	//‚±‚±‚Ü‚Åƒ_ƒ“ƒvÝ’è
+	//ã“ã“ã¾ã§ãƒ€ãƒ³ãƒ—è¨­å®š
 
 }
 
 static void terminate(GBRDMG *THIS_)
 {
-	//‚±‚±‚©‚çƒ_ƒ“ƒvÝ’è
+	//ã“ã“ã‹ã‚‰ãƒ€ãƒ³ãƒ—è¨­å®š
 	dump_MEM_GB  = NULL;
 	dump_DEV_DMG = NULL;
-	//‚±‚±‚Ü‚Åƒ_ƒ“ƒvÝ’è
+	//ã“ã“ã¾ã§ãƒ€ãƒ³ãƒ—è¨­å®š
 	if (THIS_->dmgsnd) THIS_->dmgsnd->release(THIS_->dmgsnd->ctx);
 	if (THIS_->bankrom) XFREE(THIS_->bankrom);
 	XFREE(THIS_);
@@ -898,14 +892,14 @@ static Uint32 load(NEZ_PLAY *pNezPlay, GBRDMG *THIS_, Uint8 *pData, Uint32 uSize
 #if 1
 		THIS_->stackaddr = 0x9fc0;	/* vram */
 #else
-		/*  Dr.Mario Ä¶•s‰Â */
-		/*  JUDGE RED Ä¶•s‰Â */
+		/*  Dr.Mario å†ç”Ÿä¸å¯ */
+		/*  JUDGE RED å†ç”Ÿä¸å¯ */
 		THIS_->stackaddr = 0xe000;	/* intrnal ram */
 #endif
 		THIS_->firstTMA = pData[0x0e];
 		THIS_->firstTMC = pData[0x0f] & 0x7f;
-		//ƒwƒbƒ_0FH‚ÌÅãˆÊƒrƒbƒg‚ª—§‚Á‚Ä‚¢‚ÄA‚»‚ÌãˆÊ‚Sƒrƒbƒg‚ª‘S•”—§‚Á‚Ä‚¢‚È‚¢‚È‚çGBC
-		//ãˆÊ‚Sƒrƒbƒg‚ª‘S•”—§‚Á‚Ä‚¢‚é = ƒ^ƒCƒ}[–¢Žg—pƒrƒbƒg‚ð‘S•”—§‚½‚¹‚Ä‚é = GBC‚Æ‚ÍŒÀ‚ç‚È‚¢
+		//ãƒ˜ãƒƒãƒ€0FHã®æœ€ä¸Šä½ãƒ“ãƒƒãƒˆãŒç«‹ã£ã¦ã„ã¦ã€ãã®ä¸Šä½ï¼”ãƒ“ãƒƒãƒˆãŒå…¨éƒ¨ç«‹ã£ã¦ã„ãªã„ãªã‚‰GBC
+		//ä¸Šä½ï¼”ãƒ“ãƒƒãƒˆãŒå…¨éƒ¨ç«‹ã£ã¦ã„ã‚‹ = ã‚¿ã‚¤ãƒžãƒ¼æœªä½¿ç”¨ãƒ“ãƒƒãƒˆã‚’å…¨éƒ¨ç«‹ãŸã›ã¦ã‚‹ = GBCã¨ã¯é™ã‚‰ãªã„
 		THIS_->isCGB = (pData[0x0f] & 0x80) && (pData[0x0f] & 0xf0) != 0xf0 ? 1 : 0;
 		THIS_->mapper_type = GB_MAPPER_GBR;
 		uSize -= 0x20;
@@ -915,13 +909,13 @@ static Uint32 load(NEZ_PLAY *pNezPlay, GBRDMG *THIS_, Uint8 *pData, Uint32 uSize
 
 		XMEMSET(THIS_->titlebuffer, 0, 0x21);
 		XMEMCPY(THIS_->titlebuffer, pData + 0x0134, 0x10);
-		songinfodata.title=THIS_->titlebuffer;
+		songinfodata.title=(char *)THIS_->titlebuffer;
 
 		XMEMSET(THIS_->artistbuffer, 0, 0x21);
-		songinfodata.artist=THIS_->artistbuffer;
+		songinfodata.artist=(char *)THIS_->artistbuffer;
 
 		XMEMSET(THIS_->copyrightbuffer, 0, 0x21);
-		songinfodata.copyright=THIS_->copyrightbuffer;
+		songinfodata.copyright=(char *)THIS_->copyrightbuffer;
 
 		sprintf(songinfodata.detail,
 "Type               : GBRF\r\n\
@@ -962,10 +956,10 @@ First TMC          : %02XH"
 
 		//---+ [changes_rough.txt]
 		
-		//‚È‚ñ‚©S”z‚ÈŽž—pBãˆÊ‚Sƒrƒbƒg‚ª‘S•”—§‚Á‚Ä‚¢‚È‚¢‚È‚ç—LŒø‚Æ‚µ‚Ä‚¨‚­Bi‚Æ‚«ƒƒ‚•Ó‚è‚Æ‚©j
+		//ãªã‚“ã‹å¿ƒé…ãªæ™‚ç”¨ã€‚ä¸Šä½ï¼”ãƒ“ãƒƒãƒˆãŒå…¨éƒ¨ç«‹ã£ã¦ã„ãªã„ãªã‚‰æœ‰åŠ¹ã¨ã—ã¦ãŠãã€‚ï¼ˆã¨ããƒ¡ãƒ¢è¾ºã‚Šã¨ã‹ï¼‰
 		//THIS_->useINT = ((pData[0x0f] & 0x44) == 0x44 && (pData[0x0f] & 0xf0) != 0xf0)? 1 : 0;
 
-		//Œ¾‚í‚ê‚é‚ª‚Ü‚Ü‚Éƒ\[ƒX‚ðC³‚µ‚½‚ªAˆê•”‚ÌGBS‚ªÄ¶‚³‚ê‚È‚­‚È‚Á‚½‚Ì‚Í‚±‚Ì•”•ª‚Ì‚¹‚¢
+		//è¨€ã‚ã‚Œã‚‹ãŒã¾ã¾ã«ã‚½ãƒ¼ã‚¹ã‚’ä¿®æ­£ã—ãŸãŒã€ä¸€éƒ¨ã®GBSãŒå†ç”Ÿã•ã‚Œãªããªã£ãŸã®ã¯ã“ã®éƒ¨åˆ†ã®ã›ã„
 		THIS_->useINT = ((pData[0x0f] & 0x44) == 0x44 )? 1 : 0;
 		
 		if (THIS_->useINT & 1) {
@@ -988,15 +982,15 @@ First TMC          : %02XH"
 
 		XMEMSET(THIS_->titlebuffer, 0, 0x21);
 		XMEMCPY(THIS_->titlebuffer, pData + 0x0010, 0x20);
-		songinfodata.title=THIS_->titlebuffer;
+		songinfodata.title=(char *)THIS_->titlebuffer;
 
 		XMEMSET(THIS_->artistbuffer, 0, 0x21);
 		XMEMCPY(THIS_->artistbuffer, pData + 0x0030, 0x20);
-		songinfodata.artist=THIS_->artistbuffer;
+		songinfodata.artist=(char *)THIS_->artistbuffer;
 
 		XMEMSET(THIS_->copyrightbuffer, 0, 0x21);
 		XMEMCPY(THIS_->copyrightbuffer, pData + 0x0050, 0x20);
-		songinfodata.copyright=THIS_->copyrightbuffer;
+		songinfodata.copyright=(char *)THIS_->copyrightbuffer;
 
 		sprintf(songinfodata.detail,
 "Type              : GBS\r\n\
@@ -1037,11 +1031,11 @@ Use INT           : %d"
 	XMEMSET(THIS_->bankrom, 0, THIS_->bankromnum << 14);
 #if MARIO2_PATCH_ENABLE
 	/*
-		MARIO2.GBR(SUPER MARIO LAND)‘Îô (ƒtƒ@ƒCƒ‹ƒTƒCƒYk¬‚Ì‚½‚ß#0‚Æ#1‚ðŒðŠ·)
+		MARIO2.GBR(SUPER MARIO LAND)å¯¾ç­– (ãƒ•ã‚¡ã‚¤ãƒ«ã‚µã‚¤ã‚ºç¸®å°ã®ãŸã‚#0ã¨#1ã‚’äº¤æ›)
 	*/
 	if (THIS_->bankromnum == 2 && THIS_->bankromfirst[0] == 1 && THIS_->bankromfirst[1] == 0)
 	{
-		/* 4000-7FFF‚É‚Í#0‚Í‘I‘ð‚Å‚«‚È‚¢‚Ì‚Å–{—ˆ‚Í•s³ */
+		/* 4000-7FFFã«ã¯#0ã¯é¸æŠžã§ããªã„ã®ã§æœ¬æ¥ã¯ä¸æ­£ */
 		if (uSize > 0x4000) XMEMCPY(THIS_->bankrom + 0x0000, pData + 0x4000, uSize - 0x4000);
 		XMEMCPY(THIS_->bankrom + 0x4000, pData + 0x0000, (uSize > 0x4000) ? 0x4000 : uSize);
 		THIS_->bankromfirst[0] = 0;
@@ -1085,9 +1079,9 @@ static Int32 __fastcall DMGSoundRenderMono(void *pNezPlay)
 }
 
 const static NES_AUDIO_HANDLER gbrdmg_audio_handler[] = {
-	{ 0, ExecuteDMGCPU, 0, },
-	{ 3, DMGSoundRenderMono, DMGSoundRenderStereo },
-	{ 0, 0, 0, },
+	{ 0, ExecuteDMGCPU, 0, NULL },
+	{ 3, DMGSoundRenderMono, DMGSoundRenderStereo, NULL },
+	{ 0, 0, 0, NULL },
 };
 
 static void __fastcall GBRDMGVolume(void *pNezPlay, Uint32 v)
@@ -1099,8 +1093,8 @@ static void __fastcall GBRDMGVolume(void *pNezPlay, Uint32 v)
 }
 
 const static NES_VOLUME_HANDLER gbrdmg_volume_handler[] = {
-	{ GBRDMGVolume, }, 
-	{ 0, }, 
+	{ GBRDMGVolume, NULL }, 
+	{ 0, NULL }, 
 };
 
 static void __fastcall GBRDMGCPUReset(void *pNezPlay)
@@ -1109,8 +1103,8 @@ static void __fastcall GBRDMGCPUReset(void *pNezPlay)
 }
 
 const static NES_RESET_HANDLER gbrdmg_reset_handler[] = {
-	{ NES_RESET_SYS_LAST, GBRDMGCPUReset, },
-	{ 0,                  0, },
+	{ NES_RESET_SYS_LAST, GBRDMGCPUReset, NULL },
+	{ 0,                  0, NULL },
 };
 
 static void __fastcall GBRDMGCPUTerminate(void *pNezPlay)
@@ -1123,15 +1117,15 @@ static void __fastcall GBRDMGCPUTerminate(void *pNezPlay)
 }
 
 const static NES_TERMINATE_HANDLER gbrdmg_terminate_handler[] = {
-	{ GBRDMGCPUTerminate, },
-	{ 0, },
+	{ GBRDMGCPUTerminate, NULL },
+	{ 0, NULL },
 };
 
 Uint32 GBRLoad(NEZ_PLAY *pNezPlay, Uint8 *pData, Uint32 uSize)
 {
 	Uint32 ret;
 	GBRDMG *THIS_;
-	if (pNezPlay->gbrdmg) *((char *)(0)) = 0;	/* ASSERT */
+	if (pNezPlay->gbrdmg) __builtin_trap();	/* ASSERT */
 	THIS_ = (GBRDMG *)XMALLOC(sizeof(GBRDMG));
 	if (!THIS_) return NESERR_SHORTOFMEMORY;
 	ret = load(pNezPlay, THIS_, pData, uSize);

@@ -7,7 +7,7 @@
 #define CPFWM_BITS 4
 
 #define NOISE_EDGE 1
-#define WAVETABLE_REAL_RW 1 //FIFA Soccer '97‚Ìƒhƒ‰ƒCƒo‚Å‚¨‚©‚µ‚­‚È‚é‚½‚ßA¡‚Í‚Ü‚¾–³Œø
+#define WAVETABLE_REAL_RW 1 //FIFA Soccer '97ã®ãƒ‰ãƒ©ã‚¤ãƒã§ãŠã‹ã—ããªã‚‹ãŸã‚ã€ä»Šã¯ã¾ã ç„¡åŠ¹
 
 //#define DMGSOUND_IS_SIGNED 0
 /* #define DMGSOUND_IS_SIGNED 0 */ /* real DMG-SYSTEM output */
@@ -145,12 +145,12 @@ typedef struct {
 } DMGSOUND;
 
 const static Uint8 square_duty_table[4][8] = 
-/* i’Pƒƒpƒ^[ƒ“j‚±‚¤‚µ‚È‚¢‚ÆAƒAƒXƒ~ƒb‚­‚ñƒ[ƒ‹ƒh‚Q‚Å–‘«‚É’‚Á‚Ä‚­‚ê‚È‚¢ */
+/* ï¼ˆå˜ç´”ãƒ‘ã‚¿ãƒ¼ãƒ³ï¼‰ã“ã†ã—ãªã„ã¨ã€ã‚¢ã‚¹ãƒŸãƒƒãã‚“ãƒ¯ãƒ¼ãƒ«ãƒ‰ï¼’ã§æº€è¶³ã«å–‹ã£ã¦ãã‚Œãªã„ */
 //	{ {1,0,0,0,0,0,0,0} , {1,1,0,0,0,0,0,0} , {1,1,1,1,0,0,0,0} , {1,1,1,1,1,1,0,0} };
 
 /* GBSOUND.TXT */
 	{ {0,0,0,0,1,0,0,0} , {0,0,0,0,1,1,0,0} , {0,0,1,1,1,1,0,0} , {1,1,1,1,0,0,1,1} };
-/* GBSOUND.TXT‚Ì‹t */
+/* GBSOUND.TXTã®é€† */
 //	{ {1,1,1,1,0,1,1,1} , {1,1,1,1,0,0,1,1} , {1,1,0,0,0,0,1,1} , {0,0,0,0,1,1,0,0} };
 
 const static Uint8 square_duty_avg[4] = {1,2,4,6};
@@ -179,7 +179,7 @@ static const Uint32 spd_limit_table[8] =
 
 Uint8 GBAMode = 0;
 
-//NR30‚ÌƒL[ONƒtƒ‰ƒO‚ğ—§‚½‚¹‚é‚ÆA‹éŒ`ƒ`ƒƒƒ“ƒlƒ‹‚È‚Ç‚Ìo—Í‚ªAKEYOFF‚É+8‚³‚ê‚éH
+//NR30ã®ã‚­ãƒ¼ONãƒ•ãƒ©ã‚°ã‚’ç«‹ãŸã›ã‚‹ã¨ã€çŸ©å½¢ãƒãƒ£ãƒ³ãƒãƒ«ãªã©ã®å‡ºåŠ›ãŒã€KEYOFFæ™‚ã«+8ã•ã‚Œã‚‹ï¼Ÿ
 #define KEYON_MODE (!GBAMode && sndp->wavememory.key)
 
 static void LengthCounterStep(LENGTHCOUNTER *lc, Uint8 *key)
@@ -203,7 +203,7 @@ static void EnvelopeDecayStep(ENVELOPEDECAY *ed)
 		else if (ed->volume)
 		{
 			ed->volume--;
-			//ƒGƒ“ƒyƒ[ƒuI—¹‚µ‚½‚ç0ƒNƒŠƒAiZOMBIE MODE‚Ìˆ×j
+			//ã‚¨ãƒ³ãƒšãƒ­ãƒ¼ãƒ–çµ‚äº†ã—ãŸã‚‰0ã‚¯ãƒªã‚¢ï¼ˆZOMBIE MODEã®ç‚ºï¼‰
 			if(!ed->volume) ed->rate = 0;
 		}
 	}
@@ -223,7 +223,7 @@ static Uint8 SweepStep(SWEEP *sw, Uint8 *key)
 			sw->wl += sw->wl >> sw->shifter;
 			if (sw->wl > spd_limit_table[sw->shifter]){
 				*key = 0;
-				sw->wl = 0x7FF;		//uŒ³‘cƒ„ƒ“ƒ`ƒƒŠÛv‚Å‚ÌƒXƒC[ƒv—‚İ‚Ì‹­§I—¹‘Îô
+				sw->wl = 0x7FF;		//ã€Œå…ƒç¥–ãƒ¤ãƒ³ãƒãƒ£ä¸¸ã€ã§ã®ã‚¹ã‚¤ãƒ¼ãƒ—çµ¡ã¿ã®å¼·åˆ¶çµ‚äº†å¯¾ç­–
 			}
 		}
 		return 1;
@@ -231,15 +231,15 @@ static Uint8 SweepStep(SWEEP *sw, Uint8 *key)
 	return 0;
 }
 
-//MRN : ‚±‚ñ‚ÈŠ´‚¶‚Ìƒ]ƒ“ƒr‚ç‚µ‚¢
+//MRN : ã“ã‚“ãªæ„Ÿã˜ã®ã‚¾ãƒ³ãƒ“ã‚‰ã—ã„
 static void DMGZombieMode(ENVELOPEDECAY *ed, Uint32 *value, Uint8 *key)
 {
 
 //	if(!ed->rate || !(*value & 0x07)){
-		//ƒGƒ“ƒyƒ[ƒu‚ª‰ºŒü‚«‚ÅA‰¹—Ê‚ª0‚È‚çƒL[ƒIƒt
+		//ã‚¨ãƒ³ãƒšãƒ­ãƒ¼ãƒ–ãŒä¸‹å‘ãã§ã€éŸ³é‡ãŒ0ãªã‚‰ã‚­ãƒ¼ã‚ªãƒ•
 		if(!(*value & 0xf8)) *key = 0;
 
-		//ƒGƒ“ƒyƒ[ƒuŒü‚«‚ªˆá‚Á‚Ä‚¢‚½‚çAƒ{ƒŠƒ…[ƒ€‚ÉNOT‚ğ‚©‚¯‚é
+		//ã‚¨ãƒ³ãƒšãƒ­ãƒ¼ãƒ–å‘ããŒé•ã£ã¦ã„ãŸã‚‰ã€ãƒœãƒªãƒ¥ãƒ¼ãƒ ã«NOTã‚’ã‹ã‘ã‚‹
 		if((*value & 0x08) != ed->zombie_direction){
 			ed->zombie_direction = *value & 0x08;
 			ed->volume = (ed->volume + ((*value & 0x07) != 0)) & 0x0f;
@@ -247,9 +247,9 @@ static void DMGZombieMode(ENVELOPEDECAY *ed, Uint32 *value, Uint8 *key)
 		}else{
 			ed->volume = (ed->volume + 1 + ((*value & 0x07) != 0)) & 0x0f;
 		}
-		//*value &= 0xf8;		//ƒGƒ“ƒyƒ[ƒuƒŒ[ƒg(bit0-2)‚ğƒNƒŠƒA
+		//*value &= 0xf8;		//ã‚¨ãƒ³ãƒšãƒ­ãƒ¼ãƒ–ãƒ¬ãƒ¼ãƒˆ(bit0-2)ã‚’ã‚¯ãƒªã‚¢
 //	}
-/*	//MRN : ŒÃ‚¢ƒ]ƒ“ƒrƒ\[ƒX
+/*	//MRN : å¤ã„ã‚¾ãƒ³ãƒ“ã‚½ãƒ¼ã‚¹
 	if((!sndp->square[ch].lc.enable || !sndp->square[ch].lc.counter)
 		&& (sndp->square[0].sw.rate == 0)){
 		if(sndp->square[ch].ed.initial_volume != 0)
@@ -354,7 +354,7 @@ static Int32 DMGSoundWaveMemoryRender(DMGSOUND *sndp, DMG_WAVEMEMORY *ch)
 	wl = (0x800 - ch->wl) << CPS_BITS;
 	ch->pt += ch->cps << WM_RENDERS;
 
-	//ƒsƒJƒ`ƒ…ƒE‚Ìº‚ª0x7FF‚Å‰ñ‚Á‚Ä‚¢‚é‚½‚ßAˆê‰”­º‚µ‚Ä‚¨‚­
+	//ãƒ”ã‚«ãƒãƒ¥ã‚¦ã®å£°ãŒ0x7FFã§å›ã£ã¦ã„ã‚‹ãŸã‚ã€ä¸€å¿œç™ºå£°ã—ã¦ãŠã
 	if (ch->wl > 0x7f9){
 		Uint32 total,i;
 		for(total=0, i=0; i<0x20; i++)
@@ -390,7 +390,7 @@ static Int32 DMGSoundWaveMemoryRender(DMGSOUND *sndp, DMG_WAVEMEMORY *ch)
 			ch->pt -= wl;
 			ch->ct++;
 /*			if((ch->ct | (0xff-(1<<(WM_RENDERS-KAERUNOISE_BITS))+1))==(0xff-(1<<(WM_RENDERS-KAERUNOISE_BITS))+1)){
-				//ƒJƒGƒ‹ƒNƒŠƒbƒNƒmƒCƒY
+				//ã‚«ã‚¨ãƒ«ã‚¯ãƒªãƒƒã‚¯ãƒã‚¤ã‚º
 				if(sndp->nazo.enable == 8 && !sndp->wavememory.key){
 						sndp->nazo.enable = 1;
 				}
@@ -448,7 +448,7 @@ static Int32 DMGSoundNoiseRender(DMGSOUND *sndp, DMG_NOISE *ch)
 		count++;
 		//---
 
-		/* ‰¹¿Œüã‚Ì‚½‚ß */
+		/* éŸ³è³ªå‘ä¸Šã®ãŸã‚ */
 		ch->ct++;
 		if(ch->ct >= 16){ch->ct=0;
 			if(ch->rng == 0)ch->rng = 1;
@@ -531,7 +531,7 @@ static void sndsynth(void *ctx, Int32 *p)
 		return;
 	}
 
-	//MRN : GB‚Å‚ÍANR52-7bit–Ú‚ğˆê’UOFF‚·‚é‚ÆAƒL[ƒIƒ“‚³‚ê‚é‚Ü‚Å¸Ø¯¸É²½Ş‚·‚ço‚È‚¢H
+	//MRN : GBã§ã¯ã€NR52-7bitç›®ã‚’ä¸€æ—¦OFFã™ã‚‹ã¨ã€ã‚­ãƒ¼ã‚ªãƒ³ã•ã‚Œã‚‹ã¾ã§ï½¸ï¾˜ï½¯ï½¸ï¾‰ï½²ï½½ï¾ã™ã‚‰å‡ºãªã„ï¼Ÿ
 	if (!GBAMode && !sndp->common.enablefg) {
 		b[0] += outputidle * 4;
 		b[1] += outputidle * 4;
@@ -581,11 +581,11 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 #if WAVETABLE_REAL_RW
 	if (0xff30 <= a && a <= 0xff3f)
 	{
-		// ”gŒ`ƒƒ‚ƒŠÄ¶’†‚É‘‚­‚ÆA
-		// GBEGBP‚Íh‚Ü‚ê‚Éh•Ï‚È‚Æ‚±‚ë‚É‘‚©‚³‚é‚ç‚µ‚¢B
-		// GBC‚Íh‚Æ‚«‚Ç‚«h•Ï‚È‚Æ‚±‚ë‚É‘‚©‚³‚é‚ç‚µ‚¢B
-		// GBA‚Í‘S‚­‘‚©‚ê‚È‚¢B
-		if(!GBAMode){//GB ‚Å‚ÍAÄ¶’†‚Ì”gŒ`ˆÊ’u‚Ìƒƒ‚ƒŠƒf[ƒ^‚É‘‚­‚ñ‚¾‚Æv‚¤B
+		// æ³¢å½¢ãƒ¡ãƒ¢ãƒªå†ç”Ÿä¸­ã«æ›¸ãã¨ã€
+		// GBãƒ»GBPã¯â€ã¾ã‚Œã«â€å¤‰ãªã¨ã“ã‚ã«æ›¸ã‹ã•ã‚‹ã‚‰ã—ã„ã€‚
+		// GBCã¯â€ã¨ãã©ãâ€å¤‰ãªã¨ã“ã‚ã«æ›¸ã‹ã•ã‚‹ã‚‰ã—ã„ã€‚
+		// GBAã¯å…¨ãæ›¸ã‹ã‚Œãªã„ã€‚
+		if(!GBAMode){//GB ã§ã¯ã€å†ç”Ÿä¸­ã®æ³¢å½¢ä½ç½®ã®ãƒ¡ãƒ¢ãƒªãƒ‡ãƒ¼ã‚¿ã«æ›¸ãã‚“ã ã¨æ€ã†ã€‚
 			if(!sndp->wavememory.key || sndp->wavememory.initial_volume == 0){
 				sndp->wavememory.tone[((a - 0xff30) << 1) + 0] = (v >> 4) & 0x0f;
 				sndp->wavememory.tone[((a - 0xff30) << 1) + 1] = (v << 0) & 0x0f;
@@ -662,7 +662,7 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 			sndp->square[ch].wl |= (v << 8) & 0x700;
 			sndp->square[ch].lc.enable = v & 0x40;
 			
-			//MRN : GB‚Å‚ÍANR*4‚É‘‚«‚Ş‚½‚Ñ‚ÉAlcƒJƒEƒ“ƒ^‚ªŒ¸Z‚³‚ê‚éH
+			//MRN : GBã§ã¯ã€NR*4ã«æ›¸ãè¾¼ã‚€ãŸã³ã«ã€lcã‚«ã‚¦ãƒ³ã‚¿ãŒæ¸›ç®—ã•ã‚Œã‚‹ï¼Ÿ
 			if(!GBAMode)LengthCounterStep(&sndp->square[ch].lc, &sndp->square[ch].key);
 			
 			if (v & 0x80)
@@ -689,7 +689,7 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 					sndp->square[ch].ed.rate = 0;
 				sndp->square[ch].ed.zombie_direction = sndp->square[ch].ed.direction;
 
-				//MRN : GB‚Å‚ÍANR52-7bit–Ú‚ğˆê’UOFF‚·‚é‚ÆAƒL[ƒIƒ“‚³‚ê‚é‚Ü‚Å¸Ø¯¸É²½Ş‚·‚ço‚È‚¢H
+				//MRN : GBã§ã¯ã€NR52-7bitç›®ã‚’ä¸€æ—¦OFFã™ã‚‹ã¨ã€ã‚­ãƒ¼ã‚ªãƒ³ã•ã‚Œã‚‹ã¾ã§ï½¸ï¾˜ï½¯ï½¸ï¾‰ï½²ï½½ï¾ã™ã‚‰å‡ºãªã„ï¼Ÿ
 				if((sndp->square[ch].ed.volume)
 					|| (sndp->square[ch].ed.direction && sndp->square[ch].ed.initial_rate))
 					sndp->common.enablefg = 2;
@@ -746,7 +746,7 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 //				sndp->nazo.fc %= sndp->nazo.cpf / 2;
 //				sndp->nazo.fc = 0;
 //			}
-			//ªƒJƒGƒ‹‚Ìˆ×` ‚Ì–¼‘O“ü—ÍBGM‚ÌƒNƒŠƒbƒN‰¹‚Æ–§Ú‚ÈŠÖŒW‚ª‚ ‚é‚æ‚¤‚¾‚ªc
+			//â†‘ã‚«ã‚¨ãƒ«ã®ç‚ºã€œ ã®åå‰å…¥åŠ›BGMã®ã‚¯ãƒªãƒƒã‚¯éŸ³ã¨å¯†æ¥ãªé–¢ä¿‚ãŒã‚ã‚‹ã‚ˆã†ã ãŒâ€¦
 
 			//			if(sndp->nazo)sndp->square[0].st=4;
 //			if(sndp->nazo)sndp->square[1].st=4;
@@ -764,7 +764,7 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 
 			if(sndp->wavememory.lc.enable)sndp->wavememory.lc.enable = v & 0x40;
 
-			//MRN : GB‚Å‚ÍANR*4‚É‘‚«‚Ş‚½‚Ñ‚ÉAlcƒJƒEƒ“ƒ^‚ªŒ¸Z‚³‚ê‚éH
+			//MRN : GBã§ã¯ã€NR*4ã«æ›¸ãè¾¼ã‚€ãŸã³ã«ã€lcã‚«ã‚¦ãƒ³ã‚¿ãŒæ¸›ç®—ã•ã‚Œã‚‹ï¼Ÿ
 			if(!GBAMode)LengthCounterStep(&sndp->wavememory.lc, &sndp->wavememory.key);
 
 			if (v & 0x80)
@@ -783,7 +783,7 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 //				}
 				sndp->wavememory.lc.enable = v & 0x40;
 
-				//MRN : GB‚Å‚ÍANR52-7bit–Ú‚ğˆê’UOFF‚·‚é‚ÆAƒL[ƒIƒ“‚³‚ê‚é‚Ü‚Å¸Ø¯¸É²½Ş‚·‚ço‚È‚¢H
+				//MRN : GBã§ã¯ã€NR52-7bitç›®ã‚’ä¸€æ—¦OFFã™ã‚‹ã¨ã€ã‚­ãƒ¼ã‚ªãƒ³ã•ã‚Œã‚‹ã¾ã§ï½¸ï¾˜ï½¯ï½¸ï¾‰ï½²ï½½ï¾ã™ã‚‰å‡ºãªã„ï¼Ÿ
 				if(sndp->wavememory.initial_volume)
 					sndp->common.enablefg = 2;
 			}
@@ -825,7 +825,7 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 		case 0xff23:
 			sndp->noise.lc.enable = v & 0x40;
 
-			//MRN : GB‚Å‚ÍANR*4‚É‘‚«‚Ş‚½‚Ñ‚ÉAlcƒJƒEƒ“ƒ^‚ªŒ¸Z‚³‚ê‚éH
+			//MRN : GBã§ã¯ã€NR*4ã«æ›¸ãè¾¼ã‚€ãŸã³ã«ã€lcã‚«ã‚¦ãƒ³ã‚¿ãŒæ¸›ç®—ã•ã‚Œã‚‹ï¼Ÿ
 			if(!GBAMode)LengthCounterStep(&sndp->noise.lc, &sndp->noise.key);
 
 			if (v & 0x80)
@@ -847,7 +847,7 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 					sndp->noise.ed.rate = 0;
 				sndp->noise.ed.zombie_direction = sndp->noise.ed.direction;
 
-				//MRN : GB‚Å‚ÍANR52-7bit–Ú‚ğˆê’UOFF‚·‚é‚ÆAƒL[ƒIƒ“‚³‚ê‚é‚Ü‚Å¸Ø¯¸É²½Ş‚·‚ço‚È‚¢H
+				//MRN : GBã§ã¯ã€NR52-7bitç›®ã‚’ä¸€æ—¦OFFã™ã‚‹ã¨ã€ã‚­ãƒ¼ã‚ªãƒ³ã•ã‚Œã‚‹ã¾ã§ï½¸ï¾˜ï½¯ï½¸ï¾‰ï½²ï½½ï¾ã™ã‚‰å‡ºãªã„ï¼Ÿ
 				if((sndp->noise.ed.volume)
 					|| (sndp->noise.ed.direction && sndp->noise.ed.initial_rate))
 					sndp->common.enablefg = 2;
@@ -872,7 +872,7 @@ static Uint32 sndread(void *ctx, Uint32 a)
 	DMGSOUND *sndp = ctx;
 	switch (a)
 	{
-		//MRN : ‚±‚ñ‚ÈŠ´‚¶‚Ìƒ}ƒXƒN‚ç‚µ‚¢
+		//MRN : ã“ã‚“ãªæ„Ÿã˜ã®ãƒã‚¹ã‚¯ã‚‰ã—ã„
 		case 0xff10: return sndp->common.regs[a - 0xff10] | 0x80;
 		case 0xff11: return sndp->common.regs[a - 0xff10] | 0x3f;
 		case 0xff12: return sndp->common.regs[a - 0xff10] | 0x00;
@@ -907,8 +907,8 @@ static Uint32 sndread(void *ctx, Uint32 a)
 #if WAVETABLE_REAL_RW
 	if (0xff30 <= a && a <= 0xff3f)
 	{
-		//MRN : ‚È‚ñ‚ÆAGBA‚Å‚Ích3Ä¶’†‚É”gŒ`ƒƒ‚ƒŠ‚ğ“Ç‚ß‚È‚¢IH
-		if(!GBAMode){//GB ‚Å‚ÍAÄ¶’†‚Ì”gŒ`ˆÊ’u‚Ìƒƒ‚ƒŠƒf[ƒ^‚É‘‚­‚ñ‚¾‚Æv‚¤B
+		//MRN : ãªã‚“ã¨ã€GBAã§ã¯ch3å†ç”Ÿä¸­ã«æ³¢å½¢ãƒ¡ãƒ¢ãƒªã‚’èª­ã‚ãªã„ï¼ï¼Ÿ
+		if(!GBAMode){//GB ã§ã¯ã€å†ç”Ÿä¸­ã®æ³¢å½¢ä½ç½®ã®ãƒ¡ãƒ¢ãƒªãƒ‡ãƒ¼ã‚¿ã«æ›¸ãã‚“ã ã¨æ€ã†ã€‚
 			if(!sndp->wavememory.key || sndp->wavememory.initial_volume == 0){
 				return sndp->common.regs[a - 0xff10];
 			}else{
@@ -974,7 +974,7 @@ static void sndreset(void *ctx, Uint32 clock, Uint32 freq)
 //	DMGSoundNazoReset(&sndp->nazo, clock, freq);
 	for (p = 0; reset_table[p] || reset_table[p+1]; p+=2)
 		sndwrite(sndp, 0xff00 + reset_table[p], reset_table[p+1]);
-//MRN : GBCEGBA‚Å‚ÍA00 FF 00 FFc‚ÆAãY—í‚É‰Šú‰»‚³‚ê‚é
+//MRN : GBCãƒ»GBAã§ã¯ã€00 FF 00 FFâ€¦ã¨ã€ç¶ºéº—ã«åˆæœŸåŒ–ã•ã‚Œã‚‹
 	if	(GBAMode)
 		for (a = 0xff30; a <= 0xff3f; a++) sndwrite(sndp, a, (a & 1) ? 0xff : 0);
 	sndp->common.enablefg = 2;
@@ -989,15 +989,21 @@ static void sndrelease(void *ctx)
 	}
 }
 
-static void setinst(void *ctx, Uint32 n, void *p, Uint32 l){}
+static void setinst(void *ctx, Uint32 n, void *p, Uint32 l)
+{
+    (void)ctx;
+    (void)n;
+    (void)p;
+    (void)l;
+}
 
-//‚±‚±‚©‚çƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+//ã“ã“ã‹ã‚‰ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 Uint8 *gb_regdata;
 Uint32 (*ioview_ioread_DEV_DMG)(Uint32 a);
 static Uint32 ioview_ioread_bf(Uint32 a){
 	if(a<=0x2f)return gb_regdata[a];else return 0x100;
 }
-//‚±‚±‚Ü‚ÅƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+//ã“ã“ã¾ã§ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 
 
 KMIF_SOUND_DEVICE *DMGSoundAlloc(void)
@@ -1021,10 +1027,10 @@ KMIF_SOUND_DEVICE *DMGSoundAlloc(void)
 		return 0;
 	}
 
-	//‚±‚±‚©‚çƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+	//ã“ã“ã‹ã‚‰ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 	gb_regdata = sndp->common.regs;
 	ioview_ioread_DEV_DMG = ioview_ioread_bf;
-	//‚±‚±‚Ü‚ÅƒŒƒWƒXƒ^ƒrƒ…ƒA[İ’è
+	//ã“ã“ã¾ã§ãƒ¬ã‚¸ã‚¹ã‚¿ãƒ“ãƒ¥ã‚¢ãƒ¼è¨­å®š
 
 	return &sndp->kmif;
 }

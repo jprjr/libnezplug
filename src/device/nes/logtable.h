@@ -1,4 +1,4 @@
-#include "../nestypes.h"
+#include "../../nestypes.h"
 
 #define LOG_BITS 12
 #define LIN_BITS 8

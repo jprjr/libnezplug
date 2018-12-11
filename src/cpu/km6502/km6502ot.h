@@ -3,7 +3,7 @@
 	case 0x##i: \
 		Opcode##i(__THISP); \
 		break;
-#if BUILD_2A03 //2A03��DecimalMode�Ȃ�Ăˁ[�悗
+#if BUILD_2A03 //2A03にDecimalModeなんてねーよｗ
 #define OP_d(i) \
 	case 0x##i: \
 		Opcode##i(__THISP); \
