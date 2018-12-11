@@ -669,7 +669,7 @@ static uint32_t load(NEZ_PLAY *pNezPlay, KSSSEQ *THIS_, uint8_t *pData, uint32_t
 	}
 	else
 	{
-		return NEZPLUG_NESERR_FORMAT;
+		return NEZ_NESERR_FORMAT;
 	}
 	THIS_->dataaddr = GetWordLE(pData + 0x04);
 	THIS_->datasize = GetWordLE(pData + 0x06);
@@ -716,7 +716,7 @@ Extra Device : %s%s%s%s%s"
 		THIS_->bankmode = KSS_BANK_OFF;
 	}
 	THIS_->data = XMALLOC(THIS_->datasize + THIS_->banksize * THIS_->banknum + 8);
-	if (!THIS_->data) return NEZPLUG_NESERR_SHORTOFMEMORY;
+	if (!THIS_->data) return NEZ_NESERR_SHORTOFMEMORY;
 	THIS_->bankbase = THIS_->data + THIS_->datasize;
 	if (uSize > 0x10 && THIS_->datasize)
 	{
@@ -773,11 +773,11 @@ Extra Device : %s%s%s%s%s"
 			dump_DEV_SN76489 = dump_DEV_SN76489_bf;
 			//ここまでダンプ設定
 		}
-		if (!THIS_->sndp[SND_SNG]) return NEZPLUG_NESERR_SHORTOFMEMORY;
+		if (!THIS_->sndp[SND_SNG]) return NEZ_NESERR_SHORTOFMEMORY;
 		if (THIS_->extdevice & EXTDEVICE_FMUNIT)
 		{
 			THIS_->sndp[SND_FMUNIT] = OPLSoundAlloc(OPL_TYPE_SMSFMUNIT);
-			if (!THIS_->sndp[SND_FMUNIT]) return NEZPLUG_NESERR_SHORTOFMEMORY;
+			if (!THIS_->sndp[SND_FMUNIT]) return NEZ_NESERR_SHORTOFMEMORY;
 			//ここからダンプ設定
 			dump_DEV_OPLL = dump_DEV_OPLL_bf;
 			//ここまでダンプ設定
@@ -818,14 +818,14 @@ Extra Device : %s%s%s%s%s"
 		}else{
 			THIS_->sndp[SND_PSG] = PSGSoundAlloc(PSG_TYPE_AY_3_8910);
 		}
-		if (!THIS_->sndp[SND_PSG]) return NEZPLUG_NESERR_SHORTOFMEMORY;
+		if (!THIS_->sndp[SND_PSG]) return NEZ_NESERR_SHORTOFMEMORY;
 		//ここからダンプ設定
 		dump_DEV_AY8910 = dump_DEV_AY8910_bf;
 		//ここまでダンプ設定
 		if (THIS_->extdevice & EXTDEVICE_MSXMUSIC)
 		{
 			THIS_->sndp[SND_MSXMUSIC] = OPLSoundAlloc(OPL_TYPE_MSXMUSIC);
-			if (!THIS_->sndp[SND_MSXMUSIC]) return NEZPLUG_NESERR_SHORTOFMEMORY;
+			if (!THIS_->sndp[SND_MSXMUSIC]) return NEZ_NESERR_SHORTOFMEMORY;
 			//ここからダンプ設定
 			dump_DEV_OPLL = dump_DEV_OPLL_bf;
 			//ここまでダンプ設定
@@ -834,7 +834,7 @@ Extra Device : %s%s%s%s%s"
 		{
 			THIS_->sndp[SND_MSXAUDIO] = OPLSoundAlloc(OPL_TYPE_MSXAUDIO);
 			//THIS_->sndp[SND_MSXAUDIO] = OPLSoundAlloc(OPL_TYPE_OPL2);
-			if (!THIS_->sndp[SND_MSXAUDIO]) return NEZPLUG_NESERR_SHORTOFMEMORY;
+			if (!THIS_->sndp[SND_MSXAUDIO]) return NEZ_NESERR_SHORTOFMEMORY;
 			//ここからダンプ設定
 			dump_DEV_OPL = dump_DEV_OPL_bf;
 			dump_DEV_ADPCM = dump_DEV_ADPCM_bf;
@@ -848,7 +848,7 @@ Extra Device : %s%s%s%s%s"
 		else
 		{
 			THIS_->sndp[SND_SCC] = SCCSoundAlloc();
-			if (!THIS_->sndp[SND_SCC]) return NEZPLUG_NESERR_SHORTOFMEMORY;
+			if (!THIS_->sndp[SND_SCC]) return NEZ_NESERR_SHORTOFMEMORY;
 			//ここからダンプ設定
 			dump_DEV_SCC = dump_DEV_SCC_bf;
 			//ここまでダンプ設定
@@ -856,7 +856,7 @@ Extra Device : %s%s%s%s%s"
 			THIS_->sccenable = !THIS_->rammode;
 		}
 	}
-	return NEZPLUG_NESERR_NOERROR;
+	return NEZ_NESERR_NOERROR;
 }
 
 static int32_t KSSSEQExecuteZ80CPU(void *pNezPlay)
@@ -930,7 +930,7 @@ uint32_t KSSLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	KSSSEQ *THIS_;
 	if (pNezPlay->kssseq) __builtin_trap();	/* ASSERT */
 	THIS_ = XMALLOC(sizeof(KSSSEQ));
-	if (!THIS_) return NEZPLUG_NESERR_SHORTOFMEMORY;
+	if (!THIS_) return NEZ_NESERR_SHORTOFMEMORY;
 	ret = load(pNezPlay, THIS_, pData, uSize);
 	if (ret)
 	{

@@ -246,7 +246,7 @@ uint32_t NSDPlayerInstall(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	nsdplayer->sync1 = pData[7];
 	nsdplayer->sync2 = GetDwordLE(pData + 0x08);
 	nsdplayer->top = XMALLOC(GetDwordLE(pData + 0x30));
-	if (!nsdplayer->top) return NEZPLUG_NESERR_SHORTOFMEMORY;
+	if (!nsdplayer->top) return NEZ_NESERR_SHORTOFMEMORY;
 
 	XMEMCPY(nsdplayer->top, pData + GetDwordLE(pData + 0x38), GetDwordLE(pData + 0x30));
 	if (GetDwordLE(pData + 0x3C))
@@ -261,7 +261,7 @@ uint32_t NSDPlayerInstall(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	NESResetHandlerInstall(pNezPlay->nrh, nsdplay_reset_handler);
 	NESTerminateHandlerInstall(&pNezPlay->nth, nsdplay_terminate_handler);
 	NSDPLAYReset(pNezPlay);
-	return NEZPLUG_NESERR_NOERROR;
+	return NEZ_NESERR_NOERROR;
 }
 
 uint32_t NSDLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
@@ -270,12 +270,12 @@ uint32_t NSDLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	uint32_t ret;
 	pNezPlay->nsf = nsf = (NSFNSF *)XMALLOC(sizeof(NSFNSF));
 	if (!pNezPlay->nsf)
-		return NEZPLUG_NESERR_SHORTOFMEMORY;
+		return NEZ_NESERR_SHORTOFMEMORY;
 	pNezPlay->nsdp = (NSDSEQ *)XMALLOC(sizeof(NSDSEQ));
 	if (!pNezPlay->nsdp) {
 		free(pNezPlay->nsf);
 		pNezPlay->nsf = 0;
-		return NEZPLUG_NESERR_SHORTOFMEMORY;
+		return NEZ_NESERR_SHORTOFMEMORY;
 	}
 	NESMemoryHandlerInitialize(pNezPlay);
 	XMEMSET(nsf->head, 0, 0x80);
@@ -292,7 +292,7 @@ uint32_t NSDLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 		nsf->banksw = 1;				/* bank sw on */
 		nsf->banknum = *src++;
 		des = nsf->bankbase = XMALLOC((nsf->banknum << 12) + 8);
-		if (!nsf->bankbase) return NEZPLUG_NESERR_SHORTOFMEMORY;
+		if (!nsf->bankbase) return NEZ_NESERR_SHORTOFMEMORY;
 		XMEMSET(nsf->bankbase, 0, (nsf->banknum << 12));
 		while (*src)
 		{
@@ -327,6 +327,6 @@ uint32_t NSDLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	ret = NSFDeviceInitialize(pNezPlay);
 	if (ret) return ret;
 	SONGINFO_SetSongNo(pNezPlay->song, SONGINFO_GetStartSongNo(pNezPlay->song));
-	return NEZPLUG_NESERR_NOERROR;
+	return NEZ_NESERR_NOERROR;
 }
 

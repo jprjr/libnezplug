@@ -537,7 +537,7 @@ static uint32_t NSFMapperInitialize(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t
 	size  = (size + 0x0FFF) & ~0x0FFF;
 
 	nsf->bankbase = XMALLOC(size + 8);
-	if (!nsf->bankbase) return NEZPLUG_NESERR_SHORTOFMEMORY;
+	if (!nsf->bankbase) return NEZ_NESERR_SHORTOFMEMORY;
 
 	nsf->banknum = size >> 12;
 	XMEMSET(nsf->bankbase, 0, size);
@@ -545,7 +545,7 @@ static uint32_t NSFMapperInitialize(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t
 
 	nsf->banksw = nsf->head[0x70] || nsf->head[0x71] || nsf->head[0x72] || nsf->head[0x73] || nsf->head[0x74] || nsf->head[0x75] || nsf->head[0x76] || nsf->head[0x77];
 	if (SONGINFO_GetExtendDevice(pNezPlay->song) & EXTSOUND_FDS) nsf->banksw <<= 1;
-	return NEZPLUG_NESERR_NOERROR;
+	return NEZ_NESERR_NOERROR;
 }
 
 uint32_t NSFDeviceInitialize(NEZ_PLAY *pNezPlay)
@@ -595,7 +595,7 @@ uint32_t NSFDeviceInitialize(NEZ_PLAY *pNezPlay)
 	if (SONGINFO_GetExtendDevice(pNezPlay->song) & EXTSOUND_FME7) dump_DEV_AY8910= dump_DEV_AY8910_bf;
 	if (SONGINFO_GetExtendDevice(pNezPlay->song) & EXTSOUND_VRC7) dump_DEV_OPLL  = dump_DEV_OPLL_bf;
 	//ここまでダンプ設定
-	return NEZPLUG_NESERR_NOERROR;
+	return NEZ_NESERR_NOERROR;
 }
 
 
@@ -662,7 +662,7 @@ uint32_t NSFLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 {
 	uint32_t ret;
 	NSFNSF *THIS_ = (NSFNSF *)XMALLOC(sizeof(NSFNSF));
-	if (!THIS_) return NEZPLUG_NESERR_SHORTOFMEMORY;
+	if (!THIS_) return NEZ_NESERR_SHORTOFMEMORY;
 	XMEMSET(THIS_, 0, sizeof(NSFNSF));
 	THIS_->fds_type = 2;
 	pNezPlay->nsf = THIS_;
@@ -675,6 +675,6 @@ uint32_t NSFLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	ret = NSFDeviceInitialize(pNezPlay);
 	if (ret) return ret;
 	SONGINFO_SetSongNo(pNezPlay->song, SONGINFO_GetStartSongNo(pNezPlay->song));
-	return NEZPLUG_NESERR_NOERROR;
+	return NEZ_NESERR_NOERROR;
 }
 

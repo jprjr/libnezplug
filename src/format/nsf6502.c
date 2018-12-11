@@ -477,6 +477,6 @@ uint32_t NSF6502Install(NEZ_PLAY *pNezPlay)
 	NESReadHandlerInstall(pNezPlay, nsf6502_read_handler);
 	NESAudioHandlerInstall(pNezPlay, nsf6502_audio_handler);
 	NESResetHandlerInstall(pNezPlay->nrh, nsf6502_reset_handler);
-	return NEZPLUG_NESERR_NOERROR;
+	return NEZ_NESERR_NOERROR;
 }
 

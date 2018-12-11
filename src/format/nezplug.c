@@ -199,7 +199,7 @@ uint32_t NEZGetFrequency(NEZ_PLAY *pNezPlay)
 
 uint32_t NEZLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 {
-	uint32_t ret = NEZPLUG_NESERR_NOERROR;
+	uint32_t ret = NEZ_NESERR_NOERROR;
 	ioview_ioread_DEV_2A03   =NULL;
 	ioview_ioread_DEV_FDS    =NULL;
 	ioview_ioread_DEV_MMC5   =NULL;
@@ -225,7 +225,7 @@ uint32_t NEZLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	while (1)
 	{
 		if (!pNezPlay || !pData) {
-			ret = NEZPLUG_NESERR_PARAMETER;
+			ret = NEZ_NESERR_PARAMETER;
 			break;
 		}
 		NESTerminate(pNezPlay);
@@ -233,7 +233,7 @@ uint32_t NEZLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 		NESAudioHandlerInitialize(pNezPlay);
 		if (uSize < 8)
 		{
-			ret = NEZPLUG_NESERR_FORMAT;
+			ret = NEZ_NESERR_FORMAT;
 			break;
 		}
 		else if (GetDwordLE(pData + 0) == GetDwordLEM("KSCC"))
@@ -304,10 +304,10 @@ uint32_t NEZLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 		}
 		else
 		{
-			ret = NEZPLUG_NESERR_FORMAT;
+			ret = NEZ_NESERR_FORMAT;
 			break;
 		}
-		return NEZPLUG_NESERR_NOERROR;
+		return NEZ_NESERR_NOERROR;
 	}
 	NESTerminate(pNezPlay);
 	return ret;

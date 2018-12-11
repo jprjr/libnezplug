@@ -860,26 +860,26 @@ static uint32_t load(NEZ_PLAY *pNezPlay, GBRDMG *THIS_, uint8_t *pData, uint32_t
 	XMEMSET(THIS_, 0, sizeof(GBRDMG));
 	THIS_->dmgsnd = 0;
 	THIS_->bankrom = 0;
-	if (pData[0] != 0x47 || pData[1] != 0x42) return NEZPLUG_NESERR_FORMAT;
+	if (pData[0] != 0x47 || pData[1] != 0x42) return NEZ_NESERR_FORMAT;
 	if (pData[2] == 0x52)
 	{
-		if (pData[3] != 0x46) return NEZPLUG_NESERR_FORMAT;
+		if (pData[3] != 0x46) return NEZ_NESERR_FORMAT;
 		THIS_->isgbr = 1;	/* 'GBRF' GameBoy Ripped sound Format */
 	}
 	else if (pData[2] == 0x53)
 		THIS_->isgbr = 0;	/* 'GBS' GameBoy Sound format */
 	else
-		return NEZPLUG_NESERR_FORMAT;
+		return NEZ_NESERR_FORMAT;
 
 	if (THIS_->isgbr)
 	{
-		if (uSize < 0x20) return NEZPLUG_NESERR_FORMAT;
+		if (uSize < 0x20) return NEZ_NESERR_FORMAT;
 		THIS_->maxsong = 256;
 		THIS_->startsong = 1;
 		SONGINFO_SetStartSongNo(pNezPlay->song, THIS_->startsong);
 		SONGINFO_SetMaxSongNo(pNezPlay->song, THIS_->maxsong);
 		THIS_->bankromnum = pData[4];
-		if (!THIS_->bankromnum) return NEZPLUG_NESERR_FORMAT;
+		if (!THIS_->bankromnum) return NEZ_NESERR_FORMAT;
 		THIS_->bankromfirst[0] = pData[5];
 		THIS_->bankromfirst[1] = pData[6];
 		THIS_->timerflag = 0;
@@ -938,7 +938,7 @@ First TMC          : %02XH"
 	else
 	{
 		uint32_t size;
-		if (uSize < 0x70) return NEZPLUG_NESERR_FORMAT;
+		if (uSize < 0x70) return NEZ_NESERR_FORMAT;
 		THIS_->maxsong = pData[0x04];
 		THIS_->startsong = pData[0x05];
 		SONGINFO_SetStartSongNo(pNezPlay->song, THIS_->startsong);
@@ -1027,7 +1027,7 @@ Use INT           : %d"
 	//---+
 	SONGINFO_SetPlayAddress(pNezPlay->song, (THIS_->timerflag & 1) ? THIS_->vsyncaddr : THIS_->timeraddr);
 	THIS_->bankrom = (uint8_t *)XMALLOC(THIS_->bankromnum << 14);
-	if (!THIS_->bankrom) return NEZPLUG_NESERR_SHORTOFMEMORY;
+	if (!THIS_->bankrom) return NEZ_NESERR_SHORTOFMEMORY;
 	XMEMSET(THIS_->bankrom, 0, THIS_->bankromnum << 14);
 #if MARIO2_PATCH_ENABLE
 	/*
@@ -1049,8 +1049,8 @@ Use INT           : %d"
 	XMEMCPY(THIS_->bankrom + THIS_->loadaddr, pData, uSize);
 #endif
 	THIS_->dmgsnd = DMGSoundAlloc();
-	if (!THIS_->dmgsnd) return NEZPLUG_NESERR_SHORTOFMEMORY;
-	return NEZPLUG_NESERR_NOERROR;
+	if (!THIS_->dmgsnd) return NEZ_NESERR_SHORTOFMEMORY;
+	return NEZ_NESERR_NOERROR;
 }
 
 
@@ -1127,7 +1127,7 @@ uint32_t GBRLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	GBRDMG *THIS_;
 	if (pNezPlay->gbrdmg) __builtin_trap();	/* ASSERT */
 	THIS_ = (GBRDMG *)XMALLOC(sizeof(GBRDMG));
-	if (!THIS_) return NEZPLUG_NESERR_SHORTOFMEMORY;
+	if (!THIS_) return NEZ_NESERR_SHORTOFMEMORY;
 	ret = load(pNezPlay, THIS_, pData, uSize);
 	if (ret)
 	{

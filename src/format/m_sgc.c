@@ -577,7 +577,7 @@ static uint32_t load(NEZ_PLAY *pNezPlay, SGCSEQ *THIS_, uint8_t *pData, uint32_t
 		THIS_->firstse = pData[0x26];
 		THIS_->lastse = pData[0x27];
 		THIS_->systype = pData[0x28];
-		if(THIS_->systype>=SYNTHMODE_MAX)return NEZPLUG_NESERR_PARAMETER;
+		if(THIS_->systype>=SYNTHMODE_MAX)return NEZ_NESERR_PARAMETER;
 		if(THIS_->firstse < THIS_->maxsong
 		|| THIS_->firstse > THIS_->lastse
 		|| THIS_->firstse == 0){
@@ -587,7 +587,7 @@ static uint32_t load(NEZ_PLAY *pNezPlay, SGCSEQ *THIS_, uint8_t *pData, uint32_t
 	}
 	else
 	{
-		return NEZPLUG_NESERR_FORMAT;
+		return NEZ_NESERR_FORMAT;
 	}
 	SONGINFO_SetStartSongNo(pNezPlay->song, THIS_->startsong+1);
 	SONGINFO_SetMaxSongNo(pNezPlay->song, THIS_->tmaxsong);
@@ -661,7 +661,7 @@ RAM Bank      (8000-BFFF): %d\r\n\
 	case SYNTHMODE_SMS:
 		THIS_->sndp[SND_SNG] = SNGSoundAlloc(SNG_TYPE_SEGAMKIII);
 		THIS_->sndp[SND_FMUNIT] = OPLSoundAlloc(OPL_TYPE_SMSFMUNIT);
-		if (!THIS_->sndp[SND_FMUNIT]) return NEZPLUG_NESERR_SHORTOFMEMORY;
+		if (!THIS_->sndp[SND_FMUNIT]) return NEZ_NESERR_SHORTOFMEMORY;
 		SONGINFO_SetChannel(pNezPlay->song, 1);
 		//ここからダンプ設定
 		dump_DEV_SN76489 = dump_DEV_SN76489_bf;
@@ -671,12 +671,12 @@ RAM Bank      (8000-BFFF): %d\r\n\
 		THIS_->banknum = ((THIS_->datasize+THIS_->loadaddr)>>14)+1;
 		if(THIS_->banknum < 3)THIS_->banknum = 3;
 		THIS_->banksize = 0x4000;
-		if(THIS_->mappernum[1] >= THIS_->banknum)return NEZPLUG_NESERR_PARAMETER;
-		if(THIS_->mappernum[2] >= THIS_->banknum)return NEZPLUG_NESERR_PARAMETER;
-		if(THIS_->mappernum[3] >= THIS_->banknum)return NEZPLUG_NESERR_PARAMETER;
+		if(THIS_->mappernum[1] >= THIS_->banknum)return NEZ_NESERR_PARAMETER;
+		if(THIS_->mappernum[2] >= THIS_->banknum)return NEZ_NESERR_PARAMETER;
+		if(THIS_->mappernum[3] >= THIS_->banknum)return NEZ_NESERR_PARAMETER;
 
 		THIS_->data = XMALLOC(THIS_->banksize * THIS_->banknum + 8);
-		if (!THIS_->data) return NEZPLUG_NESERR_SHORTOFMEMORY;
+		if (!THIS_->data) return NEZ_NESERR_SHORTOFMEMORY;
 
 		XMEMSET(THIS_->data, 0, THIS_->banknum * THIS_->banksize);
 
@@ -693,12 +693,12 @@ RAM Bank      (8000-BFFF): %d\r\n\
 		THIS_->banknum = ((THIS_->datasize+THIS_->loadaddr)>>14)+1;
 		if(THIS_->banknum < 3)THIS_->banknum = 3;
 		THIS_->banksize = 0x4000;
-		if(THIS_->mappernum[1] >= THIS_->banknum)return NEZPLUG_NESERR_PARAMETER;
-		if(THIS_->mappernum[2] >= THIS_->banknum)return NEZPLUG_NESERR_PARAMETER;
-		if(THIS_->mappernum[3] >= THIS_->banknum)return NEZPLUG_NESERR_PARAMETER;
+		if(THIS_->mappernum[1] >= THIS_->banknum)return NEZ_NESERR_PARAMETER;
+		if(THIS_->mappernum[2] >= THIS_->banknum)return NEZ_NESERR_PARAMETER;
+		if(THIS_->mappernum[3] >= THIS_->banknum)return NEZ_NESERR_PARAMETER;
 
 		THIS_->data = XMALLOC(THIS_->banksize * THIS_->banknum + 8);
-		if (!THIS_->data) return NEZPLUG_NESERR_SHORTOFMEMORY;
+		if (!THIS_->data) return NEZ_NESERR_SHORTOFMEMORY;
 
 		XMEMSET(THIS_->data, 0, THIS_->banknum * THIS_->banksize);
 
@@ -717,7 +717,7 @@ RAM Bank      (8000-BFFF): %d\r\n\
 		if (THIS_->datasize > 0x8000)
 			THIS_->datasize = 0x10000 - THIS_->loadaddr;
 		THIS_->data = XMALLOC(THIS_->banksize * THIS_->banknum + 8);
-		if (!THIS_->data) return NEZPLUG_NESERR_SHORTOFMEMORY;
+		if (!THIS_->data) return NEZ_NESERR_SHORTOFMEMORY;
 
 		XMEMSET(THIS_->data, 0, THIS_->banknum * THIS_->banksize);
 
@@ -728,7 +728,7 @@ RAM Bank      (8000-BFFF): %d\r\n\
 		break;
 	}
 
-	return NEZPLUG_NESERR_NOERROR;
+	return NEZ_NESERR_NOERROR;
 }
 
 static int32_t SGCSEQExecuteZ80CPU(void *pNezPlay)
@@ -802,7 +802,7 @@ uint32_t SGCLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	SGCSEQ *THIS_;
 	if (pNezPlay->sgcseq) __builtin_trap();	/* ASSERT */
 	THIS_ = XMALLOC(sizeof(SGCSEQ));
-	if (!THIS_) return NEZPLUG_NESERR_SHORTOFMEMORY;
+	if (!THIS_) return NEZ_NESERR_SHORTOFMEMORY;
 	ret = load(pNezPlay, THIS_, pData, uSize);
 	if (ret)
 	{

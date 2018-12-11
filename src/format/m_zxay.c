@@ -353,7 +353,7 @@ static uint32_t load(NEZ_PLAY *pNezPlay, ZXAY *THIS_, uint8_t *pData, uint32_t u
 	THIS_->data = 0;
 
 	THIS_->data = (uint8_t*)XMALLOC(uSize);
-	if (!THIS_->data) return NEZPLUG_NESERR_SHORTOFMEMORY;
+	if (!THIS_->data) return NEZ_NESERR_SHORTOFMEMORY;
 	XMEMCPY(THIS_->data, pData, uSize);
 	THIS_->datalimit = THIS_->data + uSize;
 	THIS_->maxsong = pData[0x10] + 1;
@@ -366,8 +366,8 @@ static uint32_t load(NEZ_PLAY *pNezPlay, ZXAY *THIS_, uint8_t *pData, uint32_t u
 
 	THIS_->sndp = PSGSoundAlloc(PSG_TYPE_AY_3_8910);
 	THIS_->amstrad_sndp = PSGSoundAlloc(PSG_TYPE_YM2149);
-	if (!THIS_->sndp || !THIS_->amstrad_sndp) return NEZPLUG_NESERR_SHORTOFMEMORY;
-	return NEZPLUG_NESERR_NOERROR;
+	if (!THIS_->sndp || !THIS_->amstrad_sndp) return NEZ_NESERR_SHORTOFMEMORY;
+	return NEZ_NESERR_NOERROR;
 }
 
 
@@ -442,7 +442,7 @@ uint32_t ZXAYLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	ZXAY *THIS_;
 	if (pNezPlay->zxay) __builtin_trap();	/* ASSERT */
 	THIS_ = (ZXAY *)XMALLOC(sizeof(ZXAY));
-	if (!THIS_) return NEZPLUG_NESERR_SHORTOFMEMORY;
+	if (!THIS_) return NEZ_NESERR_SHORTOFMEMORY;
 	ret = load(pNezPlay, THIS_, pData, uSize);
 	if (ret)
 	{

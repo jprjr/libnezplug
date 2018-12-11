@@ -642,7 +642,7 @@ static uint32_t load(NEZ_PLAY *pNezPlay, HESHES *THIS_, uint8_t *pData, uint32_t
 	THIS_->hespcm = 0;
 	for (i = 0; i < 0x100; i++) THIS_->memmap[i] = 0;
 
-	if (uSize < 0x20) return NEZPLUG_NESERR_FORMAT;
+	if (uSize < 0x20) return NEZ_NESERR_FORMAT;
 	SONGINFO_SetStartSongNo(pNezPlay->song, pData[5] + 1);
 	SONGINFO_SetMaxSongNo(pNezPlay->song, 256);
 	SONGINFO_SetChannel(pNezPlay->song, 2);
@@ -677,15 +677,15 @@ First Mapper 7 : %02XH"
 		);
 
 	if (!alloc_physical_address(THIS_, 0xf8 << 13, 0x2000))	/* RAM */
-		return NEZPLUG_NESERR_SHORTOFMEMORY;
+		return NEZ_NESERR_SHORTOFMEMORY;
 	if (!alloc_physical_address(THIS_, 0xf9 << 13, 0x2000))	/* SGX-RAM */
-		return NEZPLUG_NESERR_SHORTOFMEMORY;
+		return NEZ_NESERR_SHORTOFMEMORY;
 	if (!alloc_physical_address(THIS_, 0xfa << 13, 0x2000))	/* SGX-RAM */
-		return NEZPLUG_NESERR_SHORTOFMEMORY;
+		return NEZ_NESERR_SHORTOFMEMORY;
 	if (!alloc_physical_address(THIS_, 0xfb << 13, 0x2000))	/* SGX-RAM */
-		return NEZPLUG_NESERR_SHORTOFMEMORY;
+		return NEZ_NESERR_SHORTOFMEMORY;
 	if (!alloc_physical_address(THIS_, 0x00 << 13, 0x2000))	/* IPL-ROM */
-		return NEZPLUG_NESERR_SHORTOFMEMORY;
+		return NEZ_NESERR_SHORTOFMEMORY;
 	for (p = 0x10; p + 0x10 < uSize; p += 0x10 + GetDwordLE(pData + p + 4))
 	{
 		if (GetDwordLE(pData + p) == 0x41544144)	/* 'DATA' */
@@ -693,17 +693,17 @@ First Mapper 7 : %02XH"
 			uint32_t a, l;
 			l = GetDwordLE(pData + p + 4);
 			a = GetDwordLE(pData + p + 8);
-			if (!alloc_physical_address(THIS_, a, l)) return NEZPLUG_NESERR_SHORTOFMEMORY;
+			if (!alloc_physical_address(THIS_, a, l)) return NEZ_NESERR_SHORTOFMEMORY;
 			if (l > uSize - p - 0x10) l = uSize - p - 0x10;
 			copy_physical_address(THIS_, a, l, pData + p + 0x10);
 		}
 	}
 	THIS_->hessnd = HESSoundAlloc();
-	if (!THIS_->hessnd) return NEZPLUG_NESERR_SHORTOFMEMORY;
+	if (!THIS_->hessnd) return NEZ_NESERR_SHORTOFMEMORY;
 	THIS_->hespcm = HESAdPcmAlloc();
-	if (!THIS_->hespcm) return NEZPLUG_NESERR_SHORTOFMEMORY;
+	if (!THIS_->hespcm) return NEZ_NESERR_SHORTOFMEMORY;
 
-	return NEZPLUG_NESERR_NOERROR;
+	return NEZ_NESERR_NOERROR;
 
 }
 
@@ -778,7 +778,7 @@ uint32_t HESLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	HESHES *THIS_;
 	if (pNezPlay->heshes) __builtin_trap();	/* ASSERT */
 	THIS_ = (HESHES *)XMALLOC(sizeof(HESHES));
-	if (!THIS_) return NEZPLUG_NESERR_SHORTOFMEMORY;
+	if (!THIS_) return NEZ_NESERR_SHORTOFMEMORY;
 	ret = load(pNezPlay, THIS_, pData, uSize);
 	if (ret)
 	{
