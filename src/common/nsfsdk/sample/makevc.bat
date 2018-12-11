@@ -1,1 +1,0 @@
-cl /O2 /G5 /GA /MD /Fensf2wav.exe nsf2wav.c ../nsfsdkvc.lib
