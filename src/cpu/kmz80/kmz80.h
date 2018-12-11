@@ -46,27 +46,27 @@ enum {
 
 typedef struct KMZ80_CONTEXT_TAG KMZ80_CONTEXT;
 struct KMZ80_CONTEXT_TAG {
-	Uint8 regs8[REGID_REGS8SIZE];
-	Uint32 sp;
-	Uint32 pc;
+	uint8_t regs8[REGID_REGS8SIZE];
+	uint32_t sp;
+	uint32_t pc;
 	/* 裏レジスタ */
-	Uint32 saf;
-	Uint32 sbc;
-	Uint32 sde;
-	Uint32 shl;
+	uint32_t saf;
+	uint32_t sbc;
+	uint32_t sde;
+	uint32_t shl;
 	/* テンポラリフラグレジスタ(暗黙のキャリーフラグ) */
-	Uint32 t_fl;
+	uint32_t t_fl;
 	/* テンポラリデーターレジスタ(暗黙の35フラグ) */
-	Uint32 t_dx;
+	uint32_t t_dx;
 	/* ここまでは保存するべき */
 	/* テンポラリプログラムカウンタ */
-	Uint32 t_pc;
+	uint32_t t_pc;
 	/* テンポラリオペランドレジスタ */
-	Uint32 t_op;
+	uint32_t t_op;
 	/* テンポラリアドレスレジスタ */
-	Uint32 t_ad;
+	uint32_t t_ad;
 	/* サイクルカウンタ */
-	Uint32 cycle;
+	uint32_t cycle;
 	/* オペコードテーブル */
 	void *opt;
 	/* オペコードCBテーブル */
@@ -76,33 +76,33 @@ struct KMZ80_CONTEXT_TAG {
 	/* 追加サイクルテーブル */
 	void *cyt;
 	/* R800メモリーページ(ページブレイクの確認用) */
-	Uint32 mempage;
+	uint32_t mempage;
 	/* 特殊用途割り込みベクタ */
-	Uint32 vector[5];
+	uint32_t vector[5];
 	/* RST飛び先基本アドレス */
-	Uint32 rstbase;
+	uint32_t rstbase;
 	//---+ [changes_rough.txt]
-	Uint32 playbase;
-	Uint32 playflag;
+	uint32_t playbase;
+	uint32_t playflag;
 	//---+
 	/* 追加フラグ */
 	/*   bit0: 暗黙のキャリー有効 */
 	/*   bit1: 割り込み要求自動クリア */
-	Uint32 exflag;
+	uint32_t exflag;
 	/* 内部定義コールバック */
-	Uint32 (*sysmemfetch)(KMZ80_CONTEXT *context);
-	Uint32 (*sysmemread)(KMZ80_CONTEXT *context, Uint32 a);
-	void (*sysmemwrite)(KMZ80_CONTEXT *context, Uint32 a, Uint32 d);
+	uint32_t (*sysmemfetch)(KMZ80_CONTEXT *context);
+	uint32_t (*sysmemread)(KMZ80_CONTEXT *context, uint32_t a);
+	void (*sysmemwrite)(KMZ80_CONTEXT *context, uint32_t a, uint32_t d);
 	/* ユーザーデーターポインタ */
 	void *user;
 	/* ユーザー定義コールバック */
-	Uint32 (*memread)(void *u, Uint32 a);
-	void (*memwrite)(void *u, Uint32 a, Uint32 d);
-	Uint32 (*ioread)(void *u, Uint32 a);
-	void (*iowrite)(void *u, Uint32 a, Uint32 d);
-	Uint32 (*busread)(void *u, Uint32 mode);
-	Uint32 (*checkbreak)(void *u, KMZ80_CONTEXT *context, void *obj);
-	Uint32 (*patchedfe)(void *u, KMZ80_CONTEXT *context);
+	uint32_t (*memread)(void *u, uint32_t a);
+	void (*memwrite)(void *u, uint32_t a, uint32_t d);
+	uint32_t (*ioread)(void *u, uint32_t a);
+	void (*iowrite)(void *u, uint32_t a, uint32_t d);
+	uint32_t (*busread)(void *u, uint32_t mode);
+	uint32_t (*checkbreak)(void *u, KMZ80_CONTEXT *context, void *obj);
+	uint32_t (*patchedfe)(void *u, KMZ80_CONTEXT *context);
 	void *object;
 	/* ユーザー定義イベントタイマ */
 	KMEVENT *kmevent;
@@ -111,7 +111,7 @@ struct KMZ80_CONTEXT_TAG {
 void kmz80_reset(KMZ80_CONTEXT *context);
 void kmr800_reset(KMZ80_CONTEXT *context);
 void kmdmg_reset(KMZ80_CONTEXT *context);
-Uint32 kmz80_exec(KMZ80_CONTEXT *context, Uint32 cycle);
+uint32_t kmz80_exec(KMZ80_CONTEXT *context, uint32_t cycle);
 
 #ifdef __cplusplus
 }

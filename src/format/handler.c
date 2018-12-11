@@ -1,5 +1,5 @@
 #include "handler.h"
-#include "../nezplug.h"
+#include "../normalize.h"
 
 /* --------------- */
 /*  Reset Handler  */
@@ -8,7 +8,7 @@
 void NESReset(void *pNezPlay)
 {
 	NES_RESET_HANDLER *ph;
-	Uint prio;
+	uint32_t prio;
 	if (!pNezPlay) return;
 	for (prio = 0; prio < 0x10; prio++)
 		for (ph = ((NEZ_PLAY*)pNezPlay)->nrh[prio]; ph; ph = ph->next) ph->Proc(pNezPlay);
@@ -16,7 +16,7 @@ void NESReset(void *pNezPlay)
 static void InstallPriorityResetHandler(NES_RESET_HANDLER **nrh, const NES_RESET_HANDLER *ph)
 {
 	NES_RESET_HANDLER *nh;
-	Uint prio = ph->priority;
+	uint32_t prio = ph->priority;
 	if (prio > 0xF) prio = 0xF;
 
 	/* Add to tail of list*/
@@ -42,12 +42,12 @@ void NESResetHandlerInstall(NES_RESET_HANDLER** nrh, const NES_RESET_HANDLER *ph
 }
 static void NESResetHandlerInitialize(NES_RESET_HANDLER **nrh)
 {
-	Uint prio;
+	uint32_t prio;
 	for (prio = 0; prio < 0x10; prio++) nrh[prio] = 0;
 }
 static void NESResetHandlerTerminate(NES_RESET_HANDLER **nrh)
 {
-	Uint prio;
+	uint32_t prio;
 	NES_RESET_HANDLER *next, *p;
 	for (prio = 0; prio < 0x10; prio++) {
 		if (nrh[prio]) {

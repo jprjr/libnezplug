@@ -10,24 +10,24 @@ typedef struct {
 	KMIF_SOUND_DEVICE kmif;
 	KMIF_SOUND_DEVICE *deltadev;
 	struct {
-		Int32 mastervolume;
-		Int32 cps;
-		Int32 pt;
+		int32_t mastervolume;
+		int32_t cps;
+		int32_t pt;
 	} common;
-	Uint8 pcmbuf[0x10000];
-	Uint8 port[0x10];
-	Uint8 regs[0x18];
-	Uint32 outfreq;
-	Uint32 freq;
-	Uint16 addr;
-	Uint16 writeptr;
-	Uint16 readptr;
-	Int8 playflag;
-	Int8 repeatflag;
-	Int32 length;
-	Int32 volume;
-	Int32 fadetimer;
-	Int32 fadecount;
+	uint8_t pcmbuf[0x10000];
+	uint8_t port[0x10];
+	uint8_t regs[0x18];
+	uint32_t outfreq;
+	uint32_t freq;
+	uint16_t addr;
+	uint16_t writeptr;
+	uint16_t readptr;
+	int8_t playflag;
+	int8_t repeatflag;
+	int32_t length;
+	int32_t volume;
+	int32_t fadetimer;
+	int32_t fadecount;
 } HESADPCM;
 
 
@@ -44,10 +44,10 @@ static void HESAdPcmReset(HESADPCM *sndp)
 	sndp->deltadev->write(sndp->deltadev,0,1);
 }
 
-static void sndsynth(void *ctx, Int32 *p)
+static void sndsynth(void *ctx, int32_t *p)
 {
 	HESADPCM *sndp = ctx;
-	Int32 pbf[2];
+	int32_t pbf[2];
 	pbf[0]=0;pbf[1]=0;
 	
 	//この時既に、内蔵音源のレンダリングが終了している。
@@ -77,7 +77,7 @@ static void sndsynth(void *ctx, Int32 *p)
 	p[1]+=(pbf[1] * ADPCM_VOLUME * sndp->volume / 0xff);
 }
 
-static void sndreset(void *ctx, Uint32 clock, Uint32 freq)
+static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
 {
 	HESADPCM *sndp = ctx;
 	XMEMSET(&sndp->pcmbuf, 0, sizeof(sndp->pcmbuf));
@@ -96,7 +96,7 @@ static void sndreset(void *ctx, Uint32 clock, Uint32 freq)
 
 }
 
-static void sndwrite(void *ctx, Uint32 a, Uint32 v)
+static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 {
 	HESADPCM *sndp = ctx;
 	sndp->port[a & 15] = v;
@@ -203,7 +203,7 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 	}
 }
 
-static Uint32 sndread(void *ctx, Uint32 a)
+static uint32_t sndread(void *ctx, uint32_t a)
 {
 	HESADPCM *sndp = ctx;
 	switch(a & 15)
@@ -232,7 +232,7 @@ static Uint32 sndread(void *ctx, Uint32 a)
 }
 
 #define LOG_BITS 12
-static void sndvolume(void *ctx, Int32 volume)
+static void sndvolume(void *ctx, int32_t volume)
 {
 	HESADPCM *sndp = ctx;
 	volume = (volume << (LOG_BITS - 8)) << 1;
@@ -251,7 +251,7 @@ static void sndrelease(void *ctx)
 		XFREE(sndp);
 }
 
-static void setinst(void *ctx, Uint32 n, void *p, Uint32 l)
+static void setinst(void *ctx, uint32_t n, void *p, uint32_t l)
 {
     (void)ctx;
     (void)n;
@@ -260,9 +260,9 @@ static void setinst(void *ctx, Uint32 n, void *p, Uint32 l)
 }
 
 //ここからレジスタビュアー設定
-static Uint8 *regdata;
-extern Uint32 (*ioview_ioread_DEV_ADPCM)(Uint32 a);
-static Uint32 ioview_ioread_bf(Uint32 a){
+static uint8_t *regdata;
+extern uint32_t (*ioview_ioread_DEV_ADPCM)(uint32_t a);
+static uint32_t ioview_ioread_bf(uint32_t a){
 	if(a>=0x8 && a<=0x15)return regdata[a];else return 0x100;
 }
 //ここまでレジスタビュアー設定

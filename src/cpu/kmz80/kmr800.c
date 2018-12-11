@@ -221,7 +221,7 @@ DI		+1cycle
 IM?		+1cycle
 #endif
 
-const static Uint8 kmr800_ct[0x510] = {
+const static uint8_t kmr800_ct[0x510] = {
 /* Z80 追加クロック */ 
 /* XX       0 1 2 3 4 5 6 7  8 9 A B C D E F */
 /* 0 */		0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
@@ -330,7 +330,7 @@ const static Uint8 kmr800_ct[0x510] = {
 	0,	/* 0x50F  不成立 */
 };
 
-static Uint32 kmr800_memread(KMZ80_CONTEXT *context, Uint32 a)
+static uint32_t kmr800_memread(KMZ80_CONTEXT *context, uint32_t a)
 {
 	CYCLEMEM;
 	if (MEMPAGE != (a & 0xff00))
@@ -341,7 +341,7 @@ static Uint32 kmr800_memread(KMZ80_CONTEXT *context, Uint32 a)
 	return context->memread(context->user, a);
 }
 
-static void kmr800_memwrite(KMZ80_CONTEXT *context, Uint32 a, Uint32 d)
+static void kmr800_memwrite(KMZ80_CONTEXT *context, uint32_t a, uint32_t d)
 {
 	CYCLEMEM;
 	if (MEMPAGE != (a & 0xff00))
@@ -353,7 +353,7 @@ static void kmr800_memwrite(KMZ80_CONTEXT *context, Uint32 a, Uint32 d)
 }
 
 extern const OPT_ITEM kmz80_ot_xx[0x100];
-extern const Uint8 kmz80_ot_cbxx[0x20];
+extern const uint8_t kmz80_ot_cbxx[0x20];
 extern void kmz80_reset_common(KMZ80_CONTEXT *context);
 void kmr800_reset(KMZ80_CONTEXT *context) {
 	kmz80_reset_common(context);
@@ -362,7 +362,7 @@ void kmr800_reset(KMZ80_CONTEXT *context) {
 	MEMCYCLE = 1;
 	IOCYCLE = 1;
 	context->opt = (OPT_ITEM *)kmz80_ot_xx;
-	context->optcb = (Uint8 *)kmz80_ot_cbxx;
+	context->optcb = (uint8_t *)kmz80_ot_cbxx;
 	context->opted = (OPT_ITEM *)kmr800_ot_edxx;
 	context->cyt = (OPT_ITEM *)kmr800_ct;
 	SYSMEMREAD = kmr800_memread;

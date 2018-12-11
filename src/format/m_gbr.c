@@ -1,4 +1,4 @@
-#include "../neserr.h"
+#include <nezplug/nezplug.h>
 #include "handler.h"
 #include "audiosys.h"
 #include "songinfo.h"
@@ -36,9 +36,9 @@ h/v = 154 = 144(vdisp)+10(vbrank) lines
 
 FF80-FFFF high RAM
 FF00-FF4B I/O
-E000-FE00 (Mirror of 8kB Internal RAM)
-D000-DFFF 4kB Internal RAM / 4kB switchable CGB Internal RAM bank
-C000-CFFF 4kB Internal RAM
+E000-FE00 (Mirror of 8kB int32_ternal RAM)
+D000-DFFF 4kB int32_ternal RAM / 4kB switchable CGB int32_ternal RAM bank
+C000-CFFF 4kB int32_ternal RAM
 A000-BFFF 8kB External switchable RAM bank
 8000-9FFF 8kB VRAM
 6000-7FFF 16kB External switchable ROM bank / MBC1 ROM/RAM Select
@@ -48,13 +48,13 @@ A000-BFFF 8kB External switchable RAM bank
 
 #endif
 
-const static Uint32 timer_clock_table[4] = {
+const static uint32_t timer_clock_table[4] = {
 	10, 4, 6, 8,
 };
 
 typedef struct GBRDMG_TAG GBRDMG;
-typedef Uint32 (*READPROC)(GBRDMG *THIS_, Uint32 a);
-typedef void (*WRITEPROC)(GBRDMG *THIS_, Uint32 a, Uint32 v);
+typedef uint32_t (*READPROC)(GBRDMG *THIS_, uint32_t a);
+typedef void (*WRITEPROC)(GBRDMG *THIS_, uint32_t a, uint32_t v);
 
 struct  GBRDMG_TAG {
 	KMZ80_CONTEXT ctx;
@@ -63,62 +63,62 @@ struct  GBRDMG_TAG {
 	KMEVENT_ITEM_ID vsync;
 	KMEVENT_ITEM_ID timer;
 
-	Uint32 cps;		/* cycles per sample:fixed point */
-	Uint32 cpsrem;	/* cycle remain */
-	Uint32 cpsgap;	/* cycle gap */
-	Uint32 total_cycles;	/* total played cycles */
+	uint32_t cps;		/* cycles per sample:fixed point */
+	uint32_t cpsrem;	/* cycle remain */
+	uint32_t cpsgap;	/* cycle gap */
+	uint32_t total_cycles;	/* total played cycles */
 
-	Uint32 startsong;
-	Uint32 maxsong;
+	uint32_t startsong;
+	uint32_t maxsong;
 
-	Uint32 loadaddr;
-	Uint32 initaddr;
-	Uint32 vsyncaddr;
-	Uint32 timeraddr;
+	uint32_t loadaddr;
+	uint32_t initaddr;
+	uint32_t vsyncaddr;
+	uint32_t timeraddr;
 	//---+ [changes_rough.txt]
-	Uint32 playaddr;
+	uint32_t playaddr;
 	//---+
-	Uint32 stackaddr;
+	uint32_t stackaddr;
 
-	Uint8 *bankrom;
-	Uint8 *playerrom;
-	Uint32 playerromioaddr;
+	uint8_t *bankrom;
+	uint8_t *playerrom;
+	uint32_t playerromioaddr;
 
-	Uint8 *readmap[16];
+	uint8_t *readmap[16];
 	READPROC readproc[16];
-	Uint8 *writemap[16];
+	uint8_t *writemap[16];
 	WRITEPROC writeproc[16];
 
-	Uint8 highram[0x80];
-	Uint8 io[0x180];
-	Uint8 ram[8 * 0x1000];
-	Uint8 vram[0x2000];
-	Uint8 bankram[0x10 * 0x2000];
+	uint8_t highram[0x80];
+	uint8_t io[0x180];
+	uint8_t ram[8 * 0x1000];
+	uint8_t vram[0x2000];
+	uint8_t bankram[0x10 * 0x2000];
 #if USE_DUMMYRAM
-	Uint8 dummyram[0x2000];
+	uint8_t dummyram[0x2000];
 #endif
 
-	Uint8 isgbr;
-	Uint8 bankromnum;
-	Uint8 bankromfirst[2];
-	Uint8 gb_DIV;
-	Uint8 gb_TIMA;
-	Uint8 gb_TMA;
-	Uint8 gb_TMC;
-	Uint8 gb_IE;
-	Uint8 gb_IF;
-	Uint8 timerflag;
-	Uint8 firstTMA;
-	Uint8 firstTMC;
-	Uint8 isCGB;
+	uint8_t isgbr;
+	uint8_t bankromnum;
+	uint8_t bankromfirst[2];
+	uint8_t gb_DIV;
+	uint8_t gb_TIMA;
+	uint8_t gb_TMA;
+	uint8_t gb_TMC;
+	uint8_t gb_IE;
+	uint8_t gb_IF;
+	uint8_t timerflag;
+	uint8_t firstTMA;
+	uint8_t firstTMC;
+	uint8_t isCGB;
 	//---+ [changes_rough.txt]
-	Uint8 useINT;
+	uint8_t useINT;
 	//---+
-	Uint8 rambankenable;
-	Uint8 rombankselect;
-	Uint8 rombankselecthi;
-	Uint8 rambankselect;
-	Uint8 romramselect;
+	uint8_t rambankenable;
+	uint8_t rombankselect;
+	uint8_t rombankselecthi;
+	uint8_t rambankselect;
+	uint8_t romramselect;
 	enum {
 		GB_MAPPER_ROM,
 		GB_MAPPER_MBC1,
@@ -129,9 +129,9 @@ struct  GBRDMG_TAG {
 		GB_MAPPER_GBR
 	} mapper_type;
 
-	Uint8 titlebuffer[0x21];
-	Uint8 artistbuffer[0x21];
-	Uint8 copyrightbuffer[0x21];
+	uint8_t titlebuffer[0x21];
+	uint8_t artistbuffer[0x21];
+	uint8_t copyrightbuffer[0x21];
 
 };
 
@@ -143,16 +143,16 @@ struct {
 }songinfodata;
 
 
-static Int32 execute(GBRDMG *THIS_)
+static int32_t execute(GBRDMG *THIS_)
 {
-	Uint32 cycles;
+	uint32_t cycles;
 	THIS_->cpsrem += THIS_->cps;
 	cycles = THIS_->cpsrem >> SHIFT_CPS;
 	if (THIS_->cpsgap >= cycles)
 		THIS_->cpsgap -= cycles;
 	else
 	{
-		Uint32 excycles = cycles - THIS_->cpsgap;
+		uint32_t excycles = cycles - THIS_->cpsgap;
 		THIS_->cpsgap = kmz80_exec(&THIS_->ctx, excycles) - excycles;
 	}
 	THIS_->cpsrem &= (1 << SHIFT_CPS) - 1;
@@ -160,12 +160,12 @@ static Int32 execute(GBRDMG *THIS_)
 	return 0;
 }
 
-__inline static void synth(GBRDMG *THIS_, Int32 *d)
+__inline static void synth(GBRDMG *THIS_, int32_t *d)
 {
 	THIS_->dmgsnd->synth(THIS_->dmgsnd->ctx, d);
 }
 
-__inline static void volume(GBRDMG *THIS_, Uint32 v)
+__inline static void volume(GBRDMG *THIS_, uint32_t v)
 {
 	THIS_->dmgsnd->volume(THIS_->dmgsnd->ctx, v);
 }
@@ -189,66 +189,66 @@ static void timer_setup(GBRDMG *THIS_)
 
 static void timer_update_TIMA(GBRDMG *THIS_)
 {
-	Uint32 cnt;
+	uint32_t cnt;
 	/* タイマ動作中なら現カウンタを取得 */
 	if (kmevent_gettimer(&THIS_->kme, THIS_->timer, &cnt))
 	{
 		cnt >>= timer_clock_table[THIS_->gb_TMC & 3];
-		THIS_->gb_TIMA = (Uint8)((256 - cnt) & 0xff);
+		THIS_->gb_TIMA = (uint8_t)((256 - cnt) & 0xff);
 	}
 }
 
 
 
-static void map_read_proc8k(GBRDMG *THIS_, Uint32 a, READPROC proc)
+static void map_read_proc8k(GBRDMG *THIS_, uint32_t a, READPROC proc)
 {
-	Uint32 page = a >> 12;
+	uint32_t page = a >> 12;
 	THIS_->readproc[page] = THIS_->readproc[page + 1] = proc;
 }
-static void map_read_mem4k(GBRDMG *THIS_, Uint32 a, Uint8 *p)
+static void map_read_mem4k(GBRDMG *THIS_, uint32_t a, uint8_t *p)
 {
-	Uint32 page = a >> 12;
+	uint32_t page = a >> 12;
 	THIS_->readproc[page] = 0;
 	THIS_->readmap[page] = p - (page << 12);
 }
-static void map_read_mem8k(GBRDMG *THIS_, Uint32 a, Uint8 *p)
+static void map_read_mem8k(GBRDMG *THIS_, uint32_t a, uint8_t *p)
 {
-	Uint32 page = a >> 12;
+	uint32_t page = a >> 12;
 	THIS_->readproc[page] = THIS_->readproc[page + 1] = 0;
 	THIS_->readmap[page] = THIS_->readmap[page + 1] = p - (page << 12);
 }
-static void map_write_proc8k(GBRDMG *THIS_, Uint32 a, WRITEPROC proc)
+static void map_write_proc8k(GBRDMG *THIS_, uint32_t a, WRITEPROC proc)
 {
-	Uint32 page = a >> 12;
+	uint32_t page = a >> 12;
 	THIS_->writeproc[page] = THIS_->writeproc[page + 1] = proc;
 }
-static void map_write_mem4k(GBRDMG *THIS_, Uint32 a, Uint8 *p)
+static void map_write_mem4k(GBRDMG *THIS_, uint32_t a, uint8_t *p)
 {
-	Uint32 page = a >> 12;
+	uint32_t page = a >> 12;
 	THIS_->writeproc[page] = 0;
 	THIS_->writemap[page] = p - (page << 12);
 }
-static void map_write_mem8k(GBRDMG *THIS_, Uint32 a, Uint8 *p)
+static void map_write_mem8k(GBRDMG *THIS_, uint32_t a, uint8_t *p)
 {
-	Uint32 page = a >> 12;
+	uint32_t page = a >> 12;
 	THIS_->writeproc[page] = THIS_->writeproc[page + 1] = 0;
 	THIS_->writemap[page] = THIS_->writemap[page + 1] = p - (page << 12);
 }
 
-static Uint32 read_null(GBRDMG *THIS_, Uint32 a)
+static uint32_t read_null(GBRDMG *THIS_, uint32_t a)
 {
     (void)THIS_;
     (void)a;
 	return 0xFF;
 }
-static void write_null(GBRDMG *THIS_, Uint32 a, Uint32 v)
+static void write_null(GBRDMG *THIS_, uint32_t a, uint32_t v)
 {
     (void)THIS_;
     (void)a;
     (void)v;
 }
 
-static Uint32 read_E000(GBRDMG *THIS_, Uint32 a)
+static uint32_t read_E000(GBRDMG *THIS_, uint32_t a)
 {
 	if (a >= 0xff80 && a != 0xffff)
 		return THIS_->highram[a & 0x7f];
@@ -273,7 +273,7 @@ static Uint32 read_E000(GBRDMG *THIS_, Uint32 a)
 //---+ [ff4d_fix.txt]
 			case 0xff4d:	/* Speed Switch */
 				if (THIS_->isCGB == 0) {
-				return (Uint8)0x7e;
+				return (uint8_t)0x7e;
 				} else {
 				return THIS_->io[a & 0x1ff] | 0x80;
 				}
@@ -284,39 +284,39 @@ static Uint32 read_E000(GBRDMG *THIS_, Uint32 a)
 		return THIS_->io[a & 0x1ff];
 	}
 }
-static void write_E000(GBRDMG *THIS_, Uint32 a, Uint32 v)
+static void write_E000(GBRDMG *THIS_, uint32_t a, uint32_t v)
 {
 	if (a >= 0xff80 && a != 0xffff)
-		THIS_->highram[a & 0x7f] = (Uint8)v;
+		THIS_->highram[a & 0x7f] = (uint8_t)v;
 	else if (a < 0xfe00)
-		THIS_->ram[a & 0x1fff] = (Uint8)v;
+		THIS_->ram[a & 0x1fff] = (uint8_t)v;
 	else if (0xff10 <= a &&  a <= 0xff3f)
 		THIS_->dmgsnd->write(THIS_->dmgsnd->ctx, a, v);
 	else {
-		THIS_->io[a & 0x1ff] = (Uint8)v;
+		THIS_->io[a & 0x1ff] = (uint8_t)v;
 		switch (a)
 		{
 			case 0xff04:	/* DIV */
 				THIS_->gb_DIV = (v - ((THIS_->total_cycles + THIS_->ctx.cycle) >> 8)) & 0xff;
 				break;
 			case 0xff05:	/* TIMA */
-				THIS_->gb_TIMA = (Uint8)v;
+				THIS_->gb_TIMA = (uint8_t)v;
 				timer_setup(THIS_);
 				break;
 			case 0xff06:	/* TMA */
-				THIS_->gb_TMA = (Uint8)v;
+				THIS_->gb_TMA = (uint8_t)v;
 				break;
 			case 0xff07:	/* TMC */
 				{
-					Uint32 nextcount;
+					uint32_t nextcount;
 					double cnt;
 					kmevent_gettimer(&THIS_->kme, THIS_->timer, &nextcount);
 					cnt = ((double)nextcount) / (1 << timer_clock_table[THIS_->gb_TMC & 3]);
-					THIS_->gb_TMC = (Uint8)v;
+					THIS_->gb_TMC = (uint8_t)v;
 					cnt = cnt * (1 << timer_clock_table[THIS_->gb_TMC & 3]);
 					if (THIS_->gb_TMC & 0x4)
 					{
-						kmevent_settimer(&THIS_->kme, THIS_->timer, (Uint32)cnt);
+						kmevent_settimer(&THIS_->kme, THIS_->timer, (uint32_t)cnt);
 					}
 					else
 					{
@@ -327,39 +327,39 @@ static void write_E000(GBRDMG *THIS_, Uint32 a, Uint32 v)
 				//timer_setup(THIS_);
 				break;
 			case 0xff0f:	/* IF */
-				THIS_->ctx.regs8[REGID_INTREQ] = THIS_->gb_IF = (Uint8)v;
+				THIS_->ctx.regs8[REGID_INTREQ] = THIS_->gb_IF = (uint8_t)v;
 				break;
 //---+ [ff4d_fix.txt]
 			case 0xff4d:	/* Speed Switch */
 				/* The XOR(^) is normally done during an OP_STOP command */
 				if (THIS_->isCGB == 0) {
-				THIS_->io[a & 0x1ff] = (Uint8)0x7e;
+				THIS_->io[a & 0x1ff] = (uint8_t)0x7e;
 				} else {
-				if (((Uint8)v & 1) == 1) {
-				THIS_->io[a & 0x1ff] = (Uint8)0xfe;
+				if (((uint8_t)v & 1) == 1) {
+				THIS_->io[a & 0x1ff] = (uint8_t)0xfe;
 				}
 				}
 				break;
 //---+
 			case 0xff70:	/* SVBK */
 				{
-					Uint32 rampage = v & 7;
+					uint32_t rampage = v & 7;
 					if (!rampage) rampage = 1;
 					map_read_mem4k(THIS_, 0xd000, &THIS_->ram[rampage << 12]);
 					map_write_mem4k(THIS_, 0xd000, &THIS_->ram[rampage << 12]);
 				}
 				break;
 			case 0xffff:	/* IE */
-				THIS_->gb_IE = (Uint8)v;
+				THIS_->gb_IE = (uint8_t)v;
 				THIS_->ctx.regs8[REGID_INTMASK] = THIS_->gb_IE & 0x5;
 				break;
 		}
 	}
 }
 
-static void force_rombank(GBRDMG *THIS_, Uint32 bank, Uint32 data)
+static void force_rombank(GBRDMG *THIS_, uint32_t bank, uint32_t data)
 {
-	Uint32 base = bank << 14;
+	uint32_t base = bank << 14;
 	if (data >= THIS_->bankromnum)
 	{
 #if 1
@@ -382,9 +382,9 @@ static void force_rombank(GBRDMG *THIS_, Uint32 bank, Uint32 data)
 
 static void update_banks(GBRDMG *THIS_)
 {
-	Uint32 rambankenable = 0;
-	Uint32 rambank = 0;
-	Uint32 rombank;
+	uint32_t rambankenable = 0;
+	uint32_t rambank = 0;
+	uint32_t rombank;
 	rombank = THIS_->rombankselect;
 	switch (THIS_->mapper_type)
 	{
@@ -447,7 +447,7 @@ static void update_banks(GBRDMG *THIS_)
 	force_rombank(THIS_, 1, rombank);
 }
 
-static void write_rambankenable(GBRDMG *THIS_, Uint32 a, Uint32 v)
+static void write_rambankenable(GBRDMG *THIS_, uint32_t a, uint32_t v)
 {
 	switch (THIS_->mapper_type)
 	{
@@ -455,13 +455,13 @@ static void write_rambankenable(GBRDMG *THIS_, Uint32 a, Uint32 v)
 		case GB_MAPPER_SSC:
 		case GB_MAPPER_MBC3:
 		case GB_MAPPER_MBC5:
-			THIS_->rambankenable = (Uint8)(v & 0x0f);
+			THIS_->rambankenable = (uint8_t)(v & 0x0f);
 			update_banks(THIS_);
 			break;
 		case GB_MAPPER_MBC2:
 			if (!(a & 0x0100))
 			{
-				THIS_->rambankenable = (Uint8)(v & 0x0f);
+				THIS_->rambankenable = (uint8_t)(v & 0x0f);
 				update_banks(THIS_);
 			}
 			break;
@@ -471,52 +471,52 @@ static void write_rambankenable(GBRDMG *THIS_, Uint32 a, Uint32 v)
 }
 
 
-static void write_rombankselect(GBRDMG *THIS_, Uint32 a, Uint32 v)
+static void write_rombankselect(GBRDMG *THIS_, uint32_t a, uint32_t v)
 {
 	switch (THIS_->mapper_type)
 	{
 		case GB_MAPPER_MBC1:
 		case GB_MAPPER_SSC:
-			THIS_->rombankselect = (Uint8)(v & 0x1f);
+			THIS_->rombankselect = (uint8_t)(v & 0x1f);
 			update_banks(THIS_);
 			break;
 		case GB_MAPPER_MBC2:
 			if (a & 0x0100)
 			{
-				THIS_->rombankselect = (Uint8)(v & 0x0f);
+				THIS_->rombankselect = (uint8_t)(v & 0x0f);
 				update_banks(THIS_);
 			}
 			break;
 		case GB_MAPPER_MBC3:
-			THIS_->rombankselect = (Uint8)(v & 0x7f);
+			THIS_->rombankselect = (uint8_t)(v & 0x7f);
 			update_banks(THIS_);
 			break;
 		case GB_MAPPER_MBC5:
 		case GB_MAPPER_GBR:
 			if (a & 0x01000)
-				THIS_->rombankselecthi = (Uint8)(v & 1);
+				THIS_->rombankselecthi = (uint8_t)(v & 1);
 			else
-				THIS_->rombankselect = (Uint8)(v & 0xff);
+				THIS_->rombankselect = (uint8_t)(v & 0xff);
 			update_banks(THIS_);
 			break;
 		default:
 			break;
 	}
 }
-static void write_rambankselect(GBRDMG *THIS_, Uint32 a, Uint32 v)
+static void write_rambankselect(GBRDMG *THIS_, uint32_t a, uint32_t v)
 {
     (void)a;
 	switch (THIS_->mapper_type)
 	{
 		case GB_MAPPER_MBC1:
 		case GB_MAPPER_SSC:
-			THIS_->rambankselect = (Uint8)(v & 0x03);
+			THIS_->rambankselect = (uint8_t)(v & 0x03);
 			update_banks(THIS_);
 			break;
 		case GB_MAPPER_MBC3:
 		case GB_MAPPER_MBC5:
 		case GB_MAPPER_GBR:
-			THIS_->rambankselect = (Uint8)(v & 0x0f);
+			THIS_->rambankselect = (uint8_t)(v & 0x0f);
 			update_banks(THIS_);
 			break;
 		default:
@@ -524,14 +524,14 @@ static void write_rambankselect(GBRDMG *THIS_, Uint32 a, Uint32 v)
 	}
 }
 
-static void write_romramselect(GBRDMG *THIS_, Uint32 a, Uint32 v)
+static void write_romramselect(GBRDMG *THIS_, uint32_t a, uint32_t v)
 {
     (void)a;
 	switch (THIS_->mapper_type)
 	{
 		case GB_MAPPER_MBC1:
 		case GB_MAPPER_SSC:
-			THIS_->romramselect = (Uint8)(v & 0x1);
+			THIS_->romramselect = (uint8_t)(v & 0x1);
 			update_banks(THIS_);
 			break;
 		default:
@@ -540,24 +540,24 @@ static void write_romramselect(GBRDMG *THIS_, Uint32 a, Uint32 v)
 }
 
 
-static Uint32 read_event(void *ctx, Uint32 a)
+static uint32_t read_event(void *ctx, uint32_t a)
 {
 	GBRDMG *THIS_ = ctx;
-	Uint32 page = a >> 12;
+	uint32_t page = a >> 12;
 	if (THIS_->readproc[page])
 		return THIS_->readproc[page](THIS_, a);
 	else
 		return THIS_->readmap[page][a];
 }
 
-static void write_event(void *ctx, Uint32 a, Uint32 v)
+static void write_event(void *ctx, uint32_t a, uint32_t v)
 {
 	GBRDMG *THIS_ = ctx;
-	Uint32 page = a >> 12;
+	uint32_t page = a >> 12;
 	if (THIS_->writeproc[page])
 		THIS_->writeproc[page](THIS_, a, v);
 	else
-		THIS_->writemap[page][a] = (Uint8)v;
+		THIS_->writemap[page][a] = (uint8_t)v;
 }
 
 static void vsync_event(KMEVENT *event, KMEVENT_ITEM_ID curid, GBRDMG *THIS_)
@@ -597,8 +597,8 @@ static void timer_event(KMEVENT *event, KMEVENT_ITEM_ID curid, GBRDMG *THIS_)
 
 //ここからダンプ設定
 static NEZ_PLAY *pNezPlayDump;
-Uint32 (*dump_MEM_GB)(Uint32 a,unsigned char* mem);
-static Uint32 dump_MEM_GB_bf(Uint32 menu,unsigned char* mem){
+uint32_t (*dump_MEM_GB)(uint32_t a,unsigned char* mem);
+static uint32_t dump_MEM_GB_bf(uint32_t menu,unsigned char* mem){
 	int i;
 	switch(menu){
 	case 1://Memory
@@ -609,10 +609,10 @@ static Uint32 dump_MEM_GB_bf(Uint32 menu,unsigned char* mem){
 	return -2;
 }
 //----------
-extern Uint8 *gb_regdata;
+extern uint8_t *gb_regdata;
 
-Uint32 (*dump_DEV_DMG)(Uint32 a,unsigned char* mem);
-static Uint32 dump_DEV_DMG_bf(Uint32 menu,unsigned char* mem){
+uint32_t (*dump_DEV_DMG)(uint32_t a,unsigned char* mem);
+static uint32_t dump_DEV_DMG_bf(uint32_t menu,unsigned char* mem){
 	int i;
 	switch(menu){
 	case 1://Register
@@ -633,8 +633,8 @@ static Uint32 dump_DEV_DMG_bf(Uint32 menu,unsigned char* mem){
 static void reset(NEZ_PLAY *pNezPlay)
 {
 	GBRDMG *THIS_ = pNezPlay->gbrdmg;
-	Uint32 song, initbreak;
-	Uint32 freq = NESAudioFrequencyGet(pNezPlay);
+	uint32_t song, initbreak;
+	uint32_t freq = NESAudioFrequencyGet(pNezPlay);
 	song = SONGINFO_GetSongNo(pNezPlay->song) - 1;
 	if (song >= THIS_->maxsong) song = THIS_->startsong - 1;
 
@@ -682,7 +682,7 @@ static void reset(NEZ_PLAY *pNezPlay)
 	map_write_proc8k(THIS_, 0xE000, write_E000);
 	update_banks(THIS_);
 
-	THIS_->ctx.regs8[REGID_A] = (Uint8)(song & 0xff);
+	THIS_->ctx.regs8[REGID_A] = (uint8_t)(song & 0xff);
 #if 1
 	THIS_->ctx.regs8[REGID_IMODE] = 4;	/* VECTOR IRQ MODE */
 #else
@@ -849,37 +849,37 @@ static void terminate(GBRDMG *THIS_)
 	XFREE(THIS_);
 }
 
-static Uint32 GetWordLE(Uint8 *p)
+static uint32_t GetWordLE(uint8_t *p)
 {
 	return p[0] | (p[1] << 8);
 }
 
-static Uint32 load(NEZ_PLAY *pNezPlay, GBRDMG *THIS_, Uint8 *pData, Uint32 uSize)
+static uint32_t load(NEZ_PLAY *pNezPlay, GBRDMG *THIS_, uint8_t *pData, uint32_t uSize)
 {
 
 	XMEMSET(THIS_, 0, sizeof(GBRDMG));
 	THIS_->dmgsnd = 0;
 	THIS_->bankrom = 0;
-	if (pData[0] != 0x47 || pData[1] != 0x42) return NESERR_FORMAT;
+	if (pData[0] != 0x47 || pData[1] != 0x42) return NEZPLUG_NESERR_FORMAT;
 	if (pData[2] == 0x52)
 	{
-		if (pData[3] != 0x46) return NESERR_FORMAT;
+		if (pData[3] != 0x46) return NEZPLUG_NESERR_FORMAT;
 		THIS_->isgbr = 1;	/* 'GBRF' GameBoy Ripped sound Format */
 	}
 	else if (pData[2] == 0x53)
 		THIS_->isgbr = 0;	/* 'GBS' GameBoy Sound format */
 	else
-		return NESERR_FORMAT;
+		return NEZPLUG_NESERR_FORMAT;
 
 	if (THIS_->isgbr)
 	{
-		if (uSize < 0x20) return NESERR_FORMAT;
+		if (uSize < 0x20) return NEZPLUG_NESERR_FORMAT;
 		THIS_->maxsong = 256;
 		THIS_->startsong = 1;
 		SONGINFO_SetStartSongNo(pNezPlay->song, THIS_->startsong);
 		SONGINFO_SetMaxSongNo(pNezPlay->song, THIS_->maxsong);
 		THIS_->bankromnum = pData[4];
-		if (!THIS_->bankromnum) return NESERR_FORMAT;
+		if (!THIS_->bankromnum) return NEZPLUG_NESERR_FORMAT;
 		THIS_->bankromfirst[0] = pData[5];
 		THIS_->bankromfirst[1] = pData[6];
 		THIS_->timerflag = 0;
@@ -904,8 +904,8 @@ static Uint32 load(NEZ_PLAY *pNezPlay, GBRDMG *THIS_, Uint8 *pData, Uint32 uSize
 		THIS_->mapper_type = GB_MAPPER_GBR;
 		uSize -= 0x20;
 		pData += 0x20;
-		if (uSize > ((Uint32)THIS_->bankromnum) << 14)
-			uSize = ((Uint32)THIS_->bankromnum) << 14;
+		if (uSize > ((uint32_t)THIS_->bankromnum) << 14)
+			uSize = ((uint32_t)THIS_->bankromnum) << 14;
 
 		XMEMSET(THIS_->titlebuffer, 0, 0x21);
 		XMEMCPY(THIS_->titlebuffer, pData + 0x0134, 0x10);
@@ -925,7 +925,7 @@ Bank ROM(4000-7FFF): %XH\r\n\
 Init Address       : %04XH\r\n\
 VSync Address      : %04XH\r\n\
 Timer Address      : %04XH\r\n\
-Interrupt Flag     : %s%s\r\n\
+int32_terrupt Flag     : %s%s\r\n\
 GBC Flag(2x Speed) : %d\r\n\
 First TMA          : %02XH\r\n\
 First TMC          : %02XH"
@@ -937,8 +937,8 @@ First TMC          : %02XH"
 	}
 	else
 	{
-		Uint32 size;
-		if (uSize < 0x70) return NESERR_FORMAT;
+		uint32_t size;
+		if (uSize < 0x70) return NEZPLUG_NESERR_FORMAT;
 		THIS_->maxsong = pData[0x04];
 		THIS_->startsong = pData[0x05];
 		SONGINFO_SetStartSongNo(pNezPlay->song, THIS_->startsong);
@@ -1014,7 +1014,7 @@ Use INT           : %d"
 		size = uSize + THIS_->loadaddr;
 		if (size < 0x8000) size = 0x8000;
 		size = (size + 0x3fff) & ~ 0x3fff;
-		THIS_->bankromnum = (Uint8)(size >> 14);
+		THIS_->bankromnum = (uint8_t)(size >> 14);
 		
 	}
 	SONGINFO_SetChannel(pNezPlay->song, 2);
@@ -1026,8 +1026,8 @@ Use INT           : %d"
 	else
 	//---+
 	SONGINFO_SetPlayAddress(pNezPlay->song, (THIS_->timerflag & 1) ? THIS_->vsyncaddr : THIS_->timeraddr);
-	THIS_->bankrom = (Uint8 *)XMALLOC(THIS_->bankromnum << 14);
-	if (!THIS_->bankrom) return NESERR_SHORTOFMEMORY;
+	THIS_->bankrom = (uint8_t *)XMALLOC(THIS_->bankromnum << 14);
+	if (!THIS_->bankrom) return NEZPLUG_NESERR_SHORTOFMEMORY;
 	XMEMSET(THIS_->bankrom, 0, THIS_->bankromnum << 14);
 #if MARIO2_PATCH_ENABLE
 	/*
@@ -1049,27 +1049,27 @@ Use INT           : %d"
 	XMEMCPY(THIS_->bankrom + THIS_->loadaddr, pData, uSize);
 #endif
 	THIS_->dmgsnd = DMGSoundAlloc();
-	if (!THIS_->dmgsnd) return NESERR_SHORTOFMEMORY;
-	return NESERR_NOERROR;
+	if (!THIS_->dmgsnd) return NEZPLUG_NESERR_SHORTOFMEMORY;
+	return NEZPLUG_NESERR_NOERROR;
 }
 
 
 
 
 
-static Int32 __fastcall ExecuteDMGCPU(void *pNezPlay)
+static int32_t ExecuteDMGCPU(void *pNezPlay)
 {
 	return ((NEZ_PLAY*)pNezPlay)->gbrdmg ? execute((GBRDMG*)((NEZ_PLAY*)pNezPlay)->gbrdmg) : 0;
 }
 
-static void __fastcall DMGSoundRenderStereo(void *pNezPlay, Int32 *d)
+static void DMGSoundRenderStereo(void *pNezPlay, int32_t *d)
 {
 	synth((GBRDMG*)((NEZ_PLAY*)pNezPlay)->gbrdmg, d);
 }
 
-static Int32 __fastcall DMGSoundRenderMono(void *pNezPlay)
+static int32_t DMGSoundRenderMono(void *pNezPlay)
 {
-	Int32 d[2] = { 0,0 } ;
+	int32_t d[2] = { 0,0 } ;
 	synth((GBRDMG*)((NEZ_PLAY*)pNezPlay)->gbrdmg, d);
 #if (((-1) >> 1) == -1)
 	return (d[0] + d[1]) >> 1;
@@ -1084,7 +1084,7 @@ const static NES_AUDIO_HANDLER gbrdmg_audio_handler[] = {
 	{ 0, 0, 0, NULL },
 };
 
-static void __fastcall GBRDMGVolume(void *pNezPlay, Uint32 v)
+static void GBRDMGVolume(void *pNezPlay, uint32_t v)
 {
 	if (((NEZ_PLAY*)pNezPlay)->gbrdmg)
 	{
@@ -1097,7 +1097,7 @@ const static NES_VOLUME_HANDLER gbrdmg_volume_handler[] = {
 	{ 0, NULL }, 
 };
 
-static void __fastcall GBRDMGCPUReset(void *pNezPlay)
+static void GBRDMGCPUReset(void *pNezPlay)
 {
 	if (((NEZ_PLAY*)pNezPlay)->gbrdmg) reset((NEZ_PLAY*)pNezPlay);
 }
@@ -1107,7 +1107,7 @@ const static NES_RESET_HANDLER gbrdmg_reset_handler[] = {
 	{ 0,                  0, NULL },
 };
 
-static void __fastcall GBRDMGCPUTerminate(void *pNezPlay)
+static void GBRDMGCPUTerminate(void *pNezPlay)
 {
 	if (((NEZ_PLAY*)pNezPlay)->gbrdmg)
 	{
@@ -1121,13 +1121,13 @@ const static NES_TERMINATE_HANDLER gbrdmg_terminate_handler[] = {
 	{ 0, NULL },
 };
 
-Uint32 GBRLoad(NEZ_PLAY *pNezPlay, Uint8 *pData, Uint32 uSize)
+uint32_t GBRLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 {
-	Uint32 ret;
+	uint32_t ret;
 	GBRDMG *THIS_;
 	if (pNezPlay->gbrdmg) __builtin_trap();	/* ASSERT */
 	THIS_ = (GBRDMG *)XMALLOC(sizeof(GBRDMG));
-	if (!THIS_) return NESERR_SHORTOFMEMORY;
+	if (!THIS_) return NEZPLUG_NESERR_SHORTOFMEMORY;
 	ret = load(pNezPlay, THIS_, pData, uSize);
 	if (ret)
 	{

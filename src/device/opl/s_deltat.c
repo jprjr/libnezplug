@@ -10,48 +10,48 @@ typedef struct {
 	KMIF_SOUND_DEVICE kmif;
 	KMIF_LOGTABLE *logtbl;
 	struct YMDELTATPCMSOUND_COMMON_TAG {
-		Int32 mastervolume;
-		Int32 step;
-		Int32 output;
-		Uint32 cnt;
-		Uint32 cps;
-		Uint32 phase;
-		Uint32 deltan;
-		Int32 scale;
-		Uint32 mem;
-		Uint32 play;
-		Uint32 start;
-		Uint32 stop;
-		Uint32 level32;
-		Uint8 key;
-		Uint8 level;
-		Uint8 granuality;
-		Uint8 pad4_3;
-		Uint8 regs[0x10];
+		int32_t mastervolume;
+		int32_t step;
+		int32_t output;
+		uint32_t cnt;
+		uint32_t cps;
+		uint32_t phase;
+		uint32_t deltan;
+		int32_t scale;
+		uint32_t mem;
+		uint32_t play;
+		uint32_t start;
+		uint32_t stop;
+		uint32_t level32;
+		uint8_t key;
+		uint8_t level;
+		uint8_t granuality;
+		uint8_t pad4_3;
+		uint8_t regs[0x10];
 	} common;
-	Uint8 *romrambuf;
-	Uint32 romrammask;
-	Uint8 *rambuf;
-	Uint32 rammask;
-	Uint8 *rombuf;
-	Uint32 rommask;
-	Uint8 ymdeltatpcm_type;
-	Uint8 memshift;
-	Uint32 ram_size;
+	uint8_t *romrambuf;
+	uint32_t romrammask;
+	uint8_t *rambuf;
+	uint32_t rammask;
+	uint8_t *rombuf;
+	uint32_t rommask;
+	uint8_t ymdeltatpcm_type;
+	uint8_t memshift;
+	uint32_t ram_size;
 } YMDELTATPCMSOUND;
 
-const static Int8 table_step[16] =
+const static int8_t table_step[16] =
 {
 	1,	3,	5,	7,	9,	11,	13,	15,
 	-1,	-1,	-1,	-1,	2,	4,	6,	8
 };
-const static Uint8 table_scale[16] =
+const static uint8_t table_scale[16] =
 {
 	 57,  57,  57,  57,  77, 102, 128, 153,
 	 57,  57,  57,  57,  77, 102, 128, 153,
 };
 
-const static Int32 scaletable[49*16]={
+const static int32_t scaletable[49*16]={
     2,    6,   10,   14,   18,   22,   26,   30,   -2,   -6,  -10,  -14,  -18,  -22,  -26,  -30,
     2,    6,   10,   14,   19,   23,   27,   31,   -2,   -6,  -10,  -14,  -19,  -23,  -27,  -31,
     2,    6,   11,   15,   21,   25,   30,   34,   -2,   -6,  -11,  -15,  -21,  -25,  -30,  -34,
@@ -104,15 +104,15 @@ const static Int32 scaletable[49*16]={
 };
 
 
-__inline static void writeram(YMDELTATPCMSOUND *sndp, Uint32 v)
+__inline static void writeram(YMDELTATPCMSOUND *sndp, uint32_t v)
 {
-	sndp->rambuf[(sndp->common.mem >> 1) & sndp->rammask] = (Uint8)v;
+	sndp->rambuf[(sndp->common.mem >> 1) & sndp->rammask] = (uint8_t)v;
 	sndp->common.mem += 1 << 1;
 }
 
-__inline static Uint32 readram(YMDELTATPCMSOUND *sndp)
+__inline static uint32_t readram(YMDELTATPCMSOUND *sndp)
 {
-	Uint32 v;
+	uint32_t v;
 	v = sndp->romrambuf[(sndp->common.play >> 1) & sndp->romrammask];
 	if (sndp->common.play & 1)
 		v &= 0x0f;
@@ -139,7 +139,7 @@ __inline static Uint32 readram(YMDELTATPCMSOUND *sndp)
 	return v;
 }
 
-__inline static void DelrtatStep(YMDELTATPCMSOUND *sndp, Uint32 data)
+__inline static void DelrtatStep(YMDELTATPCMSOUND *sndp, uint32_t data)
 {
 	if(sndp->ymdeltatpcm_type==MSM5205){
 		sndp->common.scale = sndp->common.scale + scaletable[(sndp->common.step << 4) + (data & 0xf)];
@@ -163,18 +163,18 @@ __inline static void DelrtatStep(YMDELTATPCMSOUND *sndp, Uint32 data)
 }
 
 #if (((-1) >> 1) == -1)
-#define SSR(x, y) (((Int32)x) >> (y))
+#define SSR(x, y) (((int32_t)x) >> (y))
 #else
 #define SSR(x, y) (((x) >= 0) ? ((x) >> (y)) : (-((-(x) - 1) >> (y)) - 1))
 #endif
 
 
-static void sndsynth(void *ctx, Int32 *p)
+static void sndsynth(void *ctx, int32_t *p)
 {
     YMDELTATPCMSOUND *sndp = (YMDELTATPCMSOUND *)ctx;
 	if (sndp->common.key)
 	{
-		Uint32 step;
+		uint32_t step;
 		sndp->common.cnt += sndp->common.cps;
 		step = sndp->common.cnt >> CPS_SHIFT;
 		sndp->common.cnt &= (1 << CPS_SHIFT) - 1;
@@ -203,10 +203,10 @@ static void sndsynth(void *ctx, Int32 *p)
 
 
 
-static void sndwrite(void *ctx, Uint32 a, Uint32 v)
+static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 {
     YMDELTATPCMSOUND *sndp = (YMDELTATPCMSOUND *)ctx;
-	sndp->common.regs[a] = (Uint8)v;
+	sndp->common.regs[a] = (uint8_t)v;
 	switch (a)
 	{
 		/* START,REC,MEMDATA,REPEAT,SPOFF,--,--,RESET */
@@ -251,8 +251,8 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 			if (sndp->common.deltan < 0x100) sndp->common.deltan = 0x100;
 			break;
 		case 0x0b:	/* Level Control */
-			sndp->common.level = (Uint8)v;
-			sndp->common.level32 = ((Int32)(sndp->common.level * LogToLin(sndp->logtbl, sndp->common.mastervolume, LOG_LIN_BITS - 15))) >> 7;
+			sndp->common.level = (uint8_t)v;
+			sndp->common.level32 = ((int32_t)(sndp->common.level * LogToLin(sndp->logtbl, sndp->common.mastervolume, LOG_LIN_BITS - 15))) >> 7;
 			if(sndp->ymdeltatpcm_type==MSM5205){
 				sndp->common.output = sndp->common.scale * sndp->common.level32;
 			}else{
@@ -263,14 +263,14 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 	}
 }
 
-static Uint32 sndread(void *ctx, Uint32 a)
+static uint32_t sndread(void *ctx, uint32_t a)
 {
     (void)ctx;
     (void)a;
 	return 0;
 }
 
-static void sndreset(void *ctx, Uint32 clock, Uint32 freq)
+static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
 {
     YMDELTATPCMSOUND *sndp = (YMDELTATPCMSOUND *)ctx;
 	XMEMSET(&sndp->common, 0, sizeof(sndp->common));
@@ -280,12 +280,12 @@ static void sndreset(void *ctx, Uint32 clock, Uint32 freq)
 	sndp->common.granuality = 4;
 }
 
-static void sndvolume(void *ctx, Int32 volume)
+static void sndvolume(void *ctx, int32_t volume)
 {
     YMDELTATPCMSOUND *sndp = (YMDELTATPCMSOUND *)ctx;
 	volume = (volume << (LOG_BITS - 8)) << 1;
 	sndp->common.mastervolume = volume;
-	sndp->common.level32 = ((Int32)(sndp->common.level * LogToLin(sndp->logtbl, sndp->common.mastervolume, LOG_LIN_BITS - 15))) >> 7;
+	sndp->common.level32 = ((int32_t)(sndp->common.level * LogToLin(sndp->logtbl, sndp->common.mastervolume, LOG_LIN_BITS - 15))) >> 7;
 	sndp->common.output = sndp->common.step * sndp->common.level32;
 	sndp->common.output = SSR(sndp->common.output, 8 + 2);
 }
@@ -299,7 +299,7 @@ static void sndrelease(void *ctx)
 	}
 }
 
-static void setinst(void *ctx, Uint32 n, void *p, Uint32 l)
+static void setinst(void *ctx, uint32_t n, void *p, uint32_t l)
 {
     YMDELTATPCMSOUND *sndp = (YMDELTATPCMSOUND *)ctx;
 	if (n) return;
@@ -319,19 +319,19 @@ static void setinst(void *ctx, Uint32 n, void *p, Uint32 l)
 }
 //ここからレジスタビュアー設定
 static YMDELTATPCMSOUND *sndpr;
-Uint32 (*ioview_ioread_DEV_ADPCM)(Uint32 a);
-Uint32 (*ioview_ioread_DEV_ADPCM2)(Uint32 a);
-static Uint32 ioview_ioread_bf(Uint32 a){
+uint32_t (*ioview_ioread_DEV_ADPCM)(uint32_t a);
+uint32_t (*ioview_ioread_DEV_ADPCM2)(uint32_t a);
+static uint32_t ioview_ioread_bf(uint32_t a){
 	if(a<=0xb)return sndpr->common.regs[a];else return 0x100;
 }
-static Uint32 ioview_ioread_bf2(Uint32 a){
+static uint32_t ioview_ioread_bf2(uint32_t a){
 	if(a<sndpr->ram_size)return sndpr->rambuf[a];else return 0x100;
 }
 //ここまでレジスタビュアー設定
 
-KMIF_SOUND_DEVICE *YMDELTATPCMSoundAlloc(Uint32 ymdeltatpcm_type , Uint8 *pcmbuf)
+KMIF_SOUND_DEVICE *YMDELTATPCMSoundAlloc(uint32_t ymdeltatpcm_type , uint8_t *pcmbuf)
 {
-	Uint32 ram_size;
+	uint32_t ram_size;
 	YMDELTATPCMSOUND *sndp;
 	switch (ymdeltatpcm_type)
 	{
@@ -351,7 +351,7 @@ KMIF_SOUND_DEVICE *YMDELTATPCMSoundAlloc(Uint32 ymdeltatpcm_type , Uint8 *pcmbuf
 	sndp = XMALLOC(sizeof(YMDELTATPCMSOUND) + ram_size);
 	if (!sndp) return 0;
 	sndp->ram_size = ram_size;
-	sndp->ymdeltatpcm_type = (Uint8)ymdeltatpcm_type;
+	sndp->ymdeltatpcm_type = (uint8_t)ymdeltatpcm_type;
 	switch (ymdeltatpcm_type)
 	{
 		case YMDELTATPCM_TYPE_Y8950:
@@ -380,7 +380,7 @@ KMIF_SOUND_DEVICE *YMDELTATPCMSoundAlloc(Uint32 ymdeltatpcm_type , Uint8 *pcmbuf
 	if(pcmbuf != NULL)
 		sndp->rambuf = pcmbuf;
 	else
-		sndp->rambuf = ram_size ? (Uint8 *)(sndp + 1) : 0;
+		sndp->rambuf = ram_size ? (uint8_t *)(sndp + 1) : 0;
 	sndp->rammask = ram_size ? (ram_size - 1) : 0;
 	/* ROM */
 	sndp->rombuf = 0;

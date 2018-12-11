@@ -1,6 +1,6 @@
 /* NSF mapper(4KBx8) */
 
-#include "../neserr.h"
+#include <nezplug/nezplug.h>
 #include "handler.h"
 #include "audiosys.h"
 #include "songinfo.h"
@@ -31,60 +31,60 @@ struct {
 	char* copyright;
 	char detail[1024];
 }songinfodata;
-Uint8 titlebuffer[0x21];
-Uint8 artistbuffer[0x21];
-Uint8 copyrightbuffer[0x21];
+uint8_t titlebuffer[0x21];
+uint8_t artistbuffer[0x21];
+uint8_t copyrightbuffer[0x21];
 
 /* RAM area */
-static Uint32 __fastcall ReadRam(void *pNezPlay, Uint32 A)
+static uint32_t ReadRam(void *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->ram[A & 0x07FF];
 }
-static void __fastcall WriteRam(void *pNezPlay, Uint32 A, Uint32 V)
+static void WriteRam(void *pNezPlay, uint32_t A, uint32_t V)
 {
-	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->ram[A & 0x07FF] = (Uint8)V;
+	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->ram[A & 0x07FF] = (uint8_t)V;
 }
 
 /* SRAM area */
-static Uint32 __fastcall ReadStaticArea(void *pNezPlay, Uint32 A)
+static uint32_t ReadStaticArea(void *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->static_area[A - 0x6000];
 }
-static void __fastcall WriteStaticArea(void *pNezPlay, Uint32 A, Uint32 V)
+static void WriteStaticArea(void *pNezPlay, uint32_t A, uint32_t V)
 {
-	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->static_area[A - 0x6000] = (Uint8)V;
+	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->static_area[A - 0x6000] = (uint8_t)V;
 }
 
 #if !NSF_MAPPER_STATIC
-static Uint32 __fastcall ReadRom8000(void *pNezPlay, Uint32 A)
+static uint32_t ReadRom8000(void *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[0][A];
 }
-static Uint32 __fastcall ReadRom9000(void *pNezPlay, Uint32 A)
+static uint32_t ReadRom9000(void *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[1][A];
 }
-static Uint32 __fastcall ReadRomA000(void *pNezPlay, Uint32 A)
+static uint32_t ReadRomA000(void *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[2][A];
 }
-static Uint32 __fastcall ReadRomB000(void *pNezPlay, Uint32 A)
+static uint32_t ReadRomB000(void *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[3][A];
 }
-static Uint32 __fastcall ReadRomC000(void *pNezPlay, Uint32 A)
+static uint32_t ReadRomC000(void *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[4][A];
 }
-static Uint32 __fastcall ReadRomD000(void *pNezPlay, Uint32 A)
+static uint32_t ReadRomD000(void *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[5][A];
 }
-static Uint32 __fastcall ReadRomE000(void *pNezPlay, Uint32 A)
+static uint32_t ReadRomE000(void *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[6][A];
 }
-static Uint32 __fastcall ReadRomF000(void *pNezPlay, Uint32 A)
+static uint32_t ReadRomF000(void *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[7][A];
 }
@@ -92,44 +92,44 @@ static Uint32 __fastcall ReadRomF000(void *pNezPlay, Uint32 A)
 // ROMに値を書き込むのはできないはずで不正なのだが、
 // これをしないとFDS環境のNSFが動作しないのでしょうがない…
 
-static void __fastcall WriteRom8000(void *pNezPlay, Uint32 A, Uint32 V)
+static void WriteRom8000(void *pNezPlay, uint32_t A, uint32_t V)
 {
-	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[0][A] = (Uint8)V;
+	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[0][A] = (uint8_t)V;
 }
-static void __fastcall WriteRom9000(void *pNezPlay, Uint32 A, Uint32 V)
+static void WriteRom9000(void *pNezPlay, uint32_t A, uint32_t V)
 {
-	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[1][A] = (Uint8)V;
+	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[1][A] = (uint8_t)V;
 }
-static void __fastcall WriteRomA000(void *pNezPlay, Uint32 A, Uint32 V)
+static void WriteRomA000(void *pNezPlay, uint32_t A, uint32_t V)
 {
-	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[2][A] = (Uint8)V;
+	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[2][A] = (uint8_t)V;
 }
-static void __fastcall WriteRomB000(void *pNezPlay, Uint32 A, Uint32 V)
+static void WriteRomB000(void *pNezPlay, uint32_t A, uint32_t V)
 {
-	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[3][A] = (Uint8)V;
+	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[3][A] = (uint8_t)V;
 }
-static void __fastcall WriteRomC000(void *pNezPlay, Uint32 A, Uint32 V)
+static void WriteRomC000(void *pNezPlay, uint32_t A, uint32_t V)
 {
-	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[4][A] = (Uint8)V;
+	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[4][A] = (uint8_t)V;
 }
-static void __fastcall WriteRomD000(void *pNezPlay, Uint32 A, Uint32 V)
+static void WriteRomD000(void *pNezPlay, uint32_t A, uint32_t V)
 {
-	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[5][A] = (Uint8)V;
+	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[5][A] = (uint8_t)V;
 }
-static void __fastcall WriteRomE000(void *pNezPlay, Uint32 A, Uint32 V)
+static void WriteRomE000(void *pNezPlay, uint32_t A, uint32_t V)
 {
-	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[6][A] = (Uint8)V;
+	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[6][A] = (uint8_t)V;
 }
-static void __fastcall WriteRomF000(void *pNezPlay, Uint32 A, Uint32 V)
+static void WriteRomF000(void *pNezPlay, uint32_t A, uint32_t V)
 {
-	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[7][A] = (Uint8)V;
+	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[7][A] = (uint8_t)V;
 }
 #endif
 
 /* Mapper I/O */
-static void __fastcall WriteMapper(void *pNezPlay, Uint32 A, Uint32 V)
+static void WriteMapper(void *pNezPlay, uint32_t A, uint32_t V)
 {
-	Uint32 bank;
+	uint32_t bank;
 	NSFNSF *nsf = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf);
 	bank = A - 0x5FF0;
 	if (bank < 6 || bank > 15) return;
@@ -153,7 +153,7 @@ static void __fastcall WriteMapper(void *pNezPlay, Uint32 A, Uint32 V)
 		XMEMSET(&nsf->static_area[(bank - 6) << 12], 0x00, 0x1000);
 }
 
-static Uint32 __fastcall Read2000(void *pNezPlay, Uint32 A)
+static uint32_t Read2000(void *pNezPlay, uint32_t A)
 {
 	NSFNSF *nsf = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf);
 	switch(A & 0x7){
@@ -232,19 +232,19 @@ static NES_WRITE_HANDLER nsf_mapper_write_handler2[] = {
 	{ 0     ,0     ,0, NULL },
 };
 
-Uint8 *NSFGetHeader(NEZ_PLAY *pNezPlay)
+uint8_t *NSFGetHeader(NEZ_PLAY *pNezPlay)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->head;
 }
 
-static Uint GetWordLE(Uint8 *p)
+static uint32_t GetWordLE(uint8_t *p)
 {
 	return p[0] | (p[1] << 8);
 }
 
-static void __fastcall ResetBank(void *pNezPlay)
+static void ResetBank(void *pNezPlay)
 {
-	Uint i, startbank;
+	uint32_t i, startbank;
 	NSFNSF *nsf = (NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf;
 	XMEMSET(nsf->ram, 0, 0x0800);
 	startbank = GetWordLE(nsf->head + 8) >> 12;
@@ -276,8 +276,8 @@ const static NES_RESET_HANDLER nsf_mapper_reset_handler[] = {
 
 //ここからダンプ設定
 static NEZ_PLAY *pNezPlayDump;
-Uint32 (*dump_MEM_FC)(Uint32 a,unsigned char* mem);
-static Uint32 dump_MEM_FC_bf(Uint32 menu,unsigned char* mem){
+uint32_t (*dump_MEM_FC)(uint32_t a,unsigned char* mem);
+static uint32_t dump_MEM_FC_bf(uint32_t menu,unsigned char* mem){
 	int i;
 	switch(menu){
 	case 1://Memory
@@ -288,11 +288,11 @@ static Uint32 dump_MEM_FC_bf(Uint32 menu,unsigned char* mem){
 	return -2;
 }
 //----------
-extern Uint8 *regdata_2a03;
-Uint32 (*dump_DEV_2A03)(Uint32 a,unsigned char* mem);
-const Uint8 *BASE64=(const Uint8 *)"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-static Uint32 dump_DEV_2A03_bf(Uint32 menu,unsigned char* mem){
-	int i,j,k,l,adr;Uint32 ac;
+extern uint8_t *regdata_2a03;
+uint32_t (*dump_DEV_2A03)(uint32_t a,unsigned char* mem);
+const uint8_t *BASE64=(const uint8_t *)"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static uint32_t dump_DEV_2A03_bf(uint32_t menu,unsigned char* mem){
+	int i,j,k,l,adr;uint32_t ac;
 	unsigned char membf[0x1000];
 	switch(menu){
 	case 1://Register
@@ -327,17 +327,17 @@ static Uint32 dump_DEV_2A03_bf(Uint32 menu,unsigned char* mem){
 	return -2;
 }
 //----------
-extern Uint8 *fds_regdata;
-extern Uint8 *fds_regdata2;
-extern Uint8 *fds_regdata3;
+extern uint8_t *fds_regdata;
+extern uint8_t *fds_regdata2;
+extern uint8_t *fds_regdata3;
 extern int FDS_RealMode;
 
 #define FDSOUT(x) ((x*4+(((x&(1<<0))>>0)+((x&(1<<1))>>1)+((x&(1<<2))>>2)+((x&(1<<3))>>3)+((x&(1<<4))>>4)+((x&(1<<5))>>5))*(0+(x*3)/0x5)))
 #define REGREAD(y) ((int)FDSOUT(fds_regdata2[(y)&0x3f]))
 #define REGREAD2(y) ((int)fds_regdata2[(y)&0x3f]/4)
 
-Uint32 (*dump_DEV_FDS)(Uint32 a,unsigned char* mem);
-static Uint32 dump_DEV_FDS_bf(Uint32 menu,unsigned char* mem){
+uint32_t (*dump_DEV_FDS)(uint32_t a,unsigned char* mem);
+static uint32_t dump_DEV_FDS_bf(uint32_t menu,unsigned char* mem){
 	int i,j,k;
 	static const char *hexstr="0123456789ABCDEF";
 
@@ -397,10 +397,10 @@ static Uint32 dump_DEV_FDS_bf(Uint32 menu,unsigned char* mem){
 	return -2;
 }
 //----------
-extern Uint8 *mmc5_regdata;
+extern uint8_t *mmc5_regdata;
 
-Uint32 (*dump_DEV_MMC5)(Uint32 a,unsigned char* mem);
-static Uint32 dump_DEV_MMC5_bf(Uint32 menu,unsigned char* mem){
+uint32_t (*dump_DEV_MMC5)(uint32_t a,unsigned char* mem);
+static uint32_t dump_DEV_MMC5_bf(uint32_t menu,unsigned char* mem){
 	int i;
 	switch(menu){
 	case 1://Register
@@ -412,12 +412,12 @@ static Uint32 dump_DEV_MMC5_bf(Uint32 menu,unsigned char* mem){
 	return -2;
 }
 //----------
-extern Uint8 *vrc6_regdata;
-extern Uint8 *vrc6_regdata2;
-extern Uint8 *vrc6_regdata3;
+extern uint8_t *vrc6_regdata;
+extern uint8_t *vrc6_regdata2;
+extern uint8_t *vrc6_regdata3;
 
-Uint32 (*dump_DEV_VRC6)(Uint32 a,unsigned char* mem);
-static Uint32 dump_DEV_VRC6_bf(Uint32 menu,unsigned char* mem){
+uint32_t (*dump_DEV_VRC6)(uint32_t a,unsigned char* mem);
+static uint32_t dump_DEV_VRC6_bf(uint32_t menu,unsigned char* mem){
 	int i;
 	switch(menu){
 	case 1://Register
@@ -432,10 +432,10 @@ static Uint32 dump_DEV_VRC6_bf(Uint32 menu,unsigned char* mem){
 	return -2;
 }
 //----------
-extern Uint8 *n106_regdata;
+extern uint8_t *n106_regdata;
 
-Uint32 (*dump_DEV_N106)(Uint32 a,unsigned char* mem);
-static Uint32 dump_DEV_N106_bf(Uint32 menu,unsigned char* mem){
+uint32_t (*dump_DEV_N106)(uint32_t a,unsigned char* mem);
+static uint32_t dump_DEV_N106_bf(uint32_t menu,unsigned char* mem){
 	int i,j,k,l;
 	switch(menu){
 	case 1://Register
@@ -465,10 +465,10 @@ static Uint32 dump_DEV_N106_bf(Uint32 menu,unsigned char* mem){
 	return -2;
 }
 //----------
-extern Uint32 (*ioview_ioread_DEV_AY8910)(Uint32 a);
+extern uint32_t (*ioview_ioread_DEV_AY8910)(uint32_t a);
 
-Uint32 (*dump_DEV_AY8910)(Uint32 a,unsigned char* mem);
-static Uint32 dump_DEV_AY8910_bf(Uint32 menu,unsigned char* mem){
+uint32_t (*dump_DEV_AY8910)(uint32_t a,unsigned char* mem);
+static uint32_t dump_DEV_AY8910_bf(uint32_t menu,unsigned char* mem){
 	int i;
 	switch(menu){
 	case 1://Register
@@ -480,10 +480,10 @@ static Uint32 dump_DEV_AY8910_bf(Uint32 menu,unsigned char* mem){
 	return -2;
 }
 //----------
-extern Uint32 (*ioview_ioread_DEV_OPLL)(Uint32 a);
+extern uint32_t (*ioview_ioread_DEV_OPLL)(uint32_t a);
 
-Uint32 (*dump_DEV_OPLL)(Uint32 a,unsigned char* mem);
-static Uint32 dump_DEV_OPLL_bf(Uint32 menu,unsigned char* mem){
+uint32_t (*dump_DEV_OPLL)(uint32_t a,unsigned char* mem);
+static uint32_t dump_DEV_OPLL_bf(uint32_t menu,unsigned char* mem){
 	int i;
 	switch(menu){
 	case 1://Register
@@ -497,7 +497,7 @@ static Uint32 dump_DEV_OPLL_bf(Uint32 menu,unsigned char* mem){
 //----------
 //ここまでダンプ設定
 
-static void __fastcall Terminate(void *pNezPlay)
+static void Terminate(void *pNezPlay)
 {
 	NSFNSF *nsf = (NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf;
 	if (nsf)
@@ -527,17 +527,17 @@ const static NES_TERMINATE_HANDLER nsf_mapper_terminate_handler[] = {
     { 0, NULL },
 };
 
-static Uint NSFMapperInitialize(NEZ_PLAY *pNezPlay, Uint8 *pData, Uint uSize)
+static uint32_t NSFMapperInitialize(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 {
-	Uint32 size = uSize;
-	Uint8 *data = pData;
+	uint32_t size = uSize;
+	uint8_t *data = pData;
 	NSFNSF *nsf = (NSFNSF*)pNezPlay->nsf;
 
 	size += GetWordLE(nsf->head + 8) & 0x0FFF;
 	size  = (size + 0x0FFF) & ~0x0FFF;
 
 	nsf->bankbase = XMALLOC(size + 8);
-	if (!nsf->bankbase) return NESERR_SHORTOFMEMORY;
+	if (!nsf->bankbase) return NEZPLUG_NESERR_SHORTOFMEMORY;
 
 	nsf->banknum = size >> 12;
 	XMEMSET(nsf->bankbase, 0, size);
@@ -545,10 +545,10 @@ static Uint NSFMapperInitialize(NEZ_PLAY *pNezPlay, Uint8 *pData, Uint uSize)
 
 	nsf->banksw = nsf->head[0x70] || nsf->head[0x71] || nsf->head[0x72] || nsf->head[0x73] || nsf->head[0x74] || nsf->head[0x75] || nsf->head[0x76] || nsf->head[0x77];
 	if (SONGINFO_GetExtendDevice(pNezPlay->song) & EXTSOUND_FDS) nsf->banksw <<= 1;
-	return NESERR_NOERROR;
+	return NEZPLUG_NESERR_NOERROR;
 }
 
-Uint NSFDeviceInitialize(NEZ_PLAY *pNezPlay)
+uint32_t NSFDeviceInitialize(NEZ_PLAY *pNezPlay)
 {
 	NSFNSF *nsf = (NSFNSF*)pNezPlay->nsf;
 	NESResetHandlerInstall(pNezPlay->nrh, nsf_mapper_reset_handler);
@@ -595,11 +595,11 @@ Uint NSFDeviceInitialize(NEZ_PLAY *pNezPlay)
 	if (SONGINFO_GetExtendDevice(pNezPlay->song) & EXTSOUND_FME7) dump_DEV_AY8910= dump_DEV_AY8910_bf;
 	if (SONGINFO_GetExtendDevice(pNezPlay->song) & EXTSOUND_VRC7) dump_DEV_OPLL  = dump_DEV_OPLL_bf;
 	//ここまでダンプ設定
-	return NESERR_NOERROR;
+	return NEZPLUG_NESERR_NOERROR;
 }
 
 
-static void NSFMapperSetInfo(NEZ_PLAY *pNezPlay, Uint8 *pData)
+static void NSFMapperSetInfo(NEZ_PLAY *pNezPlay, uint8_t *pData)
 {
 	XMEMCPY(((NSFNSF*)pNezPlay->nsf)->head, pData, 0x80);
 	SONGINFO_SetStartSongNo(pNezPlay->song, pData[0x07]);
@@ -658,11 +658,11 @@ First ROM Bank(F000-FFFF or 7000-7FFF): %02XH"
 	);
 }
 
-Uint NSFLoad(NEZ_PLAY *pNezPlay, Uint8 *pData, Uint uSize)
+uint32_t NSFLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 {
-	Uint ret;
+	uint32_t ret;
 	NSFNSF *THIS_ = (NSFNSF *)XMALLOC(sizeof(NSFNSF));
-	if (!THIS_) return NESERR_SHORTOFMEMORY;
+	if (!THIS_) return NEZPLUG_NESERR_SHORTOFMEMORY;
 	XMEMSET(THIS_, 0, sizeof(NSFNSF));
 	THIS_->fds_type = 2;
 	pNezPlay->nsf = THIS_;
@@ -675,6 +675,6 @@ Uint NSFLoad(NEZ_PLAY *pNezPlay, Uint8 *pData, Uint uSize)
 	ret = NSFDeviceInitialize(pNezPlay);
 	if (ret) return ret;
 	SONGINFO_SetSongNo(pNezPlay->song, SONGINFO_GetStartSongNo(pNezPlay->song));
-	return NESERR_NOERROR;
+	return NEZPLUG_NESERR_NOERROR;
 }
 

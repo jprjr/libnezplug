@@ -12,7 +12,7 @@ enum {
 	PSG_TYPE_YM2149		= 1		/* YAMAHA YM2149 */
 };
 
-KMIF_SOUND_DEVICE *PSGSoundAlloc(Uint32 psg_type);
+KMIF_SOUND_DEVICE *PSGSoundAlloc(uint32_t psg_type);
 
 #ifdef __cplusplus
 }

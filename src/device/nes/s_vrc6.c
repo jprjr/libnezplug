@@ -1,4 +1,4 @@
-#include "../../nestypes.h"
+#include "../../normalize.h"
 #include "../kmsnddev.h"
 #include "../../format/audiosys.h"
 #include "../../format/handler.h"
@@ -12,48 +12,48 @@
 #define CPS_SHIFT 16
 #define RENDERS 7
 typedef struct {
-	Uint32 cps;
-	Int32 cycles;
+	uint32_t cps;
+	int32_t cycles;
 
-	Uint32 spd;
-	Int32 output;
+	uint32_t spd;
+	int32_t output;
 
-	Uint8 regs[3];
-	Uint8 update;
-	Uint8 adr;
-	Uint8 mute;
-	Uint32 ct;
+	uint8_t regs[3];
+	uint8_t update;
+	uint8_t adr;
+	uint8_t mute;
+	uint32_t ct;
 } VRC6_SQUARE;
 
 typedef struct {
-	Uint32 cps;
-	Int32 cycles;
+	uint32_t cps;
+	int32_t cycles;
 
-	Uint32 spd;
-	Uint32 output;
-	Uint32 outputbf;
+	uint32_t spd;
+	uint32_t output;
+	uint32_t outputbf;
 
-	Uint8 regs[3];
-	Uint8 update;
-	Uint8 adr;
-	Uint8 mute;
-	Uint32 ct;
+	uint8_t regs[3];
+	uint8_t update;
+	uint8_t adr;
+	uint8_t mute;
+	uint32_t ct;
 } VRC6_SAW;
 
 typedef struct {
 	VRC6_SQUARE square[2];
 	VRC6_SAW saw;
-	Uint32 mastervolume;
+	uint32_t mastervolume;
 } VRC6SOUND;
 
 /* ------------ */
 /*  VRC6 SOUND  */
 /* ------------ */
 
-static Int32 VRC6SoundSquareRender(void* pNezPlay, VRC6_SQUARE *ch)
+static int32_t VRC6SoundSquareRender(void* pNezPlay, VRC6_SQUARE *ch)
 {
 	VRC6SOUND *vrc6s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->vrc6s;
-	Int32 outputbuf=0,count=0;
+	int32_t outputbuf=0,count=0;
 	if (ch->update)
 	{
 		if (ch->update & (2 | 4))
@@ -95,10 +95,10 @@ static Int32 VRC6SoundSquareRender(void* pNezPlay, VRC6_SQUARE *ch)
 	return outputbuf /count;
 }
 
-static Int32 VRC6SoundSawRender(void *pNezPlay, VRC6_SAW *ch)
+static int32_t VRC6SoundSawRender(void *pNezPlay, VRC6_SAW *ch)
 {
 	VRC6SOUND *vrc6s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->vrc6s;
-	Int32 outputbuf=0,count=0;
+	int32_t outputbuf=0,count=0;
 
 	if (ch->update)
 	{
@@ -143,10 +143,10 @@ static Int32 VRC6SoundSawRender(void *pNezPlay, VRC6_SAW *ch)
 	return outputbuf /count;
 }
 
-static Int32 __fastcall VRC6SoundRender(void* pNezPlay)
+static int32_t VRC6SoundRender(void* pNezPlay)
 {
 	VRC6SOUND *vrc6s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->vrc6s;
-	Int32 accum = 0;
+	int32_t accum = 0;
 	accum += VRC6SoundSquareRender(pNezPlay, &vrc6s->square[0]) * chmask[DEV_VRC6_SQ1];
 	accum += VRC6SoundSquareRender(pNezPlay, &vrc6s->square[1]) * chmask[DEV_VRC6_SQ2];
 	accum += VRC6SoundSawRender(pNezPlay, &vrc6s->saw) * chmask[DEV_VRC6_SAW];
@@ -158,7 +158,7 @@ const static NES_AUDIO_HANDLER s_vrc6_audio_handler[] = {
 	{ 0, 0, NULL, NULL }, 
 };
 
-static void __fastcall VRC6SoundVolume(void* pNezPlay, Uint volume)
+static void VRC6SoundVolume(void* pNezPlay, uint32_t volume)
 {
 	VRC6SOUND *vrc6s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->vrc6s;
 	volume += 64;
@@ -170,28 +170,28 @@ const static NES_VOLUME_HANDLER s_vrc6_volume_handler[] = {
 	{ 0, NULL }, 
 };
 
-static void __fastcall VRC6SoundWrite9000(void *pNezPlay, Uint address, Uint value)
+static void VRC6SoundWrite9000(void *pNezPlay, uint32_t address, uint32_t value)
 {
 	//FILE *f;
 	if(address >=0x9000 && address <= 0x9002){//なして9010・9030書いたときもここ通ってんだべ？
 		VRC6SOUND *vrc6s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->vrc6s;
-		vrc6s->square[0].regs[address & 3] = (Uint8)value;
+		vrc6s->square[0].regs[address & 3] = (uint8_t)value;
 		vrc6s->square[0].update |= 1 << (address & 3); 
 	}
 	//f=fopen("R:\\debug.out","a+");
 	//fprintf(f,"%04X: %02X\r\n",address, value);
 	//fclose(f);
 }
-static void __fastcall VRC6SoundWriteA000(void *pNezPlay, Uint address, Uint value)
+static void VRC6SoundWriteA000(void *pNezPlay, uint32_t address, uint32_t value)
 {
 	VRC6SOUND *vrc6s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->vrc6s;
-	vrc6s->square[1].regs[address & 3] = (Uint8)value;
+	vrc6s->square[1].regs[address & 3] = (uint8_t)value;
 	vrc6s->square[1].update |= 1 << (address & 3); 
 }
-static void __fastcall VRC6SoundWriteB000(void *pNezPlay, Uint address, Uint value)
+static void VRC6SoundWriteB000(void *pNezPlay, uint32_t address, uint32_t value)
 {
 	VRC6SOUND *vrc6s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->vrc6s;
-	vrc6s->saw.regs[address & 3] = (Uint8)value;
+	vrc6s->saw.regs[address & 3] = (uint8_t)value;
 	vrc6s->saw.update |= 1 << (address & 3); 
 }
 
@@ -203,9 +203,9 @@ static NES_WRITE_HANDLER s_vrc6_write_handler[] =
 	{ 0,      0,      0, NULL },
 };
 
-static Uint32 DivFix(Uint32 p1, Uint32 p2, Uint32 fix)
+static uint32_t DivFix(uint32_t p1, uint32_t p2, uint32_t fix)
 {
-	Uint32 ret;
+	uint32_t ret;
 	ret = p1 / p2;
 	p1  = p1 % p2;/* p1 = p1 - p2 * ret; */
 	while (fix--)
@@ -231,7 +231,7 @@ static void VRC6SoundSawReset(void *pNezPlay, VRC6_SAW *ch)
 	ch->cps = DivFix(NES_BASECYCLES, 24 * NESAudioFrequencyGet(pNezPlay), CPS_SHIFT);
 }
 
-static void __fastcall VRC6SoundReset(void* pNezPlay)
+static void VRC6SoundReset(void* pNezPlay)
 {
 	VRC6SOUND *vrc6s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->vrc6s;
 	XMEMSET(vrc6s, 0, sizeof(VRC6SOUND));
@@ -245,7 +245,7 @@ const static NES_RESET_HANDLER s_vrc6_reset_handler[] = {
 	{ 0,                   0, NULL }, 
 };
 
-static void __fastcall VRC6SoundTerm(void* pNezPlay)
+static void VRC6SoundTerm(void* pNezPlay)
 {
 	VRC6SOUND *vrc6s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->vrc6s;
 	if (vrc6s)
@@ -258,11 +258,11 @@ const static NES_TERMINATE_HANDLER s_vrc6_terminate_handler[] = {
 };
 
 //ここからレジスタビュアー設定
-Uint8 *vrc6_regdata;
-Uint8 *vrc6_regdata2;
-Uint8 *vrc6_regdata3;
-Uint32 (*ioview_ioread_DEV_VRC6)(Uint32 a);
-static Uint32 ioview_ioread_bf(Uint32 a){
+uint8_t *vrc6_regdata;
+uint8_t *vrc6_regdata2;
+uint8_t *vrc6_regdata3;
+uint32_t (*ioview_ioread_DEV_VRC6)(uint32_t a);
+static uint32_t ioview_ioread_bf(uint32_t a){
 	if(a>=0x00 && a<=0x02)return vrc6_regdata [a     ];else
 	if(a>=0x10 && a<=0x12)return vrc6_regdata2[a-0x10];else
 	if(a>=0x20 && a<=0x22)return vrc6_regdata3[a-0x20];else return 0x100;

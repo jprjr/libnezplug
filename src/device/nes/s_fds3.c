@@ -1,7 +1,6 @@
-#include "../../nestypes.h"
+#include "../../normalize.h"
 #include "../kmsnddev.h"
 #include "../../format/audiosys.h"
-#include "../../format/handler.h"
 #include "../../format/nsf6502.h"
 #include "logtable.h"
 #include "../../format/m_nsf.h"
@@ -18,67 +17,67 @@ int FDS_RealMode = 3;
 #define RENDERS 4
 
 typedef struct {
-	Uint8 spd;
-	Uint8 cnt;
-	Uint8 mode;
-	Uint8 volume;
+	uint8_t spd;
+	uint8_t cnt;
+	uint8_t mode;
+	uint8_t volume;
 } FDS_EG;
 typedef struct {
-	Uint32 spdbase;
-	Uint32 spd;
-	Uint32 freq;
+	uint32_t spdbase;
+	uint32_t spd;
+	uint32_t freq;
 } FDS_PG;
 typedef struct {
-	Uint32 phase;
-	Uint32 phase2;
-	Int8 wave[0x40];
-	Uint8 wavereg[0x40];
-	Uint8 wavptr;
-	Uint32 pt;
-	Int8 output;
-	Int32 output32;
-	Int32 output32bf;
-	Uint8 disable;
-	Uint8 disable2;
+	uint32_t phase;
+	uint32_t phase2;
+	int8_t wave[0x40];
+	uint8_t wavereg[0x40];
+	uint8_t wavptr;
+	uint32_t pt;
+	int8_t output;
+	int32_t output32;
+	int32_t output32bf;
+	uint8_t disable;
+	uint8_t disable2;
 } FDS_WG;
 typedef struct {
 	FDS_EG eg;
 	FDS_PG pg;
 	FDS_WG wg;
-	Int32 bias;
-	Uint8 wavebase;
-	Uint8 d[2];
+	int32_t bias;
+	uint8_t wavebase;
+	uint8_t d[2];
 } FDS_OP;
 
 typedef struct FDSSOUND_tag {
 	FDS_OP op[2];
-	Uint32 phasecps;
-	Uint32 envcnt;
-	Uint32 envspd;
-	Uint32 envcps;
-	Uint8 envdisable;
-	Uint8 d[3];
-	Uint32 lvl;
-	Int32 mastervolumel[4];
-	Uint32 mastervolume;
-	Uint32 srate;
-	Uint8 reg[0x10];
-	Uint32 count;
-	Int32 realout[0x40];
-	Int32 lowpass;
-	Int32 outbf;
+	uint32_t phasecps;
+	uint32_t envcnt;
+	uint32_t envspd;
+	uint32_t envcps;
+	uint8_t envdisable;
+	uint8_t d[3];
+	uint32_t lvl;
+	int32_t mastervolumel[4];
+	uint32_t mastervolume;
+	uint32_t srate;
+	uint8_t reg[0x10];
+	uint32_t count;
+	int32_t realout[0x40];
+	int32_t lowpass;
+	int32_t outbf;
 } FDSSOUND;
 
 #if (((-1) >> 1) == -1)
 /* RIGHT SHIFT IS SIGNED */
-#define SSR(x, y) (((Int32)x) >> (y))
+#define SSR(x, y) (((int32_t)x) >> (y))
 #else
 /* RIGHT SHIFT IS UNSIGNED */
 #define SSR(x, y) (((x) >= 0) ? ((x) >> (y)) : (-((-(x) - 1) >> (y)) - 1))
 #endif
 
 
-static void FDSSoundPhaseStep(FDS_OP *op , Uint32 spd)
+static void FDSSoundPhaseStep(FDS_OP *op , uint32_t spd)
 {
 	if(op->wg.disable) return;
 	op->wg.pt += spd;
@@ -86,7 +85,7 @@ static void FDSSoundPhaseStep(FDS_OP *op , Uint32 spd)
 	{
 		op->wg.pt -= (1 << (PGCPS_BITS+16));
 		op->bias = (op->bias + op->wg.wave[(op->wg.phase) & 0x3f]) & 0x7f;
-		if((Uint8)op->wg.wave[(op->wg.phase) & 0x3f] == 64) op->bias = 0;
+		if((uint8_t)op->wg.wave[(op->wg.phase) & 0x3f] == 64) op->bias = 0;
 		op->wg.phase++;
 	}
 }
@@ -104,11 +103,11 @@ static void FDSSoundEGStep(FDS_EG *peg)
 }
 
 
-static Int32 __fastcall FDSSoundRender(void *pNezPlay)
+static int32_t FDSSoundRender(void *pNezPlay)
 {
 	FDSSOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
-	Int32 output;
-	Int32 outputbuf=0,count=0;
+	int32_t output;
+	int32_t outputbuf=0,count=0;
 
 	/* Frequency Modulator */
 	fdssound->op[1].pg.spd = fdssound->op[1].pg.spdbase;
@@ -117,7 +116,7 @@ static Int32 __fastcall FDSSoundRender(void *pNezPlay)
 //	}
 //	else
 	{
-		Int32 v1,v2;
+		int32_t v1,v2;
 #if FDS_DYNAMIC_BIAS
 		/* この式を変に書き換えると、ナゾラーランド第３号の爆走トモちゃんのBGMのFDS音源のピッチが
 		   １オクターブ下がる恐れが非常に大きい。 */
@@ -141,11 +140,11 @@ static Int32 __fastcall FDSSoundRender(void *pNezPlay)
 	if( Freq < 0 )
 		Freq = (Main Freq * 4) + Freq;		// (7)
 */
-		v1 = (Int32)((fdssound->op[1].bias & 0x40) ? (fdssound->op[1].bias - 128) : fdssound->op[1].bias) * ((Int32)(fdssound->op[1].eg.volume));
+		v1 = (int32_t)((fdssound->op[1].bias & 0x40) ? (fdssound->op[1].bias - 128) : fdssound->op[1].bias) * ((int32_t)(fdssound->op[1].eg.volume));
 		v2 = v1 / 16;
-//		v1 = ((Int32)fdssound->op[1].eg.volume) * (((Int32)(((Uint8)fdssound->op[1].wg.output) & 127)) - 64);
+//		v1 = ((int32_t)fdssound->op[1].eg.volume) * (((int32_t)(((uint8_t)fdssound->op[1].wg.output) & 127)) - 64);
 #else
-		v1 = 0x10000 + ((Int32)fdssound->op[1].eg.volume) * (((Int32)((((Uint8)fdssound->op[1].wg.output)                      ) & 255)) - 64);
+		v1 = 0x10000 + ((int32_t)fdssound->op[1].eg.volume) * (((int32_t)((((uint8_t)fdssound->op[1].wg.output)                      ) & 255)) - 64);
 #endif
 		if(v1&15){
 			if(fdssound->op[1].bias & 0x40){
@@ -156,10 +155,10 @@ static Int32 __fastcall FDSSoundRender(void *pNezPlay)
 		}
 		if(v2>193)v2-=258;
 
-//		v1 = (((4096 + 1024 + (Int32)v1) & 0xfff)+8)/16 - 64 + (((Int32)v1 & 0xf) ? ((v1 < 0) ? -1 : 2) : 0);
+//		v1 = (((4096 + 1024 + (int32_t)v1) & 0xfff)+8)/16 - 64 + (((int32_t)v1 & 0xf) ? ((v1 < 0) ? -1 : 2) : 0);
 //		v1 = v1<0 ? SSR(v1-8,4) : v1>0 ? SSR(v1+8,4) : 0; //doubleの無い四捨五入
-		v1 = ((Int32)(fdssound->op[0].pg.freq * v2) / 64);
-		v1 = v1 + (Int32)fdssound->op[0].pg.freq;
+		v1 = ((int32_t)(fdssound->op[0].pg.freq * v2) / 64);
+		v1 = v1 + (int32_t)fdssound->op[0].pg.freq;
 		if( v1 < 0 )
 			v1 = (fdssound->op[0].pg.freq * 4) + v1;
 		fdssound->op[0].pg.spd = v1 * fdssound->phasecps;
@@ -223,7 +222,7 @@ const static NES_AUDIO_HANDLER s_fds_audio_handler[] =
 	{ 0, 0, NULL, NULL }, 
 };
 
-static void __fastcall FDSSoundVolume(void *pNezPlay, Uint volume)
+static void FDSSoundVolume(void *pNezPlay, uint32_t volume)
 {
 	FDSSOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
 	volume += 196;
@@ -239,12 +238,12 @@ const static NES_VOLUME_HANDLER s_fds_volume_handler[] = {
 	{ 0, NULL }, 
 };
 
-static const Uint8 wave_delta_table[8] = {
+static const uint8_t wave_delta_table[8] = {
 	0,(1 << FM_DEPTH),(2 << FM_DEPTH),(4 << FM_DEPTH),
 	64,256 - (4 << FM_DEPTH),256 - (2 << FM_DEPTH),256 - (1 << FM_DEPTH),
 };
 
-static void __fastcall FDSSoundWrite(void *pNezPlay, Uint address, Uint value)
+static void FDSSoundWrite(void *pNezPlay, uint32_t address, uint32_t value)
 {
 	FDSSOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
 	if (0x4040 <= address && address <= 0x407F)
@@ -255,24 +254,24 @@ static void __fastcall FDSSoundWrite(void *pNezPlay, Uint address, Uint value)
 	else if (0x4080 <= address && address <= 0x408F)
 	{
 		FDS_OP *pop = &fdssound->op[(address & 4) >> 2];
-		fdssound->reg[address - 0x4080] = (Uint8)value;
+		fdssound->reg[address - 0x4080] = (uint8_t)value;
 		switch (address & 0xf)
 		{
 			case 0:
 			case 4:
-				pop->eg.mode = (Uint8)(value & 0xc0);
+				pop->eg.mode = (uint8_t)(value & 0xc0);
 				if (pop->eg.mode & 0x80)
 				{
-					pop->eg.volume = (Uint8)(value & 0x3f);
+					pop->eg.volume = (uint8_t)(value & 0x3f);
 				}
 				else
 				{
-					pop->eg.spd = (Uint8)(value & 0x3f);
+					pop->eg.spd = (uint8_t)(value & 0x3f);
 				}
 				break;
 			case 5:
 #if 1
-				fdssound->op[1].bias = (Uint8)(value & 0x7f);
+				fdssound->op[1].bias = (uint8_t)(value & 0x7f);
 #else
 				fdssound->op[1].bias = (((value & 0x7f) ^ 0x40) - 0x40) & 255;
 #endif
@@ -292,7 +291,7 @@ static void __fastcall FDSSoundWrite(void *pNezPlay, Uint address, Uint value)
 				}
 				break;
 			case 3:
-				fdssound->envdisable = (Uint8)(value & 0x40);
+				fdssound->envdisable = (uint8_t)(value & 0x40);
 //				pop->pg.spdbase = pop->pg.freq * fdssound->phasecps;
 				if (value & 0x80){
 					pop->wg.phase = 0;
@@ -302,7 +301,7 @@ static void __fastcall FDSSoundWrite(void *pNezPlay, Uint address, Uint value)
 				pop->pg.freq &= 0x000000FF;
 				pop->pg.freq |= (value & 0x0F) << 8;
 				pop->pg.spdbase = pop->pg.freq * fdssound->phasecps;
-				pop->wg.disable = (Uint8)(value & 0x80);
+				pop->wg.disable = (uint8_t)(value & 0x80);
 				if (fdssound->op[1].wg.disable){
 					//fdssound->op[1].bias = 0;
 				}
@@ -310,7 +309,7 @@ static void __fastcall FDSSoundWrite(void *pNezPlay, Uint address, Uint value)
 			case 8:
 				if (fdssound->op[1].wg.disable)
 				{
-					Int32 idx = value & 7;
+					int32_t idx = value & 7;
 					fdssound->op[1].wg.wavereg[fdssound->op[1].wg.wavptr + 0] = idx;
 					fdssound->op[1].wg.wavereg[fdssound->op[1].wg.wavptr + 1] = idx;
 #if FDS_DYNAMIC_BIAS
@@ -328,7 +327,7 @@ static void __fastcall FDSSoundWrite(void *pNezPlay, Uint address, Uint value)
 				break;
 			case 9:
 				fdssound->lvl = (value & 3);
-				fdssound->op[0].wg.disable2 = (Uint8)(value & 0x80);
+				fdssound->op[0].wg.disable2 = (uint8_t)(value & 0x80);
 				break;
 			case 10:
 				fdssound->envspd = value << EGCPS_BITS;
@@ -343,7 +342,7 @@ static NES_WRITE_HANDLER s_fds_write_handler[] =
 	{ 0,      0,      0, NULL },
 };
 
-static Uint __fastcall FDSSoundRead(void *pNezPlay, Uint address)
+static uint32_t FDSSoundRead(void *pNezPlay, uint32_t address)
 {
 	FDSSOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
 	if (0x4040 <= address && address <= 0x407f)
@@ -369,9 +368,9 @@ static NES_READ_HANDLER s_fds_read_handler[] =
 	{ 0,      0,      0, NULL },
 };
 
-static Uint32 DivFix(Uint32 p1, Uint32 p2, Uint32 fix)
+static uint32_t DivFix(uint32_t p1, uint32_t p2, uint32_t fix)
 {
-	Uint32 ret;
+	uint32_t ret;
 	ret = p1 / p2;
 	p1  = p1 % p2;/* p1 = p1 - p2 * ret; */
 	while (fix--)
@@ -387,10 +386,10 @@ static Uint32 DivFix(Uint32 p1, Uint32 p2, Uint32 fix)
 	return ret;
 }
 
-static void __fastcall FDSSoundReset(void *pNezPlay)
+static void FDSSoundReset(void *pNezPlay)
 {
 	FDSSOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
-	Int32 i;
+	int32_t i;
 	XMEMSET(fdssound, 0, sizeof(FDSSOUND));
 	fdssound->srate = NESAudioFrequencyGet(pNezPlay);
 	fdssound->envcps = DivFix(NES_BASECYCLES, 12 * fdssound->srate, EGCPS_BITS + 5 - 9 + 1);
@@ -417,7 +416,7 @@ static void __fastcall FDSSoundReset(void *pNezPlay)
 	}
 	//ローパス計算
 //	fdssound->lowpass = sqrt(fdssound->srate / 500.0);
-	fdssound->lowpass = (Int32)(fdssound->srate / 11025.0 *4);
+	fdssound->lowpass = (int32_t)(fdssound->srate / 11025.0 *4);
 	if(fdssound->lowpass<4)fdssound->lowpass=4;
 }
 
@@ -427,7 +426,7 @@ const static NES_RESET_HANDLER s_fds_reset_handler[] =
 	{ 0,                   0, NULL }, 
 };
 
-static void __fastcall FDSSoundTerm(void* pNezPlay)
+static void FDSSoundTerm(void* pNezPlay)
 {
 	FDSSOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
 	if (fdssound)
@@ -440,11 +439,11 @@ const static NES_TERMINATE_HANDLER s_fds_terminate_handler[] = {
 };
 
 //ここからレジスタビュアー設定
-Uint8 *fds_regdata;
-Uint8 *fds_regdata2;
-Uint8 *fds_regdata3;
-Uint32 (*ioview_ioread_DEV_FDS)(Uint32 a);
-static Uint32 ioview_ioread_bf(Uint32 a){
+uint8_t *fds_regdata;
+uint8_t *fds_regdata2;
+uint8_t *fds_regdata3;
+uint32_t (*ioview_ioread_DEV_FDS)(uint32_t a);
+static uint32_t ioview_ioread_bf(uint32_t a){
 	if(         a<=0x0f)return fds_regdata[a];
 	if(a>=0x20&&a<=0x5f)return fds_regdata2[a-0x20];
 	if(a>=0x70&&a<=0x8f)return fds_regdata3[(a-0x70)*2];

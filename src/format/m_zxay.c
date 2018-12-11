@@ -1,4 +1,4 @@
-#include "../neserr.h"
+#include <nezplug/nezplug.h>
 #include "handler.h"
 #include "audiosys.h"
 #include "songinfo.h"
@@ -23,40 +23,40 @@ typedef struct {
 	KMEVENT kme;
 	KMEVENT_ITEM_ID vsync_id;
 
-	Uint32 cps;		/* cycles per sample:fixed point */
-	Uint32 cpsrem;	/* cycle remain */
-	Uint32 cpsgap;	/* cycle gap */
-	Uint32 total_cycles;	/* total played cycles */
+	uint32_t cps;		/* cycles per sample:fixed point */
+	uint32_t cpsrem;	/* cycle remain */
+	uint32_t cpsgap;	/* cycle gap */
+	uint32_t total_cycles;	/* total played cycles */
 
-	Uint32 startsong;
-	Uint32 maxsong;
+	uint32_t startsong;
+	uint32_t maxsong;
 
-	Uint32 initaddr;
-	Uint32 playaddr;
-	Uint32 spinit;
+	uint32_t initaddr;
+	uint32_t playaddr;
+	uint32_t spinit;
 
-	Uint8 ram[0x10004];
-	Uint8 *data;
-	Uint8 *datalimit;
+	uint8_t ram[0x10004];
+	uint8_t *data;
+	uint8_t *datalimit;
 
-	Uint8 amstrad_ppi_a;
-	Uint8 amstrad_ppi_c;
+	uint8_t amstrad_ppi_a;
+	uint8_t amstrad_ppi_c;
 #ifdef AMSTRAD_PPI_CONNECT_TYPE_B
-	Uint8 amstrad_ppi_va;
-	Uint8 amstrad_ppi_vd;
+	uint8_t amstrad_ppi_va;
+	uint8_t amstrad_ppi_vd;
 #endif
 } ZXAY;
 
-static Int32 execute(ZXAY *THIS_)
+static int32_t execute(ZXAY *THIS_)
 {
-	Uint32 cycles;
+	uint32_t cycles;
 	THIS_->cpsrem += THIS_->cps;
 	cycles = THIS_->cpsrem >> SHIFT_CPS;
 	if (THIS_->cpsgap >= cycles)
 		THIS_->cpsgap -= cycles;
 	else
 	{
-		Uint32 excycles = cycles - THIS_->cpsgap;
+		uint32_t excycles = cycles - THIS_->cpsgap;
 		THIS_->cpsgap = kmz80_exec(&THIS_->ctx, excycles) - excycles;
 	}
 	THIS_->cpsrem &= (1 << SHIFT_CPS) - 1;
@@ -64,13 +64,13 @@ static Int32 execute(ZXAY *THIS_)
 	return 0;
 }
 
-__inline static void synth(ZXAY *THIS_, Int32 *d)
+__inline static void synth(ZXAY *THIS_, int32_t *d)
 {
 	THIS_->sndp->synth(THIS_->sndp->ctx, d);
 	THIS_->amstrad_sndp->synth(THIS_->amstrad_sndp->ctx, d);
 }
 
-__inline static void volume(ZXAY *THIS_, Uint32 v)
+__inline static void volume(ZXAY *THIS_, uint32_t v)
 {
 	THIS_->sndp->volume(THIS_->sndp->ctx, v);
 	THIS_->amstrad_sndp->volume(THIS_->amstrad_sndp->ctx, v);
@@ -82,26 +82,26 @@ static void vsync_setup(ZXAY *THIS_)
 	kmevent_settimer(&THIS_->kme, THIS_->vsync_id, 313 * 4 * 342 / 6);
 }
 
-static Uint32 read_event(void *ctx, Uint32 a)
+static uint32_t read_event(void *ctx, uint32_t a)
 {
 	ZXAY *THIS_ = ctx;
 	return THIS_->ram[a];
 }
 
-static Uint32 busread_event(void *ctx, Uint32 a)
+static uint32_t busread_event(void *ctx, uint32_t a)
 {
     (void)ctx;
     (void)a;
 	return 0x38;
 }
 
-static void write_event(void *ctx, Uint32 a, Uint32 v)
+static void write_event(void *ctx, uint32_t a, uint32_t v)
 {
 	ZXAY *THIS_ = ctx;
-	THIS_->ram[a] = (Uint8)v;
+	THIS_->ram[a] = (uint8_t)v;
 }
 
-static Uint32 ioread_event(void *ctx, Uint32 a)
+static uint32_t ioread_event(void *ctx, uint32_t a)
 {
     (void)ctx;
     (void)a;
@@ -133,7 +133,7 @@ static void iowrite_amstrad_ppi_update(ZXAY *THIS_)
 #endif
 	}
 }
-static void iowrite_event(void *ctx, Uint32 a, Uint32 v)
+static void iowrite_event(void *ctx, uint32_t a, uint32_t v)
 {
 	ZXAY *THIS_ = ctx;
 	if (a == 0xFFFD)					/* ZXspectrum */
@@ -146,12 +146,12 @@ static void iowrite_event(void *ctx, Uint32 a, Uint32 v)
 	}
 	else if ((a & 0x0B00) == 0x0000)	/* Amstrad CPC 8255 port A */
 	{
-		THIS_->amstrad_ppi_a = (Uint8)v;
+		THIS_->amstrad_ppi_a = (uint8_t)v;
 		iowrite_amstrad_ppi_update(THIS_);
 	}
 	else if ((a & 0x0B00) == 0x0200)	/* Amstrad CPC 8255 port C */
 	{
-		THIS_->amstrad_ppi_c = (Uint8)v;
+		THIS_->amstrad_ppi_c = (uint8_t)v;
 		iowrite_amstrad_ppi_update(THIS_);
 	}
 }
@@ -177,28 +177,28 @@ static void vsync_event(KMEVENT *event, KMEVENT_ITEM_ID curid, ZXAY *THIS_)
 	THIS_->ctx.regs8[REGID_INTREQ] |= 1;
 }
 
-static Uint32 GetWordBE(Uint8 *p)
+static uint32_t GetWordBE(uint8_t *p)
 {
 	return p[1] | (p[0] << 8);
 }
 
-static void SetWordLE(Uint8 *p, Uint32 v)
+static void SetWordLE(uint8_t *p, uint32_t v)
 {
-	p[0] = (Uint8)(v >> (8 * 0)) & 0xFF;
-	p[1] = (Uint8)(v >> (8 * 1)) & 0xFF;
+	p[0] = (uint8_t)(v >> (8 * 0)) & 0xFF;
+	p[1] = (uint8_t)(v >> (8 * 1)) & 0xFF;
 }
 
-static Uint8 *ZXAYOffset(Uint8 *p)
+static uint8_t *ZXAYOffset(uint8_t *p)
 {
-	Uint32 ofs = GetWordBE(p) ^ 0x8000;
+	uint32_t ofs = GetWordBE(p) ^ 0x8000;
 	return p + ofs - 0x8000;
 }
 
 static void reset(NEZ_PLAY *pNezPlay)
 {
 	ZXAY *THIS_ = pNezPlay->zxay;
-	Uint32 i, freq, song, reginit;
-	Uint8 *p, *p2;
+	uint32_t i, freq, song, reginit;
+	uint8_t *p, *p2;
 
 	freq = NESAudioFrequencyGet(pNezPlay);
 	song = SONGINFO_GetSongNo(pNezPlay->song) - 1;
@@ -271,7 +271,7 @@ static void reset(NEZ_PLAY *pNezPlay)
 
 	do
 	{
-		Uint32 load,size;
+		uint32_t load,size;
 		load = GetWordBE(p);
 		size = GetWordBE(p + 2);
 		p2 = ZXAYOffset(p + 4);
@@ -300,8 +300,8 @@ static void reset(NEZ_PLAY *pNezPlay)
 	THIS_->ctx.iowrite = iowrite_event;
 	THIS_->ctx.busread = busread_event;
 
-	THIS_->ctx.regs8[REGID_A] = THIS_->ctx.regs8[REGID_B] = THIS_->ctx.regs8[REGID_D] = THIS_->ctx.regs8[REGID_H] = THIS_->ctx.regs8[REGID_IXH] = THIS_->ctx.regs8[REGID_IYH] = (Uint8)((reginit >> 8) & 0xff);
-	THIS_->ctx.regs8[REGID_F] = THIS_->ctx.regs8[REGID_C] = THIS_->ctx.regs8[REGID_E] = THIS_->ctx.regs8[REGID_L] = THIS_->ctx.regs8[REGID_IXL] = THIS_->ctx.regs8[REGID_IYL] = (Uint8)((reginit >> 0) & 0xff);
+	THIS_->ctx.regs8[REGID_A] = THIS_->ctx.regs8[REGID_B] = THIS_->ctx.regs8[REGID_D] = THIS_->ctx.regs8[REGID_H] = THIS_->ctx.regs8[REGID_IXH] = THIS_->ctx.regs8[REGID_IYH] = (uint8_t)((reginit >> 8) & 0xff);
+	THIS_->ctx.regs8[REGID_F] = THIS_->ctx.regs8[REGID_C] = THIS_->ctx.regs8[REGID_E] = THIS_->ctx.regs8[REGID_L] = THIS_->ctx.regs8[REGID_IXL] = THIS_->ctx.regs8[REGID_IYL] = (uint8_t)((reginit >> 0) & 0xff);
 	THIS_->ctx.saf = THIS_->ctx.sbc = THIS_->ctx.sde = THIS_->ctx.shl = reginit;
 	THIS_->ctx.sp = (THIS_->spinit - 2) & 0xffff;
 	THIS_->ctx.pc = THIS_->initaddr;
@@ -327,7 +327,7 @@ static void reset(NEZ_PLAY *pNezPlay)
 #if 0
 	{
 		/* request execute */
-		Uint32 initbreak = 5 << 8; /* 5sec */
+		uint32_t initbreak = 5 << 8; /* 5sec */
 		while (THIS_->ctx.pc != THIS_->initsp && --initbreak) kmz80_exec(&THIS_->ctx, ZX_BASECYCLES >> 8);
 	}
 	vsync_setup(THIS_);
@@ -346,14 +346,14 @@ static void terminate(ZXAY *THIS_)
 	XFREE(THIS_);
 }
 
-static Uint32 load(NEZ_PLAY *pNezPlay, ZXAY *THIS_, Uint8 *pData, Uint32 uSize)
+static uint32_t load(NEZ_PLAY *pNezPlay, ZXAY *THIS_, uint8_t *pData, uint32_t uSize)
 {
 	XMEMSET(THIS_, 0, sizeof(ZXAY));
 	THIS_->sndp = THIS_->amstrad_sndp = 0;
 	THIS_->data = 0;
 
-	THIS_->data = (Uint8*)XMALLOC(uSize);
-	if (!THIS_->data) return NESERR_SHORTOFMEMORY;
+	THIS_->data = (uint8_t*)XMALLOC(uSize);
+	if (!THIS_->data) return NEZPLUG_NESERR_SHORTOFMEMORY;
 	XMEMCPY(THIS_->data, pData, uSize);
 	THIS_->datalimit = THIS_->data + uSize;
 	THIS_->maxsong = pData[0x10] + 1;
@@ -366,25 +366,25 @@ static Uint32 load(NEZ_PLAY *pNezPlay, ZXAY *THIS_, Uint8 *pData, Uint32 uSize)
 
 	THIS_->sndp = PSGSoundAlloc(PSG_TYPE_AY_3_8910);
 	THIS_->amstrad_sndp = PSGSoundAlloc(PSG_TYPE_YM2149);
-	if (!THIS_->sndp || !THIS_->amstrad_sndp) return NESERR_SHORTOFMEMORY;
-	return NESERR_NOERROR;
+	if (!THIS_->sndp || !THIS_->amstrad_sndp) return NEZPLUG_NESERR_SHORTOFMEMORY;
+	return NEZPLUG_NESERR_NOERROR;
 }
 
 
 
-static Int32 __fastcall ZXAYExecuteZ80CPU(void *pNezPlay)
+static int32_t ZXAYExecuteZ80CPU(void *pNezPlay)
 {
 	return ((NEZ_PLAY*)pNezPlay)->zxay ? execute((ZXAY*)((NEZ_PLAY*)pNezPlay)->zxay) : 0;
 }
 
-static void __fastcall ZXAYSoundRenderStereo(void *pNezPlay, Int32 *d)
+static void ZXAYSoundRenderStereo(void *pNezPlay, int32_t *d)
 {
 	synth((ZXAY*)((NEZ_PLAY*)pNezPlay)->zxay, d);
 }
 
-static Int32 __fastcall ZXAYSoundRenderMono(void *pNezPlay)
+static int32_t ZXAYSoundRenderMono(void *pNezPlay)
 {
-	Int32 d[2] = { 0, 0 };
+	int32_t d[2] = { 0, 0 };
 	synth((ZXAY*)((NEZ_PLAY*)pNezPlay)->zxay, d);
 #if (((-1) >> 1) == -1)
 	return (d[0] + d[1]) >> 1;
@@ -399,7 +399,7 @@ const static NES_AUDIO_HANDLER zxay_audio_handler[] = {
 	{ 0, 0, 0, NULL },
 };
 
-static void __fastcall ZXAYVolume(void *pNezPlay, Uint32 v)
+static void ZXAYVolume(void *pNezPlay, uint32_t v)
 {
 	if (((NEZ_PLAY*)pNezPlay)->zxay)
 	{
@@ -412,7 +412,7 @@ const static NES_VOLUME_HANDLER zxay_volume_handler[] = {
 	{ 0, NULL }, 
 };
 
-static void __fastcall ZXAYReset(void *pNezPlay)
+static void ZXAYReset(void *pNezPlay)
 {
 	if (((NEZ_PLAY*)pNezPlay)->zxay) reset((NEZ_PLAY*)pNezPlay);
 }
@@ -422,7 +422,7 @@ const static NES_RESET_HANDLER zxay_reset_handler[] = {
 	{ 0,                  0, NULL },
 };
 
-static void __fastcall ZXAYTerminate(void *pNezPlay)
+static void ZXAYTerminate(void *pNezPlay)
 {
 	if (((NEZ_PLAY*)pNezPlay)->zxay)
 	{
@@ -436,13 +436,13 @@ const static NES_TERMINATE_HANDLER zxay_terminate_handler[] = {
 	{ 0, NULL },
 };
 
-Uint32 ZXAYLoad(NEZ_PLAY *pNezPlay, Uint8 *pData, Uint32 uSize)
+uint32_t ZXAYLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 {
-	Uint32 ret;
+	uint32_t ret;
 	ZXAY *THIS_;
 	if (pNezPlay->zxay) __builtin_trap();	/* ASSERT */
 	THIS_ = (ZXAY *)XMALLOC(sizeof(ZXAY));
-	if (!THIS_) return NESERR_SHORTOFMEMORY;
+	if (!THIS_) return NEZPLUG_NESERR_SHORTOFMEMORY;
 	ret = load(pNezPlay, THIS_, pData, uSize);
 	if (ret)
 	{

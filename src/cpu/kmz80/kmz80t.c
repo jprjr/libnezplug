@@ -301,7 +301,7 @@ const OPT_ITEM kmz80_ot_xx[0x100] = {
 	OPTABLE(0,		0,		0,		OP_RST),
 };
 
-const Uint8 kmz80_ot_cbxx[0x20] = {
+const uint8_t kmz80_ot_cbxx[0x20] = {
 	OP_RLC, OP_RRC, OP_RL,  OP_RR,  OP_SLA, OP_SRA, OP_SLL, OP_SRL,
 	OP_BIT, OP_BIT, OP_BIT, OP_BIT, OP_BIT, OP_BIT, OP_BIT, OP_BIT,
 	OP_RES, OP_RES, OP_RES, OP_RES, OP_RES, OP_RES, OP_RES, OP_RES,

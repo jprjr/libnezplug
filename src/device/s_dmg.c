@@ -30,105 +30,105 @@
 /* -------------------- */
 
 typedef struct {
-	Uint32 initial_counter;	/* length initial counter */
-	Uint32 counter;			/* length counter */
-	Uint8 enable;			/* length counter clock disable */
+	uint32_t initial_counter;	/* length initial counter */
+	uint32_t counter;			/* length counter */
+	uint8_t enable;			/* length counter clock disable */
 } LENGTHCOUNTER;
 typedef struct {
-	Uint8 rate;				/* envelope rate */
-	Uint8 direction;		/* sweep direction */
-	Uint8 timer;			/* envelope timer */
-	Uint8 volume;			/* current volume */
-	Uint8 initial_volume;	/* initial volume */
-	Uint8 zombie_direction;	/* sweep direction (zombie mode stock)*/
-	Uint8 initial_rate;		/* initial envelope rate */
+	uint8_t rate;				/* envelope rate */
+	uint8_t direction;		/* sweep direction */
+	uint8_t timer;			/* envelope timer */
+	uint8_t volume;			/* current volume */
+	uint8_t initial_volume;	/* initial volume */
+	uint8_t zombie_direction;	/* sweep direction (zombie mode stock)*/
+	uint8_t initial_rate;		/* initial envelope rate */
 } ENVELOPEDECAY;
 typedef struct {
-	Uint8 rate;			/* sweep rate */
-	Uint8 direction;	/* sweep direction */
-	Uint8 timer;		/* sweep timer */
-	Uint8 shifter;		/* sweep shifter */
-	Uint32 wl;			/* wave length */
+	uint8_t rate;			/* sweep rate */
+	uint8_t direction;	/* sweep direction */
+	uint8_t timer;		/* sweep timer */
+	uint8_t shifter;		/* sweep shifter */
+	uint32_t wl;			/* wave length */
 } SWEEP;
 typedef struct {
 	LENGTHCOUNTER lc;
 	ENVELOPEDECAY ed;
 	SWEEP sw;
-	Int32 mastervolume;
+	int32_t mastervolume;
 #if RELEASE_SPEED
-	Uint32 release;
+	uint32_t release;
 #endif
-	Uint32 cps;		/* cycles per sample */
-	Uint32 cpf;	/* cycles per frame (240/192Hz) ($4017.bit7) */
-	Uint32 fc;		/* frame counter; */
-	Uint32 pt;		/* programmable timer */
-	Uint32 wl;		/* wave length */
-	Uint32 st;		/* wave step */
-	Uint32 output;
-	Uint8 fp;		/* frame position; */
-	Uint8 duty;		/* frame position; */
-	Uint8 key;
-	Uint8 mute;
-	Uint8 ct;
+	uint32_t cps;		/* cycles per sample */
+	uint32_t cpf;	/* cycles per frame (240/192Hz) ($4017.bit7) */
+	uint32_t fc;		/* frame counter; */
+	uint32_t pt;		/* programmable timer */
+	uint32_t wl;		/* wave length */
+	uint32_t st;		/* wave step */
+	uint32_t output;
+	uint8_t fp;		/* frame position; */
+	uint8_t duty;		/* frame position; */
+	uint8_t key;
+	uint8_t mute;
+	uint8_t ct;
 } DMG_SQUARE;
 
 typedef struct {
 	LENGTHCOUNTER lc;
-	Int32 mastervolume;
+	int32_t mastervolume;
 #if RELEASE_SPEED
-	Uint32 release;
+	uint32_t release;
 #endif
-	Uint32 cps;		/* cycles per sample */
-	Uint32 cpf;		/* cycles per frame (240/192Hz) ($4017.bit7) */
-	Uint32 fc;		/* frame counter */
-	Uint32 pt;		/* programmable timer */
-	Uint32 wl;		/* wave length */
-	Uint32 st;		/* wave step */
-	Uint32 output;
-	Uint8 fp;		/* frame position */
-	Uint8 volume;
-	Uint8 initial_volume;
-	Uint8 on;
-	Uint8 key;
-	Uint8 mute;
-	Uint8 tone[32];
-	Uint8 ct;
-	Uint8 mccs;		/* Master Channel Control Switch */
+	uint32_t cps;		/* cycles per sample */
+	uint32_t cpf;		/* cycles per frame (240/192Hz) ($4017.bit7) */
+	uint32_t fc;		/* frame counter */
+	uint32_t pt;		/* programmable timer */
+	uint32_t wl;		/* wave length */
+	uint32_t st;		/* wave step */
+	uint32_t output;
+	uint8_t fp;		/* frame position */
+	uint8_t volume;
+	uint8_t initial_volume;
+	uint8_t on;
+	uint8_t key;
+	uint8_t mute;
+	uint8_t tone[32];
+	uint8_t ct;
+	uint8_t mccs;		/* Master Channel Control Switch */
 } DMG_WAVEMEMORY;
 
 typedef struct {
 	LENGTHCOUNTER lc;
 	ENVELOPEDECAY ed;
-	Int32 mastervolume;
-	Uint32 cps;		/* cycles per sample */
-	Uint32 cpf;		/* cycles per frame (240/192Hz) ($4017.bit7) */
-	Uint32 fc;		/* frame counter */
-	Uint32 pt;		/* programmable timer */
-	Uint32 shift;
-	Uint32 divratio;
-	Uint32 rng;
-	Uint32 output;
-	Uint8 fp;		/* frame position */
-	Uint8 step1;
-	Uint8 step2;
-	Uint8 key;
-	Uint8 mute;
-	Uint8 ct;
+	int32_t mastervolume;
+	uint32_t cps;		/* cycles per sample */
+	uint32_t cpf;		/* cycles per frame (240/192Hz) ($4017.bit7) */
+	uint32_t fc;		/* frame counter */
+	uint32_t pt;		/* programmable timer */
+	uint32_t shift;
+	uint32_t divratio;
+	uint32_t rng;
+	uint32_t output;
+	uint8_t fp;		/* frame position */
+	uint8_t step1;
+	uint8_t step2;
+	uint8_t key;
+	uint8_t mute;
+	uint8_t ct;
 #if NOISE_EDGE
-	Uint8 edge;
-	Uint8 edgeout;
-	Uint8 rngold;
+	uint8_t edge;
+	uint8_t edgeout;
+	uint8_t rngold;
 #endif
 } DMG_NOISE;
 
 //typedef struct {
-//	Uint32 cps;		/* cycles per sample */
-//	Uint32 cpf;		/* cycles per frame (240/192Hz) ($4017.bit7) */
-//	Uint32 fc;		/* frame counter */
-//	Uint32 enable;
-//	Uint32 flag;
-//	Uint32 fp;
-//	Uint32 halt;
+//	uint32_t cps;		/* cycles per sample */
+//	uint32_t cpf;		/* cycles per frame (240/192Hz) ($4017.bit7) */
+//	uint32_t fc;		/* frame counter */
+//	uint32_t enable;
+//	uint32_t flag;
+//	uint32_t fp;
+//	uint32_t halt;
 //} DMG_NAZO;
 
 typedef struct {
@@ -139,12 +139,12 @@ typedef struct {
 	DMG_NOISE noise;
 //	DMG_NAZO nazo;
 	struct {
-		Uint8 regs[0x30];
-		Uint8 enablefg;
+		uint8_t regs[0x30];
+		uint8_t enablefg;
 	} common;
 } DMGSOUND;
 
-const static Uint8 square_duty_table[4][8] = 
+const static uint8_t square_duty_table[4][8] = 
 /* （単純パターン）こうしないと、アスミッくんワールド２で満足に喋ってくれない */
 //	{ {1,0,0,0,0,0,0,0} , {1,1,0,0,0,0,0,0} , {1,1,1,1,0,0,0,0} , {1,1,1,1,1,1,0,0} };
 
@@ -153,12 +153,12 @@ const static Uint8 square_duty_table[4][8] =
 /* GBSOUND.TXTの逆 */
 //	{ {1,1,1,1,0,1,1,1} , {1,1,1,1,0,0,1,1} , {1,1,0,0,0,0,1,1} , {0,0,0,0,1,1,0,0} };
 
-const static Uint8 square_duty_avg[4] = {1,2,4,6};
+const static uint8_t square_duty_avg[4] = {1,2,4,6};
 
-const static Uint8 wavememory_volume_table[8] = { 0, 4, 2, 1, 0, 4, 2, 1 };
-const static Uint8 noise_divratio_table[8] = { 1,2,4,6,8,10,12,14 };
+const static uint8_t wavememory_volume_table[8] = { 0, 4, 2, 1, 0, 4, 2, 1 };
+const static uint8_t noise_divratio_table[8] = { 1,2,4,6,8,10,12,14 };
 
-const static Uint8 reset_table[] = 
+const static uint8_t reset_table[] = 
 {
 	0x10,0x80,0x11,0xbf,0x12,0x00,0x13,0xff,0x15,0xff,0x16,0x3f,0x17,0x00,0x18,0xff,
 	0x1a,0x00,0x1b,0xff,0x1c,0x00,0x1d,0xff,0x1f,0xff,0x20,0xff,0x21,0x00,0x22,0x00,
@@ -171,18 +171,18 @@ const static Uint8 reset_table[] =
 	0x20,0x4f,0x66,0x66,0x47,0x61,0x6f,0x29
 };
 
-static const Uint32 spd_limit_table[8] =
+static const uint32_t spd_limit_table[8] =
 {
 	0x7FF, 0x556, 0x667, 0x71D, 
 	0x788, 0x7C2, 0x7E1, 0x7F1,
 };
 
-Uint8 GBAMode = 0;
+uint8_t GBAMode = 0;
 
 //NR30のキーONフラグを立たせると、矩形チャンネルなどの出力が、KEYOFF時に+8される？
 #define KEYON_MODE (!GBAMode && sndp->wavememory.key)
 
-static void LengthCounterStep(LENGTHCOUNTER *lc, Uint8 *key)
+static void LengthCounterStep(LENGTHCOUNTER *lc, uint8_t *key)
 {
 	if (*key) return;
 	if (lc->counter) lc->counter--;
@@ -209,7 +209,7 @@ static void EnvelopeDecayStep(ENVELOPEDECAY *ed)
 	}
 }
 
-static Uint8 SweepStep(SWEEP *sw, Uint8 *key)
+static uint8_t SweepStep(SWEEP *sw, uint8_t *key)
 {
 	if (sw->rate && sw->shifter && ++sw->timer >= sw->rate)
 	{
@@ -232,7 +232,7 @@ static Uint8 SweepStep(SWEEP *sw, Uint8 *key)
 }
 
 //MRN : こんな感じのゾンビらしい
-static void DMGZombieMode(ENVELOPEDECAY *ed, Uint32 *value, Uint8 *key)
+static void DMGZombieMode(ENVELOPEDECAY *ed, uint32_t *value, uint8_t *key)
 {
 
 //	if(!ed->rate || !(*value & 0x07)){
@@ -264,10 +264,10 @@ static void DMGZombieMode(ENVELOPEDECAY *ed, Uint32 *value, Uint8 *key)
 */
 }
 
-static Int32 DMGSoundSquareRender(DMGSOUND *sndp, DMG_SQUARE *ch)
+static int32_t DMGSoundSquareRender(DMGSOUND *sndp, DMG_SQUARE *ch)
 {
-	Int32 outputbuf=0,count=0;
-	Uint32 wl;
+	int32_t outputbuf=0,count=0;
+	uint32_t wl;
 	ch->fc += ch->cps;
 	while (ch->fc >= ch->cpf)
 	{
@@ -332,10 +332,10 @@ static Int32 DMGSoundSquareRender(DMGSOUND *sndp, DMG_SQUARE *ch)
 		 ? (ch->key&&!ch->mute ? (((ch->tone[ch->st] * ch->volume)>>2)<<2) : 0) : (GBAMode ? (0) : (8<<2));
 //		 ? ((ch->tone[ch->st] >> ch->volume)<<2) : (KEYON_MODE ? 0 : (8<<2));
 
-static Int32 DMGSoundWaveMemoryRender(DMGSOUND *sndp, DMG_WAVEMEMORY *ch)
+static int32_t DMGSoundWaveMemoryRender(DMGSOUND *sndp, DMG_WAVEMEMORY *ch)
 {
-	Int32 outputbuf=0,count=0;
-	Uint32 wl;
+	int32_t outputbuf=0,count=0;
+	uint32_t wl;
 	ch->fc += ch->cps;
 	
 	while (ch->fc >= ch->cpf)
@@ -356,7 +356,7 @@ static Int32 DMGSoundWaveMemoryRender(DMGSOUND *sndp, DMG_WAVEMEMORY *ch)
 
 	//ピカチュウの声が0x7FFで回っているため、一応発声しておく
 	if (ch->wl > 0x7f9){
-		Uint32 total,i;
+		uint32_t total,i;
 		for(total=0, i=0; i<0x20; i++)
 			total+=ch->tone[i];
 		total >>=3;
@@ -377,7 +377,7 @@ static Int32 DMGSoundWaveMemoryRender(DMGSOUND *sndp, DMG_WAVEMEMORY *ch)
 		ch->output = LinToLog(sndp->logtbl, ch->output) + ch->mastervolume;
 		ch->output = LogToLin(sndp->logtbl, ch->output, LOG_LIN_BITS - LIN_BITS - 12);
 /*		if(1){
-			Int32 outputch = 0;
+			int32_t outputch = 0;
 			outputch = LinToLog(sndp->logtbl, sndp->wavememory.on * ((8-sndp->square[0].ed.direction + 8-sndp->square[1].ed.direction)/4)) + sndp->square[0].mastervolume;
 			ch->output -= LogToLin(sndp->logtbl, outputch, LOG_LIN_BITS - LIN_BITS - 14);
 		}
@@ -406,7 +406,7 @@ static Int32 DMGSoundWaveMemoryRender(DMGSOUND *sndp, DMG_WAVEMEMORY *ch)
 				ch->output = LinToLog(sndp->logtbl, ch->output) + ch->mastervolume;
 				ch->output = LogToLin(sndp->logtbl, ch->output, LOG_LIN_BITS - LIN_BITS - 12);
 /*				if(1){
-					Int32 outputch = 0;
+					int32_t outputch = 0;
 					outputch = LinToLog(sndp->logtbl, sndp->wavememory.on * ((8-sndp->square[0].ed.direction + 8-sndp->square[1].ed.direction)/4)) + sndp->square[0].mastervolume;
 					ch->output -= LogToLin(sndp->logtbl, outputch, LOG_LIN_BITS - LIN_BITS - 14);
 				}
@@ -421,9 +421,9 @@ static Int32 DMGSoundWaveMemoryRender(DMGSOUND *sndp, DMG_WAVEMEMORY *ch)
 	return outputbuf /count;
 }
 
-static Int32 DMGSoundNoiseRender(DMGSOUND *sndp, DMG_NOISE *ch)
+static int32_t DMGSoundNoiseRender(DMGSOUND *sndp, DMG_NOISE *ch)
 {
-	Int32 outputbuf=0,count=0;
+	int32_t outputbuf=0,count=0;
 
 	ch->fc += ch->cps;
 	while (ch->fc >= ch->cpf)
@@ -472,9 +472,9 @@ static Int32 DMGSoundNoiseRender(DMGSOUND *sndp, DMG_NOISE *ch)
 	return outputbuf / count;
 }
 /*
-static Int32 DMGSoundNazoRender(DMGSOUND *sndp, DMG_NAZO *ch)
+static int32_t DMGSoundNazoRender(DMGSOUND *sndp, DMG_NAZO *ch)
 {
-	Int32 outputch = 0;
+	int32_t outputch = 0;
 
 //	wl =  (0x800 - sndp->wavememory.wl) << (CPS_BITS - 0);
 	ch->fc += ch->cps;
@@ -506,7 +506,7 @@ static Int32 DMGSoundNazoRender(DMGSOUND *sndp, DMG_NAZO *ch)
 	return 0;
 }
 */
-static void sndvolume(void *ctx, Int32 volume)
+static void sndvolume(void *ctx, int32_t volume)
 {
 	DMGSOUND *sndp = ctx;
 	volume = (volume << (LOG_BITS - 8)) << 1;
@@ -516,11 +516,11 @@ static void sndvolume(void *ctx, Int32 volume)
 	sndp->noise.mastervolume = volume;
 }
 
-static void sndsynth(void *ctx, Int32 *p)
+static void sndsynth(void *ctx, int32_t *p)
 {
 	DMGSOUND *sndp = ctx;
-	Int32 b[2] = { 0, 0 };
-	Int32 outputch,outputidle;
+	int32_t b[2] = { 0, 0 };
+	int32_t outputch,outputidle;
 //	if(sndp->nazo.halt)return;
 	outputch = LinToLog(sndp->logtbl, 0x8) + sndp->square[0].mastervolume;
 	outputidle = LogToLin(sndp->logtbl, outputch, LOG_LIN_BITS - LIN_BITS - 14);
@@ -573,10 +573,10 @@ static void sndsynth(void *ctx, Int32 *p)
 	p[1] += b[1] * (sndp->common.regs[0x14] & 0x07) + 1;
 }
 
-static void sndwrite(void *ctx, Uint32 a, Uint32 v)
+static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 {
 	DMGSOUND *sndp = ctx;
-	Uint32 ch;
+	uint32_t ch;
 
 #if WAVETABLE_REAL_RW
 	if (0xff30 <= a && a <= 0xff3f)
@@ -696,7 +696,7 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 			}
 			break;
 		case 0xff1a:
-/*			if((sndp->wavememory.on & 0x80 ) != (Uint8)(v & 0x80)){
+/*			if((sndp->wavememory.on & 0x80 ) != (uint8_t)(v & 0x80)){
 				sndp->wavememory.pt = 0;
 				sndp->wavememory.ct = 0;
 				sndp->wavememory.st = 0;
@@ -867,7 +867,7 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 	}
 }
 
-static Uint32 sndread(void *ctx, Uint32 a)
+static uint32_t sndread(void *ctx, uint32_t a)
 {
 	DMGSOUND *sndp = ctx;
 	switch (a)
@@ -927,7 +927,7 @@ static Uint32 sndread(void *ctx, Uint32 a)
 }
 
 
-static void DMGSoundSquareReset(DMG_SQUARE *ch, Uint32 clock, Uint32 freq)
+static void DMGSoundSquareReset(DMG_SQUARE *ch, uint32_t clock, uint32_t freq)
 {
 	XMEMSET(ch, 0, sizeof(DMG_SQUARE));
 	ch->cps = DivFix(clock, 4 * freq, CPS_BITS);
@@ -935,7 +935,7 @@ static void DMGSoundSquareReset(DMG_SQUARE *ch, Uint32 clock, Uint32 freq)
 	ch->duty = 4;
 }
 
-static void DMGSoundWaveMemoryReset(DMG_WAVEMEMORY *ch, Uint32 clock, Uint32 freq)
+static void DMGSoundWaveMemoryReset(DMG_WAVEMEMORY *ch, uint32_t clock, uint32_t freq)
 {
 	XMEMSET(ch, 0, sizeof(DMG_WAVEMEMORY));
 	ch->cps = DivFix(clock, 2 * freq, CPS_BITS);
@@ -943,7 +943,7 @@ static void DMGSoundWaveMemoryReset(DMG_WAVEMEMORY *ch, Uint32 clock, Uint32 fre
 	ch->on = 0x80;
 }
 
-static void DMGSoundNoiseReset(DMG_NOISE *ch, Uint32 clock, Uint32 freq)
+static void DMGSoundNoiseReset(DMG_NOISE *ch, uint32_t clock, uint32_t freq)
 {
 	XMEMSET(ch, 0, sizeof(DMG_NOISE));
 	ch->cps = DivFix(clock, 8 * freq, CPS_BITS);
@@ -953,7 +953,7 @@ static void DMGSoundNoiseReset(DMG_NOISE *ch, Uint32 clock, Uint32 freq)
 }
 
 /*
-static void DMGSoundNazoReset(DMG_NAZO *ch, Uint32 clock, Uint32 freq)
+static void DMGSoundNazoReset(DMG_NAZO *ch, uint32_t clock, uint32_t freq)
 {
 	XMEMSET(ch, 0, sizeof(DMG_NOISE));
 	ch->cps = DivFix(clock, 2 * freq, CPS_BITS);
@@ -962,9 +962,9 @@ static void DMGSoundNazoReset(DMG_NAZO *ch, Uint32 clock, Uint32 freq)
 }
 */
 
-static void sndreset(void *ctx, Uint32 clock, Uint32 freq)
+static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
 {
-	Uint32 p,a;
+	uint32_t p,a;
 	DMGSOUND *sndp = ctx;
 	XMEMSET(&sndp->common, 0, sizeof(sndp->common));
 	DMGSoundSquareReset(&sndp->square[0], clock, freq);
@@ -989,7 +989,7 @@ static void sndrelease(void *ctx)
 	}
 }
 
-static void setinst(void *ctx, Uint32 n, void *p, Uint32 l)
+static void setinst(void *ctx, uint32_t n, void *p, uint32_t l)
 {
     (void)ctx;
     (void)n;
@@ -998,9 +998,9 @@ static void setinst(void *ctx, Uint32 n, void *p, Uint32 l)
 }
 
 //ここからレジスタビュアー設定
-Uint8 *gb_regdata;
-Uint32 (*ioview_ioread_DEV_DMG)(Uint32 a);
-static Uint32 ioview_ioread_bf(Uint32 a){
+uint8_t *gb_regdata;
+uint32_t (*ioview_ioread_DEV_DMG)(uint32_t a);
+static uint32_t ioview_ioread_bf(uint32_t a){
 	if(a<=0x2f)return gb_regdata[a];else return 0x100;
 }
 //ここまでレジスタビュアー設定

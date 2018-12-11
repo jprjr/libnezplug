@@ -1,6 +1,7 @@
-#include "../../nestypes.h"
-#include "../kmsnddev.h"
+#include <nezplug/nezplug.h>
 #include "../../format/audiosys.h"
+#include "../../normalize.h"
+#include "../kmsnddev.h"
 #include "../../format/handler.h"
 #include "../../format/nsf6502.h"
 #include "logtable.h"
@@ -39,127 +40,127 @@
 #endif
 
 typedef struct {
-	Uint32 counter;				/* length counter */
-	Uint8 clock_disable;	/* length counter clock disable */
+	uint32_t counter;				/* length counter */
+	uint8_t clock_disable;	/* length counter clock disable */
 } LENGTHCOUNTER;
 
 typedef struct {
-	Uint8 disable;			/* envelope decay disable */
-	Uint8 counter;			/* envelope decay counter */
-	Uint8 rate;				/* envelope decay rate */
-	Uint8 timer;			/* envelope decay timer */
-	Uint8 looping_enable;	/* envelope decay looping enable */
-	Uint8 volume;			/* volume */
+	uint8_t disable;			/* envelope decay disable */
+	uint8_t counter;			/* envelope decay counter */
+	uint8_t rate;				/* envelope decay rate */
+	uint8_t timer;			/* envelope decay timer */
+	uint8_t looping_enable;	/* envelope decay looping enable */
+	uint8_t volume;			/* volume */
 } ENVELOPEDECAY;
 
 typedef struct {
-	Uint8 ch;				/* sweep channel */
-	Uint8 active;			/* sweep active */
-	Uint8 rate;				/* sweep rate */
-	Uint8 timer;			/* sweep timer */
-	Uint8 direction;		/* sweep direction */
-	Uint8 shifter;			/* sweep shifter */
+	uint8_t ch;				/* sweep channel */
+	uint8_t active;			/* sweep active */
+	uint8_t rate;				/* sweep rate */
+	uint8_t timer;			/* sweep timer */
+	uint8_t direction;		/* sweep direction */
+	uint8_t shifter;			/* sweep shifter */
 } SWEEP;
 
 typedef struct {
 	LENGTHCOUNTER lc;
 	ENVELOPEDECAY ed;
 	SWEEP sw;
-	Uint32 mastervolume;
-	Uint32 cps;		/* cycles per sample */
-	Uint32 *cpf;	/* cycles per frame (240/192Hz) ($4017.bit7) */
-	Uint32 fc;		/* frame counter; */
-	Uint32 wl;		/* wave length */
-	Uint32 pt;		/* programmable timer */
-	Uint32 st;		/* wave step */
-	Uint32 duty;		/* duty rate */
-	Uint32 output;
-	Uint8 fp;		/* frame position */
-	Uint8 key;
-	Uint8 mute;
-	Uint32 ct;
+	uint32_t mastervolume;
+	uint32_t cps;		/* cycles per sample */
+	uint32_t *cpf;	/* cycles per frame (240/192Hz) ($4017.bit7) */
+	uint32_t fc;		/* frame counter; */
+	uint32_t wl;		/* wave length */
+	uint32_t pt;		/* programmable timer */
+	uint32_t st;		/* wave step */
+	uint32_t duty;		/* duty rate */
+	uint32_t output;
+	uint8_t fp;		/* frame position */
+	uint8_t key;
+	uint8_t mute;
+	uint32_t ct;
 } NESAPU_SQUARE;
 
 typedef struct {
-	Uint32 *cpf;			/* cycles per frame (240Hz fix) */
-	Uint32 fc;			/* frame counter; */
-	Uint8 load;			/* length counter load register */
-	Uint8 start;		/* length counter start */
-	Uint8 counter;		/* length counter */
-	Uint8 startb;		/* length counter start */
-	Uint8 counterb;		/* length counter */
-	Uint8 tocount;		/* length counter go to count mode */
-	Uint8 mode;			/* length counter mode load(0) count(1) */
-	Uint8 clock_disable;	/* length counter clock disable */
+	uint32_t *cpf;			/* cycles per frame (240Hz fix) */
+	uint32_t fc;			/* frame counter; */
+	uint8_t load;			/* length counter load register */
+	uint8_t start;		/* length counter start */
+	uint8_t counter;		/* length counter */
+	uint8_t startb;		/* length counter start */
+	uint8_t counterb;		/* length counter */
+	uint8_t tocount;		/* length counter go to count mode */
+	uint8_t mode;			/* length counter mode load(0) count(1) */
+	uint8_t clock_disable;	/* length counter clock disable */
 } LINEARCOUNTER;
 
 typedef struct {
 	LENGTHCOUNTER lc;
 	LINEARCOUNTER li;
-	Uint32 mastervolume;
-	Uint32 cps;		/* cycles per sample */
-	Uint32 *cpf;	/* cycles per frame (240/192Hz) ($4017.bit7) */
-	Uint32 cpb180;	/* cycles per base/180 */
-	Uint32 fc;		/* frame counter; */
-	Uint32 b180c;	/* base/180 counter; */
-	Uint32 wl;		/* wave length */
-	Uint32 wlb;		/* wave length base*/
-	Uint32 pt;		/* programmable timer */
-	Uint32 st;		/* wave step */
-	Uint32 output;
-	Uint8 fp;		/* frame position; */
-	Uint8 key;
-	Uint8 mute;
-	Int32 ct;
-	Uint8 ct2;
-	Uint32 dpcmout;
+	uint32_t mastervolume;
+	uint32_t cps;		/* cycles per sample */
+	uint32_t *cpf;	/* cycles per frame (240/192Hz) ($4017.bit7) */
+	uint32_t cpb180;	/* cycles per base/180 */
+	uint32_t fc;		/* frame counter; */
+	uint32_t b180c;	/* base/180 counter; */
+	uint32_t wl;		/* wave length */
+	uint32_t wlb;		/* wave length base*/
+	uint32_t pt;		/* programmable timer */
+	uint32_t st;		/* wave step */
+	uint32_t output;
+	uint8_t fp;		/* frame position; */
+	uint8_t key;
+	uint8_t mute;
+	int32_t ct;
+	uint8_t ct2;
+	uint32_t dpcmout;
 } NESAPU_TRIANGLE;
 
 typedef struct {
 	LENGTHCOUNTER lc;
 	LINEARCOUNTER li;
 	ENVELOPEDECAY ed;
-	Uint32 mastervolume;
-	Uint32 cps;		/* cycles per sample */
-	Uint32 *cpf;	/* cycles per frame (240/192Hz) ($4017.bit7) */
-	Uint32 fc;		/* frame counter; */
-	Uint32 wl;		/* wave length */
-	Uint32 pt;		/* programmable timer */
-	Uint32 rng;
-	Uint32 rngcount;
-	Uint32 output;
-	Uint8 rngshort;
-	Uint8 fp;		/* frame position; */
-	Uint8 key;
-	Uint8 mute;
-	Uint8 ct;
-	Uint32 dpcmout;
+	uint32_t mastervolume;
+	uint32_t cps;		/* cycles per sample */
+	uint32_t *cpf;	/* cycles per frame (240/192Hz) ($4017.bit7) */
+	uint32_t fc;		/* frame counter; */
+	uint32_t wl;		/* wave length */
+	uint32_t pt;		/* programmable timer */
+	uint32_t rng;
+	uint32_t rngcount;
+	uint32_t output;
+	uint8_t rngshort;
+	uint8_t fp;		/* frame position; */
+	uint8_t key;
+	uint8_t mute;
+	uint8_t ct;
+	uint32_t dpcmout;
 } NESAPU_NOISE;
 
 typedef struct {
-	Uint32 cps;		/* cycles per sample */
-	Uint32 wl;		/* wave length */
-	Uint32 pt;		/* programmable timer */
-	Uint32 length;	/* bit length */
-	Uint32 mastervolume;
-	Uint32 adr;		/* current address */
-	Int32 dacout;
-	Int32 dacout0;
+	uint32_t cps;		/* cycles per sample */
+	uint32_t wl;		/* wave length */
+	uint32_t pt;		/* programmable timer */
+	uint32_t length;	/* bit length */
+	uint32_t mastervolume;
+	uint32_t adr;		/* current address */
+	int32_t dacout;
+	int32_t dacout0;
 
-	Uint8 start_length;
-	Uint8 start_adr;
-	Uint8 loop_enable;
-	Uint8 irq_enable;
-	Uint8 irq_report;
-	Uint8 input;	/* 8bit input buffer */
-	Uint8 first;
-	Uint8 dacbase;
-	Uint8 key;
-	Uint8 mute;
+	uint8_t start_length;
+	uint8_t start_adr;
+	uint8_t loop_enable;
+	uint8_t irq_enable;
+	uint8_t irq_report;
+	uint8_t input;	/* 8bit input buffer */
+	uint8_t first;
+	uint8_t dacbase;
+	uint8_t key;
+	uint8_t mute;
 
-	Uint32 output;
-	Uint8 ct;
-	Uint32 dactbl[128];
+	uint32_t output;
+	uint8_t ct;
+	uint32_t dactbl[128];
 
 } NESAPU_DPCM;
 
@@ -168,30 +169,30 @@ typedef struct {
 	NESAPU_TRIANGLE triangle;
 	NESAPU_NOISE noise;
 	NESAPU_DPCM dpcm;
-	Uint32 cpf[4];	/* cycles per frame (240/192Hz) ($4017.bit7) */
-	Uint8 regs[0x20];
-	//Int32 amptbl[1 << AMPTML_BITS];
+	uint32_t cpf[4];	/* cycles per frame (240/192Hz) ($4017.bit7) */
+	uint8_t regs[0x20];
+	//int32_t amptbl[1 << AMPTML_BITS];
 } APUSOUND;
 
 
 
-Int32 NSF_noise_random_reset = 0;
-Int32 NESAPUVolume = 64;
-Int32 NESRealDAC = 1;
-Int32 NSF_2A03Type = 1;
+int32_t NSF_noise_random_reset = 0;
+int32_t NESAPUVolume = 64;
+int32_t NESRealDAC = 1;
+int32_t NSF_2A03Type = 1;
 /* ------------------------- */
 /*  NES INTERNAL SOUND(APU)  */
 /* ------------------------- */
 
 /* GBSOUND.TXT */
-const static Uint8 square_duty_table[][8] = 
+const static uint8_t square_duty_table[][8] = 
 {
 	{0,0,0,1,0,0,0,0} , {0,0,0,1,1,0,0,0} , {0,0,0,1,1,1,1,0} , {1,1,1,0,0,1,1,1} ,
 	{1,0,0,0,0,0,0,0} , {1,1,1,1,0,0,0,0} , {1,1,0,0,0,0,0,0} , {1,1,1,1,1,1,0,0}  //クソ互換機のDuty比のひっくり返ってるやつ 
 };
 //	{ {0,1,0,0,0,0,0,0} , {0,1,1,0,0,0,0,0} , {0,1,1,1,1,0,0,0} , {0,1,1,1,1,1,1,0} };
 
-static const Uint8 vbl_length_table[96] = {
+static const uint8_t vbl_length_table[96] = {
 	0x05, 0x7f, 0x0a, 0x01, 0x14, 0x02, 0x28, 0x03,
 	0x50, 0x04, 0x1e, 0x05, 0x07, 0x06, 0x0d, 0x07,
 	0x06, 0x08, 0x0c, 0x09, 0x18, 0x0a, 0x30, 0x0b,
@@ -207,18 +208,18 @@ static const Uint8 vbl_length_table[96] = {
 
 };
 
-static const Uint32 wavelength_converter_table[16] = {
+static const uint32_t wavelength_converter_table[16] = {
 	0x002, 0x004, 0x008, 0x010, 0x020, 0x030, 0x040, 0x050,
 	0x065, 0x07f, 0x0be, 0x0fe, 0x17d, 0x1fc, 0x3f9, 0x7f2
 };
 
-static const Uint32 spd_limit_table[8] =
+static const uint32_t spd_limit_table[8] =
 {
 	0x3FF, 0x555, 0x666, 0x71C, 
 	0x787, 0x7C1, 0x7E0, 0x7F0,
 };
 
-static const Uint32 dpcm_freq_table[16] =
+static const uint32_t dpcm_freq_table[16] =
 {
 	428, 380, 340, 320,
 	286, 254, 226, 214,
@@ -241,7 +242,7 @@ __inline static void LengthCounterStep(LENGTHCOUNTER *lc)
 ・周波数は書いて瞬時に反映される。そのため、8-10bit目をまたぐ周波数変更は、
 　変更の合間の周波数の値によってはプチノイズがときどき出る。
 */
-__inline static void LinearCounterStep(LINEARCOUNTER *li/*, Uint32 cps*/)
+__inline static void LinearCounterStep(LINEARCOUNTER *li/*, uint32_t cps*/)
 {
 //	li->fc += cps;
 //	while (li->fc > li->cpf[0])
@@ -281,7 +282,7 @@ __inline static void EnvelopeDecayStep(ENVELOPEDECAY *ed)
 		ed->timer--;
 }
 
-__inline void SweepStep(SWEEP *sw, Uint32 *wl)
+__inline void SweepStep(SWEEP *sw, uint32_t *wl)
 {
 	if (sw->active && sw->shifter && --sw->timer > 7)
 	{
@@ -319,9 +320,9 @@ static void NESAPUSoundSquareCount(NESAPU_SQUARE *ch){
 }
 
 
-static Int32 NESAPUSoundSquareRender(NESAPU_SQUARE *ch)
+static int32_t NESAPUSoundSquareRender(NESAPU_SQUARE *ch)
 {
-	Int32 outputbuf=0,count=0;
+	int32_t outputbuf=0,count=0;
 	NESAPUSoundSquareCount(ch);
 	if (!ch->key || !ch->lc.counter)
 	{
@@ -401,10 +402,10 @@ static void NESAPUSoundTriangleCount(NESAPU_TRIANGLE *ch)
 	}
 
 }
-static Int32 NESAPUSoundTriangleRender(NESAPU_TRIANGLE *ch)
+static int32_t NESAPUSoundTriangleRender(NESAPU_TRIANGLE *ch)
 {
-	Int32 outputbuf=0,count=0;
-	//Int32 output;
+	int32_t outputbuf=0,count=0;
+	//int32_t output;
 	NESAPUSoundTriangleCount(ch);
 
 	ch->output = (ch->st & 0x0f);
@@ -515,9 +516,9 @@ static void NESAPUSoundNoiseCount(NESAPU_NOISE *ch){
 	}
 
 }
-static Int32 NESAPUSoundNoiseRender(NESAPU_NOISE *ch)
+static int32_t NESAPUSoundNoiseRender(NESAPU_NOISE *ch)
 {
-	Int32 outputbuf=0,count=0;
+	int32_t outputbuf=0,count=0;
 
 	NESAPUSoundNoiseCount(ch);
 	if (!ch->key || !ch->lc.counter){
@@ -561,15 +562,15 @@ static Int32 NESAPUSoundNoiseRender(NESAPU_NOISE *ch)
 
 __inline static void NESAPUSoundDpcmRead(NEZ_PLAY *pNezPlay, NESAPU_DPCM *ch)
 {
-	ch->input = (Uint8)NES6502ReadDma(pNezPlay, ch->adr);
+	ch->input = (uint8_t)NES6502ReadDma(pNezPlay, ch->adr);
 	if(++ch->adr > 0xffff)ch->adr = 0x8000;
 	
 }
 
 static void NESAPUSoundDpcmStart(NEZ_PLAY* pNezPlay, NESAPU_DPCM *ch)
 {
-	ch->adr = 0xC000 + ((Uint)ch->start_adr << 6);
-	ch->length = (((Uint)ch->start_length << 4) + 1) << 3;
+	ch->adr = 0xC000 + ((uint32_t)ch->start_adr << 6);
+	ch->length = (((uint32_t)ch->start_length << 4) + 1) << 3;
 	ch->irq_report = 0;
 /*
 	if (ch->irq_enable && !ch->loop_enable){
@@ -580,18 +581,18 @@ static void NESAPUSoundDpcmStart(NEZ_PLAY* pNezPlay, NESAPU_DPCM *ch)
 	NESAPUSoundDpcmRead(pNezPlay, ch);
 }
 
-static Int32 __fastcall NESAPUSoundDpcmRender(void *pNezPlay)
+static int32_t NESAPUSoundDpcmRender(void *pNezPlay)
 {
 #define ch (&((APUSOUND*)((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->apu)->dpcm)
 #define DPCM_OUT ch->dactbl[((ch->dacout<<1) + ch->dacout0)] * DPCM_VOL;
 
-	Int32 outputbuf=0,count=0;
+	int32_t outputbuf=0,count=0;
 
 	ch->output = DPCM_OUT;
 	if (ch->first)
 	{
 		ch->first = 0;
-		ch->dacbase = (Uint8)ch->dacout;
+		ch->dacbase = (uint8_t)ch->dacout;
 	}
 	if (ch->key && ch->length)
 	{
@@ -663,10 +664,10 @@ static Int32 __fastcall NESAPUSoundDpcmRender(void *pNezPlay)
 }
 
 
-static Int32 __fastcall APUSoundRender(void *pNezPlay)
+static int32_t APUSoundRender(void *pNezPlay)
 {
 	APUSOUND *apu = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->apu;
-	Int32 accum = 0 , sqout = 0 , tndout = 0;
+	int32_t accum = 0 , sqout = 0 , tndout = 0;
 	sqout += NESAPUSoundSquareRender(&apu->square[0]) * chmask[DEV_2A03_SQ1];
 	sqout += NESAPUSoundSquareRender(&apu->square[1]) * chmask[DEV_2A03_SQ2];
 //DACの仕様がよく分かるまでは無効にしておく
@@ -695,7 +696,7 @@ const static NES_AUDIO_HANDLER s_apu_audio_handler[] = {
 	{ 0, 0, NULL, NULL }, 
 };
 
-static void __fastcall APUSoundVolume(void *pNezPlay, Uint volume)
+static void APUSoundVolume(void *pNezPlay, uint32_t volume)
 {
 	APUSOUND *apu = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->apu;
 	
@@ -716,23 +717,23 @@ const static NES_VOLUME_HANDLER s_apu_volume_handler[] = {
 	{ 0, NULL }, 
 };
 
-static void __fastcall APUSoundWrite(void *pNezPlay, Uint address, Uint value)
+static void APUSoundWrite(void *pNezPlay, uint32_t address, uint32_t value)
 {
 	APUSOUND *apu = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->apu;
 	if (0x4000 <= address && address <= 0x4017)
 	{
-		apu->regs[address - 0x4000] = (Uint8)value;
+		apu->regs[address - 0x4000] = (uint8_t)value;
 		switch (address)
 		{
 			case 0x4000:	case 0x4004:
 				{
 					int ch = address >= 0x4004;
 					if (value & 0x10)
-						apu->square[ch].ed.volume = (Uint8)(value & 0x0f);
-					apu->square[ch].ed.rate   = (Uint8)(value & 0x0f);
-					apu->square[ch].ed.disable = (Uint8)(value & 0x10);
-					apu->square[ch].lc.clock_disable = (Uint8)(value & 0x20);
-					apu->square[ch].ed.looping_enable = (Uint8)(value & 0x20);
+						apu->square[ch].ed.volume = (uint8_t)(value & 0x0f);
+					apu->square[ch].ed.rate   = (uint8_t)(value & 0x0f);
+					apu->square[ch].ed.disable = (uint8_t)(value & 0x10);
+					apu->square[ch].lc.clock_disable = (uint8_t)(value & 0x20);
+					apu->square[ch].ed.looping_enable = (uint8_t)(value & 0x20);
 					//クソ互換機のへんてこDuty比にするのを、ここでやる。
 					if(NSF_2A03Type==2){
 						apu->square[ch].duty = ((value >> 6) & 3)|4;
@@ -744,10 +745,10 @@ static void __fastcall APUSoundWrite(void *pNezPlay, Uint address, Uint value)
 			case 0x4001:	case 0x4005:
 				{
 					int ch = address >= 0x4004;
-					apu->square[ch].sw.shifter = (Uint8)(value & 7);
-					apu->square[ch].sw.direction = (Uint8)(value & 8);
-					apu->square[ch].sw.rate = (Uint8)((value >> 4) & 7);
-					apu->square[ch].sw.active = (Uint8)(value & 0x80);
+					apu->square[ch].sw.shifter = (uint8_t)(value & 7);
+					apu->square[ch].sw.direction = (uint8_t)(value & 8);
+					apu->square[ch].sw.rate = (uint8_t)((value >> 4) & 7);
+					apu->square[ch].sw.active = (uint8_t)(value & 0x80);
 					apu->square[ch].sw.timer = apu->square[ch].sw.rate;
 				}
 				break;
@@ -774,18 +775,18 @@ static void __fastcall APUSoundWrite(void *pNezPlay, Uint address, Uint value)
 				}
 				break;
 			case 0x4008:
-				apu->triangle.li.tocount = (Uint8)(value & 0x80);
-				apu->triangle.li.load = (Uint8)(value & 0x7f);
-				apu->triangle.lc.clock_disable = (Uint8)(value & 0x80);
+				apu->triangle.li.tocount = (uint8_t)(value & 0x80);
+				apu->triangle.li.load = (uint8_t)(value & 0x7f);
+				apu->triangle.lc.clock_disable = (uint8_t)(value & 0x80);
 				/*
 				if(apu->triangle.li.clock_disable){
 					apu->triangle.li.counter = apu->triangle.li.load;
-					apu->triangle.li.clock_disable = (Uint8)(value & 0x80);
+					apu->triangle.li.clock_disable = (uint8_t)(value & 0x80);
 				}*/
 				//if(apu->triangle.li.clock_disable)
 				//	apu->triangle.li.mode=1;
 
-				//apu->triangle.li.start = (Uint8)(value & 0x80);
+				//apu->triangle.li.start = (uint8_t)(value & 0x80);
 				break;
 			case 0x400a:
 				apu->triangle.wl &= 0x700;
@@ -816,14 +817,14 @@ static void __fastcall APUSoundWrite(void *pNezPlay, Uint address, Uint value)
 				break;
 			case 0x400c:
 				if (value & 0x10)
-					apu->noise.ed.volume = (Uint8)(value & 0x0f);
+					apu->noise.ed.volume = (uint8_t)(value & 0x0f);
 				else
 				{
-					apu->noise.ed.rate = (Uint8)(value & 0x0f);
+					apu->noise.ed.rate = (uint8_t)(value & 0x0f);
 				}
-				apu->noise.ed.disable = (Uint8)(value & 0x10);
-				apu->noise.lc.clock_disable = (Uint8)(value & 0x20);
-				apu->noise.ed.looping_enable = (Uint8)(value & 0x20);
+				apu->noise.ed.disable = (uint8_t)(value & 0x10);
+				apu->noise.lc.clock_disable = (uint8_t)(value & 0x20);
+				apu->noise.ed.looping_enable = (uint8_t)(value & 0x20);
 				break;
 			case 0x400e:
 				//初代2A03では、ノイズ15段階＆短周期無しなので、それをレジスタいじりで再現。
@@ -832,7 +833,7 @@ static void __fastcall APUSoundWrite(void *pNezPlay, Uint address, Uint value)
 					apu->noise.rngshort = 0;
 				}else{
 					apu->noise.wl = wavelength_converter_table[value & 0x0f];
-					apu->noise.rngshort = (Uint8)(value & 0x80);
+					apu->noise.rngshort = (uint8_t)(value & 0x80);
 				}
 				break;
 			case 0x400f:
@@ -844,8 +845,8 @@ static void __fastcall APUSoundWrite(void *pNezPlay, Uint address, Uint value)
 
 			case 0x4010:
 				apu->dpcm.wl = dpcm_freq_table[value & 0x0F];
-				apu->dpcm.loop_enable = (Uint8)(value & 0x40);
-				apu->dpcm.irq_enable = (Uint8)(value & 0x80);
+				apu->dpcm.loop_enable = (uint8_t)(value & 0x40);
+				apu->dpcm.irq_enable = (uint8_t)(value & 0x80);
 				if (!apu->dpcm.irq_enable) apu->dpcm.irq_report = 0;
 				break;
 			case 0x4011:
@@ -860,10 +861,10 @@ static void __fastcall APUSoundWrite(void *pNezPlay, Uint address, Uint value)
 				apu->dpcm.dacout0 = value & 1;
 				break;
 			case 0x4012:
-				apu->dpcm.start_adr = (Uint8)value;
+				apu->dpcm.start_adr = (uint8_t)value;
 				break;
 			case 0x4013:
-				apu->dpcm.start_length = (Uint8)value;
+				apu->dpcm.start_length = (uint8_t)value;
 				break;
 
 			case 0x4015:
@@ -947,7 +948,7 @@ static NES_WRITE_HANDLER s_apu_write_handler[] =
 	{ 0,      0,      0, NULL },
 };
 
-static Uint __fastcall APUSoundRead(void *pNezPlay, Uint address)
+static uint32_t APUSoundRead(void *pNezPlay, uint32_t address)
 {
 	APUSOUND *apu = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->apu;
 	if (0x4015 == address)
@@ -975,9 +976,9 @@ static NES_READ_HANDLER s_apu_read_handler[] =
 	{ 0,      0,      0, NULL },
 };
 
-static Uint32 DivFix(Uint32 p1, Uint32 p2, Uint32 fix)
+static uint32_t DivFix(uint32_t p1, uint32_t p2, uint32_t fix)
 {
-	Uint32 ret;
+	uint32_t ret;
 	ret = p1 / p2;
 	p1  = p1 % p2;/* p1 = p1 - p2 * ret; */
 	while (fix--)
@@ -993,9 +994,9 @@ static Uint32 DivFix(Uint32 p1, Uint32 p2, Uint32 fix)
 	return ret;
 }
 
-static Uint __fastcall GetNTSCPAL(void *pNezPlay)
+static uint32_t GetNTSCPAL(void *pNezPlay)
 {
-	Uint8 *nsfhead = NSFGetHeader((NEZ_PLAY*)pNezPlay);
+	uint8_t *nsfhead = NSFGetHeader((NEZ_PLAY*)pNezPlay);
 	if (nsfhead[0x7a] & 1){
 		return 13;
 	}
@@ -1039,10 +1040,10 @@ static void NESAPUSoundDpcmReset(void *pNezPlay, NESAPU_DPCM *ch)
 	ch->cps = DivFix(NES_BASECYCLES, 12 * NESAudioFrequencyGet(pNezPlay), CPS_BITS);
 }
 
-static void __fastcall APUSoundReset(void* pNezPlay)
+static void APUSoundReset(void* pNezPlay)
 {
 	APUSOUND *apu = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->apu;
-	Uint32 i;
+	uint32_t i;
 	NESAPUSoundSquareReset(pNezPlay, &apu->square[0]);
 	NESAPUSoundSquareReset(pNezPlay, &apu->square[1]);
 	NESAPUSoundTriangleReset(pNezPlay, &apu->triangle);
@@ -1076,11 +1077,11 @@ static void __fastcall APUSoundReset(void* pNezPlay)
 
 	for (i = 0; i < (1 << AMPTML_BITS); i++)
 	{
-//		apu->amptbl[i] = (Int32)(i * OUTPUT_VOL - (CV_MAX / (1.0 - j * 0.99 / CV_MAX) * OUTPUT_VOL));
-//		apu->amptbl[i] = (Int32)((sqrt(SQRT_MIN + i / ((1 << AMPTML_BITS) * 0.05)) - sqrt(SQRT_MIN)) * 0x8000);
-//		apu->amptbl[i] = (Int32)((200.0 / (100.0 / ((i+1.0) / (1 << AMPTML_BITS)) + 100)) / 2 * 0x20000);
-//		apu->amptbl[i] = (Int32)(i - (sqrt(0.25 + i / ((1 << AMPTML_BITS) * 0.3)) - 0.5) * 0x2);
-		apu->amptbl[i] = (Int32)((i - (MINUS_CALC(i) - MINUS_CALC(0)) ) * 8);
+//		apu->amptbl[i] = (int32_t)(i * OUTPUT_VOL - (CV_MAX / (1.0 - j * 0.99 / CV_MAX) * OUTPUT_VOL));
+//		apu->amptbl[i] = (int32_t)((sqrt(SQRT_MIN + i / ((1 << AMPTML_BITS) * 0.05)) - sqrt(SQRT_MIN)) * 0x8000);
+//		apu->amptbl[i] = (int32_t)((200.0 / (100.0 / ((i+1.0) / (1 << AMPTML_BITS)) + 100)) / 2 * 0x20000);
+//		apu->amptbl[i] = (int32_t)(i - (sqrt(0.25 + i / ((1 << AMPTML_BITS) * 0.3)) - 0.5) * 0x2);
+		apu->amptbl[i] = (int32_t)((i - (MINUS_CALC(i) - MINUS_CALC(0)) ) * 8);
 	}
 */
 
@@ -1101,7 +1102,7 @@ const static NES_RESET_HANDLER s_apu_reset_handler[] = {
 	{ 0,                   0, NULL }, 
 };
 
-static void __fastcall APUSoundTerm(void* pNezPlay)
+static void APUSoundTerm(void* pNezPlay)
 {
 	APUSOUND *apu = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->apu;
 	if (apu)
@@ -1114,9 +1115,9 @@ const static NES_TERMINATE_HANDLER s_apu_terminate_handler[] = {
 };
 
 //ここからレジスタビュアー設定
-Uint8 *regdata_2a03;
-Uint32 (*ioview_ioread_DEV_2A03)(Uint32 a);
-static Uint32 ioview_ioread_bf(Uint32 a){
+uint8_t *regdata_2a03;
+uint32_t (*ioview_ioread_DEV_2A03)(uint32_t a);
+static uint32_t ioview_ioread_bf(uint32_t a){
 	if(a<=0x17)return regdata_2a03[a];else return 0x100;
 }
 //ここまでレジスタビュアー設定

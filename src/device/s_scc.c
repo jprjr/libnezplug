@@ -10,37 +10,37 @@
 #define LOG_KEYOFF (31 << (LOG_BITS + 1))
 
 typedef struct {
-	Uint32 cycles;
-	Uint32 spd;
-	Uint32 tone[32];
-	Uint8 tonereg[32];
-	Uint32 volume;
-	Uint8 regs[3];
-	Uint8 adr;
-	Uint8 mute;
-	Uint8 key;
-	Uint8 pad4[2];
-	Uint8 count;
-	Uint32 output;
+	uint32_t cycles;
+	uint32_t spd;
+	uint32_t tone[32];
+	uint8_t tonereg[32];
+	uint32_t volume;
+	uint8_t regs[3];
+	uint8_t adr;
+	uint8_t mute;
+	uint8_t key;
+	uint8_t pad4[2];
+	uint8_t count;
+	uint32_t output;
 } SCC_CH;
 
 typedef struct {
 	KMIF_SOUND_DEVICE kmif;
 	KMIF_LOGTABLE *logtbl;
 	SCC_CH ch[5];
-	Uint32 majutushida;
+	uint32_t majutushida;
 	struct {
-		Uint32 cps;
-		Int32 mastervolume;
-		Uint8 mode;
-		Uint8 enable;
+		uint32_t cps;
+		int32_t mastervolume;
+		uint8_t mode;
+		uint8_t enable;
 	} common;
-	Uint8 regs[0x10];
+	uint8_t regs[0x10];
 } SCCSOUND;
 
-__inline static Int32 SCCSoundChSynth(SCCSOUND *sndp, SCC_CH *ch)
+__inline static int32_t SCCSoundChSynth(SCCSOUND *sndp, SCC_CH *ch)
 {
-	Int32 outputbuf=0,count=0;
+	int32_t outputbuf=0,count=0;
 	if (ch->spd <= (9 << CPS_SHIFT)) return 0;
 
 	ch->cycles += sndp->common.cps<<RENDERS;
@@ -65,20 +65,20 @@ __inline static Int32 SCCSoundChSynth(SCCSOUND *sndp, SCC_CH *ch)
 	return outputbuf / count;
 }
 
-__inline static void SCCSoundChReset(SCC_CH *ch, Uint32 clock, Uint32 freq)
+__inline static void SCCSoundChReset(SCC_CH *ch, uint32_t clock, uint32_t freq)
 {
     (void)clock;
     (void)freq;
 	XMEMSET(ch, 0, sizeof(SCC_CH));
 }
 
-static void sndsynth(void *ctx, Int32 *p)
+static void sndsynth(void *ctx, int32_t *p)
 {
 	SCCSOUND *sndp = ctx;
 	if (sndp->common.enable)
 	{
-		Uint32 ch;
-		Int32 accum = 0;
+		uint32_t ch;
+		int32_t accum = 0;
 		for (ch = 0; ch < 5; ch++) accum += SCCSoundChSynth(sndp, &sndp->ch[ch]) * chmask[DEV_SCC_CH1 + ch];
 		accum += LogToLin(sndp->logtbl, sndp->common.mastervolume + sndp->majutushida, LOG_LIN_BITS - LIN_BITS - 14);
 		p[0] += accum;
@@ -87,21 +87,21 @@ static void sndsynth(void *ctx, Int32 *p)
 	}
 }
 
-static void sndvolume(void *ctx, Int32 volume)
+static void sndvolume(void *ctx, int32_t volume)
 {
 	SCCSOUND *sndp = ctx;
 	volume = (volume << (LOG_BITS - 8)) << 1;
 	sndp->common.mastervolume = volume;
 }
 
-static Uint32 sndread(void *ctx, Uint32 a)
+static uint32_t sndread(void *ctx, uint32_t a)
 {
     (void)ctx;
     (void)a;
 	return 0;
 }
 
-static void sndwrite(void *ctx, Uint32 a, Uint32 v)
+static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 {
 	SCCSOUND *sndp = ctx;
 	if (a == 0xbffe || a == 0xbfff)
@@ -110,19 +110,19 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 	}
 	else if ((0x9800 <= a && a <= 0x985F) || (0xB800 <= a && a <= 0xB89F))
 	{
-		Uint32 tone = LinToLog(sndp->logtbl, ((Int32)(v ^ 0x80)) - 0x80);
+		uint32_t tone = LinToLog(sndp->logtbl, ((int32_t)(v ^ 0x80)) - 0x80);
 		sndp->ch[(a & 0xE0) >> 5].tone[a & 0x1F] = tone;
 		sndp->ch[(a & 0xE0) >> 5].tonereg[a & 0x1F] = v;
 	}
 	else if (0x9860 <= a && a <= 0x987F)
 	{
-		Uint32 tone = LinToLog(sndp->logtbl, ((Int32)(v ^ 0x80)) - 0x80);
+		uint32_t tone = LinToLog(sndp->logtbl, ((int32_t)(v ^ 0x80)) - 0x80);
 		sndp->ch[3].tone[a & 0x1F] = sndp->ch[4].tone[a & 0x1F] = tone;
 		sndp->ch[3].tonereg[a & 0x1F] = sndp->ch[4].tonereg[a & 0x1F] = v;
 	}
 	else if ((0x9880 <= a && a <= 0x988F) || (0xB8A0 <= a && a <= 0xB8AF))
 	{
-		Uint32 port = a & 0x0F;
+		uint32_t port = a & 0x0F;
 		sndp->regs[port]=v;
 		if (0x0 <= port && port <= 0x9)
 		{
@@ -138,7 +138,7 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 		}
 		else
 		{
-			Uint32 i;
+			uint32_t i;
 			if (v & 0x1f) sndp->common.enable = 1;
 			for (i = 0; i < 5; i++) sndp->ch[i].key = (v & (1 << i));
 		}
@@ -146,14 +146,14 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 	else if (0x5000 <= a && a <= 0x5FFF)
 	{
 		sndp->common.enable = 1;
-		sndp->majutushida = LinToLog(sndp->logtbl, ((Int32)(v ^ 0x00)) - 0x80);
+		sndp->majutushida = LinToLog(sndp->logtbl, ((int32_t)(v ^ 0x00)) - 0x80);
 	}
 }
 
-static void sndreset(void *ctx, Uint32 clock, Uint32 freq)
+static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
 {
 	SCCSOUND *sndp = ctx;
-	Uint32 ch;
+	uint32_t ch;
 	XMEMSET(&sndp->common,  0, sizeof(sndp->common));
 	sndp->common.cps = DivFix(clock, freq, CPS_SHIFT);
 	for (ch = 0; ch < 5; ch++) SCCSoundChReset(&sndp->ch[ch], clock, freq);
@@ -170,7 +170,7 @@ static void sndrelease(void *ctx)
 	}
 }
 
-static void setinst(void *ctx, Uint32 n, void *p, Uint32 l)
+static void setinst(void *ctx, uint32_t n, void *p, uint32_t l)
 {
     (void)ctx;
     (void)n;
@@ -180,8 +180,8 @@ static void setinst(void *ctx, Uint32 n, void *p, Uint32 l)
 
 //ここからレジスタビュアー設定
 static SCCSOUND *sndpr;
-Uint32 (*ioview_ioread_DEV_SCC)(Uint32 a);
-static Uint32 ioview_ioread_bf(Uint32 a){
+uint32_t (*ioview_ioread_DEV_SCC)(uint32_t a);
+static uint32_t ioview_ioread_bf(uint32_t a){
 	if(a<=0x9f)
 		return sndpr->ch[(a&0xe0)>>5].tonereg[a&0x1f];
 	if(a>=0xb0&&a<=0xbf)

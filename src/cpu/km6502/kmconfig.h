@@ -28,9 +28,11 @@
 #define BUILD_FOR_SPEED	0
 #endif
 
+#include "../../normalize.h"
+
 #if defined(_MSC_VER)
-typedef unsigned int Uword;				/* (0-0xFFFF) */
-typedef unsigned char Ubyte;			/* unsigned 8bit integer for table */
+typedef uint32_t Uword;				/* (0-0xFFFF) */
+typedef uint8_t Ubyte;			/* unsigned 8bit integer for table */
 #ifndef Inline
 #define Inline __inline
 #endif
@@ -39,8 +41,8 @@ typedef unsigned char Ubyte;			/* unsigned 8bit integer for table */
 #define RTO16(w) ((Uword)((w) & 0xFFFF))	/* Round to 16bit integer */
 #define RTO8(w) ((Uword)((w) & 0xFF))		/* Round to  8bit integer */
 #elif defined(__BORLANDC__)
-typedef unsigned int Uword;				/* (0-0xFFFF) */
-typedef unsigned char Ubyte;			/* unsigned 8bit integer for table */
+typedef uint32_t Uword;				/* (0-0xFFFF) */
+typedef uint8_t Ubyte;			/* unsigned 8bit integer for table */
 #ifndef Inline
 #define Inline __inline
 #endif
@@ -49,8 +51,8 @@ typedef unsigned char Ubyte;			/* unsigned 8bit integer for table */
 #define RTO16(w) ((Uword)((w) & 0xFFFF))	/* Round to 16bit integer */
 #define RTO8(w) ((Uword)((w) & 0xFF))		/* Round to  8bit integer */
 #elif defined(__GNUC__)
-typedef unsigned int Uword;				/* (0-0xFFFF) */
-typedef unsigned char Ubyte;			/* unsigned 8bit integer for table */
+typedef uint32_t Uword;				/* (0-0xFFFF) */
+typedef uint8_t Ubyte;			/* unsigned 8bit integer for table */
 #ifndef Inline
 #define Inline __inline__
 #endif
@@ -59,8 +61,8 @@ typedef unsigned char Ubyte;			/* unsigned 8bit integer for table */
 #define RTO16(w) ((Uword)((w) & 0xFFFF))	/* Round to 16bit integer */
 #define RTO8(w) ((Uword)((w) & 0xFF))		/* Round to  8bit integer */
 #else
-typedef unsigned int Uword;				/* (0-0xFFFF) */
-typedef unsigned char Ubyte;			/* unsigned 8bit integer for table */
+typedef uint32_t Uword;				/* (0-0xFFFF) */
+typedef uint8_t Ubyte;			/* unsigned 8bit integer for table */
 #ifndef Inline
 #define Inline
 #endif

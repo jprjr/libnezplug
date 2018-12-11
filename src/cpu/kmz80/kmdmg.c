@@ -301,14 +301,14 @@ const static OPT_ITEM kmdmg_ot_xx[0x100] = {
 	OPTABLE(0,		0,		0,		OP_RST),
 };
 
-const static Uint8 kmdmg_ot_cbxx[0x20] = {
+const static uint8_t kmdmg_ot_cbxx[0x20] = {
 	OP_RLC, OP_RRC, OP_RL,  OP_RR,  OP_SLA, OP_SRA, OP_SWAP, OP_SRL,
 	OP_BIT, OP_BIT, OP_BIT, OP_BIT, OP_BIT, OP_BIT, OP_BIT, OP_BIT,
 	OP_RES, OP_RES, OP_RES, OP_RES, OP_RES, OP_RES, OP_RES, OP_RES,
 	OP_SET, OP_SET, OP_SET, OP_SET, OP_SET, OP_SET, OP_SET, OP_SET,
 };
 
-const static Uint8 kmdmg_ct[0x510] = {
+const static uint8_t kmdmg_ct[0x510] = {
 /* DMG 追加クロック */
 /* XX		0 1 2 3 4 5 6 7  8 9 A B C D E F */
 /* 0 */		0,0,0,4,0,0,0,0, 0,4,0,4,0,0,0,0,
@@ -418,13 +418,13 @@ const static Uint8 kmdmg_ct[0x510] = {
 	0,	/* 0x50F  不成立 */
 };
 
-static Uint32 kmdmg_memread(KMZ80_CONTEXT *context, Uint32 a)
+static uint32_t kmdmg_memread(KMZ80_CONTEXT *context, uint32_t a)
 {
 	CYCLEMEM;
 	return context->memread(context->user, a);
 }
 
-static void kmdmg_memwrite(KMZ80_CONTEXT *context, Uint32 a, Uint32 d)
+static void kmdmg_memwrite(KMZ80_CONTEXT *context, uint32_t a, uint32_t d)
 {
 	CYCLEMEM;
 	context->memwrite(context->user, a, d);
@@ -434,10 +434,10 @@ static void kmdmg_memwrite(KMZ80_CONTEXT *context, Uint32 a, Uint32 d)
 extern void kmz80_reset_common(KMZ80_CONTEXT *context);
 
 //ここからメモリービュアー設定
-Uint32 (*memview_memread)(Uint32 a);
+uint32_t (*memview_memread)(uint32_t a);
 KMZ80_CONTEXT* memview_context;
 int MEM_MAX,MEM_IO,MEM_RAM,MEM_ROM;
-Uint32 memview_memread_(Uint32 a){
+uint32_t memview_memread_(uint32_t a){
 //	マルチコアCPUだと、メモリビュアーリロードで止まることがあったので修正
 //	return kmdmg_memread(memview_context,a);
 	
@@ -454,9 +454,9 @@ void kmdmg_reset(KMZ80_CONTEXT *context) {
 	MEMCYCLE = 4;
 	IOCYCLE = 4;
 	context->opt = (OPT_ITEM *)kmdmg_ot_xx;
-	context->optcb = (Uint8 *)kmdmg_ot_cbxx;
+	context->optcb = (uint8_t *)kmdmg_ot_cbxx;
     context->opted = (OPT_ITEM *)0;
-    context->cyt = (Uint8 *)kmdmg_ct;
+    context->cyt = (uint8_t *)kmdmg_ct;
 	SYSMEMREAD = kmdmg_memread;
 	SYSMEMWRITE = kmdmg_memwrite;
 

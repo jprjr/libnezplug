@@ -226,10 +226,10 @@ enum {
 } KMZ80_OP_ADR;
 
 typedef struct {
-	Uint8 post;
-	Uint8 pre;
-	Uint8 adr;
-	Uint8 op;
+	uint8_t post;
+	uint8_t pre;
+	uint8_t adr;
+	uint8_t op;
 } OPT_ITEM;
 #define OPTABLE(post,pre,adr,op) {post,pre,adr,op}
 #define OPTABLENOP OPTABLE(STO_NONE,LDO_NONE,ADR_NONE,OP_NOP)
@@ -289,9 +289,9 @@ typedef struct {
 #define TAD (context->t_ad)
 #define CYCLE (context->cycle)
 #define OPT ((const OPT_ITEM *)context->opt)
-#define OPTCB ((const Uint8 *)context->optcb)
+#define OPTCB ((const uint8_t *)context->optcb)
 #define OPTED ((const OPT_ITEM *)context->opted)
-#define CYT ((const Uint8 *)context->cyt)
+#define CYT ((const uint8_t *)context->cyt)
 #define MEMPAGE (context->mempage)
 #define VECTOR (context->vector)
 #define RSTBASE (context->rstbase)

@@ -92,16 +92,16 @@ void kmevent_free(KMEVENT *kme, KMEVENT_ITEM_ID curid)
 	kme->item[curid].sysflag = 0;
 }
 
-void kmevent_settimer(KMEVENT *kme, KMEVENT_ITEM_ID curid, Uint32 time)
+void kmevent_settimer(KMEVENT *kme, KMEVENT_ITEM_ID curid, uint32_t time)
 {
 	kmevent_itemunlist(kme, curid);	/* 取り外し */
 	kme->item[curid].count = time ? kme->item[0].count + time : 0;
 	if (kme->item[curid].count) kmevent_iteminsert(kme, curid);	/* ソート */
 }
 
-Uint32 kmevent_gettimer(KMEVENT *kme, KMEVENT_ITEM_ID curid, Uint32 *time)
+uint32_t kmevent_gettimer(KMEVENT *kme, KMEVENT_ITEM_ID curid, uint32_t *time)
 {
-	Uint32 nextcount;
+	uint32_t nextcount;
 	nextcount = kme->item[curid ? curid : kme->item[0].next].count;
 	if (!nextcount) return 0;
 	nextcount -= kme->item[0].count;
@@ -111,15 +111,15 @@ Uint32 kmevent_gettimer(KMEVENT *kme, KMEVENT_ITEM_ID curid, Uint32 *time)
 
 void kmevent_setevent(KMEVENT *kme, KMEVENT_ITEM_ID curid, void (*proc)(), void *user)
 {
-	kme->item[curid].proc = (void (*)(KMEVENT *,Uint32 ,void *))proc;
+	kme->item[curid].proc = (void (*)(KMEVENT *,uint32_t ,void *))proc;
 	kme->item[curid].user = user;
 }
 
 /* 指定サイクル分実行 */
-void kmevent_process(KMEVENT *kme, Uint32 cycles)
+void kmevent_process(KMEVENT *kme, uint32_t cycles)
 {
 	KMEVENT_ITEM_ID id;
-	Uint32 nextcount;
+	uint32_t nextcount;
 	kme->item[0].count += cycles;
 	if (kme->item[0].next == 0)
 	{

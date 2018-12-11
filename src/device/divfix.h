@@ -1,7 +1,7 @@
 
-static Uint32 DivFix(Uint32 p1, Uint32 p2, Uint32 fix)
+static uint32_t DivFix(uint32_t p1, uint32_t p2, uint32_t fix)
 {
-	Uint32 ret;
+	uint32_t ret;
 	ret = p1 / p2;
 	p1  = p1 % p2;/* p1 = p1 - p2 * ret; */
 	while (fix--)

@@ -13,21 +13,21 @@ typedef struct
 {
 	void *ctx;
 	void (*release)(void *ctx);
-	Uint32 lineartbl[(1 << LIN_BITS) + 1];
-	Uint32 logtbl[1 << LOG_BITS];
+	uint32_t lineartbl[(1 << LIN_BITS) + 1];
+	uint32_t logtbl[1 << LOG_BITS];
 } KMIF_LOGTABLE;
 
 KMIF_LOGTABLE *LogTableAddRef(void);
 
-__inline static Uint32 LinToLog(KMIF_LOGTABLE *kmif_lt, Int32 l)
+__inline static uint32_t LinToLog(KMIF_LOGTABLE *kmif_lt, int32_t l)
 {
 	return (l < 0) ? (kmif_lt->lineartbl[-l] + 1) : kmif_lt->lineartbl[l];
 }
 
-__inline static Int32 LogToLin(KMIF_LOGTABLE *kmif_lt, Int32 l, Uint32 sft)
+__inline static int32_t LogToLin(KMIF_LOGTABLE *kmif_lt, int32_t l, uint32_t sft)
 {
-	Int32 ret;
-	Uint32 ofs;
+	int32_t ret;
+	uint32_t ofs;
 	ofs = l + (sft << (LOG_BITS + 1));
 	sft = ofs >> (LOG_BITS + 1);
 	if (sft >= LOG_LIN_BITS) return 0;

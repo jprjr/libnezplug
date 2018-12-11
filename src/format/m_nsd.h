@@ -1,13 +1,13 @@
 #ifndef M_NSD_H__
 #define M_NSD_H__
 
-#include "../nestypes.h"
+#include "../normalize.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-Uint NSDLoad(NEZ_PLAY*, Uint8 *pData, Uint uSize);
+uint32_t NSDLoad(NEZ_PLAY*, uint8_t *pData, uint32_t uSize);
 
 #ifdef __cplusplus
 }

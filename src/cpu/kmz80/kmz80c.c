@@ -50,7 +50,7 @@ void dox(int pc, int i, int af, int bc, int de, int hl ,int sp)
 #define DEBUG_OUTPUT(i) {}
 #endif
 
-Uint8 flagtable[0x200] = {
+uint8_t flagtable[0x200] = {
 /*
   0 <= i <= 0x1ff
   CF(bit0) (i > 0xff)
@@ -133,7 +133,7 @@ Uint8 flagtable[0x200] = {
 #else
 #define FLAGTBL(x) flag(x)
 
-static Uint8 flag(int i){\
+static uint8_t flag(int i){\
 	int f = 0;\
 	if (i > 255) f += CF;\
 	f += NF;\
@@ -148,33 +148,33 @@ static Uint8 flag(int i){\
 
 #endif
 
-static Uint32 CheckNZ(KMZ80_CONTEXT *context) { return !(F & ZF); }
-static Uint32 CheckZ(KMZ80_CONTEXT *context) { return (F & ZF); }
-static Uint32 CheckNC(KMZ80_CONTEXT *context) { return !(F & CF); }
-static Uint32 CheckC(KMZ80_CONTEXT *context) { return (F & CF); }
-static Uint32 (*CCTABLE[4])(KMZ80_CONTEXT *context) = {
+static uint32_t CheckNZ(KMZ80_CONTEXT *context) { return !(F & ZF); }
+static uint32_t CheckZ(KMZ80_CONTEXT *context) { return (F & ZF); }
+static uint32_t CheckNC(KMZ80_CONTEXT *context) { return !(F & CF); }
+static uint32_t CheckC(KMZ80_CONTEXT *context) { return (F & CF); }
+static uint32_t (*CCTABLE[4])(KMZ80_CONTEXT *context) = {
 	CheckNZ,	CheckZ,	CheckNC,	CheckC,
 };
 #define CHECKCC(cc) CCTABLE[cc](context)
-static Uint32 CheckPO(KMZ80_CONTEXT *context) { return !(F & PF); }
-static Uint32 CheckPE(KMZ80_CONTEXT *context) { return (F & PF); }
-static Uint32 CheckP(KMZ80_CONTEXT *context) { return !(F & SF); }
-static Uint32 CheckM(KMZ80_CONTEXT *context) { return (F & SF); }
-static Uint32 (*CXTABLE[4])(KMZ80_CONTEXT *context) = {
+static uint32_t CheckPO(KMZ80_CONTEXT *context) { return !(F & PF); }
+static uint32_t CheckPE(KMZ80_CONTEXT *context) { return (F & PF); }
+static uint32_t CheckP(KMZ80_CONTEXT *context) { return !(F & SF); }
+static uint32_t CheckM(KMZ80_CONTEXT *context) { return (F & SF); }
+static uint32_t (*CXTABLE[4])(KMZ80_CONTEXT *context) = {
 	CheckPO,	CheckPE,	CheckP,	CheckM,
 };
 #define CHECKCX(cx) CXTABLE[cx](context)
 #define FETCH(v) { v = SYSMEMFETCH(context); }
 
-static Uint32 kmz80_fetch_normal(KMZ80_CONTEXT *context) {
-	Uint32 op;
+static uint32_t kmz80_fetch_normal(KMZ80_CONTEXT *context) {
+	uint32_t op;
 	op = MEMREAD(TPC);
 	TPC = RTO16(TPC + 1);
 	return op;
 }
 
-static Uint32 kmz80_fetch_im0(KMZ80_CONTEXT *context) {
-	Uint32 op;
+static uint32_t kmz80_fetch_im0(KMZ80_CONTEXT *context) {
+	uint32_t op;
 	CYCLEIO;	/* ??? */
 	op = BUSREAD(0);
 	if (op & 0x100) SYSMEMFETCH = kmz80_fetch_normal;
@@ -203,7 +203,7 @@ void kmz80_reset_common(KMZ80_CONTEXT *context) {
 
 #define M_ADC_(a, fs) \
 { \
-	Uint32 tmp; \
+	uint32_t tmp; \
 	tmp = TOP ^ a; \
 	TOP = TOP + a + (TFL & CF); \
 	TFL = (tmp ^ TOP) & HF; \
@@ -213,13 +213,13 @@ void kmz80_reset_common(KMZ80_CONTEXT *context) {
 #if 0	/* マクロ */
 #define M_ADC(a, fs) M_ADC_(a, fs)
 #else	/* 関数 */
-static void M_ADC_FUNC(KMZ80_CONTEXT *context, Uint32 a, Uint32 fs) M_ADC_(a,fs)
+static void M_ADC_FUNC(KMZ80_CONTEXT *context, uint32_t a, uint32_t fs) M_ADC_(a,fs)
 #define M_ADC(a, fs) M_ADC_FUNC(context, a, fs)
 #endif
 
 #define M_ADC16_(fs) \
 { \
-	Uint32 tmp; \
+	uint32_t tmp; \
 	TDX = TAD; \
 	tmp = TOP ^ TAD; \
 	TOP = TOP + TAD + (TFL & CF); \
@@ -229,7 +229,7 @@ static void M_ADC_FUNC(KMZ80_CONTEXT *context, Uint32 a, Uint32 fs) M_ADC_(a,fs)
 }
 #define M_LDX_(dir) \
 { \
-	Uint32 tmp; \
+	uint32_t tmp; \
 	TFL = F & (SF | ZF | CF); \
 	TOP = MEMREAD(HL); \
 	MEMWRITE(DE, TOP); \
@@ -241,7 +241,7 @@ static void M_ADC_FUNC(KMZ80_CONTEXT *context, Uint32 a, Uint32 fs) M_ADC_(a,fs)
 }
 #define M_CPX_(dir) \
 { \
-	Uint32 tmp; \
+	uint32_t tmp; \
 	TFL = CF; \
 	TOP = MEMREAD(HL) ^ 0xff; \
 	M_ADC(A, SF | ZF | NF); \
@@ -264,7 +264,7 @@ static void M_ADC_FUNC(KMZ80_CONTEXT *context, Uint32 a, Uint32 fs) M_ADC_(a,fs)
 }
 #define M_POSTIOX_(dir) \
 { \
-	Uint32 tmp; \
+	uint32_t tmp; \
 	tmp = HL + dir; L = RTO8(tmp); H = RTO8(tmp >> 8); \
 	B = RTO8(B - 1); \
 	TFL = ((RTO8(C + dir) + TOP) >> 8) & CF; \
@@ -288,7 +288,7 @@ static void M_ADC_FUNC(KMZ80_CONTEXT *context, Uint32 a, Uint32 fs) M_ADC_(a,fs)
 }
 #define M_POSTOTXM_(dir) \
 { \
-	Uint32 tmp; \
+	uint32_t tmp; \
 	TFL = F & (SF | ZF | CF); \
 	tmp = HL + dir; L = RTO8(tmp); H = RTO8(tmp >> 8); \
 	C = RTO8(C + 1); \
@@ -308,7 +308,7 @@ static void M_ADC_FUNC(KMZ80_CONTEXT *context, Uint32 a, Uint32 fs) M_ADC_(a,fs)
 #define M_OTXM(d) M_OTXM_(d)
 #define M_POSTOTXM(dir) M_POSTOTXM_(dir)
 #else	/* 関数 */
-static void M_ADC16_FUNC(KMZ80_CONTEXT *context, Uint32 fs) M_ADC16_(fs)
+static void M_ADC16_FUNC(KMZ80_CONTEXT *context, uint32_t fs) M_ADC16_(fs)
 static void M_LDX_FUNC(KMZ80_CONTEXT *context, int dir) M_LDX_(dir)
 static void M_CPX_FUNC(KMZ80_CONTEXT *context, int dir) M_CPX_(dir)
 static void M_INX_FUNC(KMZ80_CONTEXT *context) M_INX_(d)
@@ -334,11 +334,11 @@ static void M_POSTOTXM_FUNC(KMZ80_CONTEXT *context, int dir) M_POSTOTXM_(dir)
 	opp = opt + op0; \
 }
 
-Uint32 kmz80_exec(KMZ80_CONTEXT *context, Uint32 cycles)
+uint32_t kmz80_exec(KMZ80_CONTEXT *context, uint32_t cycles)
 {
 	const OPT_ITEM *opp;
 	OPT_ITEM opcb;
-	Uint32 op0, kmecycle;
+	uint32_t op0, kmecycle;
 
 	kmecycle = CYCLE = 0;
 	while (CYCLE < cycles)
@@ -359,7 +359,7 @@ Uint32 kmz80_exec(KMZ80_CONTEXT *context, Uint32 cycles)
 					break;
 				case ADR_NN:
 					{
-						Uint32 tmp;
+						uint32_t tmp;
 						FETCH(TAD);
 						FETCH(tmp);
 						TAD += (tmp << 8);
@@ -380,13 +380,13 @@ Uint32 kmz80_exec(KMZ80_CONTEXT *context, Uint32 cycles)
 				case ADR_ID:
 					if (STATE & ST_DD)
 					{
-						Uint32 tmp;
+						uint32_t tmp;
 						FETCH(tmp);
 						TAD = TDX = RTO16(IX + (tmp ^ 0x80) - 0x80);
 					}
 					else if (STATE & ST_FD)
 					{
-						Uint32 tmp;
+						uint32_t tmp;
 						FETCH(tmp);
 						TAD = TDX = RTO16(IY + (tmp ^ 0x80) - 0x80);
 					}
@@ -444,7 +444,7 @@ Uint32 kmz80_exec(KMZ80_CONTEXT *context, Uint32 cycles)
 					break;
 				case LDO_NN:
 					{
-						Uint32 tmp;
+						uint32_t tmp;
 						FETCH(TOP);
 						FETCH(tmp);
 						TOP += tmp << 8;
@@ -491,13 +491,13 @@ Uint32 kmz80_exec(KMZ80_CONTEXT *context, Uint32 cycles)
 				/* 交換命令 */
 				case OP_EX_AF_AF:
 					{
-						Uint32 tmp;
+						uint32_t tmp;
 						tmp = TOP; TOP = SAF; SAF = tmp;
 					}
 					break;
 				case OP_EXX:
 					{
-						Uint32 tmp;
+						uint32_t tmp;
 						tmp = BC; C = RTO8(SBC); B = RTO8(SBC >> 8); SBC = tmp;
 						tmp = DE; E = RTO8(SDE); D = RTO8(SDE >> 8); SDE = tmp;
 						tmp = HL; L = RTO8(SHL); H = RTO8(SHL >> 8); SHL = tmp;
@@ -511,7 +511,7 @@ Uint32 kmz80_exec(KMZ80_CONTEXT *context, Uint32 cycles)
 					break;
 				case OP_EX_MSP16_HL_:
 					{
-						Uint32 tmp;
+						uint32_t tmp;
 						tmp = MEMREAD(SP);
 						tmp += MEMREAD(RTO16(SP + 1)) << 8;
 						MEMWRITE(SP, RTO8(TOP));
@@ -573,7 +573,7 @@ Uint32 kmz80_exec(KMZ80_CONTEXT *context, Uint32 cycles)
 					break;
 				case OP_DEC:
 					{
-						Uint32 decsrc;
+						uint32_t decsrc;
 						TFL = CF;
 						decsrc = TOP;
 						TOP = 1 ^ 0xff;
@@ -587,7 +587,7 @@ Uint32 kmz80_exec(KMZ80_CONTEXT *context, Uint32 cycles)
 					if (!ICEXIST) TFL = F;
 					if (F & NF)
 					{
-						Uint32 ic;
+						uint32_t ic;
 						ic = TFL & CF;	/* 暗黙のキャリーフラグ */
 						TFL = NF;
 						if ((F & HF) || ((TOP & 0x0f) > 0x09))
@@ -603,7 +603,7 @@ Uint32 kmz80_exec(KMZ80_CONTEXT *context, Uint32 cycles)
 					}
 					else
 					{
-						Uint32 ic;
+						uint32_t ic;
 						ic = TFL & CF;	/* 暗黙のキャリーフラグ */
 						TFL = 0;
 						if ((F & HF) || ((TOP & 0x0f) > 0x09))
@@ -833,7 +833,7 @@ Uint32 kmz80_exec(KMZ80_CONTEXT *context, Uint32 cycles)
 				/* ビット操作命令*/
 				case OP_BIT:
 					{
-						Uint32 tmp;
+						uint32_t tmp;
 						tmp = TOP & (1 << ((op0 >> 3) & 7));
 						TFL = (F & CF) + (tmp ? 0 : (ZF | PF));
 						if (opp->pre == LDO_M)
@@ -921,7 +921,7 @@ Uint32 kmz80_exec(KMZ80_CONTEXT *context, Uint32 cycles)
 				case OP_PREFIX_CB:
 					if (STATE & ST_DD)
 					{
-						Uint32 tmp;
+						uint32_t tmp;
 						FETCH(tmp);
 						TAD = TDX = RTO16(IX + (tmp ^ 0x80) - 0x80);
 						FETCH(op0);
@@ -935,7 +935,7 @@ Uint32 kmz80_exec(KMZ80_CONTEXT *context, Uint32 cycles)
 					}
 					else if (STATE & ST_FD)
 					{
-						Uint32 tmp;
+						uint32_t tmp;
 						FETCH(tmp);
 						TAD = TDX = RTO16(IY + (tmp ^ 0x80) - 0x80);
 						FETCH(op0);
@@ -1156,7 +1156,7 @@ Uint32 kmz80_exec(KMZ80_CONTEXT *context, Uint32 cycles)
 			/* HALT時は次のイベントまで一気に進める */
 			if (HALTED && !NMIREQ && !INTREQ)
 			{
-				Uint32 nextcount;
+				uint32_t nextcount;
 				if (kmevent_gettimer(context->kmevent, 0, &nextcount))
 				{
 					/* イベント有り */
@@ -1236,7 +1236,7 @@ Uint32 kmz80_exec(KMZ80_CONTEXT *context, Uint32 cycles)
 				case 3:	/* DMG */
 					IFF2 = IFF1 = 0;
 					{
-						Uint32 i;
+						uint32_t i;
 						for (i = 0; i < 5; i++)
 						{
 							if (INTREQ & INTMASK & (1 << i))
@@ -1296,7 +1296,7 @@ Uint32 kmz80_exec(KMZ80_CONTEXT *context, Uint32 cycles)
 					}
 				case 6:	/* VECTOR JP for special */
 					{
-						Uint32 i;
+						uint32_t i;
 						for (i = 0; i < 5; i++)
 						{
 							if (INTREQ & INTMASK & (1 << i))

@@ -1,11 +1,11 @@
-#include "../../nestypes.h"
+#include "../../normalize.h"
 #include "../s_logtbl.h"
 #include "s_opltbl.h"
 
 // https://docs.google.com/Doc?docid=0Aeywjj51RsmGZGQ4a3FuOWZfMTNjcWprZjRncA&hl=en&pli=1 から取ってきた。
 // よくこんなことできるなぁ・・・
 
-Uint32 sintable_base[] = {
+uint32_t sintable_base[] = {
 	2137,
 	1731,
 	1543,
@@ -264,7 +264,7 @@ Uint32 sintable_base[] = {
 	0
 };
 
-Uint32 exptable_base[] = {
+uint32_t exptable_base[] = {
 	0,
 	3,
 	6,
@@ -559,20 +559,20 @@ KMIF_OPLTABLE *OplTableAddRef(void)
 #define LOG_KEYOFF (15 << (LOG_BITS + 1))
 #define TLL_POW 1.7
 
-#define DB0375_TO_LOG(x) ((Uint32)(0.375 * (1 << (LOG_BITS + x)) / 10))
+#define DB0375_TO_LOG(x) ((uint32_t)(0.375 * (1 << (LOG_BITS + x)) / 10))
 
 #define AR_OFF (128 << ARTBL_SHIFT)
 #define AR_MAX (127 << ARTBL_SHIFT)
 
 
-static volatile Uint32 opl_tables_mutex = 0;
-static Uint32 opl_tables_refcount = 0;
+static volatile uint32_t opl_tables_mutex = 0;
+static uint32_t opl_tables_refcount = 0;
 static KMIF_OPLTABLE *opl_tables = 0;
 
 #define DEBUGX2 0
 #if DEBUGX2
 #include <stdio.h>
-void dox(Uint32 *sint)
+void dox(uint32_t *sint)
 {
 	static int i = 0;
 	static FILE *fp = NULL;
@@ -610,28 +610,28 @@ static void OplTableRelease(void *ctx)
 
 static void OplTableCalc(KMIF_OPLTABLE *tbl)
 {
-	Uint32 u, u2, i;
+	uint32_t u, u2, i;
 
 	for (i = 0 ;i < (1 << (SINTBL_BITS - 2)); i++)
 	{
-		Uint32 d;
+		uint32_t d;
 		d = sintable_base[i]<<4;
 		if (d > (LOG_KEYOFF >> 1)) d = (LOG_KEYOFF >> 1);
 		tbl->sin_table[0][i] = d << 1;
 		tbl->sin_table[0][(1 <<(SINTBL_BITS - 1)) -i -1] = d << 1;
-		tbl->sin_table[0][(i + (1 << (SINTBL_BITS - 1)))] = (((Uint32)d) << 1) + 1;
-		tbl->sin_table[0][(1 << (SINTBL_BITS)) -i -1] = (((Uint32)d) << 1) + 1;
+		tbl->sin_table[0][(i + (1 << (SINTBL_BITS - 1)))] = (((uint32_t)d) << 1) + 1;
+		tbl->sin_table[0][(1 << (SINTBL_BITS)) -i -1] = (((uint32_t)d) << 1) + 1;
 	}
 	tbl->sin_table[0][0] = tbl->sin_table[0][1 << (SINTBL_BITS - 1)] = LOG_KEYOFF;
 /*
 	for (i = 1 ;i < (1 << (SINTBL_BITS - 1)); i++)
 	{
-		Uint32 d;
-		d = (Uint32)((1 << LOG_BITS) * -(log(sin(2.0 * M_PI * ((double)i) / (1 << SINTBL_BITS))) / log(2)));
+		uint32_t d;
+		d = (uint32_t)((1 << LOG_BITS) * -(log(sin(2.0 * M_PI * ((double)i) / (1 << SINTBL_BITS))) / log(2)));
 		//d = (d / 256) * 256;
 		if (d > (LOG_KEYOFF >> 1)) d = (LOG_KEYOFF >> 1);
-		tbl->sin_table[0][i] = ((Uint32)d) << 1;
-		tbl->sin_table[0][(i + (1 << (SINTBL_BITS - 1)))] = (((Uint32)d) << 1) + 1;
+		tbl->sin_table[0][i] = ((uint32_t)d) << 1;
+		tbl->sin_table[0][(i + (1 << (SINTBL_BITS - 1)))] = (((uint32_t)d) << 1) + 1;
 	}
 */
 	//dox(tbl->sin_table[0]);
@@ -643,34 +643,34 @@ static void OplTableCalc(KMIF_OPLTABLE *tbl)
 	}
 	for (i = 0; i < (1 << TLLTBL_BITS); i++)//i / 0.63 - log((1 << TLLTBL_BITS) - i)*4.5
 	{
-//		tbl->tll2log_table[i] = ((Uint32)(i * 0.375 * DB0375_TO_LOG(0) / (10-(i/((1 << TLLTBL_BITS)/3.0))))) << 1;
-//		tbl->tll2log_table[i] = ((Uint32)((pow(i,TLL_POW)* 0.375 - log(pow(i,TLL_POW))) * DB0375_TO_LOG(0) 
+//		tbl->tll2log_table[i] = ((uint32_t)(i * 0.375 * DB0375_TO_LOG(0) / (10-(i/((1 << TLLTBL_BITS)/3.0))))) << 1;
+//		tbl->tll2log_table[i] = ((uint32_t)((pow(i,TLL_POW)* 0.375 - log(pow(i,TLL_POW))) * DB0375_TO_LOG(0) 
 //			/ pow(TLL_POW*10.875,TLL_POW))) << 1;
-//		tbl->tll2log_table[i] = ((Uint32)((sin(M_PI/4*((double)i/(1 << TLLTBL_BITS)))*128 *0.375 - log(pow(i,TLL_POW))) * DB0375_TO_LOG(0) 
+//		tbl->tll2log_table[i] = ((uint32_t)((sin(M_PI/4*((double)i/(1 << TLLTBL_BITS)))*128 *0.375 - log(pow(i,TLL_POW))) * DB0375_TO_LOG(0) 
 //			/ 3.725)) << 1;
-//		tbl->tll2log_table[i] = ((Uint32)(LinToLog(logtbl,128-i*2))) << 1;
+//		tbl->tll2log_table[i] = ((uint32_t)(LinToLog(logtbl,128-i*2))) << 1;
 //		double a,logval;
 //		a = (128 - (i<64?i*2:127)) * (1 << (LOG_LIN_BITS - LIN_BITS));
-//		logval = (Uint32)((LOG_LIN_BITS - (log(a) / log(2))) * (1 << LOG_BITS));
+//		logval = (uint32_t)((LOG_LIN_BITS - (log(a) / log(2))) * (1 << LOG_BITS));
 
-//		tbl->tll2log_table[i] = (Uint32)((i) * (1 << LOG_BITS) * 0.625 / 10) << 1;
-//		tbl->tll2log_table[i] = (Uint32)((i) * (1 << LOG_BITS) * 0.355 / 10) << 1;
-		tbl->tll2log_table[i] = (Uint32)((1 << (LOG_BITS-5)) * exptable_base[i] * 0.675 ) << 1;
-//		tbl->tll2log_table[i] = (Uint32)((1 << (LOG_BITS-5)) * exptable_base[i] * 0.4 ) << 1;
+//		tbl->tll2log_table[i] = (uint32_t)((i) * (1 << LOG_BITS) * 0.625 / 10) << 1;
+//		tbl->tll2log_table[i] = (uint32_t)((i) * (1 << LOG_BITS) * 0.355 / 10) << 1;
+		tbl->tll2log_table[i] = (uint32_t)((1 << (LOG_BITS-5)) * exptable_base[i] * 0.675 ) << 1;
+//		tbl->tll2log_table[i] = (uint32_t)((1 << (LOG_BITS-5)) * exptable_base[i] * 0.4 ) << 1;
 //		tbl->tll2log_table[i] = (i * DB0375_TO_LOG(0)) << 1;
 	}
 	for (i = 0; i < (1 << AMTBL_BITS); i++)
 	{
-		u  = (Uint32)((1 + sin(2 * M_PI * ((double)i) / (1 << AMTBL_BITS))) * ((1 << LOG_BITS) * AM_DEPTH1 / 20.0));
-		u2 = (Uint32)((1 + sin(2 * M_PI * ((double)i) / (1 << AMTBL_BITS))) * ((1 << LOG_BITS) * AM_DEPTH2 / 20.0));
+		u  = (uint32_t)((1 + sin(2 * M_PI * ((double)i) / (1 << AMTBL_BITS))) * ((1 << LOG_BITS) * AM_DEPTH1 / 20.0));
+		u2 = (uint32_t)((1 + sin(2 * M_PI * ((double)i) / (1 << AMTBL_BITS))) * ((1 << LOG_BITS) * AM_DEPTH2 / 20.0));
 		//u2 = u;
 		tbl->am_table1[i] = u << 1;
 		tbl->am_table2[i] = u2 << 1;
 	}
 	for (i = 0; i < (1 << PMTBL_BITS); i++)
 	{
-		u  = (Uint32)((1 << PM_SHIFT) * pow(2, sin(2 * M_PI * ((double)i) / (1 << PMTBL_BITS)) * PM_DEPTH1 / 1200.0));
-		u2 = (Uint32)((1 << PM_SHIFT) * pow(2, sin(2 * M_PI * ((double)i) / (1 << PMTBL_BITS)) * PM_DEPTH2 / 1200.0));
+		u  = (uint32_t)((1 << PM_SHIFT) * pow(2, sin(2 * M_PI * ((double)i) / (1 << PMTBL_BITS)) * PM_DEPTH1 / 1200.0));
+		u2 = (uint32_t)((1 << PM_SHIFT) * pow(2, sin(2 * M_PI * ((double)i) / (1 << PMTBL_BITS)) * PM_DEPTH2 / 1200.0));
 		//u2 = u;
 		tbl->pm_table1[i] = u;
 		tbl->pm_table2[i] = u2;
@@ -678,12 +678,12 @@ static void OplTableCalc(KMIF_OPLTABLE *tbl)
 
 	for (i = 0; i < (1 << ARTBL_BITS); i++)
 	{
-		u = (Uint32)(((double)AR_MAX) * (1 - log(1 + i) / log(1 << ARTBL_BITS)));
+		u = (uint32_t)(((double)AR_MAX) * (1 - log(1 + i) / log(1 << ARTBL_BITS)));
 //	    AR_ADJUST_TABLE[i] = (uint32)((double)(1<<EG_BITS) - 1 - (1<<EG_BITS) * log(i) / log(128)) ; 
-//		u = (Uint32)(((double)AR_MAX) - 1 - ((double)AR_MAX) * log(i) / log(128));
+//		u = (uint32_t)(((double)AR_MAX) - 1 - ((double)AR_MAX) * log(i) / log(128));
 		tbl->ar_tablelog[i] = u;
 #if 1
-		u = (Uint32)(((double)AR_MAX) * (pow(1 - i / (double)(1 << ARTBL_BITS), 8)));
+		u = (uint32_t)(((double)AR_MAX) * (pow(1 - i / (double)(1 << ARTBL_BITS), 8)));
 		tbl->ar_tablepow[i] = u;
 #endif
 	}

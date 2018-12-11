@@ -1,4 +1,4 @@
-#include "../nestypes.h"
+#include "../normalize.h"
 #include "s_logtbl.h"
 
 #if STATIC_TABLES
@@ -24,8 +24,8 @@ KMIF_LOGTABLE *LogTableAddRef(void)
 
 #include <math.h>
 
-static volatile Uint32 log_tables_mutex = 0;
-static Uint32 log_tables_refcount = 0;
+static volatile uint32_t log_tables_mutex = 0;
+static uint32_t log_tables_refcount = 0;
 static KMIF_LOGTABLE *log_tables = 0;
 
 static void LogTableRelease(void *ctx)
@@ -46,19 +46,19 @@ static void LogTableRelease(void *ctx)
 
 void LogTableCalc(KMIF_LOGTABLE *kmif_lt)
 {
-	Uint32 i;
+	uint32_t i;
 	double a;
 	for (i = 0; i < (1 << LOG_BITS); i++)
 	{
 		a = (1 << LOG_LIN_BITS) / pow(2, i / (double)(1 << LOG_BITS));
-		kmif_lt->logtbl[i] = (Uint32)a;
+		kmif_lt->logtbl[i] = (uint32_t)a;
 	}
 	kmif_lt->lineartbl[0] = LOG_LIN_BITS << LOG_BITS;
 	for (i = 1; i < (1 << LIN_BITS) + 1; i++)
 	{
-		Uint32 ua;
+		uint32_t ua;
 		a = i << (LOG_LIN_BITS - LIN_BITS);
-		ua = (Uint32)((LOG_LIN_BITS - (log(a) / log(2))) * (1 << LOG_BITS));
+		ua = (uint32_t)((LOG_LIN_BITS - (log(a) / log(2))) * (1 << LOG_BITS));
 		kmif_lt->lineartbl[i] = ua << 1;
 	}
 }

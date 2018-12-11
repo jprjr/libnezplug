@@ -70,9 +70,9 @@
 #define USE_FBBUF 1
 
 typedef struct {
-	Uint32 phase;
-	Uint32 spd;
-	Uint32 pgout;
+	uint32_t phase;
+	uint32_t spd;
+	uint32_t pgout;
 } OPL_PG;
 
 enum {
@@ -86,15 +86,15 @@ enum {
 };
 
 typedef struct {
-	Uint32 phasear;
-	Uint32 phasearc;
-	Uint32 phase;
-	Uint32 spd[EG_MODE_NUM];
-	Uint32 dr_phasemax;
-	Uint8 mode;
-	Uint8 pad4_1;
-	Uint8 pad4_2;
-	Uint8 pad4_3;
+	uint32_t phasear;
+	uint32_t phasearc;
+	uint32_t phase;
+	uint32_t spd[EG_MODE_NUM];
+	uint32_t dr_phasemax;
+	uint8_t mode;
+	uint8_t pad4_1;
+	uint8_t pad4_2;
+	uint8_t pad4_3;
 } OPL_EG;
 
 enum {
@@ -107,54 +107,54 @@ enum {
 typedef struct {
 	OPL_PG pg;
 	OPL_EG eg;
-	Int32 input;
+	int32_t input;
 #if USE_FBBUF
-	Int32 fbbuf;
+	int32_t fbbuf;
 #endif
 #if TESTING_OPTIMIZE_AME
-	Uint32 *amin;
+	uint32_t *amin;
 #endif
-	Uint32 tl_ofs;
-	Uint32 *sintable;
+	uint32_t tl_ofs;
+	uint32_t *sintable;
 
-	Uint8 modcar;	/* 1:m 0:c */
-	Uint8 fb;
-	Uint8 lvl;
-	Uint8 nst;
+	uint8_t modcar;	/* 1:m 0:c */
+	uint8_t fb;
+	uint8_t lvl;
+	uint8_t nst;
 
-	Uint8 tll;
-	Uint8 key;
-	Uint8 rkey;
-	Uint8 prevkey;
+	uint8_t tll;
+	uint8_t key;
+	uint8_t rkey;
+	uint8_t prevkey;
 
-	Uint8 enable;
-	Uint8 __enablehold__;
-	Uint8 flag;
-	Uint8 ksr;
+	uint8_t enable;
+	uint8_t __enablehold__;
+	uint8_t flag;
+	uint8_t ksr;
 
-	Uint8 mul;
-	Uint8 ksl;
-	Uint8 ar;
-	Uint8 dr;
-	Uint8 sl;
-	Uint8 rr;
-	Uint8 tl;
-	Uint8 wf;
-	Uint8 type;
-	Uint8 *tone;
-	Int32 outputbf[OUTPUT_BUFFER];
+	uint8_t mul;
+	uint8_t ksl;
+	uint8_t ar;
+	uint8_t dr;
+	uint8_t sl;
+	uint8_t rr;
+	uint8_t tl;
+	uint8_t wf;
+	uint8_t type;
+	uint8_t *tone;
+	int32_t outputbf[OUTPUT_BUFFER];
 } OPL_OP;
 
 typedef struct {
 	OPL_OP op[2];
-	Uint8 con;
-	Uint8 freql;
-	Uint8 freqh;
-	Uint8 blk;
-	Uint8 kcode;
-	Uint8 sus;
-	Uint8 ksb;
-	Uint8 pad4_3;
+	uint8_t con;
+	uint8_t freql;
+	uint8_t freqh;
+	uint8_t blk;
+	uint8_t kcode;
+	uint8_t sus;
+	uint8_t ksb;
+	uint8_t pad4_3;
 } OPL_CH;
 
 enum {
@@ -164,12 +164,12 @@ enum {
 };
 
 typedef struct {
-	Uint32 output;
-	Uint32 cnt;
-	Uint32 sps;	/* step per sample */
-	Uint32 adr;
-	Uint32 adrmask;
-	Uint32 *table;
+	uint32_t output;
+	uint32_t cnt;
+	uint32_t sps;	/* step per sample */
+	uint32_t adr;
+	uint32_t adrmask;
+	uint32_t *table;
 } OPL_LFO;
 
 typedef struct {
@@ -180,37 +180,37 @@ typedef struct {
 	OPL_CH ch[9];
 	OPL_LFO lfo[LFO_UNIT_NUM];
 	struct OPLSOUND_COMMON_TAG {
-		Uint32 cpsp;
-		Uint32 cnt;
-		Uint32 *ar_table;
-		Uint32 *tll2logtbl;
+		uint32_t cpsp;
+		uint32_t cnt;
+		uint32_t *ar_table;
+		uint32_t *tll2logtbl;
 #if TESTING_OPTIMIZE_AME
-		Uint32 amzero;
+		uint32_t amzero;
 #endif
-		Int32 mastervolume;
-		Uint32 sintablemask;
-		Uint32 ratetbla[4];
-		Uint32 ratetbl[4];
-		Uint8 adr;
-		Uint8 wfe;
-		Uint8 rc;
-		Uint8 rmode;
-		Uint8 enable;
+		int32_t mastervolume;
+		uint32_t sintablemask;
+		uint32_t ratetbla[4];
+		uint32_t ratetbl[4];
+		uint8_t adr;
+		uint8_t wfe;
+		uint8_t rc;
+		uint8_t rmode;
+		uint8_t enable;
 	} common;
-	Uint8 regs[0x100];
-	Uint8 oplregs[0x100];
-	Uint8 opllregs[0x100];
-	Uint8 opl_type;
-	Uint32 freqp;
-	Uint32 freq;
+	uint8_t regs[0x100];
+	uint8_t oplregs[0x100];
+	uint8_t opllregs[0x100];
+	uint8_t opl_type;
+	uint32_t freqp;
+	uint32_t freq;
 	long output;
-	Int32 fbbuf;
+	int32_t fbbuf;
 	double fb;
-	Uint32 rng;
-	Uint32 phase;
+	uint32_t rng;
+	uint32_t phase;
 } OPLSOUND;
 
-static Uint8 romtone[3][16 * 19] =
+static uint8_t romtone[3][16 * 19] =
 {
 	{
 #include "ill/i_fmpac.h"
@@ -225,13 +225,13 @@ static Uint8 romtone[3][16 * 19] =
 
 #if (((-1) >> 1) == -1)
 /* RIGHT SHIFT IS SIGNED */
-#define SSR(x, y) (((Int32)x) >> (y))
+#define SSR(x, y) (((int32_t)x) >> (y))
 #else
 /* RIGHT SHIFT IS UNSIGNED */
 #define SSR(x, y) (((x) >= 0) ? ((x) >> (y)) : (-((-(x) - 1) >> (y)) - 1))
 #endif
 
-const static Uint8 ksltable[4]={15,2,1,0};
+const static uint8_t ksltable[4]={15,2,1,0};
 
 __inline static void SetOpOff(OPL_OP *opp)
 {
@@ -287,7 +287,7 @@ __inline static void EgStep(OPLSOUND *sndp, OPL_OP *opp)
 	}
 }
 
-static void __fastcall OpStep(OPLSOUND *sndp, OPL_OP *opp)
+static void OpStep(OPLSOUND *sndp, OPL_OP *opp)
 {
 	EgStep(sndp, opp);
 	if (opp->flag & FLAG_PME)
@@ -315,8 +315,8 @@ __inline static void OpSynthMod(OPLSOUND *sndp, OPL_OP *opp)
 {
 	if (opp->enable)
 	{
-		Uint32 tll;
-		Int32 output;
+		uint32_t tll;
+		int32_t output;
 		OpStep(sndp, opp);
 		tll = opp->tll + (opp->eg.phase >> EG_SHIFT);
 		tll = (tll >= (1 << TLLTBL_BITS)) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
@@ -331,7 +331,7 @@ __inline static void OpSynthMod(OPLSOUND *sndp, OPL_OP *opp)
 		if (opp->fb)
 		{
 #if USE_FBBUF == 1
-			Int32 fbtmp;
+			int32_t fbtmp;
 			fbtmp = opp->fbbuf + output;
 			opp->fbbuf = output;
 			opp->input = SSR(fbtmp, (9 - opp->fb));
@@ -352,8 +352,8 @@ __inline static void OpSynthMod(OPLSOUND *sndp, OPL_OP *opp)
 {
 	if (opp->enable)
 	{
-		Uint32 tll;
-		Int32 output;
+		uint32_t tll;
+		int32_t output;
 		OpStep(sndp, opp);
 		tll = opp->tll + (opp->eg.phase >> EG_SHIFT);
 		tll = (tll >= (1 << TLLTBL_BITS)) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
@@ -368,7 +368,7 @@ __inline static void OpSynthMod(OPLSOUND *sndp, OPL_OP *opp)
 		if (opp->fb)
 		{
 #if USE_FBBUF
-			Int32 fbtmp;
+			int32_t fbtmp;
 			fbtmp = opp->fbbuf + output;
 			opp->fbbuf = output;
 			opp->input = SSR(fbtmp, (9 - opp->fb));
@@ -381,11 +381,11 @@ __inline static void OpSynthMod(OPLSOUND *sndp, OPL_OP *opp)
 }
 */
 
-__inline static Int32 OpSynthCarFb(OPLSOUND *sndp, OPL_OP *opp)
+__inline static int32_t OpSynthCarFb(OPLSOUND *sndp, OPL_OP *opp)
 {
 	if (opp->enable)
 	{
-		Uint32 tll;
+		uint32_t tll;
 		OpStep(sndp, opp);
 		tll = opp->tll + (opp->eg.phase >> EG_SHIFT);
 		tll = (tll >= (1 << TLLTBL_BITS)) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
@@ -399,13 +399,13 @@ __inline static Int32 OpSynthCarFb(OPLSOUND *sndp, OPL_OP *opp)
 		if (opp->fb)
 		{
 #if USE_FBBUF
-			Int32 output, fbtmp;
+			int32_t output, fbtmp;
 			output = LogToLin(sndp->logtbl, tll, -8 + ((LOG_LIN_BITS + 1) - (SINTBL_BITS + 2)) -1);
 			fbtmp = opp->fbbuf + output;
 			opp->fbbuf = output;
 			opp->input = SSR(fbtmp, (9 - opp->fb));
 #else
-			Int32 output;
+			int32_t output;
 			output = LogToLin(sndp->logtbl, tll, -8 + ((LOG_LIN_BITS + 1) - (SINTBL_BITS + 2)) -1);
 			opp->input = SSR(output, (8 - opp->fb));
 #endif
@@ -415,11 +415,11 @@ __inline static Int32 OpSynthCarFb(OPLSOUND *sndp, OPL_OP *opp)
 	return 0;
 }
 /*
-__inline static Int32 OpSynthCarFb(OPLSOUND *sndp, OPL_OP *opp)
+__inline static int32_t OpSynthCarFb(OPLSOUND *sndp, OPL_OP *opp)
 {
 	if (opp->enable)
 	{
-		Uint32 tll;
+		uint32_t tll;
 		OpStep(sndp, opp);
 		tll = opp->tll + (opp->eg.phase >> EG_SHIFT);
 		tll = (tll >= (1 << TLLTBL_BITS)) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
@@ -433,13 +433,13 @@ __inline static Int32 OpSynthCarFb(OPLSOUND *sndp, OPL_OP *opp)
 		if (opp->fb)
 		{
 #if USE_FBBUF
-			Int32 output, fbtmp;
+			int32_t output, fbtmp;
 			output = LogToLin(sndp->logtbl, tll, -8 + ((LOG_LIN_BITS + 1) - (SINTBL_BITS + 2)));
 			fbtmp = opp->fbbuf + output;
 			opp->fbbuf = output;
 			opp->input = SSR(fbtmp, (9 - opp->fb));
 #else
-			Int32 output;
+			int32_t output;
 			output = LogToLin(sndp->logtbl, tll, -8 + ((LOG_LIN_BITS + 1) - (SINTBL_BITS + 2)));
 			opp->input = SSR(output, (8 - opp->fb));
 #endif
@@ -450,12 +450,12 @@ __inline static Int32 OpSynthCarFb(OPLSOUND *sndp, OPL_OP *opp)
 }
 */
 
-__inline static Int32 OpSynthCar(OPLSOUND *sndp, OPL_OP *opp)
+__inline static int32_t OpSynthCar(OPLSOUND *sndp, OPL_OP *opp)
 {
 	OpStep(sndp, opp);
 	if (opp->enable)
 	{
-		Uint32 tll;
+		uint32_t tll;
 		tll = opp->tll + (opp->eg.phase >> EG_SHIFT);
 		tll = (tll >= (1 << TLLTBL_BITS)) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
 		tll += opp->tl_ofs;
@@ -470,11 +470,11 @@ __inline static Int32 OpSynthCar(OPLSOUND *sndp, OPL_OP *opp)
 	return 0;
 }
 /*
-__inline static Int32 OpSynthCar(OPLSOUND *sndp, OPL_OP *opp)
+__inline static int32_t OpSynthCar(OPLSOUND *sndp, OPL_OP *opp)
 {
 	if (opp->enable)
 	{
-		Uint32 tll;
+		uint32_t tll;
 		OpStep(sndp, opp);
 		tll = opp->tll + (opp->eg.phase >> EG_SHIFT);
 		tll = (tll >= (1 << TLLTBL_BITS)) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
@@ -491,13 +491,13 @@ __inline static Int32 OpSynthCar(OPLSOUND *sndp, OPL_OP *opp)
 }
 */
 
-__inline static Int32 OpSynthTom(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
+__inline static int32_t OpSynthTom(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 {
     (void)opp2;
 	if (opp->enable)
 	{
-		Uint32 tll;
-		Int32 output;
+		uint32_t tll;
+		int32_t output;
 		tll = opp->tll + (opp->eg.phase / EG_SHIFT2);
 		tll = (tll >= 128 - 16) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
 		tll += opp->tl_ofs;
@@ -509,13 +509,13 @@ __inline static Int32 OpSynthTom(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 }
 
 
-static Int32 __fastcall OpSynthRym(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
+static int32_t OpSynthRym(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 {
 /*
 	if (opp2->enable)
 	{
-		Uint32 tll,c1,c2;
-		Int32 output=0;
+		uint32_t tll,c1,c2;
+		int32_t output=0;
 		tll = opp2->tll + (opp2->eg.phase / EG_SHIFT2);
 		tll = (tll >= (1 << TLLTBL_BITS)) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
 		tll += opp2->tl_ofs;
@@ -533,8 +533,8 @@ static Int32 __fastcall OpSynthRym(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 //	OpStep(sndp, opp);
 	if (opp2->enable)
 	{
-		Uint32 tll;
-		Int32 output;
+		uint32_t tll;
+		int32_t output;
 		tll = opp2->tll + (opp2->eg.phase / EG_SHIFT2);
 		tll = (tll >= (1 << TLLTBL_BITS)) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
 		tll += opp2->tl_ofs;
@@ -553,13 +553,13 @@ static Int32 __fastcall OpSynthRym(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 
 }
 
-static Int32 __fastcall OpSynthHat(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
+static int32_t OpSynthHat(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 {
 /*
 	if (opp->enable)
 	{
-		Uint32 tll,c1,c2,c3;
-		Int32 output=0;
+		uint32_t tll,c1,c2,c3;
+		int32_t output=0;
 		tll = opp->tll + (opp->eg.phase / EG_SHIFT2);
 		tll = (tll >= (1 << TLLTBL_BITS)) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
 		tll += opp->tl_ofs;
@@ -578,8 +578,8 @@ static Int32 __fastcall OpSynthHat(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 //	OpStep(sndp, opp);
 	if (opp->enable)
 	{
-		Uint32 tll;
-		Int32 output=0;
+		uint32_t tll;
+		int32_t output=0;
 		tll = opp->tll + (opp->eg.phase / EG_SHIFT2);
 		tll = (tll >= (1 << TLLTBL_BITS)) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
 		tll += opp->tl_ofs;
@@ -600,12 +600,12 @@ static Int32 __fastcall OpSynthHat(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 	return 0;
 }
 
-static Int32 __fastcall OpSynthSnr(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
+static int32_t OpSynthSnr(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 {
 	if (opp2->enable)
 	{
-		Uint32 tll;
-		Int32 outval;
+		uint32_t tll;
+		int32_t outval;
 
 		tll = opp2->tll + (opp2->eg.phase / EG_SHIFT2);
 		tll = (tll >= (1 << TLLTBL_BITS)-16) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
@@ -627,10 +627,10 @@ __inline static void LfoStep(OPL_LFO *lfop)
 	lfop->output = lfop->table[lfop->adr & lfop->adrmask];
 }
 
-static void sndsynth(void *ctx, Int32 *p)
+static void sndsynth(void *ctx, int32_t *p)
 {
     OPLSOUND *sndp = (OPLSOUND *)ctx;
-	Int32 accum[2] = { 0, 0 };
+	int32_t accum[2] = { 0, 0 };
 //	int i = 0 ,count;
 //	count = (FM_FREQ-sndp->freqp)/sndp->freq;
 //	if(count){
@@ -639,7 +639,7 @@ static void sndsynth(void *ctx, Int32 *p)
 //			accum[0] = 0;
 			if (sndp->common.enable)
 			{
-				Uint32 i, rch;
+				uint32_t i, rch;
 				OpStepNG(sndp);
 				for (i = 0; i < LFO_UNIT_NUM; i++) LfoStep(&sndp->lfo[i]);
 				rch = sndp->opl_type == OPL_TYPE_VRC7 ? 6 : (sndp->common.rmode ? 7 : 9);
@@ -712,7 +712,7 @@ static void sndsynth(void *ctx, Int32 *p)
 	p[1] += sndp->output;
 }
 
-static void sndvolume(void *ctx, Int32 volume)
+static void sndvolume(void *ctx, int32_t volume)
 {
     OPLSOUND *sndp = (OPLSOUND *)ctx;
 	if (sndp->deltatpcm) sndp->deltatpcm->volume(sndp->deltatpcm->ctx, volume);
@@ -720,7 +720,7 @@ static void sndvolume(void *ctx, Int32 volume)
 	sndp->common.mastervolume = volume;
 }
 
-const static Uint8 op_table[0x20]=
+const static uint8_t op_table[0x20]=
 {
 	   0,   2,   4,   1,   3,   5,0xff,0xff,
 	   6,   8,  10,   7,   9,  11,0xff,0xff,
@@ -728,14 +728,14 @@ const static Uint8 op_table[0x20]=
 	0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
 };
 
-const static Uint8 mul_table[0x10]=
+const static uint8_t mul_table[0x10]=
 {
 	 1+0, 2+0, 4+0, 2+4, 8+0, 8+2, 8+4,16-2,
 	16+0,16+2,16+4,16+4,16+8,16+8,32-2,32-2,
 };
 
 #define DB2TLL(x) (x * 2 / 375)
-const static Uint32 ksl_table[8][16]=
+const static uint32_t ksl_table[8][16]=
 {
 	{
 		DB2TLL(    0), DB2TLL(    0), DB2TLL(    0), DB2TLL(    0),
@@ -781,7 +781,7 @@ const static Uint32 ksl_table[8][16]=
 };
 #undef DB2TLL
 
-static Uint32 __fastcall rateconvAR(OPLSOUND *sndp, Uint32 rrr, Uint32 ksr)
+static uint32_t rateconvAR(OPLSOUND *sndp, uint32_t rrr, uint32_t ksr)
 {
 	if (!rrr) return 0;
 	rrr = rrr + (ksr >> 2);
@@ -789,7 +789,7 @@ static Uint32 __fastcall rateconvAR(OPLSOUND *sndp, Uint32 rrr, Uint32 ksr)
 	return sndp->common.ratetbla[ksr & 3] >> (CPS_SHIFTE + 1 - rrr);
 }
 
-static Uint32 __fastcall rateconv(OPLSOUND *sndp, Uint32 rrr, Uint32 ksr)
+static uint32_t rateconv(OPLSOUND *sndp, uint32_t rrr, uint32_t ksr)
 {
 	if (!rrr) return 0;
 	rrr = rrr + (ksr >> 2);
@@ -798,19 +798,19 @@ static Uint32 __fastcall rateconv(OPLSOUND *sndp, Uint32 rrr, Uint32 ksr)
 	return sndp->common.ratetbl[ksr & 3] >> (CPS_SHIFTE + 1 - rrr);
 }
 
-static void __fastcall OpUpdateWF(OPLSOUND *sndp, OPL_OP *opp)
+static void OpUpdateWF(OPLSOUND *sndp, OPL_OP *opp)
 {
 	opp->sintable = sndp->opltbl->sin_table[opp->wf & sndp->common.wfe];
 }
 
-static void __fastcall OpUpdatePG(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp)
+static void OpUpdatePG(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp)
 {
 	opp->pg.spd = (((chp->freqh << 8) + chp->freql) * opp->mul * sndp->common.cpsp) >> (CPS_SHIFTP - chp->blk);
 }
 
-static void __fastcall OpUpdateEG(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp)
+static void OpUpdateEG(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp)
 {
-	Uint32 sr, rr;
+	uint32_t sr, rr;
 	opp->ksr = chp->kcode >> ((opp->flag & FLAG_KSR) ? 0 : 2);
 	opp->eg.dr_phasemax = opp->sl << (1 + 2 + EG_SHIFT);	/* 3dB->eg */
 	opp->eg.spd[EG_MODE_ATTACK] = rateconvAR(sndp, opp->ar, opp->ksr);
@@ -836,13 +836,13 @@ static void __fastcall OpUpdateEG(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp)
 }
 
 
-static void __fastcall OpUpdateTLL(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp)
+static void OpUpdateTLL(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp)
 {
     (void)sndp;
 	opp->tll = (opp->tl + ((chp->ksb>>1) >> ksltable[opp->ksl])) << 1;
 }
 
-static void __fastcall oplsetopmul(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp, Uint32 v)
+static void oplsetopmul(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp, uint32_t v)
 {
 	opp->flag &= ~(FLAG_AME | FLAG_PME | FLAG_EGT | FLAG_KSR);
 #if TESTING_OPTIMIZE_AME
@@ -858,7 +858,7 @@ static void __fastcall oplsetopmul(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp, Uin
 	OpUpdatePG(sndp, chp, opp);
 }
 
-static void __fastcall oplsetopkstl(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp, Uint32 v)
+static void oplsetopkstl(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp, uint32_t v)
 {
 //	opp->ksl = (v >> 6) ? (/*3 - */(v >> 6)) : 15;	/* 0 / 1.5 / 3 / 6 db/OCT */
 	opp->ksl = v >> 6;
@@ -866,30 +866,30 @@ static void __fastcall oplsetopkstl(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp, Ui
 	OpUpdateTLL(sndp, chp, opp);
 }
 
-static void __fastcall oplsetopardr(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp, Uint32 v)
+static void oplsetopardr(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp, uint32_t v)
 {
 	opp->ar = v >> 4;
 	opp->dr = v & 0xf;
 	OpUpdateEG(sndp, chp, opp);
 }
 
-static void __fastcall oplsetopslrr(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp, Uint32 v)
+static void oplsetopslrr(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp, uint32_t v)
 {
 	opp->sl = v >> 4;
 	opp->rr = v & 0xf;
 	OpUpdateEG(sndp, chp, opp);
 }
 
-static void __fastcall oplsetopwf(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp, Uint32 v)
+static void oplsetopwf(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp, uint32_t v)
 {
     (void)chp;
 	opp->wf = v & 0x3;
 	OpUpdateWF(sndp, opp);
 }
 
-static void __fastcall oplsetopkey(OPLSOUND *sndp, OPL_OP *opp)
+static void oplsetopkey(OPLSOUND *sndp, OPL_OP *opp)
 {
-	Uint8 nextkey = ((sndp->common.rmode) && opp->rkey) || opp->key;
+	uint8_t nextkey = ((sndp->common.rmode) && opp->rkey) || opp->key;
 	if (opp->prevkey ^ nextkey)
 	{
 		opp->prevkey = nextkey;
@@ -914,9 +914,9 @@ static void __fastcall oplsetopkey(OPLSOUND *sndp, OPL_OP *opp)
 	}
 }
 
-static void __fastcall oplsetchfreql(OPLSOUND *sndp, OPL_CH *chp, Uint32 v)
+static void oplsetchfreql(OPLSOUND *sndp, OPL_CH *chp, uint32_t v)
 {
-	chp->freql = (Uint8)(v & 0xff);
+	chp->freql = (uint8_t)(v & 0xff);
 	chp->ksb = ksl_table[chp->blk][(chp->freqh << 2) + (chp->freql >> 6)];
 	OpUpdatePG(sndp, chp, &chp->op[0]);
 	OpUpdatePG(sndp, chp, &chp->op[1]);
@@ -924,9 +924,9 @@ static void __fastcall oplsetchfreql(OPLSOUND *sndp, OPL_CH *chp, Uint32 v)
 	OpUpdateTLL(sndp, chp, &chp->op[1]);
 }
 
-static void __fastcall oplsetchfreqh(OPLSOUND *sndp, OPL_CH *chp, Uint32 v)
+static void oplsetchfreqh(OPLSOUND *sndp, OPL_CH *chp, uint32_t v)
 {
-	Uint32 key = v & 0x20;
+	uint32_t key = v & 0x20;
 	chp->kcode = (v >> 1) & 15;
 	chp->freqh = v & 3;
 	chp->blk = (v >> 2) & 7;
@@ -943,7 +943,7 @@ static void __fastcall oplsetchfreqh(OPLSOUND *sndp, OPL_CH *chp, Uint32 v)
 	OpUpdateTLL(sndp, chp, &chp->op[1]);
 }
 
-static void __fastcall oplsetchfbcon(OPLSOUND *sndp, OPL_CH *chp, Uint32 v)
+static void oplsetchfbcon(OPLSOUND *sndp, OPL_CH *chp, uint32_t v)
 {
 	chp->op[0].fb = (v >> 1) & 7;
 #if USE_FBBUF
@@ -956,13 +956,13 @@ static void __fastcall oplsetchfbcon(OPLSOUND *sndp, OPL_CH *chp, Uint32 v)
 	chp->op[1].input = 0;
 }
 
-static void __fastcall opllsetopvolume(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp, Uint32 v)
+static void opllsetopvolume(OPLSOUND *sndp, OPL_CH *chp, OPL_OP *opp, uint32_t v)
 {
 	opp->tl = v;
 	OpUpdateTLL(sndp, chp, opp);
 }
 
-static void __fastcall opllsetchfreql(OPLSOUND *sndp, OPL_CH *chp, Uint32 v)
+static void opllsetchfreql(OPLSOUND *sndp, OPL_CH *chp, uint32_t v)
 {
 	chp->freql = v & 0xff;
 	chp->ksb = ksl_table[chp->blk][(chp->freqh << 3) + (chp->freql >> 5)];
@@ -972,9 +972,9 @@ static void __fastcall opllsetchfreql(OPLSOUND *sndp, OPL_CH *chp, Uint32 v)
 	OpUpdateTLL(sndp, chp, &chp->op[1]);
 }
 
-static void __fastcall opllsetchfreqh(OPLSOUND *sndp, OPL_CH *chp, Uint32 v)
+static void opllsetchfreqh(OPLSOUND *sndp, OPL_CH *chp, uint32_t v)
 {
-	Uint32 key = v & 0x10;
+	uint32_t key = v & 0x10;
 	chp->kcode = v & 15;
 	chp->freqh = v & 1;
 	chp->blk = (v >> 1) & 7;
@@ -991,7 +991,7 @@ static void __fastcall opllsetchfreqh(OPLSOUND *sndp, OPL_CH *chp, Uint32 v)
 	OpUpdateTLL(sndp, chp, &chp->op[1]);
 }
 
-static void __fastcall SetOpTone(OPLSOUND *sndp, OPL_OP *opp, Uint8 *tonep)
+static void SetOpTone(OPLSOUND *sndp, OPL_OP *opp, uint8_t *tonep)
 {
     (void)sndp;
 	opp->flag &= ~(FLAG_AME | FLAG_PME | FLAG_EGT | FLAG_KSR);
@@ -1011,9 +1011,9 @@ static void __fastcall SetOpTone(OPLSOUND *sndp, OPL_OP *opp, Uint8 *tonep)
 	opp->sl = tonep[6] >> 4;
 	opp->rr = tonep[6] & 0xf;
 }
-static void __fastcall SetChTone(OPLSOUND *sndp, OPL_CH *chp, Uint8 *tonep, Uint8 *tlofsp)
+static void SetChTone(OPLSOUND *sndp, OPL_CH *chp, uint8_t *tonep, uint8_t *tlofsp)
 {
-	Uint32 op;
+	uint32_t op;
 	for (op = 0; op < 2; op++) SetOpTone(sndp, &chp->op[op], &tonep[op]);
 	chp->op[0].tl_ofs = (tlofsp[0] ^ 0x80) << (LOG_BITS - 4 + 1);
 	chp->op[1].tl_ofs = (tlofsp[1] ^ 0x80) << (LOG_BITS - 4 + 1);
@@ -1036,12 +1036,12 @@ static void __fastcall SetChTone(OPLSOUND *sndp, OPL_CH *chp, Uint8 *tonep, Uint
 	OpUpdateTLL(sndp, chp, &chp->op[1]);
 }
 
-static void __fastcall opllsetchtone(OPLSOUND *sndp, OPL_CH *chp, Uint32 tone)
+static void opllsetchtone(OPLSOUND *sndp, OPL_CH *chp, uint32_t tone)
 {
 	SetChTone(sndp, chp, &sndp->regs[OPLL_INST_WORK + (tone << 3)], &sndp->regs[OPLL_INST_WORK2 + (tone << 1) + 0]);
 }
 
-static void __fastcall recovercon(OPLSOUND *sndp, OPL_CH *chp)
+static void recovercon(OPLSOUND *sndp, OPL_CH *chp)
 {
 	chp->op[0].modcar = (chp->con) ? 0 : 1;
 	chp->op[0].lvl = chp->con ? 1 : 0;
@@ -1050,7 +1050,7 @@ static void __fastcall recovercon(OPLSOUND *sndp, OPL_CH *chp)
 	chp->op[1].input = 0;
 }
 
-static void __fastcall initrc_common(OPLSOUND *sndp, Uint32 rmode)
+static void initrc_common(OPLSOUND *sndp, uint32_t rmode)
 {
 	if (rmode)
 	{
@@ -1092,7 +1092,7 @@ static void __fastcall initrc_common(OPLSOUND *sndp, Uint32 rmode)
 	}
 }
 
-static void __fastcall oplsetrc(OPLSOUND *sndp, Uint32 rc)
+static void oplsetrc(OPLSOUND *sndp, uint32_t rc)
 {
 	sndp->lfo[LFO_UNIT_AM].table = (rc & 0x80) ? sndp->opltbl->am_table1 : sndp->opltbl->am_table2;
 	sndp->lfo[LFO_UNIT_PM].table = (rc & 0x40) ? sndp->opltbl->pm_table1 : sndp->opltbl->pm_table2;
@@ -1101,8 +1101,8 @@ static void __fastcall oplsetrc(OPLSOUND *sndp, Uint32 rc)
 		if (rc & 0x20)
 		{
 #if 0
-			static Uint8 volini[2] = { 0, 0 };
-			static Uint8 bdtone[8] = { 0x04, 0x20, 0x28, 0x00, 0xDF, 0xF8, 0xFF, 0xF8 };
+			static uint8_t volini[2] = { 0, 0 };
+			static uint8_t bdtone[8] = { 0x04, 0x20, 0x28, 0x00, 0xDF, 0xF8, 0xFF, 0xF8 };
 			SetChTone(sndp, &sndp->ch[6], bdtone, volini);
 			SetChTone(sndp, &sndp->ch[7], &romtone[0][0x11 << 4], volini);
 			SetChTone(sndp, &sndp->ch[8], &romtone[0][0x12 << 4], volini);
@@ -1139,7 +1139,7 @@ static void __fastcall oplsetrc(OPLSOUND *sndp, Uint32 rc)
 	oplsetopkey(sndp, &sndp->ch[8].op[1]);
 }
 
-static void __fastcall opllsetrc(OPLSOUND *sndp, Uint32 rc)
+static void opllsetrc(OPLSOUND *sndp, uint32_t rc)
 {
 
 	if ((sndp->common.rmode ^ rc) & 0x20)
@@ -1187,11 +1187,11 @@ static void __fastcall opllsetrc(OPLSOUND *sndp, Uint32 rc)
 }
 
 #define OPLSETOP(func) { \
-	Uint32 op = op_table[a & 0x1f]; \
+	uint32_t op = op_table[a & 0x1f]; \
 	if (op != 0xff) func(sndp, &sndp->ch[op >> 1], &sndp->ch[op >> 1].op[op & 1], v); \
 }
 
-__inline static void oplwritereg(OPLSOUND *sndp, Uint32 a, Uint32 v)
+__inline static void oplwritereg(OPLSOUND *sndp, uint32_t a, uint32_t v)
 {
 	switch (a >> 5)
 	{
@@ -1203,7 +1203,7 @@ __inline static void oplwritereg(OPLSOUND *sndp, Uint32 a, Uint32 v)
 		case 0x01:
 			if (sndp->opl_type == OPL_TYPE_OPL2)
 			{
-				Uint32 i;
+				uint32_t i;
 				sndp->common.wfe = (v & 0x20) ? 3 : 0;
 				for (i = 0; i < 9; i++)
 				{
@@ -1239,7 +1239,7 @@ __inline static void oplwritereg(OPLSOUND *sndp, Uint32 a, Uint32 v)
 	}
 }
 
-static void oplwrite(void *ctx, Uint32 a, Uint32 v)
+static void oplwrite(void *ctx, uint32_t a, uint32_t v)
 {
     OPLSOUND *sndp = (OPLSOUND *)ctx;
 	if (a & 1)
@@ -1252,7 +1252,7 @@ static void oplwrite(void *ctx, Uint32 a, Uint32 v)
 		sndp->common.adr = v;
 }
 
-static Uint32 oplread(void *ctx, Uint32 a)
+static uint32_t oplread(void *ctx, uint32_t a)
 {
     OPLSOUND *sndp = (OPLSOUND *)ctx;
 	if (a & 1)
@@ -1261,7 +1261,7 @@ static Uint32 oplread(void *ctx, Uint32 a)
 		return 0x80;
 }
 
-__inline static void opllwritereg(OPLSOUND *sndp, Uint32 a, Uint32 v)
+__inline static void opllwritereg(OPLSOUND *sndp, uint32_t a, uint32_t v)
 {
 	unsigned char b;
 	switch (a >> 3)
@@ -1310,7 +1310,7 @@ __inline static void opllwritereg(OPLSOUND *sndp, Uint32 a, Uint32 v)
 	}
 }
 
-static void opllwrite(void *ctx, Uint32 a, Uint32 v)
+static void opllwrite(void *ctx, uint32_t a, uint32_t v)
 {
     OPLSOUND *sndp = (OPLSOUND *)ctx;
 	if (a & 1)
@@ -1326,14 +1326,14 @@ static void opllwrite(void *ctx, Uint32 a, Uint32 v)
 		sndp->common.adr = v;
 }
 
-static Uint32 opllread(void *ctx, Uint32 a)
+static uint32_t opllread(void *ctx, uint32_t a)
 {
     (void)ctx;
     (void)a;
 	return 0xFF;
 }
 
-static void __fastcall opreset(OPLSOUND *sndp, OPL_OP *opp)
+static void opreset(OPLSOUND *sndp, OPL_OP *opp)
 {
     (void)sndp;
 	/* XMEMSET(opp, 0, sizeof(OPL_OP)); */
@@ -1344,11 +1344,11 @@ static void __fastcall opreset(OPLSOUND *sndp, OPL_OP *opp)
 #endif
 }
 
-static void __fastcall chreset(OPLSOUND *sndp, OPL_CH *chp, Uint32 clock, Uint32 freq)
+static void chreset(OPLSOUND *sndp, OPL_CH *chp, uint32_t clock, uint32_t freq)
 {
     (void)clock;
     (void)freq;
-	Uint32 op;
+	uint32_t op;
 	XMEMSET(chp, 0, sizeof(OPL_CH));
 	for (op = 0; op < 2; op++)
 	{
@@ -1357,12 +1357,12 @@ static void __fastcall chreset(OPLSOUND *sndp, OPL_CH *chp, Uint32 clock, Uint32
 	recovercon(sndp, chp);
 }
 
-static void sndreset(void *ctx, Uint32 clock, Uint32 freq)
+static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
 {
     OPLSOUND *sndp = (OPLSOUND *)ctx;
-	Uint32 i, cpse;
+	uint32_t i, cpse;
 #if LOWPASS_FILTER
-	Uint32 loop;
+	uint32_t loop;
 	double answer,plus,fb;
 #endif
 	sndp->freq = freq;
@@ -1414,7 +1414,7 @@ static void sndreset(void *ctx, Uint32 clock, Uint32 freq)
 	}
 	else
 	{
-		const static Uint8 fmbios_initdata[8] = "\x30\x10\x20\x20\xfb\xb2\xf3\xf3";
+		const static uint8_t fmbios_initdata[8] = "\x30\x10\x20\x20\xfb\xb2\xf3\xf3";
 		XMEMSET(&sndp->regs, 0, 0x40);
 		sndp->common.ar_table = sndp->opltbl->ar_tablelog;
 		sndp->common.wfe = 1;
@@ -1448,24 +1448,24 @@ static void sndreset(void *ctx, Uint32 clock, Uint32 freq)
 
 }
 
-static void oplsetinst(void *ctx, Uint32 n, void *p, Uint32 l)
+static void oplsetinst(void *ctx, uint32_t n, void *p, uint32_t l)
 {
     OPLSOUND *sndp = (OPLSOUND *)ctx;
 	if (sndp->deltatpcm) sndp->deltatpcm->setinst(sndp->deltatpcm->ctx, n, p, l);
 }
 
-__inline static Uint32 GetDwordLE(Uint8 *p)
+__inline static uint32_t GetDwordLE(uint8_t *p)
 {
 	return p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
 }
-#define GetDwordLEM(p) (Uint32)((((Uint8 *)p)[0] | (((Uint8 *)p)[1] << 8) | (((Uint8 *)p)[2] << 16) | (((Uint8 *)p)[3] << 24)))
+#define GetDwordLEM(p) (uint32_t)((((uint8_t *)p)[0] | (((uint8_t *)p)[1] << 8) | (((uint8_t *)p)[2] << 16) | (((uint8_t *)p)[3] << 24)))
 
-static void opllsetinst(void *ctx, Uint32 n, void *_p, Uint32 l)
+static void opllsetinst(void *ctx, uint32_t n, void *_p, uint32_t l)
 {
     OPLSOUND *sndp = (OPLSOUND *)ctx;
-    Uint8 *p = (Uint8 *)_p;
+    uint8_t *p = (uint8_t *)_p;
     (void)l;
-	Int32 i, j, sb = 9;
+	int32_t i, j, sb = 9;
 	if (n) return;
 	if ((GetDwordLE(p) & 0xf0ffffff) == GetDwordLEM("ILL0"))
 	{
@@ -1501,25 +1501,25 @@ static void sndrelease(void *ctx)
 }
 
 //ここからレジスタビュアー設定
-static Uint8 *regdata;
-static Uint8 *regdata2;
-Uint32 (*ioview_ioread_DEV_OPL)(Uint32 a);
-Uint32 (*ioview_ioread_DEV_OPLL)(Uint32 a);
-static Uint32 ioview_ioread_bf(Uint32 a){
+static uint8_t *regdata;
+static uint8_t *regdata2;
+uint32_t (*ioview_ioread_DEV_OPL)(uint32_t a);
+uint32_t (*ioview_ioread_DEV_OPLL)(uint32_t a);
+static uint32_t ioview_ioread_bf(uint32_t a){
 	if(a<=0xff)return regdata[a];else return 0x100;
 }
-static Uint32 ioview_ioread_bf2(Uint32 a){
+static uint32_t ioview_ioread_bf2(uint32_t a){
 	if(a<0x40)return regdata2[a];else return 0x100;
 }
 //ここまでレジスタビュアー設定
 
-KMIF_SOUND_DEVICE *OPLSoundAlloc(Uint32 opl_type)
+KMIF_SOUND_DEVICE *OPLSoundAlloc(uint32_t opl_type)
 {
 	OPLSOUND *sndp;
 	sndp = XMALLOC(sizeof(OPLSOUND));
 	if (!sndp) return 0;
 	XMEMSET(sndp, 0, sizeof(OPLSOUND));
-	sndp->opl_type = (Uint8)opl_type;
+	sndp->opl_type = (uint8_t)opl_type;
 	sndp->kmif.ctx = sndp;
 	sndp->kmif.release = sndrelease;
 	sndp->kmif.volume = sndvolume;

@@ -1,4 +1,4 @@
-#include "../../nestypes.h"
+#include "../../normalize.h"
 #include "../kmsnddev.h"
 #include "../../format/audiosys.h"
 #include "../../format/handler.h"
@@ -23,48 +23,48 @@ int Namco106_Realmode = 0;
 int Namco106_Volume = 16;
 
 typedef struct {
-	Uint32 logvol;
-	Uint32 cycles;
-	Uint32 cycles2;
-	Uint32 spd;
-	Uint32 phase;
-	Uint32 tlen;
+	uint32_t logvol;
+	uint32_t cycles;
+	uint32_t cycles2;
+	uint32_t spd;
+	uint32_t phase;
+	uint32_t tlen;
 
-	Uint8 update;
-	Uint8 freql;
-	Uint8 freqm;
-	Uint8 freqh;
-	Uint8 vreg;
-	Uint8 tadr;
-	Uint8 nazo;
-	Uint8 mute;
-	Int32 output;
-	Uint32 count;
+	uint8_t update;
+	uint8_t freql;
+	uint8_t freqm;
+	uint8_t freqh;
+	uint8_t vreg;
+	uint8_t tadr;
+	uint8_t nazo;
+	uint8_t mute;
+	int32_t output;
+	uint32_t count;
 } N106_WM;
 
 typedef struct {
-	Uint32 cps;
-	Uint32 cpsf;
-	Int32 output;
-	Int32 offset;
-	Uint32 ofscount;
-	Uint32 ofscps;
-	Uint8 outputfg;
-	Uint32 mastervolume;
+	uint32_t cps;
+	uint32_t cpsf;
+	int32_t output;
+	int32_t offset;
+	uint32_t ofscount;
+	uint32_t ofscps;
+	uint8_t outputfg;
+	uint32_t mastervolume;
 
 	N106_WM ch[8];
 
-	Uint8 addressauto;
-	Uint8 address;
-	Uint8 chinuse;
+	uint8_t addressauto;
+	uint8_t address;
+	uint8_t chinuse;
 
-	Uint32 tone[0x100];	/* TONE DATA */
-	Uint8 data[0x80];
+	uint32_t tone[0x100];	/* TONE DATA */
+	uint8_t data[0x80];
 } N106SOUND;
 
-static Uint32 DivFix(Uint32 p1, Uint32 p2, Uint32 fix)
+static uint32_t DivFix(uint32_t p1, uint32_t p2, uint32_t fix)
 {
-	Uint32 ret;
+	uint32_t ret;
 	ret = p1 / p2;
 	p1 %= p2;/* p1 = p1 - p2 * ret; */
 	//while(p1 >= p2)p1 -= p2;
@@ -87,7 +87,7 @@ __inline static void UPDATE(N106_WM *chp)
 {
 	if (chp->update & 3)
 	{
-		Uint32 freq;
+		uint32_t freq;
 		freq  = ((int)chp->freql);
 		freq += ((int)chp->freqm) << 8;
 		freq += ((int)chp->freqh) << 16;
@@ -95,7 +95,7 @@ __inline static void UPDATE(N106_WM *chp)
 	}
 	if (chp->update & 2)
 	{
-		Uint32 tlen;
+		uint32_t tlen;
 		tlen = (0x100 - (chp->freqh & 0xfc)) << PHASE_SHIFT;
 		if (chp->tlen != tlen)
 		{
@@ -110,13 +110,13 @@ __inline static void UPDATE(N106_WM *chp)
 	chp->update = 0;
 }
 
-static Int32 N106SoundRenderReal2(void* pNezPlay)
+static int32_t N106SoundRenderReal2(void* pNezPlay)
 {
 	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->n106s;
 	N106_WM *chp;
 
-	Int32 outputbuf=0,count=0,accum=0,chpn,real2=((1<<REAL_RENDERS) / n106s->chinuse);
-	Uint32 cyclesspd = n106s->chinuse << CPS_SHIFT;
+	int32_t outputbuf=0,count=0,accum=0,chpn,real2=((1<<REAL_RENDERS) / n106s->chinuse);
+	uint32_t cyclesspd = n106s->chinuse << CPS_SHIFT;
 
 	//リアルモード
 	/*波形は、1chずつ出力される。
@@ -133,7 +133,7 @@ static Int32 N106SoundRenderReal2(void* pNezPlay)
 		chp->cycles2 += n106s->cps << REAL_RENDERS;
 		chp->output = LogToLinear(n106s->tone[((chp->phase >> PHASE_SHIFT) + chp->tadr) & 0xff] + chp->logvol + n106s->mastervolume, LOG_LIN_BITS - LIN_BITS - LIN_BITS - 11);
 		while (chp->cycles2 >= n106s->cpsf){
-			if (((Int32)chp->count / real2) + 8 - n106s->chinuse == chpn)accum += chp->output;
+			if (((int32_t)chp->count / real2) + 8 - n106s->chinuse == chpn)accum += chp->output;
 			count++;
 			chp->cycles2 -= n106s->cpsf;
 			chp->count++;
@@ -149,7 +149,7 @@ static Int32 N106SoundRenderReal2(void* pNezPlay)
 				chp->output = LogToLinear(n106s->tone[((chp->phase >> PHASE_SHIFT) + chp->tadr) & 0xff] + chp->logvol + n106s->mastervolume, LOG_LIN_BITS - LIN_BITS - LIN_BITS - 11);
 			}
 		}
-		if (((Int32)chp->count / real2) == chpn)accum += chp->output;
+		if (((int32_t)chp->count / real2) == chpn)accum += chp->output;
 		count++;
 		if (chmask[DEV_N106_CH1+chpn])outputbuf += accum / count;
 	}
@@ -162,13 +162,13 @@ static Int32 N106SoundRenderReal2(void* pNezPlay)
 */	return outputbuf * NAMCO106_VOL;
 }
 
-static Int32 N106SoundRenderReal(void* pNezPlay)
+static int32_t N106SoundRenderReal(void* pNezPlay)
 {
 	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->n106s;
 	N106_WM *chp;
 
-	Int32 outputbuf=0,count=0,accum=0,chpn;
-	Uint32 cyclesspd = n106s->chinuse << CPS_SHIFT;
+	int32_t outputbuf=0,count=0,accum=0,chpn;
+	uint32_t cyclesspd = n106s->chinuse << CPS_SHIFT;
 
 	//リアルモード
 	for (chp = &n106s->ch[8 - n106s->chinuse],chpn = 8 - n106s->chinuse
@@ -205,13 +205,13 @@ static Int32 N106SoundRenderReal(void* pNezPlay)
 }
 
 
-static Int32 N106SoundRenderNormal(void* pNezPlay)
+static int32_t N106SoundRenderNormal(void* pNezPlay)
 {
 	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->n106s;
 	N106_WM *chp;
 
-	Int32 outputbuf=0,count=0,accum=0,chpn;
-	Uint32 cyclesspd = n106s->chinuse << CPS_SHIFT;
+	int32_t outputbuf=0,count=0,accum=0,chpn;
+	uint32_t cyclesspd = n106s->chinuse << CPS_SHIFT;
 	//従来の方法
 	for (chp = &n106s->ch[8 - n106s->chinuse],chpn = 8 - n106s->chinuse
 		; chp < &n106s->ch[8]; chp++,chpn++)
@@ -245,7 +245,7 @@ static Int32 N106SoundRenderNormal(void* pNezPlay)
 	}
 	return outputbuf * NAMCO106_VOL;
 }
-static Int32 __fastcall N106SoundRender(void* pNezPlay)
+static int32_t N106SoundRender(void* pNezPlay)
 {
 	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->n106s;
 	switch(Namco106_Realmode){
@@ -265,7 +265,7 @@ const static NES_AUDIO_HANDLER s_n106_audio_handler[] = {
 	{ 0, 0, NULL, NULL }, 
 };
 
-static void __fastcall N106SoundVolume(void* pNezPlay, Uint volume)
+static void N106SoundVolume(void* pNezPlay, uint32_t volume)
 {
 	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->n106s;
 	n106s->mastervolume = (volume << (LOG_BITS - 8)) << 1;
@@ -276,21 +276,21 @@ const static NES_VOLUME_HANDLER s_n106_volume_handler[] = {
 	{ 0, NULL }, 
 };
 
-static void __fastcall N106SoundWriteAddr(void *pNezPlay, Uint address, Uint value)
+static void N106SoundWriteAddr(void *pNezPlay, uint32_t address, uint32_t value)
 {
     (void)address;
 	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->n106s;
-	n106s->address     = (Uint8)(value & 0x7f);
+	n106s->address     = (uint8_t)(value & 0x7f);
 	n106s->addressauto = (value & 0x80) ? 1 : 0;
 }
 
-static void __fastcall N106SoundWriteData(void *pNezPlay, Uint address, Uint value)
+static void N106SoundWriteData(void *pNezPlay, uint32_t address, uint32_t value)
 {
     (void)address;
 	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->n106s;
-	n106s->data[n106s->address] = (Uint8)value;
-	n106s->tone[n106s->address * 2]     = LinearToLog(((Int32)(value & 0xf) << 2) - 0x20);
-	n106s->tone[n106s->address * 2 + 1] = LinearToLog(((Int32)(value >>  4) << 2) - 0x20);
+	n106s->data[n106s->address] = (uint8_t)value;
+	n106s->tone[n106s->address * 2]     = LinearToLog(((int32_t)(value & 0xf) << 2) - 0x20);
+	n106s->tone[n106s->address * 2 + 1] = LinearToLog(((int32_t)(value >>  4) << 2) - 0x20);
 	if (n106s->address >= 0x40)
 	{
 		N106_WM *chp = &n106s->ch[(n106s->address - 0x40) >> 3];
@@ -310,7 +310,7 @@ $7f 4-6：使用チャンネル数（$7Fのみ。ほかのchでは意味なし�
 */
 			case 0:
 				chp->update |= 1;
-				chp->freql = (Uint8)value;
+				chp->freql = (uint8_t)value;
 				break;
 			case 1:
 				chp->phase &= (0xffff01<<(PHASE_SHIFT-16))-1;
@@ -319,7 +319,7 @@ $7f 4-6：使用チャンネル数（$7Fのみ。ほかのchでは意味なし�
 				break;
 			case 2:
 				chp->update |= 1;
-				chp->freqm = (Uint8)value;
+				chp->freqm = (uint8_t)value;
 				break;
 			case 3:
 				chp->phase &= (0xff01<<(PHASE_SHIFT-8))-1;
@@ -328,19 +328,19 @@ $7f 4-6：使用チャンネル数（$7Fのみ。ほかのchでは意味なし�
 				break;
 			case 4:
 				chp->update |= 2;
-				chp->freqh = (Uint8)value;
+				chp->freqh = (uint8_t)value;
 				break;
 			case 5:
 				chp->phase = value << PHASE_SHIFT;
 				chp->phase %= chp->tlen;
 				break;
 			case 6:
-				chp->tadr = (Uint8)(value & 0xff);
+				chp->tadr = (uint8_t)(value & 0xff);
 				break;
 			case 7:
 				chp->update |= 4;
-				chp->vreg = (Uint8)value;
-				chp->nazo = (Uint8)((value >> 4) & 0x07);
+				chp->vreg = (uint8_t)value;
+				chp->nazo = (uint8_t)((value >> 4) & 0x07);
 				if (chp == &n106s->ch[7]){
 					n106s->chinuse = 1 + chp->nazo;
 					n106s->cpsf = DivFix(NES_BASECYCLES, NES_BASECYCLES / n106s->chinuse / CPSF_SHIFT, CPS_SHIFT);
@@ -361,11 +361,11 @@ static NES_WRITE_HANDLER s_n106_write_handler[] =
 	{ 0,              0,              0, NULL },
 };
 
-static Uint __fastcall N106SoundReadData(void *pNezPlay, Uint address)
+static uint32_t N106SoundReadData(void *pNezPlay, uint32_t address)
 {
     (void)address;
 	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->n106s;
-	Uint ret = n106s->data[n106s->address];
+	uint32_t ret = n106s->data[n106s->address];
 	if (n106s->addressauto)
 	{
 		n106s->address = (n106s->address + 1) & 0x7f;
@@ -379,7 +379,7 @@ static NES_READ_HANDLER s_n106_read_handler[] =
 	{ 0,              0,              0, NULL },
 };
 
-static void __fastcall N106SoundReset(void* pNezPlay)
+static void N106SoundReset(void* pNezPlay)
 {
 	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->n106s;
 	int i,j;
@@ -410,7 +410,7 @@ const static NES_RESET_HANDLER s_n106_reset_handler[] = {
 };
 
 
-static void __fastcall N106SoundTerm(void* pNezPlay)
+static void N106SoundTerm(void* pNezPlay)
 {
 	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->n106s;
 	if (n106s)
@@ -423,9 +423,9 @@ const static NES_TERMINATE_HANDLER s_n106_terminate_handler[] = {
 };
 
 //ここからレジスタビュアー設定
-Uint8 *n106_regdata;
-Uint32 (*ioview_ioread_DEV_N106)(Uint32 a);
-static Uint32 ioview_ioread_bf(Uint32 a){
+uint8_t *n106_regdata;
+uint32_t (*ioview_ioread_DEV_N106)(uint32_t a);
+static uint32_t ioview_ioread_bf(uint32_t a){
 	if(a<=0x7f)return n106_regdata[a];else return 0x100;
 }
 //ここまでレジスタビュアー設定

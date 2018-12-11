@@ -11,37 +11,37 @@
 
 
 typedef struct {
-	Uint32 cps;				/* cycles per sample */
-	Uint32 pt;				/* programmable timer */
-	Uint32 wl;				/* wave length */
-	Uint32 npt;				/* noise programmable timer */
-	Uint32 nvol;			/* noise volume */
-	Uint32 rng;				/* random number generator (seed) */
-	Uint32 dda;				/* direct D/A output */
-	Uint32 tone[0x20];		/* tone waveform */
-	Uint8 tonereg[0x20];	/* tone waveform regs*/
-	Uint32 lfooutput;		/* lfo output */
-	Uint32 nwl;				/* noise wave length */
-	Uint8 regs[8 - 2];		/* registers per channel */
-	Uint8 st;				/* wave step */
-	Uint8 tonep;			/* tone waveform write pointer*/
-	Uint8 mute;
-	Uint8 edge;
-	Uint8 edgeout;
-	Uint8 rngold;
-	Int32 output[2];
-	Uint8 count;
+	uint32_t cps;				/* cycles per sample */
+	uint32_t pt;				/* programmable timer */
+	uint32_t wl;				/* wave length */
+	uint32_t npt;				/* noise programmable timer */
+	uint32_t nvol;			/* noise volume */
+	uint32_t rng;				/* random number generator (seed) */
+	uint32_t dda;				/* direct D/A output */
+	uint32_t tone[0x20];		/* tone waveform */
+	uint8_t tonereg[0x20];	/* tone waveform regs*/
+	uint32_t lfooutput;		/* lfo output */
+	uint32_t nwl;				/* noise wave length */
+	uint8_t regs[8 - 2];		/* registers per channel */
+	uint8_t st;				/* wave step */
+	uint8_t tonep;			/* tone waveform write pointer*/
+	uint8_t mute;
+	uint8_t edge;
+	uint8_t edgeout;
+	uint8_t rngold;
+	int32_t output[2];
+	uint8_t count;
 } HES_WAVEMEMORY;
 
 typedef struct {
-	Uint32 cps;			/* cycles per sample */
-	Uint32 pt;			/* lfo programmable timer */
-	Uint32 wl;			/* lfo wave length */
-	Uint8 tone[0x20];	/* lfo waveform */
-	Uint8 tonep;		/* lfo waveform write pointer */
-	Uint8 st;			/* lfo step */
-	Uint8 update;
-	Uint8 regs[2];
+	uint32_t cps;			/* cycles per sample */
+	uint32_t pt;			/* lfo programmable timer */
+	uint32_t wl;			/* lfo wave length */
+	uint8_t tone[0x20];	/* lfo waveform */
+	uint8_t tonep;		/* lfo waveform write pointer */
+	uint8_t st;			/* lfo step */
+	uint8_t update;
+	uint8_t regs[2];
 } HES_LFO;
 
 typedef struct {
@@ -51,13 +51,13 @@ typedef struct {
 	HES_LFO lfo;
 	HES_WAVEMEMORY *cur;
 	struct {
-		Int32 mastervolume;
-		Uint8 sysregs[2];
+		int32_t mastervolume;
+		uint8_t sysregs[2];
 	} common;
 } HESSOUND;
 
-#define V(a) ((((Uint32)(0x1F - (a)) * (Uint32)(1 << LOG_BITS) * (Uint32)1000) / (Uint32)3800) << 1)
-const static Uint32 voltbl[0x20] = {
+#define V(a) ((((uint32_t)(0x1F - (a)) * (uint32_t)(1 << LOG_BITS) * (uint32_t)1000) / (uint32_t)3800) << 1)
+const static uint32_t voltbl[0x20] = {
 	V(0x00), V(0x01), V(0x02),V(0x03),V(0x04), V(0x05), V(0x06),V(0x07),
 	V(0x08), V(0x09), V(0x0A),V(0x0B),V(0x0C), V(0x0D), V(0x0E),V(0x0F),
 	V(0x10), V(0x11), V(0x12),V(0x13),V(0x14), V(0x15), V(0x16),V(0x17),
@@ -67,17 +67,17 @@ const static Uint32 voltbl[0x20] = {
 #undef V
 
 #if HES_TONE_DEBUG_OPTION_ENABLE
-Uint8 HES_tone_debug_option = 0;
+uint8_t HES_tone_debug_option = 0;
 #endif
-Uint8 HES_noise_debug_option1 = 9;
-Uint8 HES_noise_debug_option2 = 10;
-Int32 HES_noise_debug_option3 = 3;
-Int32 HES_noise_debug_option4 = 508;
+uint8_t HES_noise_debug_option1 = 9;
+uint8_t HES_noise_debug_option2 = 10;
+int32_t HES_noise_debug_option3 = 3;
+int32_t HES_noise_debug_option4 = 508;
 
-static void HESSoundWaveMemoryRender(HESSOUND *sndp, HES_WAVEMEMORY *ch, Int32 *p, Uint8 chn)
+static void HESSoundWaveMemoryRender(HESSOUND *sndp, HES_WAVEMEMORY *ch, int32_t *p, uint8_t chn)
 {
-	Uint32 wl, output, lvol, rvol;
-	Int32 outputbf[2]={0,0},count=0;
+	uint32_t wl, output, lvol, rvol;
+	int32_t outputbf[2]={0,0},count=0;
 	if (ch->mute || !(ch->regs[4 - 2] & 0x80)) return;
 	lvol = voltbl[(sndp->common.sysregs[1] >> 3) & 0x1E];
 	lvol +=	voltbl[(ch->regs[5 - 2] >> 3) & 0x1E];
@@ -225,7 +225,7 @@ static void HESSoundLfoStep(HESSOUND *sndp)
 	}
 }
 
-static void sndsynth(void *ctx, Int32 *p)
+static void sndsynth(void *ctx, int32_t *p)
 {
 	HESSOUND *sndp = ctx;
 	HESSoundWaveMemoryRender(sndp, &sndp->ch[5], p, 5);
@@ -246,7 +246,7 @@ static void sndsynth(void *ctx, Int32 *p)
 	HESSoundWaveMemoryRender(sndp, &sndp->ch[0], p, 0);
 }
 
-static void HESSoundChReset(HESSOUND *sndp, HES_WAVEMEMORY *ch, Uint32 clock, Uint32 freq)
+static void HESSoundChReset(HESSOUND *sndp, HES_WAVEMEMORY *ch, uint32_t clock, uint32_t freq)
 {
 	int i;
 	XMEMSET(ch, 0, sizeof(HES_WAVEMEMORY));
@@ -259,7 +259,7 @@ static void HESSoundChReset(HESSOUND *sndp, HES_WAVEMEMORY *ch, Uint32 clock, Ui
 	for (i = 0; i < 0x20; i++) ch->tone[i] = LOG_KEYOFF;
 }
 
-static void HESSoundLfoReset(HES_LFO *ch, Uint32 clock, Uint32 freq)
+static void HESSoundLfoReset(HES_LFO *ch, uint32_t clock, uint32_t freq)
 {
 	XMEMSET(ch, 0, sizeof(HES_LFO));
 	ch->cps = DivFix(clock, 6 * freq, CPS_SHIFT);
@@ -267,10 +267,10 @@ static void HESSoundLfoReset(HES_LFO *ch, Uint32 clock, Uint32 freq)
 }
 
 
-static void sndreset(void *ctx, Uint32 clock, Uint32 freq)
+static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
 {
 	HESSOUND *sndp = ctx;
-	Uint32 ch;
+	uint32_t ch;
 	XMEMSET(&sndp->common, 0, sizeof(sndp->common));
 	sndp->cur = sndp->ch;
 	sndp->common.sysregs[1] = 0xFF;
@@ -278,7 +278,7 @@ static void sndreset(void *ctx, Uint32 clock, Uint32 freq)
 	HESSoundLfoReset(&sndp->lfo, clock, freq);
 }
 
-static void sndwrite(void *ctx, Uint32 a, Uint32 v)
+static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 {
 	HESSOUND *sndp = ctx;
 	switch (a & 0xF)
@@ -312,8 +312,8 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 		case 6:	// wave data
 			if (sndp->cur)
 			{
-				Uint32 tone;
-				Int32 data = v & 0x1f;
+				uint32_t tone;
+				int32_t data = v & 0x1f;
 				sndp->cur->regs[6 - 2] = v;
 #if HES_TONE_DEBUG_OPTION_ENABLE
 				switch (HES_tone_debug_option)
@@ -362,7 +362,7 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 		case 7:	// noise on, noise frq
 			if (sndp->cur && sndp->common.sysregs[0] >= 4)
 			{
-				Uint32 nwl;
+				uint32_t nwl;
 				sndp->cur->regs[7 - 2] = v;
 				switch (HES_noise_debug_option1)
 				{
@@ -446,7 +446,7 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 	}
 }
 
-static Uint32 sndread(void *ctx, Uint32 a)
+static uint32_t sndread(void *ctx, uint32_t a)
 {
 	HESSOUND *sndp = ctx;
 	a &= 0xF;
@@ -463,7 +463,7 @@ static Uint32 sndread(void *ctx, Uint32 a)
 	return 0;
 }
 
-static void sndvolume(void *ctx, Int32 volume)
+static void sndvolume(void *ctx, int32_t volume)
 {
 	HESSOUND *sndp = ctx;
 	volume = (volume << (LOG_BITS - 8)) << 1;
@@ -479,7 +479,7 @@ static void sndrelease(void *ctx)
 	}
 }
 
-static void setinst(void *ctx, Uint32 n, void *p, Uint32 l)
+static void setinst(void *ctx, uint32_t n, void *p, uint32_t l)
 {
     (void)ctx;
     (void)n;
@@ -490,8 +490,8 @@ static void setinst(void *ctx, Uint32 n, void *p, Uint32 l)
 
 //ここからレジスタビュアー設定
 static HESSOUND *sndpr;
-Uint32 (*ioview_ioread_DEV_HUC6230)(Uint32 a);
-Uint32 pce_ioview_ioread_bf(Uint32 a){
+uint32_t (*ioview_ioread_DEV_HUC6230)(uint32_t a);
+uint32_t pce_ioview_ioread_bf(uint32_t a){
 	if(a<=0x1)return sndpr->common.sysregs[a];
 	if(a>=0x2 && a<=0x7)if (sndpr->cur) return sndpr->cur->regs[a - 2];
 	if(a>=0x8 && a<=0x9)return sndpr->lfo.regs[a - 8];

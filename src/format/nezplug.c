@@ -1,6 +1,5 @@
-#include "../nezplug.h"
+#include <nezplug/nezplug.h>
 
-#include "../neserr.h"
 #include "handler.h"
 #include "audiosys.h"
 #include "songinfo.h"
@@ -15,7 +14,7 @@
 #include "m_sgc.h"
 
 
-Uint8 chmask[0x80]={
+uint8_t chmask[0x80]={
 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -47,16 +46,16 @@ struct {
 int (*memview_memread)(int a);
 
 
-static Uint GetWordLE(Uint8 *p)
+static uint32_t GetWordLE(uint8_t *p)
 {
 	return p[0] | (p[1] << 8);
 }
 
-static Uint32 GetDwordLE(Uint8 *p)
+static uint32_t GetDwordLE(uint8_t *p)
 {
 	return p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
 }
-#define GetDwordLEM(p) (Uint32)((((Uint8 *)p)[0] | (((Uint8 *)p)[1] << 8) | (((Uint8 *)p)[2] << 16) | (((Uint8 *)p)[3] << 24)))
+#define GetDwordLEM(p) (uint32_t)((((uint8_t *)p)[0] | (((uint8_t *)p)[1] << 8) | (((uint8_t *)p)[2] << 16) | (((uint8_t *)p)[3] << 24)))
 
 
 NEZ_PLAY* NEZNew()
@@ -109,20 +108,20 @@ void NEZDelete(NEZ_PLAY *pNezPlay)
 }
 
 
-void NEZSetSongNo(NEZ_PLAY *pNezPlay, Uint uSongNo)
+void NEZSetSongNo(NEZ_PLAY *pNezPlay, uint32_t uSongNo)
 {
 	if (pNezPlay == 0) return;
 	SONGINFO_SetSongNo(pNezPlay->song, uSongNo);
 }
 
 
-void NEZSetFrequency(NEZ_PLAY *pNezPlay, Uint freq)
+void NEZSetFrequency(NEZ_PLAY *pNezPlay, uint32_t freq)
 {
 	if (pNezPlay == 0) return;
 	NESAudioFrequencySet(pNezPlay, freq);
 }
 
-void NEZSetChannel(NEZ_PLAY *pNezPlay, Uint ch)
+void NEZSetChannel(NEZ_PLAY *pNezPlay, uint32_t ch)
 {
 	if (pNezPlay == 0) return;
 	NESAudioChannelSet(pNezPlay, ch);
@@ -135,72 +134,72 @@ void NEZReset(NEZ_PLAY *pNezPlay)
 	NESVolume(pNezPlay, pNezPlay->volume);
 }
 
-void NEZSetFilter(NEZ_PLAY *pNezPlay, Uint filter)
+void NEZSetFilter(NEZ_PLAY *pNezPlay, uint32_t filter)
 {
 	if (pNezPlay == 0) return;
 	NESAudioFilterSet(pNezPlay, filter);
 }
 
-void NEZVolume(NEZ_PLAY *pNezPlay, Uint uVolume)
+void NEZVolume(NEZ_PLAY *pNezPlay, uint32_t uVolume)
 {
 	if (pNezPlay == 0) return;
 	pNezPlay->volume = uVolume;
 	NESVolume(pNezPlay, pNezPlay->volume);
 }
 
-void NEZAPUVolume(NEZ_PLAY *pNezPlay, Int32 uVolume)
+void NEZAPUVolume(NEZ_PLAY *pNezPlay, int32_t uVolume)
 {
 	if (pNezPlay == 0) return;
 	if (pNezPlay->nsf == 0) return;
 	((NSFNSF*)pNezPlay->nsf)->apu_volume = uVolume;
 }
 
-void NEZDPCMVolume(NEZ_PLAY *pNezPlay, Int32 uVolume)
+void NEZDPCMVolume(NEZ_PLAY *pNezPlay, int32_t uVolume)
 {
 	if (pNezPlay == 0) return;
 	if (pNezPlay->nsf == 0) return;
 	((NSFNSF*)pNezPlay->nsf)->dpcm_volume = uVolume;
 }
 
-void NEZRender(NEZ_PLAY *pNezPlay, void *bufp, Uint buflen)
+void NEZRender(NEZ_PLAY *pNezPlay, void *bufp, uint32_t buflen)
 {
 	if (pNezPlay == 0) return;
-	NESAudioRender(pNezPlay, (Int16*)bufp, buflen);
+	NESAudioRender(pNezPlay, (int16_t*)bufp, buflen);
 }
 
-Uint NEZGetSongNo(NEZ_PLAY *pNezPlay)
+uint32_t NEZGetSongNo(NEZ_PLAY *pNezPlay)
 {
 	if (pNezPlay == 0) return 0;
 	return SONGINFO_GetSongNo(pNezPlay->song);
 }
 
-Uint NEZGetSongStart(NEZ_PLAY *pNezPlay)
+uint32_t NEZGetSongStart(NEZ_PLAY *pNezPlay)
 {
 	if (pNezPlay == 0) return 0;
 	return SONGINFO_GetStartSongNo(pNezPlay->song);
 }
 
-Uint NEZGetSongMax(NEZ_PLAY *pNezPlay)
+uint32_t NEZGetSongMax(NEZ_PLAY *pNezPlay)
 {
 	if (pNezPlay == 0) return 0;
 	return SONGINFO_GetMaxSongNo(pNezPlay->song);
 }
 
-Uint NEZGetChannel(NEZ_PLAY *pNezPlay)
+uint32_t NEZGetChannel(NEZ_PLAY *pNezPlay)
 {
 	if (pNezPlay == 0) return 1;
 	return SONGINFO_GetChannel(pNezPlay->song);
 }
 
-Uint NEZGetFrequency(NEZ_PLAY *pNezPlay)
+uint32_t NEZGetFrequency(NEZ_PLAY *pNezPlay)
 {
 	if (pNezPlay == 0) return 1;
 	return NESAudioFrequencyGet(pNezPlay);
 }
 
-Uint NEZLoad(NEZ_PLAY *pNezPlay, Uint8 *pData, Uint uSize)
+uint32_t NEZLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 {
-	Uint ret = NESERR_NOERROR;
+	uint32_t ret = NEZPLUG_NESERR_NOERROR;
 	ioview_ioread_DEV_2A03   =NULL;
 	ioview_ioread_DEV_FDS    =NULL;
 	ioview_ioread_DEV_MMC5   =NULL;
@@ -226,7 +225,7 @@ Uint NEZLoad(NEZ_PLAY *pNezPlay, Uint8 *pData, Uint uSize)
 	while (1)
 	{
 		if (!pNezPlay || !pData) {
-			ret = NESERR_PARAMETER;
+			ret = NEZPLUG_NESERR_PARAMETER;
 			break;
 		}
 		NESTerminate(pNezPlay);
@@ -234,7 +233,7 @@ Uint NEZLoad(NEZ_PLAY *pNezPlay, Uint8 *pData, Uint uSize)
 		NESAudioHandlerInitialize(pNezPlay);
 		if (uSize < 8)
 		{
-			ret = NESERR_FORMAT;
+			ret = NEZPLUG_NESERR_FORMAT;
 			break;
 		}
 		else if (GetDwordLE(pData + 0) == GetDwordLEM("KSCC"))
@@ -305,10 +304,10 @@ Uint NEZLoad(NEZ_PLAY *pNezPlay, Uint8 *pData, Uint uSize)
 		}
 		else
 		{
-			ret = NESERR_FORMAT;
+			ret = NEZPLUG_NESERR_FORMAT;
 			break;
 		}
-		return NESERR_NOERROR;
+		return NEZPLUG_NESERR_NOERROR;
 	}
 	NESTerminate(pNezPlay);
 	return ret;

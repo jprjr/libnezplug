@@ -17,29 +17,29 @@
 #define NOISE_RENDERS 2
 
 typedef struct {
-	Uint32 cycles;
-	Uint32 spd;
-	Uint32 vol;
-	Uint8 adr;
-	Uint8 mute;
-	Uint8 pad4[2];
-	Uint32 count;
-	Uint32 output;
+	uint32_t cycles;
+	uint32_t spd;
+	uint32_t vol;
+	uint8_t adr;
+	uint8_t mute;
+	uint8_t pad4[2];
+	uint32_t count;
+	uint32_t output;
 } SNG_SQUARE;
 
 typedef struct {
-	Uint32 cycles;
-	Uint32 spd;
-	Uint32 vol;
-	Uint32 rng;
-	Uint32 fb;
-	Uint8 step1;
-	Uint8 step2;
-	Uint8 mode;
-	Uint8 mute;
-	Uint8 pad4[2];
-	Uint8 count;
-	Uint32 output;
+	uint32_t cycles;
+	uint32_t spd;
+	uint32_t vol;
+	uint32_t rng;
+	uint32_t fb;
+	uint8_t step1;
+	uint8_t step2;
+	uint8_t mode;
+	uint8_t mute;
+	uint8_t pad4[2];
+	uint8_t count;
+	uint32_t output;
 } SNG_NOISE;
 
 typedef struct {
@@ -48,26 +48,26 @@ typedef struct {
 	SNG_SQUARE square[3];
 	SNG_NOISE noise;
 	struct {
-		Uint32 cps;
-		Uint32 ncps;
-		Int32 mastervolume;
-		Uint8 first;
-		Uint8 ggs;
+		uint32_t cps;
+		uint32_t ncps;
+		int32_t mastervolume;
+		uint8_t first;
+		uint8_t ggs;
 	} common;
-	Uint8 type;
-	Uint8 regs[0x11];
+	uint8_t type;
+	uint8_t regs[0x11];
 } SNGSOUND;
 
 #define V(a) (((a * (1 << LOG_BITS)) / 3) << 1)
-const static Uint32 voltbl[16] = {
+const static uint32_t voltbl[16] = {
 	V(0x0), V(0x1), V(0x2),V(0x3),V(0x4), V(0x5), V(0x6),V(0x7),
 	V(0x8), V(0x9), V(0xA),V(0xB),V(0xC), V(0xD), V(0xE),LOG_KEYOFF
 };
 #undef V
 
-__inline static Int32 SNGSoundSquareSynth(SNGSOUND *sndp, SNG_SQUARE *ch)
+__inline static int32_t SNGSoundSquareSynth(SNGSOUND *sndp, SNG_SQUARE *ch)
 {
-	Int32 outputbuf=0,count=0;
+	int32_t outputbuf=0,count=0;
 	if (ch->spd < (0x4 << CPS_SHIFT))
 	{
 		return LogToLin(sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21);
@@ -95,9 +95,9 @@ __inline static Int32 SNGSoundSquareSynth(SNGSOUND *sndp, SNG_SQUARE *ch)
 	return outputbuf / count;
 }
 
-__inline static Int32 SNGSoundNoiseSynth(SNGSOUND *sndp, SNG_NOISE *ch)
+__inline static int32_t SNGSoundNoiseSynth(SNGSOUND *sndp, SNG_NOISE *ch)
 {
-	Int32 outputbuf=0,count=0;
+	int32_t outputbuf=0,count=0;
 	//if (ch->spd < (0x1 << (CPS_SHIFT - 1))) return 0;
 	ch->cycles += (sndp->common.ncps >> 1) <<NOISE_RENDERS;
 	ch->output = LogToLin(sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21);
@@ -139,11 +139,11 @@ static void SNGSoundNoiseReset(SNG_NOISE *ch)
 }
 
 
-static void sndsynth(void *ctx, Int32 *p)
+static void sndsynth(void *ctx, int32_t *p)
 {
 	SNGSOUND *sndp = (SNGSOUND*)ctx;
-	Uint32 ch;
-	Int32 accum = 0;
+	uint32_t ch;
+	int32_t accum = 0;
 	for (ch = 0; ch < 3; ch++)
 	{
 		accum = SNGSoundSquareSynth(sndp, &sndp->square[ch]);
@@ -157,21 +157,21 @@ static void sndsynth(void *ctx, Int32 *p)
 	if (sndp->common.ggs & 0x08) p[1] += accum;
 }
 
-static void sndvolume(void *ctx, Int32 volume)
+static void sndvolume(void *ctx, int32_t volume)
 {
 	SNGSOUND *sndp = (SNGSOUND*)ctx;
 	volume = (volume << (LOG_BITS - 8)) << 1;
 	sndp->common.mastervolume = volume;
 }
 
-static Uint32 sndread(void *ctx, Uint32 a)
+static uint32_t sndread(void *ctx, uint32_t a)
 {
     (void)ctx;
     (void)a;
 	return 0;
 }
 
-static void sndwrite(void *ctx, Uint32 a, Uint32 v)
+static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 {
 	SNGSOUND *sndp = (SNGSOUND*)ctx;
 	if ((a & 1) && sndp->type  == SNG_TYPE_GAMEGEAR)
@@ -181,7 +181,7 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 	}
 	else if (sndp->common.first)
 	{
-		Uint32 ch = (sndp->common.first >> 5) & 3;
+		uint32_t ch = (sndp->common.first >> 5) & 3;
 		if (sndp->type == SNG_TYPE_SN76489AN) {
 			//0x000が一番低く、0x001が一番高い。
 			sndp->square[ch].spd = (((((v & 0x3F) << 4) + (sndp->common.first & 0xF)) + 0x3ff)&0x3ff) +1;
@@ -200,7 +200,7 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 	}
 	else
 	{
-		Uint32 ch;
+		uint32_t ch;
 		if(v >= 0x80)sndp->regs[(v & 0xF0)>>4]=v;
 		switch (v & 0xF0)
 		{
@@ -232,7 +232,7 @@ static void sndwrite(void *ctx, Uint32 a, Uint32 v)
 
 }
 
-static void sndreset(void *ctx, Uint32 clock, Uint32 freq)
+static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
 {
 	SNGSOUND *sndp = (SNGSOUND*)ctx;
 	XMEMSET(&sndp->common, 0, sizeof(sndp->common));
@@ -266,7 +266,7 @@ static void sndrelease(void *ctx)
 	}
 }
 
-static void setinst(void *ctx, Uint32 n, void *p, Uint32 l)
+static void setinst(void *ctx, uint32_t n, void *p, uint32_t l)
 {
     (void)ctx;
     (void)n;
@@ -275,9 +275,9 @@ static void setinst(void *ctx, Uint32 n, void *p, Uint32 l)
 }
 
 //ここからレジスタビュアー設定
-static Uint8 *regdata;
-Uint32 (*ioview_ioread_DEV_SN76489)(Uint32 a);
-static Uint32 ioview_ioread_bf(Uint32 a){
+static uint8_t *regdata;
+uint32_t (*ioview_ioread_DEV_SN76489)(uint32_t a);
+static uint32_t ioview_ioread_bf(uint32_t a){
 	switch(a){
 	case 0:	case 1:	case 2:	case 3:	case 4:	case 5:	case 0x10:
 		return regdata[a];
@@ -288,7 +288,7 @@ static Uint32 ioview_ioread_bf(Uint32 a){
 }
 //ここまでレジスタビュアー設定
 
-KMIF_SOUND_DEVICE *SNGSoundAlloc(Uint32 sng_type)
+KMIF_SOUND_DEVICE *SNGSoundAlloc(uint32_t sng_type)
 {
 	SNGSOUND *sndp;
 	sndp = XMALLOC(sizeof(SNGSOUND));

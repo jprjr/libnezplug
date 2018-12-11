@@ -6,17 +6,17 @@
 extern "C" {
 #endif
 
-#include "../nestypes.h"
+#include "../normalize.h"
 
 typedef struct {
 	void *ctx;
 	void (*release)(void *ctx);
-	void (*reset)(void *ctx, Uint32 clock, Uint32 freq);
-	void (*synth)(void *ctx, Int32 *p);
-	void (*volume)(void *ctx, Int32 v);
-	void (*write)(void *ctx, Uint32 a, Uint32 v);
-	Uint32 (*read)(void *ctx, Uint32 a);
-	void (*setinst)(void *ctx, Uint32 n, void *p, Uint32 l);
+	void (*reset)(void *ctx, uint32_t clock, uint32_t freq);
+	void (*synth)(void *ctx, int32_t *p);
+	void (*volume)(void *ctx, int32_t v);
+	void (*write)(void *ctx, uint32_t a, uint32_t v);
+	uint32_t (*read)(void *ctx, uint32_t a);
+	void (*setinst)(void *ctx, uint32_t n, void *p, uint32_t l);
 } KMIF_SOUND_DEVICE;
 
 //チャンネルマスク用
@@ -94,7 +94,7 @@ enum{//順番を変えたら恐ろしいことになる
 
 	DEV_MAX,
 };
-extern Uint8 chmask[0x80];
+extern uint8_t chmask[0x80];
 
 #ifdef __cplusplus
 }

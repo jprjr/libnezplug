@@ -16,16 +16,16 @@ typedef struct
 {
 	void *ctx;
 	void (*release)(void *ctx);
-	Uint32 sin_table[4][1 << SINTBL_BITS];
-	Uint32 tll2log_table[1 << TLLTBL_BITS];
-	Uint32 ar_tablelog[1 << ARTBL_BITS];
-	Uint32 am_table1[1 << AMTBL_BITS];
-	Uint32 pm_table1[1 << PMTBL_BITS];
+	uint32_t sin_table[4][1 << SINTBL_BITS];
+	uint32_t tll2log_table[1 << TLLTBL_BITS];
+	uint32_t ar_tablelog[1 << ARTBL_BITS];
+	uint32_t am_table1[1 << AMTBL_BITS];
+	uint32_t pm_table1[1 << PMTBL_BITS];
 #if 1
-	Uint32 ar_tablepow[1 << ARTBL_BITS];
+	uint32_t ar_tablepow[1 << ARTBL_BITS];
 #endif
-	Uint32 am_table2[1 << AMTBL_BITS];
-	Uint32 pm_table2[1 << PMTBL_BITS];
+	uint32_t am_table2[1 << AMTBL_BITS];
+	uint32_t pm_table2[1 << PMTBL_BITS];
 } KMIF_OPLTABLE;
 
 KMIF_OPLTABLE *OplTableAddRef(void);

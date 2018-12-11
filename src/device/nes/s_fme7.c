@@ -1,4 +1,4 @@
-#include "../../nestypes.h"
+#include "../../normalize.h"
 #include "../kmsnddev.h"
 #include "../../format/audiosys.h"
 #include "../../format/handler.h"
@@ -16,13 +16,13 @@
 
 typedef struct {
 	KMIF_SOUND_DEVICE *psgp;
-	Uint8 adr;
+	uint8_t adr;
 } PSGSOUND;
 
-static Int32 __fastcall PSGSoundRender(void* pNezPlay)
+static int32_t PSGSoundRender(void* pNezPlay)
 {
 	PSGSOUND *psgs = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->psgs;
-	Int32 b[2] = {0, 0};
+	int32_t b[2] = {0, 0};
 	psgs->psgp->synth(psgs->psgp->ctx, b);
 	return b[0]*FME7_VOL;
 }
@@ -32,7 +32,7 @@ const static NES_AUDIO_HANDLER s_psg_audio_handler[] = {
 	{ 0, 0, 0, NULL }, 
 };
 
-static void __fastcall PSGSoundVolume(void* pNezPlay, Uint volume)
+static void PSGSoundVolume(void* pNezPlay, uint32_t volume)
 {
 	PSGSOUND *psgs = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->psgs;
 	psgs->psgp->volume(psgs->psgp->ctx, volume);
@@ -43,14 +43,14 @@ const static NES_VOLUME_HANDLER s_psg_volume_handler[] = {
 	{ 0, NULL }, 
 };
 
-static void __fastcall PSGSoundWrireAddr(void *pNezPlay, Uint address, Uint value)
+static void PSGSoundWrireAddr(void *pNezPlay, uint32_t address, uint32_t value)
 {
     (void)address;
 	PSGSOUND *psgs = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->psgs;
-	psgs->adr = (Uint8)value;
+	psgs->adr = (uint8_t)value;
 	psgs->psgp->write(psgs->psgp->ctx, 0, value);
 }
-static void __fastcall PSGSoundWrireData(void *pNezPlay, Uint address, Uint value)
+static void PSGSoundWrireData(void *pNezPlay, uint32_t address, uint32_t value)
 {
     (void)address;
 	PSGSOUND *psgs = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->psgs;
@@ -64,7 +64,7 @@ static NES_WRITE_HANDLER s_fme7_write_handler[] =
 	{ 0,      0,      0, NULL },
 };
 
-static void __fastcall FME7SoundReset(void* pNezPlay)
+static void FME7SoundReset(void* pNezPlay)
 {
 	PSGSOUND *psgs = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->psgs;
 	psgs->psgp->reset(psgs->psgp->ctx, BASECYCLES_NES / 12, NESAudioFrequencyGet(pNezPlay));
@@ -75,7 +75,7 @@ const static NES_RESET_HANDLER s_fme7_reset_handler[] = {
 	{ 0,                   0, NULL }, 
 };
 
-static void __fastcall PSGSoundTerm(void* pNezPlay)
+static void PSGSoundTerm(void* pNezPlay)
 {
 	PSGSOUND *psgs = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->psgs;
 	if (psgs->psgp)

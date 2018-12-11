@@ -1,4 +1,4 @@
-#include "../neserr.h"
+#include <nezplug/nezplug.h>
 #include "handler.h"
 #include "audiosys.h"
 #include "nsf6502.h"
@@ -19,7 +19,7 @@
 #include "m_nsf.h"
 #include "../cpu/km6502/km2a03m.h"
 
-static void NES6502BreakPoint(NEZ_PLAY *pNezPlay, Uint A)
+static void NES6502BreakPoint(NEZ_PLAY *pNezPlay, uint32_t A)
 {
 	((NSFNSF*)pNezPlay->nsf)->work6502_BP = A;
 }
@@ -32,7 +32,7 @@ void NES6502Irq(NEZ_PLAY *pNezPlay)
 /*
 //DPCMのIRQ予約用。サンプリングレートの影響を受けずに、
 //狂いなくDPCM-IRQを入れるために作成。 0で割り込み無し
-void NES6502SetIrqCount(NEZ_PLAY *pNezPlay, Int A)
+void NES6502SetIrqCount(NEZ_PLAY *pNezPlay, int32_t A)
 {
 	((NSFNSF*)pNezPlay->nsf)->dpcmirq_ct = A;
 }
@@ -44,12 +44,12 @@ static void NES6502Nmi(NEZ_PLAY *pNezPlay)
 	((NSFNSF*)pNezPlay->nsf)->work6502.iRequest |= K6502_NMI;
 }
 #endif
-Uint NES6502Read(NEZ_PLAY *pNezPlay, Uint A)
+uint32_t NES6502Read(NEZ_PLAY *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)pNezPlay->nsf)->work6502.ReadByte[A >> USE_INLINEMMC](pNezPlay, A);
 }
 
-Uint NES6502ReadDma(NEZ_PLAY *pNezPlay, Uint A)
+uint32_t NES6502ReadDma(NEZ_PLAY *pNezPlay, uint32_t A)
 {
 	((NSFNSF*)pNezPlay->nsf)->work6502.clock++;	/* DMA cycle */
 	if(((NSFNSF*)pNezPlay->nsf)->dpcmirq_ct >= 0){
@@ -58,20 +58,20 @@ Uint NES6502ReadDma(NEZ_PLAY *pNezPlay, Uint A)
 	return ((NSFNSF*)pNezPlay->nsf)->work6502.ReadByte[A >> USE_INLINEMMC](pNezPlay, A);
 }
 
-void NES6502Write(NEZ_PLAY *pNezPlay, Uint A, Uint V)
+void NES6502Write(NEZ_PLAY *pNezPlay, uint32_t A, uint32_t V)
 {
 	((NSFNSF*)pNezPlay->nsf)->work6502.WriteByte[A >> USE_INLINEMMC](pNezPlay, A, V);
 }
 
-Uint NES6502GetCycles(NEZ_PLAY* pNezPlay)
+uint32_t NES6502GetCycles(NEZ_PLAY* pNezPlay)
 {
 	return ((NSFNSF*)pNezPlay->nsf)->work6502.clock + ((NSFNSF*)pNezPlay->nsf)->work6502_start_cycles;
 }
 
-static Uint NES6502Execute(NEZ_PLAY *pNezPlay, Uint start_cycles, Uint total_cycles)
+static uint32_t NES6502Execute(NEZ_PLAY *pNezPlay, uint32_t start_cycles, uint32_t total_cycles)
 {
 	NSFNSF *nsf = (NSFNSF*)pNezPlay->nsf;
-	//Int32 clb = nsf->work6502.clock;
+	//int32_t clb = nsf->work6502.clock;
 	nsf->work6502_start_cycles = start_cycles;
 
 	while (nsf->work6502.clock < total_cycles)
@@ -120,18 +120,18 @@ static Uint NES6502Execute(NEZ_PLAY *pNezPlay, Uint start_cycles, Uint total_cyc
 /*  Memory Access Handler  */
 /* ----------------------- */
 
-static void NES6502ReadHandlerSet(NEZ_PLAY *pNezPlay, Uint bank, READHANDLER rh)
+static void NES6502ReadHandlerSet(NEZ_PLAY *pNezPlay, uint32_t bank, READHANDLER rh)
 {
 	((NSFNSF*)pNezPlay->nsf)->work6502.ReadByte[bank] = rh;
 }
 
-static void NES6502WriteHandlerSet(NEZ_PLAY *pNezPlay, Uint bank, WRITEHANDLER wh)
+static void NES6502WriteHandlerSet(NEZ_PLAY *pNezPlay, uint32_t bank, WRITEHANDLER wh)
 {
 	((NSFNSF*)pNezPlay->nsf)->work6502.WriteByte[bank] = wh;
 }
 
 #define EXTREADWRITE(p) \
-static Uint __fastcall ExtRd##p (void *pNezPlay, Uint A) \
+static uint32_t ExtRd##p (void *pNezPlay, uint32_t A) \
 { \
 	NES_READ_HANDLER *ph = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->nprh[0x##p ]; \
 	do \
@@ -143,7 +143,7 @@ static Uint __fastcall ExtRd##p (void *pNezPlay, Uint A) \
 	} while ((ph = ph->next) != 0); \
 	return 0; \
 } \
-static void __fastcall ExtWr##p (void *pNezPlay, Uint A, Uint V) \
+static void ExtWr##p (void *pNezPlay, uint32_t A, uint32_t V) \
 { \
 	NES_WRITE_HANDLER *ph = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->npwh[0x##p ]; \
 	do \
@@ -183,13 +183,13 @@ static const WRITEHANDLER ExtWrTbl[0x10] = {
 	ExtWr8,ExtWr9,ExtWrA,ExtWrB,
 	ExtWrC,ExtWrD,ExtWrE,ExtWrF,
 };
-static Uint __fastcall NullRead(void *pNezPlay, Uint A)
+static uint32_t NullRead(void *pNezPlay, uint32_t A)
 {
     (void)pNezPlay;
     (void)A;
 	return 0;
 }
-static void __fastcall NullWrite(void *pNezPlay, Uint A, Uint V)
+static void NullWrite(void *pNezPlay, uint32_t A, uint32_t V)
 {
     (void)pNezPlay;
     (void)A;
@@ -198,10 +198,10 @@ static void __fastcall NullWrite(void *pNezPlay, Uint A, Uint V)
 
 
 //ここからメモリービュアー設定
-Uint32 (*memview_memread)(Uint32 a);
+uint32_t (*memview_memread)(uint32_t a);
 NEZ_PLAY* memview_context;
 int MEM_MAX,MEM_IO,MEM_RAM,MEM_ROM;
-Uint32 memview_memread_nes(Uint32 a){
+uint32_t memview_memread_nes(uint32_t a){
 	if(((NSFNSF*)((NEZ_PLAY*)memview_context)->nsf)->nprh[(a>>12) & 0xF]!=NULL)
 		return ExtRdTbl[(a>>12) & 0xF](memview_context,a);
 	else return 0xFF;
@@ -233,7 +233,7 @@ static void NES6502Reset(NEZ_PLAY *pNezPlay)
 static void InstallPageReadHandler(NEZ_PLAY *pNezPlay, NES_READ_HANDLER *ph)
 {
 	NSFNSF *nsf = (NSFNSF*)pNezPlay->nsf;
-	Uint page = (ph->min >> 12) & 0xF;
+	uint32_t page = (ph->min >> 12) & 0xF;
 	if (nsf->nprh[page])
 		NES6502ReadHandlerSet(pNezPlay, page, ExtRdTbl[page]);
 	else
@@ -245,7 +245,7 @@ static void InstallPageReadHandler(NEZ_PLAY *pNezPlay, NES_READ_HANDLER *ph)
 static void InstallPageWriteHandler(NEZ_PLAY *pNezPlay, NES_WRITE_HANDLER *ph)
 {
 	NSFNSF *nsf = (NSFNSF*)pNezPlay->nsf;
-	Uint page = (ph->min >> 12) & 0xF;
+	uint32_t page = (ph->min >> 12) & 0xF;
 	if (nsf->npwh[page])
 		NES6502WriteHandlerSet(pNezPlay, page, ExtWrTbl[page]);
 	else
@@ -267,7 +267,7 @@ void NESWriteHandlerInstall(NEZ_PLAY *pNezPlay, NES_WRITE_HANDLER *ph)
 void NESMemoryHandlerInitialize(NEZ_PLAY *pNezPlay)
 {
 	NSFNSF *nsf = (NSFNSF*)pNezPlay->nsf;
-	Uint i;
+	uint32_t i;
 	for (i = 0; i < 0x10;  i++)
 	{
 		NES6502ReadHandlerSet(pNezPlay, i, NullRead);
@@ -284,7 +284,7 @@ void NESMemoryHandlerInitialize(NEZ_PLAY *pNezPlay)
 #define SHIFT_CPS 24
 #define NES_BASECYCLES (21477270)
 
-static void NSFRomInit(NEZ_PLAY *pNezPlay, Uint A)
+static void NSFRomInit(NEZ_PLAY *pNezPlay, uint32_t A)
 {
 	NSFNSF *nsf = (NSFNSF*)pNezPlay->nsf;
 	nsf->nsf6502.rom[0] = 0x20;	/* jsr */
@@ -295,7 +295,7 @@ static void NSFRomInit(NEZ_PLAY *pNezPlay, Uint A)
 	nsf->nsf6502.rom[5] = 0x41;
 }
 
-static Uint GetWordLE(Uint8 *p)
+static uint32_t GetWordLE(uint8_t *p)
 {
 	return p[0] | (p[1] << 8);
 }
@@ -315,10 +315,10 @@ static void NSF6502PlaySetup(NEZ_PLAY *pNezPlay)
 	}
 }
 
-static Int32 __fastcall Execute6502(void *pNezPlay)
+static int32_t Execute6502(void *pNezPlay)
 {
 	NSFNSF *nsf = (NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf;
-	Uint32 cycles;
+	uint32_t cycles;
 	nsf->nsf6502.cleft += nsf->nsf6502.cps;
 	cycles = nsf->nsf6502.cleft >> SHIFT_CPS;
 	if (/*nsf->dpcmirq_ct>-65536 || */!nsf->nsf6502.breaked)
@@ -358,20 +358,20 @@ const static NES_AUDIO_HANDLER nsf6502_audio_handler[] = {
 
 #ifdef _WIN32
 extern int __stdcall MulDiv(int nNumber,int nNumerator,int nDenominator);
-static Uint32 __forceinline muldiv(Uint32 m, Uint32 n, Uint32 d)
+static uint32_t __forceinline muldiv(uint32_t m, uint32_t n, uint32_t d)
 {
 	return MulDiv(m,n,d);
 }
 #else
-static Uint32 muldiv(Uint32 m, Uint32 n, Uint32 d)
+static uint32_t muldiv(uint32_t m, uint32_t n, uint32_t d)
 {
 	return ((double)m) * n / d;
 }
 #endif
 
-static Uint32 DivFix(Uint32 p1, Uint32 p2, Uint32 fix)
+static uint32_t DivFix(uint32_t p1, uint32_t p2, uint32_t fix)
 {
-	Uint32 ret;
+	uint32_t ret;
 	ret = p1 / p2;
 	p1  = p1 % p2;/* p1 = p1 - p2 * ret; */
 	while (fix--)
@@ -387,12 +387,12 @@ static Uint32 DivFix(Uint32 p1, Uint32 p2, Uint32 fix)
 	return ret;
 }
 
-static void __fastcall NSF6502Reset(void *pNezPlay)
+static void NSF6502Reset(void *pNezPlay)
 {
 	NSFNSF *nsf = (NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf;
-	Uint8 *nsfhead = NSFGetHeader((NEZ_PLAY*)pNezPlay);
-	Uint freq = NESAudioFrequencyGet((NEZ_PLAY*)pNezPlay);
-	Uint speed = 0;
+	uint8_t *nsfhead = NSFGetHeader((NEZ_PLAY*)pNezPlay);
+	uint32_t freq = NESAudioFrequencyGet((NEZ_PLAY*)pNezPlay);
+	uint32_t speed = 0;
 
 	nsf->nsf6502.palntsc = nsfhead[0x7a] & 1;
 	if (!nsf->nsf6502.palntsc && GetWordLE(nsfhead + 0x6E))
@@ -436,7 +436,7 @@ static void __fastcall NSF6502Reset(void *pNezPlay)
 #define LIMIT_INIT (2 * 60)	/* 2sec */
 #if LIMIT_INIT
 	{
-		Uint sec;
+		uint32_t sec;
 		for (sec = 0; sec < LIMIT_INIT; sec++)
 		{
 			nsf->nsf6502.breaked = NES6502Execute((NEZ_PLAY*)pNezPlay, nsf->nsf6502.total_cycles, nsf->nsf6502.cpf[0]);
@@ -461,7 +461,7 @@ const static NES_RESET_HANDLER nsf6502_reset_handler[] = {
 
 
 /* Nosefart-ROM area */
-static Uint32 __fastcall ReadNosefartRom(void *pNezPlay, Uint32 A)
+static uint32_t ReadNosefartRom(void *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->nsf6502.rom[A & 0x000F];
 }
@@ -472,11 +472,11 @@ static NES_READ_HANDLER nsf6502_read_handler[] = {
 	{ 0     ,0     ,0, NULL },
 };
 
-Uint NSF6502Install(NEZ_PLAY *pNezPlay)
+uint32_t NSF6502Install(NEZ_PLAY *pNezPlay)
 {
 	NESReadHandlerInstall(pNezPlay, nsf6502_read_handler);
 	NESAudioHandlerInstall(pNezPlay, nsf6502_audio_handler);
 	NESResetHandlerInstall(pNezPlay->nrh, nsf6502_reset_handler);
-	return NESERR_NOERROR;
+	return NEZPLUG_NESERR_NOERROR;
 }
 
