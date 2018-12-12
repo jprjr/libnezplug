@@ -275,20 +275,6 @@ static void setinst(void *ctx, uint32_t n, void *p, uint32_t l)
     (void)l;
 }
 
-//ここからレジスタビュアー設定
-static uint8_t *regdata;
-uint32_t (*ioview_ioread_DEV_SN76489)(uint32_t a);
-static uint32_t ioview_ioread_bf(uint32_t a){
-	switch(a){
-	case 0:	case 1:	case 2:	case 3:	case 4:	case 5:	case 0x10:
-		return regdata[a];
-	case 9:	case 0xb:	case 0xd:	case 0xe:	case 0xf:	
-		return regdata[a]&0xf;
-	}
-	return 0x100;
-}
-//ここまでレジスタビュアー設定
-
 KMIF_SOUND_DEVICE *SNGSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t sng_type)
 {
 	SNGSOUND *sndp;
@@ -311,9 +297,5 @@ KMIF_SOUND_DEVICE *SNGSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t sng_type)
 		sndrelease(sndp);
 		return 0;
 	}
-	//ここからレジスタビュアー設定
-	regdata = sndp->regs;
-	ioview_ioread_DEV_SN76489 = ioview_ioread_bf;
-	//ここまでレジスタビュアー設定
 	return &sndp->kmif;
 }

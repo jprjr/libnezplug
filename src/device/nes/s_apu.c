@@ -1114,15 +1114,6 @@ const static NEZ_NES_TERMINATE_HANDLER s_apu_terminate_handler[] = {
 	{ 0, NULL }, 
 };
 
-//ここからレジスタビュアー設定
-uint8_t *regdata_2a03;
-uint32_t (*ioview_ioread_DEV_2A03)(uint32_t a);
-static uint32_t ioview_ioread_bf(uint32_t a){
-	if(a<=0x17)return regdata_2a03[a];else return 0x100;
-}
-//ここまでレジスタビュアー設定
-
-
 void APUSoundInstall(NEZ_PLAY *pNezPlay)
 {
 	APUSOUND *apu;
@@ -1138,9 +1129,4 @@ void APUSoundInstall(NEZ_PLAY *pNezPlay)
 	NESReadHandlerInstall(pNezPlay, s_apu_read_handler);
 	NESWriteHandlerInstall(pNezPlay, s_apu_write_handler);
 	NESResetHandlerInstall(pNezPlay->nrh, s_apu_reset_handler);
-
-	//ここからレジスタビュアー設定
-	regdata_2a03 = apu->regs;
-	ioview_ioread_DEV_2A03 = ioview_ioread_bf;
-	//ここまでレジスタビュアー設定
 }

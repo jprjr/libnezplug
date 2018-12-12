@@ -179,18 +179,6 @@ static void setinst(void *ctx, uint32_t n, void *p, uint32_t l)
     (void)l;
 }
 
-//ここからレジスタビュアー設定
-static SCCSOUND *sndpr;
-uint32_t (*ioview_ioread_DEV_SCC)(uint32_t a);
-static uint32_t ioview_ioread_bf(uint32_t a){
-	if(a<=0x9f)
-		return sndpr->ch[(a&0xe0)>>5].tonereg[a&0x1f];
-	if(a>=0xb0&&a<=0xbf)
-		return sndpr->regs[a&0xf];
-	return 0x100;
-}
-//ここまでレジスタビュアー設定
-
 KMIF_SOUND_DEVICE *SCCSoundAlloc(NEZ_PLAY *pNezPlay)
 {
 	SCCSOUND *sndp;
@@ -212,9 +200,5 @@ KMIF_SOUND_DEVICE *SCCSoundAlloc(NEZ_PLAY *pNezPlay)
 		sndrelease(sndp);
 		return 0;
 	}
-	//ここからレジスタビュアー設定
-	sndpr = sndp;
-	ioview_ioread_DEV_SCC = ioview_ioread_bf;
-	//ここまでレジスタビュアー設定
 	return &sndp->kmif;
 }

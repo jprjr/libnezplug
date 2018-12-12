@@ -13,31 +13,12 @@
 #include "m_nsd.h"
 #include "m_sgc.h"
 
-extern int (*ioview_ioread_DEV_2A03   )(int a);
-extern int (*ioview_ioread_DEV_FDS    )(int a);
-extern int (*ioview_ioread_DEV_MMC5   )(int a);
-extern int (*ioview_ioread_DEV_VRC6   )(int a);
-extern int (*ioview_ioread_DEV_N106   )(int a);
-extern int (*ioview_ioread_DEV_DMG    )(int a);
-extern int (*ioview_ioread_DEV_HUC6230)(int a);
-extern int (*ioview_ioread_DEV_AY8910 )(int a);
-extern int (*ioview_ioread_DEV_SN76489)(int a);
-extern int (*ioview_ioread_DEV_SCC    )(int a);
-extern int (*ioview_ioread_DEV_OPL    )(int a);
-extern int (*ioview_ioread_DEV_OPLL   )(int a);
-extern int (*ioview_ioread_DEV_ADPCM  )(int a);
-extern int (*ioview_ioread_DEV_ADPCM2 )(int a);
-extern int (*ioview_ioread_DEV_MSX    )(int a);
-
 struct {
 	char* title;
 	char* artist;
 	char* copyright;
 	char detail[1024];
 }songinfodata;
-
-int (*memview_memread)(int a);
-
 
 static uint32_t GetWordLE(uint8_t *p)
 {
@@ -76,23 +57,6 @@ NEZ_PLAY* NEZNew()
 void NEZDelete(NEZ_PLAY *pNezPlay)
 {
 	if (pNezPlay != NULL) {
-		ioview_ioread_DEV_2A03   =NULL;
-		ioview_ioread_DEV_FDS    =NULL;
-		ioview_ioread_DEV_MMC5   =NULL;
-		ioview_ioread_DEV_VRC6   =NULL;
-		ioview_ioread_DEV_N106   =NULL;
-		ioview_ioread_DEV_DMG    =NULL;
-		ioview_ioread_DEV_HUC6230=NULL;
-		ioview_ioread_DEV_AY8910 =NULL;
-		ioview_ioread_DEV_SN76489=NULL;
-		ioview_ioread_DEV_SCC    =NULL;
-		ioview_ioread_DEV_OPL    =NULL;
-		ioview_ioread_DEV_OPLL   =NULL;
-		ioview_ioread_DEV_ADPCM  =NULL;
-		ioview_ioread_DEV_ADPCM2 =NULL;
-		ioview_ioread_DEV_MSX    =NULL;
-		memview_memread=NULL;
-
 		NESTerminate(pNezPlay);
 		NESAudioHandlerTerminate(pNezPlay);
 		NESVolumeHandlerTerminate(pNezPlay);
@@ -194,22 +158,6 @@ uint32_t NEZGetFrequency(NEZ_PLAY *pNezPlay)
 uint32_t NEZLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 {
 	uint32_t ret = NEZ_NESERR_NOERROR;
-	ioview_ioread_DEV_2A03   =NULL;
-	ioview_ioread_DEV_FDS    =NULL;
-	ioview_ioread_DEV_MMC5   =NULL;
-	ioview_ioread_DEV_VRC6   =NULL;
-	ioview_ioread_DEV_N106   =NULL;
-	ioview_ioread_DEV_DMG    =NULL;
-	ioview_ioread_DEV_HUC6230=NULL;
-	ioview_ioread_DEV_AY8910 =NULL;
-	ioview_ioread_DEV_SN76489=NULL;
-	ioview_ioread_DEV_SCC    =NULL;
-	ioview_ioread_DEV_OPL    =NULL;
-	ioview_ioread_DEV_OPLL   =NULL;
-	ioview_ioread_DEV_ADPCM  =NULL;
-	ioview_ioread_DEV_ADPCM2 =NULL;
-	ioview_ioread_DEV_MSX    =NULL;
-	memview_memread=NULL;
 
 	songinfodata.title=NULL;
 	songinfodata.artist=NULL;

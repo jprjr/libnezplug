@@ -438,20 +438,6 @@ const static NEZ_NES_TERMINATE_HANDLER s_fds_terminate_handler[] = {
 	{ 0, NULL }, 
 };
 
-//ここからレジスタビュアー設定
-uint8_t *fds_regdata;
-uint8_t *fds_regdata2;
-uint8_t *fds_regdata3;
-uint32_t (*ioview_ioread_DEV_FDS)(uint32_t a);
-static uint32_t ioview_ioread_bf(uint32_t a){
-	if(         a<=0x0f)return fds_regdata[a];
-	if(a>=0x20&&a<=0x5f)return fds_regdata2[a-0x20];
-	if(a>=0x70&&a<=0x8f)return fds_regdata3[(a-0x70)*2];
-	else return 0x100;
-
-}
-//ここまでレジスタビュアー設定
-
 void FDSSoundInstall3(NEZ_PLAY *pNezPlay)
 {
 	FDSSOUND *fdssound;
@@ -467,11 +453,4 @@ void FDSSoundInstall3(NEZ_PLAY *pNezPlay)
 	NESReadHandlerInstall(pNezPlay, s_fds_read_handler);
 	NESWriteHandlerInstall(pNezPlay, s_fds_write_handler);
 	NESResetHandlerInstall(pNezPlay->nrh, s_fds_reset_handler);
-
-	//ここからレジスタビュアー設定
-	fds_regdata = fdssound->reg;
-	fds_regdata2 = fdssound->op[0].wg.wavereg;
-	fds_regdata3 = fdssound->op[1].wg.wavereg;
-	ioview_ioread_DEV_FDS = ioview_ioread_bf;
-	//ここまでレジスタビュアー設定
 }

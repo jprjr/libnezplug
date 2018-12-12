@@ -199,20 +199,6 @@ static void NullWrite(NEZ_PLAY *pNezPlay, uint32_t A, uint32_t V)
     (void)V;
 }
 
-
-//ここからメモリービュアー設定
-uint32_t (*memview_memread)(uint32_t a);
-NEZ_PLAY* memview_context;
-int MEM_MAX,MEM_IO,MEM_RAM,MEM_ROM;
-uint32_t memview_memread_nes(uint32_t a){
-	if(((NSFNSF*)memview_context->nsf)->nprh[(a>>12) & 0xF]!=NULL)
-		return ExtRdTbl[(a>>12) & 0xF](memview_context,a);
-	else return 0xFF;
-}
-//ここまでメモリービュアー設定
-
-
-
 static void NES6502Reset(NEZ_PLAY *pNezPlay)
 {
 	NSFNSF *nsf = (NSFNSF*)pNezPlay->nsf;
@@ -220,15 +206,6 @@ static void NES6502Reset(NEZ_PLAY *pNezPlay)
 	nsf->work6502.iRequest = K6502_INIT;
 	nsf->work6502.PC = nsf->work6502_BP = 0xFFFF;
 	NES6502Execute(pNezPlay, 0, nsf->work6502.clock + 1);
-
-	//ここからメモリービュアー設定
-	memview_context = pNezPlay;
-	MEM_MAX=0xffff;
-	MEM_IO =0x4000;
-	MEM_RAM=0x0000;
-	MEM_ROM=0x8000;
-	memview_memread = memview_memread_nes;
-	//ここまでメモリービュアー設定
 
 }
 

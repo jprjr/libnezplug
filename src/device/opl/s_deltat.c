@@ -318,17 +318,6 @@ static void setinst(void *ctx, uint32_t n, void *p, uint32_t l)
 	}
 
 }
-//ここからレジスタビュアー設定
-static YMDELTATPCMSOUND *sndpr;
-uint32_t (*ioview_ioread_DEV_ADPCM)(uint32_t a);
-uint32_t (*ioview_ioread_DEV_ADPCM2)(uint32_t a);
-static uint32_t ioview_ioread_bf(uint32_t a){
-	if(a<=0xb)return sndpr->common.regs[a];else return 0x100;
-}
-static uint32_t ioview_ioread_bf2(uint32_t a){
-	if(a<sndpr->ram_size)return sndpr->rambuf[a];else return 0x100;
-}
-//ここまでレジスタビュアー設定
 
 KMIF_SOUND_DEVICE *YMDELTATPCMSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t ymdeltatpcm_type , uint8_t *pcmbuf)
 {
@@ -393,10 +382,5 @@ KMIF_SOUND_DEVICE *YMDELTATPCMSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t ymdeltatpc
 		sndrelease(sndp);
 		return 0;
 	}
-	//ここからレジスタビュアー設定
-	sndpr = sndp;
-	if(ioview_ioread_DEV_ADPCM ==NULL)ioview_ioread_DEV_ADPCM = ioview_ioread_bf;
-	if(ioview_ioread_DEV_ADPCM2==NULL)ioview_ioread_DEV_ADPCM2= ioview_ioread_bf2;
-	//ここまでレジスタビュアー設定
 	return &sndp->kmif;
 }

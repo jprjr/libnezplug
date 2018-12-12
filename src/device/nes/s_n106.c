@@ -422,14 +422,6 @@ const static NEZ_NES_TERMINATE_HANDLER s_n106_terminate_handler[] = {
 	{ 0, NULL }, 
 };
 
-//ここからレジスタビュアー設定
-uint8_t *n106_regdata;
-uint32_t (*ioview_ioread_DEV_N106)(uint32_t a);
-static uint32_t ioview_ioread_bf(uint32_t a){
-	if(a<=0x7f)return n106_regdata[a];else return 0x100;
-}
-//ここまでレジスタビュアー設定
-
 void N106SoundInstall(NEZ_PLAY *pNezPlay)
 {
 	N106SOUND *n106s;
@@ -445,10 +437,5 @@ void N106SoundInstall(NEZ_PLAY *pNezPlay)
 	NESReadHandlerInstall(pNezPlay, s_n106_read_handler);
 	NESWriteHandlerInstall(pNezPlay, s_n106_write_handler);
 	NESResetHandlerInstall(pNezPlay->nrh, s_n106_reset_handler);
-
-	//ここからレジスタビュアー設定
-	n106_regdata = n106s->data;
-	ioview_ioread_DEV_N106 = ioview_ioread_bf;
-	//ここまでレジスタビュアー設定
 
 }

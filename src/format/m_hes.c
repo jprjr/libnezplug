@@ -403,86 +403,6 @@ static void timer_event(KMEVENT *event, KMEVENT_ITEM_ID curid, HESHES *THIS_)
 	timer_setup(THIS_);
 }
 
-//ここからメモリービュアー設定
-uint32_t (*memview_memread)(uint32_t a);
-HESHES* memview_context;
-int MEM_MAX,MEM_IO,MEM_RAM,MEM_ROM;
-uint32_t memview_memread_hes(uint32_t a){
-	if(a>=0x1800&&a<0x1c00&&(a&0xf)==0xa)return 0xff;
-	return read_event(memview_context,a);
-}
-//ここまでメモリービュアー設定
-
-//ここからダンプ設定
-static NEZ_PLAY *pNezPlayDump;
-uint32_t (*dump_MEM_PCE)(uint32_t a,unsigned char* mem);
-static uint32_t dump_MEM_PCE_bf(uint32_t menu,unsigned char* mem){
-	int i;
-	switch(menu){
-	case 1://Memory
-		for(i=0;i<0x10000;i++)
-			mem[i] = memview_memread_hes(i);
-		return i;
-	}
-	return -2;
-}
-//----------
-extern uint32_t pce_ioview_ioread_bf(uint32_t);
-
-uint32_t (*dump_DEV_HUC6230)(uint32_t a,unsigned char* mem);
-static uint32_t dump_DEV_HUC6230_bf(uint32_t menu,unsigned char* mem){
-	int i;
-	switch(menu){
-	case 1://Register 1
-		for(i=0;i<0x0a;i++)
-			mem[i] = pce_ioview_ioread_bf(i);
-		return i;
-
-	case 2://Register 2
-		for(i=0;i<0x60;i++)
-			mem[i] = pce_ioview_ioread_bf(i+0x22);
-		return i;
-
-	case 3://Wave Data - CH1
-	case 4://Wave Data - CH2
-	case 5://Wave Data - CH3
-	case 6://Wave Data - CH4
-	case 7://Wave Data - CH5
-	case 8://Wave Data - CH6
-		for(i=0;i<0x20;i++)
-			mem[i] = pce_ioview_ioread_bf(i+0x100+(menu-3)*0x20);
-		return i;
-	}
-	return -2;
-}
-//----------
-extern uint32_t (*ioview_ioread_DEV_ADPCM)(uint32_t a);
-extern uint32_t (*ioview_ioread_DEV_ADPCM2)(uint32_t a);
-
-uint32_t (*dump_DEV_ADPCM)(uint32_t a,unsigned char* mem);
-static uint32_t dump_DEV_ADPCM_bf(uint32_t menu,unsigned char* mem){
-	int i;
-	switch(menu){
-	case 1://Register 1
-		for(i=0;i<0x8;i++)
-			mem[i] = ioview_ioread_DEV_ADPCM(i+8);
-		return i;
-	case 2://Register 2[ADR/LEN]
-		for(i=0;i<0x6;i++)
-			mem[i] = ioview_ioread_DEV_ADPCM(i+0x10);
-		return i;
-	case 3://Memory
-		for(i=0;i<0x10000;i++){
-			if(ioview_ioread_DEV_ADPCM2(i)==0x100)break;
-			mem[i] = ioview_ioread_DEV_ADPCM2(i);
-		}
-		return i;
-
-	}
-	return -2;
-}
-//----------
-
 static void reset(NEZ_PLAY *pNezPlay)
 {
 	HESHES *THIS_ = pNezPlay->heshes;
@@ -552,33 +472,11 @@ static void reset(NEZ_PLAY *pNezPlay)
 
 	THIS_->cpsrem = THIS_->cpsgap = THIS_->total_cycles = 0;
 
-	//ここからメモリービュアー設定
-	memview_context = THIS_;
-	MEM_MAX=0xffff;
-	MEM_IO =0x0000;
-	MEM_RAM=0x2000;
-	MEM_ROM=0x4000;
-	memview_memread = memview_memread_hes;
-	//ここまでメモリービュアー設定
-
-	//ここからダンプ設定
-	pNezPlayDump = pNezPlay;
-	dump_MEM_PCE     = dump_MEM_PCE_bf;
-	dump_DEV_HUC6230 = dump_DEV_HUC6230_bf;
-	dump_DEV_ADPCM   = dump_DEV_ADPCM_bf;
-	//ここまでダンプ設定
-
 }
 
 static void terminate(HESHES *THIS_)
 {
 	uint32_t i;
-
-	//ここからダンプ設定
-	dump_MEM_PCE     = NULL;
-	dump_DEV_HUC6230 = NULL;
-	dump_DEV_ADPCM   = NULL;
-	//ここまでダンプ設定
 
 	if (THIS_->hessnd) THIS_->hessnd->release(THIS_->hessnd->ctx);
 	if (THIS_->hespcm) THIS_->hespcm->release(THIS_->hespcm->ctx);

@@ -260,14 +260,6 @@ static void setinst(void *ctx, uint32_t n, void *p, uint32_t l)
     (void)l;
 }
 
-//ここからレジスタビュアー設定
-static uint8_t *regdata;
-extern uint32_t (*ioview_ioread_DEV_ADPCM)(uint32_t a);
-static uint32_t ioview_ioread_bf(uint32_t a){
-	if(a>=0x8 && a<=0x15)return regdata[a];else return 0x100;
-}
-//ここまでレジスタビュアー設定
-
 KMIF_SOUND_DEVICE *HESAdPcmAlloc(NEZ_PLAY *pNezPlay)
 {
 	HESADPCM *sndp;
@@ -283,11 +275,6 @@ KMIF_SOUND_DEVICE *HESAdPcmAlloc(NEZ_PLAY *pNezPlay)
 	sndp->kmif.write = sndwrite;
 	sndp->kmif.read = sndread;
 	sndp->kmif.setinst = setinst;
-	
-	//ここからレジスタビュアー設定
-	regdata = sndp->regs;
-	ioview_ioread_DEV_ADPCM = ioview_ioread_bf;
-	//ここまでレジスタビュアー設定
 
 	//発声部分
 	sndp->deltadev = YMDELTATPCMSoundAlloc(pNezPlay,3,sndp->pcmbuf);

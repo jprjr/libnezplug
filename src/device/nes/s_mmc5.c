@@ -399,14 +399,6 @@ const static NEZ_NES_TERMINATE_HANDLER s_mmc5_terminate_handler[] = {
 	{ 0, NULL }, 
 };
 
-//ここからレジスタビュアー設定
-uint8_t *mmc5_regdata;
-uint32_t (*ioview_ioread_DEV_MMC5)(uint32_t a);
-static uint32_t ioview_ioread_bf(uint32_t a){
-	if(a<=0x15)return mmc5_regdata[a];else return 0x100;
-}
-//ここまでレジスタビュアー設定
-
 void MMC5SoundInstall(NEZ_PLAY *pNezPlay)
 {
 	MMC5SOUND *mmc5;
@@ -421,10 +413,5 @@ void MMC5SoundInstall(NEZ_PLAY *pNezPlay)
 	NESTerminateHandlerInstall(&pNezPlay->nth, s_mmc5_terminate_handler);
 	NESWriteHandlerInstall(pNezPlay, s_mmc5_write_handler);
 	NESResetHandlerInstall(pNezPlay->nrh, s_mmc5_reset_handler);
-
-	//ここからレジスタビュアー設定
-	mmc5_regdata = mmc5->regs;
-	ioview_ioread_DEV_MMC5 = ioview_ioread_bf;
-	//ここまでレジスタビュアー設定
 
 }

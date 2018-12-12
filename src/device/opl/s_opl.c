@@ -1501,19 +1501,6 @@ static void sndrelease(void *ctx)
 	}
 }
 
-//ここからレジスタビュアー設定
-static uint8_t *regdata;
-static uint8_t *regdata2;
-uint32_t (*ioview_ioread_DEV_OPL)(uint32_t a);
-uint32_t (*ioview_ioread_DEV_OPLL)(uint32_t a);
-static uint32_t ioview_ioread_bf(uint32_t a){
-	if(a<=0xff)return regdata[a];else return 0x100;
-}
-static uint32_t ioview_ioread_bf2(uint32_t a){
-	if(a<0x40)return regdata2[a];else return 0x100;
-}
-//ここまでレジスタビュアー設定
-
 KMIF_SOUND_DEVICE *OPLSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t opl_type)
 {
 	OPLSOUND *sndp;
@@ -1563,14 +1550,5 @@ KMIF_SOUND_DEVICE *OPLSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t opl_type)
 		sndrelease(sndp);
 		return 0;
 	}
-	//ここからレジスタビュアー設定
-	if (sndp->opl_type & OPL_TYPE_OPL){
-		regdata = sndp->oplregs;
-		ioview_ioread_DEV_OPL = ioview_ioread_bf;
-	}else{
-		regdata2 = sndp->opllregs;
-		ioview_ioread_DEV_OPLL = ioview_ioread_bf2;
-	}
-	//ここまでレジスタビュアー設定
 	return &sndp->kmif;
 }

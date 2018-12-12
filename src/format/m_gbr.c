@@ -595,41 +595,6 @@ static void timer_event(KMEVENT *event, KMEVENT_ITEM_ID curid, GBRDMG *THIS_)
 
 }
 
-//ここからダンプ設定
-static NEZ_PLAY *pNezPlayDump;
-uint32_t (*dump_MEM_GB)(uint32_t a,unsigned char* mem);
-static uint32_t dump_MEM_GB_bf(uint32_t menu,unsigned char* mem){
-	int i;
-	switch(menu){
-	case 1://Memory
-		for(i=0;i<0x10000;i++)
-			mem[i] = read_event(pNezPlayDump->gbrdmg,i);
-		return i;
-	}
-	return -2;
-}
-//----------
-extern uint8_t *gb_regdata;
-
-uint32_t (*dump_DEV_DMG)(uint32_t a,unsigned char* mem);
-static uint32_t dump_DEV_DMG_bf(uint32_t menu,unsigned char* mem){
-	int i;
-	switch(menu){
-	case 1://Register
-		for(i=0;i<0x30;i++)
-			mem[i] = gb_regdata[i];
-		return i;
-
-	case 2://Wave Data
-		for(i=0;i<0x10;i++)
-			mem[i] = gb_regdata[i+0x20];
-		return i;
-	}
-	return -2;
-}
-//----------
-
-
 static void reset(NEZ_PLAY *pNezPlay)
 {
 	GBRDMG *THIS_ = pNezPlay->gbrdmg;
@@ -830,19 +795,10 @@ static void reset(NEZ_PLAY *pNezPlay)
 
 	THIS_->total_cycles = 0;
 
-	//ここからダンプ設定
-	pNezPlayDump = pNezPlay;
-	dump_MEM_GB  = dump_MEM_GB_bf;
-	dump_DEV_DMG = dump_DEV_DMG_bf;
-	//ここまでダンプ設定
-
 }
 
 static void terminate(GBRDMG *THIS_)
 {
-	//ここからダンプ設定
-	dump_MEM_GB  = NULL;
-	dump_DEV_DMG = NULL;
 	//ここまでダンプ設定
 	if (THIS_->dmgsnd) THIS_->dmgsnd->release(THIS_->dmgsnd->ctx);
 	if (THIS_->bankrom) XFREE(THIS_->bankrom);

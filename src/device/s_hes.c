@@ -489,23 +489,6 @@ static void setinst(void *ctx, uint32_t n, void *p, uint32_t l)
 
 }
 
-//ここからレジスタビュアー設定
-static HESSOUND *sndpr;
-uint32_t (*ioview_ioread_DEV_HUC6230)(uint32_t a);
-uint32_t pce_ioview_ioread_bf(uint32_t a){
-	if(a<=0x1)return sndpr->common.sysregs[a];
-	if(a>=0x2 && a<=0x7)if (sndpr->cur) return sndpr->cur->regs[a - 2];
-	if(a>=0x8 && a<=0x9)return sndpr->lfo.regs[a - 8];
-	if(a>=0x20 && a<0x7f){
-		if((a&0xf)>=0x2 && (a&0xf)<=0x7)
-			return sndpr->ch[(a>>4)-2].regs[(a&0xf)-2];
-	}
-	if(a>=0x100 && a<=0x1bf){
-		return sndpr->ch[(a>>5)-8].tonereg[(a&0x1f)];
-	}
-	return 0x100;
-}
-//ここまでレジスタビュアー設定
 
 KMIF_SOUND_DEVICE *HESSoundAlloc(NEZ_PLAY *pNezPlay)
 {
@@ -528,10 +511,6 @@ KMIF_SOUND_DEVICE *HESSoundAlloc(NEZ_PLAY *pNezPlay)
 		sndrelease(sndp);
 		return 0;
 	}
-	//ここからレジスタビュアー設定
-	sndpr = sndp;
-	ioview_ioread_DEV_HUC6230 = pce_ioview_ioread_bf;
-	//ここまでレジスタビュアー設定
 
 	return &sndp->kmif;
 }

@@ -298,71 +298,6 @@ static void vsync_event(KMEVENT *event, KMEVENT_ITEM_ID curid, SGCSEQ *THIS_)
 	if (THIS_->ctx.regs8[REGID_HALTED]) play_setup(THIS_, THIS_->playaddr);
 }
 
-//ここからメモリービュアー設定
-uint32_t (*memview_memread)(uint32_t a);
-SGCSEQ* memview_context;
-int MEM_MAX,MEM_IO,MEM_RAM,MEM_ROM;
-uint32_t memview_memread_sgc(uint32_t a){
-	return read_event(memview_context,a);
-}
-//ここまでメモリービュアー設定
-
-//ここからダンプ設定
-uint32_t (*dump_MEM_MSX)(uint32_t a,unsigned char* mem);
-static uint32_t dump_MEM_MSX_bf(uint32_t menu,unsigned char* mem){
-	int i;
-	switch(menu){
-	case 1://Memory
-		for(i=0;i<0x10000;i++)
-			mem[i] = memview_memread_sgc(i);
-		return i;
-	}
-	return -2;
-}
-//----------
-extern uint32_t (*ioview_ioread_DEV_SN76489)(uint32_t a);
-
-uint32_t (*dump_DEV_SN76489)(uint32_t a,unsigned char* mem);
-static uint32_t dump_DEV_SN76489_bf(uint32_t menu,unsigned char* mem){
-	int i;
-	switch(menu){
-	case 1://Register
-		for(i=0;i<0x10;i++)
-			mem[i] = ioview_ioread_DEV_SN76489(i);
-		return i;
-
-	}
-	return -2;
-}
-static uint32_t dump_DEV_SN76489_bf2(uint32_t menu,unsigned char* mem){
-	int i;
-	switch(menu){
-	case 1://Register
-		for(i=0;i<0x11;i++)
-			mem[i] = ioview_ioread_DEV_SN76489(i);
-		return i;
-
-	}
-	return -2;
-}
-//----------
-extern uint32_t (*ioview_ioread_DEV_OPLL)(uint32_t a);
-
-uint32_t (*dump_DEV_OPLL)(uint32_t a,unsigned char* mem);
-static uint32_t dump_DEV_OPLL_bf(uint32_t menu,unsigned char* mem){
-	int i;
-	switch(menu){
-	case 1://Register
-		for(i=0;i<0x40;i++)
-			mem[i] = ioview_ioread_DEV_OPLL(i);
-		return i;
-
-	}
-	return -2;
-}
-//----------
-
-
 
 static void reset(NEZ_PLAY *pNezPlay)
 {
@@ -413,9 +348,6 @@ static void reset(NEZ_PLAY *pNezPlay)
 			THIS_->bios[i*8+1]=THIS_->rstaddr[i-1]&0xff;
 			THIS_->bios[i*8+2]=THIS_->rstaddr[i-1]>>8;
 		}
-		MEM_IO =0x8000;
-		MEM_RAM=0xC000;
-		MEM_ROM=0x4000;
 		break;
 	case SYNTHMODE_CV:
 		//0000-1FFF : BIOS
@@ -449,15 +381,6 @@ static void reset(NEZ_PLAY *pNezPlay)
 				fclose(fp);
 			}
 		}
-/*		for (i = 1; i < 8; i++)
-		{
-			THIS_->bios[i*8]=0xc3;
-			THIS_->bios[i*8+1]=THIS_->rstaddr[i-1]&0xff;
-			THIS_->bios[i*8+2]=THIS_->rstaddr[i-1]>>8;
-		}
-*/		MEM_IO =0x0000;
-		MEM_RAM=0x6000;
-		MEM_ROM=0x8000;
 		break;
 	default:
 		break;
@@ -520,23 +443,12 @@ static void reset(NEZ_PLAY *pNezPlay)
 	}
 	THIS_->total_cycles = 0;
 
-	//ここからメモリービュアー設定
-	memview_context = THIS_;
-	MEM_MAX=0xffff;
-	memview_memread = memview_memread_sgc;
-	//ここまでメモリービュアー設定
-
 }
 
 static void terminate(SGCSEQ *THIS_)
 {
 	uint32_t i;
 
-	//ここからダンプ設定
-	dump_MEM_MSX     = NULL;
-	dump_DEV_SN76489 = NULL;
-	dump_DEV_OPLL    = NULL;
-	//ここまでダンプ設定
 	for (i = 0; i < SND_MAX; i++)
 	{
 		if (THIS_->sndp[i]) THIS_->sndp[i]->release(THIS_->sndp[i]->ctx);
@@ -653,20 +565,12 @@ RAM Bank      (8000-BFFF): %d\r\n\
 	XMEMCPY(copyrightbuffer, pData + 0x0080, 0x20);
 	songinfodata.copyright=(char *)copyrightbuffer;
 
-	//ここからダンプ設定
-	dump_MEM_MSX     = dump_MEM_MSX_bf;
-	//ここまでダンプ設定
-
 	switch(THIS_->systype){
 	case SYNTHMODE_SMS:
 		THIS_->sndp[SND_SNG] = SNGSoundAlloc(pNezPlay,SNG_TYPE_SEGAMKIII);
 		THIS_->sndp[SND_FMUNIT] = OPLSoundAlloc(pNezPlay,OPL_TYPE_SMSFMUNIT);
 		if (!THIS_->sndp[SND_FMUNIT]) return NEZ_NESERR_SHORTOFMEMORY;
 		SONGINFO_SetChannel(pNezPlay->song, 1);
-		//ここからダンプ設定
-		dump_DEV_SN76489 = dump_DEV_SN76489_bf;
-		dump_DEV_OPLL = dump_DEV_OPLL_bf;
-		//ここまでダンプ設定
 		THIS_->datasize = uSize - headersize;
 		THIS_->banknum = ((THIS_->datasize+THIS_->loadaddr)>>14)+1;
 		if(THIS_->banknum < 3)THIS_->banknum = 3;
@@ -686,9 +590,6 @@ RAM Bank      (8000-BFFF): %d\r\n\
 	case SYNTHMODE_GG:
 		THIS_->sndp[SND_SNG] = SNGSoundAlloc(pNezPlay,SNG_TYPE_GAMEGEAR);
 		SONGINFO_SetChannel(pNezPlay->song, 2);
-		//ここからダンプ設定
-		dump_DEV_SN76489 = dump_DEV_SN76489_bf2;
-		//ここまでダンプ設定
 		THIS_->datasize = uSize - headersize;
 		THIS_->banknum = ((THIS_->datasize+THIS_->loadaddr)>>14)+1;
 		if(THIS_->banknum < 3)THIS_->banknum = 3;
@@ -708,9 +609,6 @@ RAM Bank      (8000-BFFF): %d\r\n\
 	case SYNTHMODE_CV:
 		THIS_->sndp[SND_SNG] = SNGSoundAlloc(pNezPlay,SNG_TYPE_SN76489AN);
 		SONGINFO_SetChannel(pNezPlay->song, 1);
-		//ここからダンプ設定
-		dump_DEV_SN76489 = dump_DEV_SN76489_bf;
-		//ここまでダンプ設定
 		THIS_->banknum = 4;
 		THIS_->banksize = 0x2000;
 		THIS_->datasize = uSize - headersize;

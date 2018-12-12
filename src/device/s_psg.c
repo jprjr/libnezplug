@@ -519,18 +519,6 @@ static void setinst(void *ctx, uint32_t n, void *p, uint32_t l)
     (void)l;
 }
 
-//ここからレジスタビュアー設定
-static PSGSOUND *sndpr;
-uint32_t (*ioview_ioread_DEV_AY8910)(uint32_t a);
-uint32_t (*ioview_ioread_DEV_MSX)(uint32_t a);
-static uint32_t ioview_ioread_bf(uint32_t a){
-	if(a<=0xd)return sndpr->regs[a];else return 0x100;
-}
-static uint32_t ioview_ioread_bf2(uint32_t a){
-	if(a==0x0)return sndpr->common.daenable;else return 0x100;
-}
-//ここまでレジスタビュアー設定
-
 KMIF_SOUND_DEVICE *PSGSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t psg_type)
 {
 	PSGSOUND *sndp;
@@ -553,10 +541,5 @@ KMIF_SOUND_DEVICE *PSGSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t psg_type)
 		sndrelease(sndp);
 		return 0;
 	}
-	//ここからレジスタビュアー設定
-	sndpr = sndp;
-	ioview_ioread_DEV_AY8910 = ioview_ioread_bf;
-	ioview_ioread_DEV_MSX = ioview_ioread_bf2;
-	//ここまでレジスタビュアー設定
 	return &sndp->kmif;
 }

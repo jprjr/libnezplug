@@ -433,19 +433,6 @@ static void kmdmg_memwrite(KMZ80_CONTEXT *context, uint32_t a, uint32_t d)
 
 extern void kmz80_reset_common(KMZ80_CONTEXT *context);
 
-//ここからメモリービュアー設定
-uint32_t (*memview_memread)(uint32_t a);
-KMZ80_CONTEXT* memview_context;
-int MEM_MAX,MEM_IO,MEM_RAM,MEM_ROM;
-uint32_t memview_memread_(uint32_t a){
-//	マルチコアCPUだと、メモリビュアーリロードで止まることがあったので修正
-//	return kmdmg_memread(memview_context,a);
-	
-	return memview_context->memread(memview_context->user, a);
-
-}
-//ここまでメモリービュアー設定
-
 void kmdmg_reset(KMZ80_CONTEXT *context) {
 	kmz80_reset_common(context);
 	EXFLAG = 0/*EXF_ICEXIST*/;
@@ -459,14 +446,5 @@ void kmdmg_reset(KMZ80_CONTEXT *context) {
     context->cyt = (uint8_t *)kmdmg_ct;
 	SYSMEMREAD = kmdmg_memread;
 	SYSMEMWRITE = kmdmg_memwrite;
-
-	//ここからメモリービュアー設定
-	memview_context = context;
-	MEM_MAX=0xffff;
-	MEM_IO =0xff00;
-	MEM_RAM=0xc000;
-	MEM_ROM=0x0000;
-	memview_memread = memview_memread_;
-	//ここまでメモリービュアー設定
 }
 

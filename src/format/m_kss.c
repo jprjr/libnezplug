@@ -350,147 +350,6 @@ static void vsync_event(KMEVENT *event, KMEVENT_ITEM_ID curid, KSSSEQ *THIS_)
 	if (THIS_->ctx.regs8[REGID_HALTED]) play_setup(THIS_, THIS_->playaddr);
 }
 
-//ここからメモリービュアー設定
-uint32_t (*memview_memread)(uint32_t a);
-KSSSEQ* memview_context;
-int MEM_MAX,MEM_IO,MEM_RAM,MEM_ROM;
-uint32_t memview_memread_kss(uint32_t a){
-	return read_event(memview_context,a);
-}
-//ここまでメモリービュアー設定
-
-//ここからダンプ設定
-uint32_t (*dump_MEM_MSX)(uint32_t a,unsigned char* mem);
-static uint32_t dump_MEM_MSX_bf(uint32_t menu,unsigned char* mem){
-	int i;
-	switch(menu){
-	case 1://Memory
-		for(i=0;i<0x10000;i++)
-			mem[i] = memview_memread_kss(i);
-		return i;
-	}
-	return -2;
-}
-//----------
-extern uint32_t (*ioview_ioread_DEV_AY8910)(uint32_t a);
-
-uint32_t (*dump_DEV_AY8910)(uint32_t a,unsigned char* mem);
-static uint32_t dump_DEV_AY8910_bf(uint32_t menu,unsigned char* mem){
-	int i;
-	switch(menu){
-	case 1://Register
-		for(i=0;i<0x0e;i++)
-			mem[i] = ioview_ioread_DEV_AY8910(i);
-		return i;
-
-	}
-	return -2;
-}
-//----------
-extern uint32_t (*ioview_ioread_DEV_SN76489)(uint32_t a);
-
-uint32_t (*dump_DEV_SN76489)(uint32_t a,unsigned char* mem);
-static uint32_t dump_DEV_SN76489_bf(uint32_t menu,unsigned char* mem){
-	int i;
-	switch(menu){
-	case 1://Register
-		for(i=0;i<0x10;i++)
-			mem[i] = ioview_ioread_DEV_SN76489(i);
-		return i;
-
-	}
-	return -2;
-}
-static uint32_t dump_DEV_SN76489_bf2(uint32_t menu,unsigned char* mem){
-	int i;
-	switch(menu){
-	case 1://Register
-		for(i=0;i<0x11;i++)
-			mem[i] = ioview_ioread_DEV_SN76489(i);
-		return i;
-
-	}
-	return -2;
-}
-//----------
-extern uint32_t (*ioview_ioread_DEV_SCC)(uint32_t a);
-
-uint32_t (*dump_DEV_SCC)(uint32_t a,unsigned char* mem);
-static uint32_t dump_DEV_SCC_bf(uint32_t menu,unsigned char* mem){
-	int i;
-	switch(menu){
-	case 1://Register
-		for(i=0;i<0x10;i++)
-			mem[i] = ioview_ioread_DEV_SCC(i+0xb0);
-		return i;
-	case 2://Wave Data - CH1
-	case 3://Wave Data - CH2
-	case 4://Wave Data - CH3
-	case 5://Wave Data - CH4
-	case 6://Wave Data - CH5
-		for(i=0;i<0x20;i++)
-			mem[i] = ioview_ioread_DEV_SCC(i+(menu-2)*0x20);
-		return i;
-
-	}
-	return -2;
-}
-//----------
-extern uint32_t (*ioview_ioread_DEV_OPL)(uint32_t a);
-
-uint32_t (*dump_DEV_OPL)(uint32_t a,unsigned char* mem);
-static uint32_t dump_DEV_OPL_bf(uint32_t menu,unsigned char* mem){
-	int i;
-	switch(menu){
-	case 1://Register
-		for(i=0;i<0x100;i++)
-			mem[i] = ioview_ioread_DEV_OPL(i);
-		return i;
-
-	}
-	return -2;
-}
-//----------
-extern uint32_t (*ioview_ioread_DEV_OPLL)(uint32_t a);
-
-uint32_t (*dump_DEV_OPLL)(uint32_t a,unsigned char* mem);
-static uint32_t dump_DEV_OPLL_bf(uint32_t menu,unsigned char* mem){
-	int i;
-	switch(menu){
-	case 1://Register
-		for(i=0;i<0x40;i++)
-			mem[i] = ioview_ioread_DEV_OPLL(i);
-		return i;
-
-	}
-	return -2;
-}
-//----------
-extern uint32_t (*ioview_ioread_DEV_ADPCM)(uint32_t a);
-extern uint32_t (*ioview_ioread_DEV_ADPCM2)(uint32_t a);
-
-uint32_t (*dump_DEV_ADPCM)(uint32_t a,unsigned char* mem);
-static uint32_t dump_DEV_ADPCM_bf(uint32_t menu,unsigned char* mem){
-	int i;
-	switch(menu){
-	case 1://Register
-		for(i=0;i<0xc;i++)
-			mem[i] = ioview_ioread_DEV_ADPCM(i);
-		return i;
-	case 3://Memory
-		for(i=0;i<0x10000;i++){
-			if(ioview_ioread_DEV_ADPCM2(i)==0x100)break;
-			mem[i] = ioview_ioread_DEV_ADPCM2(i);
-		}
-		return i;
-
-	}
-	return -2;
-}
-//----------
-
-
-
 static void reset(NEZ_PLAY *pNezPlay)
 {
 	KSSSEQ *THIS_ = pNezPlay->kssseq;
@@ -592,31 +451,12 @@ static void reset(NEZ_PLAY *pNezPlay)
 		play_setup(THIS_, THIS_->playaddr);
 	}
 	THIS_->total_cycles = 0;
-
-	//ここからメモリービュアー設定
-	memview_context = THIS_;
-	MEM_MAX=0xffff;
-	MEM_IO =0x0000;
-	MEM_RAM=0xC000;
-	MEM_ROM=0x8000;
-	memview_memread = memview_memread_kss;
-	//ここまでメモリービュアー設定
-
 }
 
 static void terminate(KSSSEQ *THIS_)
 {
 	uint32_t i;
 
-	//ここからダンプ設定
-	dump_MEM_MSX     = NULL;
-	dump_DEV_AY8910  = NULL;
-	dump_DEV_SN76489 = NULL;
-	dump_DEV_SCC     = NULL;
-	dump_DEV_OPL     = NULL;
-	dump_DEV_OPLL    = NULL;
-	dump_DEV_ADPCM   = NULL;
-	//ここまでダンプ設定
 	for (i = 0; i < SND_MAX; i++)
 	{
 		if (THIS_->sndp[i]) THIS_->sndp[i]->release(THIS_->sndp[i]->ctx);
@@ -748,10 +588,6 @@ Extra Device : %s%s%s%s%s"
 		THIS_->bankmode = KSS_BANK_OFF;
 	}
 
-	//ここからダンプ設定
-	dump_MEM_MSX     = dump_MEM_MSX_bf;
-	//ここまでダンプ設定
-
 
 	THIS_->majutushimode = 0;
 	if (THIS_->extdevice & EXTDEVICE_SNG)
@@ -761,26 +597,17 @@ Extra Device : %s%s%s%s%s"
 		{
 			THIS_->sndp[SND_SNG] = SNGSoundAlloc(pNezPlay,SNG_TYPE_GAMEGEAR);
 			SONGINFO_SetChannel(pNezPlay->song, 2);
-			//ここからダンプ設定
-			dump_DEV_SN76489 = dump_DEV_SN76489_bf2;
-			//ここまでダンプ設定
 		}
 		else
 		{
 			THIS_->sndp[SND_SNG] = SNGSoundAlloc(pNezPlay,SNG_TYPE_SEGAMKIII);
 			SONGINFO_SetChannel(pNezPlay->song, 1);
-			//ここからダンプ設定
-			dump_DEV_SN76489 = dump_DEV_SN76489_bf;
-			//ここまでダンプ設定
 		}
 		if (!THIS_->sndp[SND_SNG]) return NEZ_NESERR_SHORTOFMEMORY;
 		if (THIS_->extdevice & EXTDEVICE_FMUNIT)
 		{
 			THIS_->sndp[SND_FMUNIT] = OPLSoundAlloc(pNezPlay,OPL_TYPE_SMSFMUNIT);
 			if (!THIS_->sndp[SND_FMUNIT]) return NEZ_NESERR_SHORTOFMEMORY;
-			//ここからダンプ設定
-			dump_DEV_OPLL = dump_DEV_OPLL_bf;
-			//ここまでダンプ設定
 		}
 		if (THIS_->extdevice & (EXTDEVICE_EXRAM | EXTDEVICE_GGRAM))
 		{
@@ -819,26 +646,16 @@ Extra Device : %s%s%s%s%s"
 			THIS_->sndp[SND_PSG] = PSGSoundAlloc(pNezPlay,PSG_TYPE_AY_3_8910);
 		}
 		if (!THIS_->sndp[SND_PSG]) return NEZ_NESERR_SHORTOFMEMORY;
-		//ここからダンプ設定
-		dump_DEV_AY8910 = dump_DEV_AY8910_bf;
-		//ここまでダンプ設定
 		if (THIS_->extdevice & EXTDEVICE_MSXMUSIC)
 		{
 			THIS_->sndp[SND_MSXMUSIC] = OPLSoundAlloc(pNezPlay,OPL_TYPE_MSXMUSIC);
 			if (!THIS_->sndp[SND_MSXMUSIC]) return NEZ_NESERR_SHORTOFMEMORY;
-			//ここからダンプ設定
-			dump_DEV_OPLL = dump_DEV_OPLL_bf;
-			//ここまでダンプ設定
 		}
 		if (THIS_->extdevice & EXTDEVICE_MSXAUDIO)
 		{
 			THIS_->sndp[SND_MSXAUDIO] = OPLSoundAlloc(pNezPlay,OPL_TYPE_MSXAUDIO);
 			//THIS_->sndp[SND_MSXAUDIO] = OPLSoundAlloc(OPL_TYPE_OPL2);
 			if (!THIS_->sndp[SND_MSXAUDIO]) return NEZ_NESERR_SHORTOFMEMORY;
-			//ここからダンプ設定
-			dump_DEV_OPL = dump_DEV_OPL_bf;
-			dump_DEV_ADPCM = dump_DEV_ADPCM_bf;
-			//ここまでダンプ設定
 		}
 		if (THIS_->extdevice & EXTDEVICE_EXRAM)
 		{
@@ -849,9 +666,6 @@ Extra Device : %s%s%s%s%s"
 		{
 			THIS_->sndp[SND_SCC] = SCCSoundAlloc(pNezPlay);
 			if (!THIS_->sndp[SND_SCC]) return NEZ_NESERR_SHORTOFMEMORY;
-			//ここからダンプ設定
-			dump_DEV_SCC = dump_DEV_SCC_bf;
-			//ここまでダンプ設定
 			THIS_->rammode = (THIS_->extdevice & EXTDEVICE_MSXRAM) != 0;
 			THIS_->sccenable = !THIS_->rammode;
 		}

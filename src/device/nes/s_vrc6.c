@@ -257,18 +257,6 @@ const static NEZ_NES_TERMINATE_HANDLER s_vrc6_terminate_handler[] = {
 	{ 0, NULL }, 
 };
 
-//ここからレジスタビュアー設定
-uint8_t *vrc6_regdata;
-uint8_t *vrc6_regdata2;
-uint8_t *vrc6_regdata3;
-uint32_t (*ioview_ioread_DEV_VRC6)(uint32_t a);
-static uint32_t ioview_ioread_bf(uint32_t a){
-	if(a>=0x00 && a<=0x02)return vrc6_regdata [a     ];else
-	if(a>=0x10 && a<=0x12)return vrc6_regdata2[a-0x10];else
-	if(a>=0x20 && a<=0x22)return vrc6_regdata3[a-0x20];else return 0x100;
-}
-//ここまでレジスタビュアー設定
-
 void VRC6SoundInstall(NEZ_PLAY *pNezPlay)
 {
 	VRC6SOUND *vrc6s;
@@ -283,11 +271,4 @@ void VRC6SoundInstall(NEZ_PLAY *pNezPlay)
 	NESTerminateHandlerInstall(&pNezPlay->nth, s_vrc6_terminate_handler);
 	NESWriteHandlerInstall(pNezPlay, s_vrc6_write_handler);
 	NESResetHandlerInstall(pNezPlay->nrh, s_vrc6_reset_handler);
-
-	//ここからレジスタビュアー設定
-	vrc6_regdata  = vrc6s->square[0].regs;
-	vrc6_regdata2 = vrc6s->square[1].regs;
-	vrc6_regdata3 = vrc6s->saw.regs;
-	ioview_ioread_DEV_VRC6 = ioview_ioread_bf;
-	//ここまでレジスタビュアー設定
 }

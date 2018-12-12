@@ -997,15 +997,6 @@ static void setinst(void *ctx, uint32_t n, void *p, uint32_t l)
     (void)l;
 }
 
-//ここからレジスタビュアー設定
-uint8_t *gb_regdata;
-uint32_t (*ioview_ioread_DEV_DMG)(uint32_t a);
-static uint32_t ioview_ioread_bf(uint32_t a){
-	if(a<=0x2f)return gb_regdata[a];else return 0x100;
-}
-//ここまでレジスタビュアー設定
-
-
 KMIF_SOUND_DEVICE *DMGSoundAlloc(NEZ_PLAY *pNezPlay)
 {
 	DMGSOUND *sndp;
@@ -1028,11 +1019,6 @@ KMIF_SOUND_DEVICE *DMGSoundAlloc(NEZ_PLAY *pNezPlay)
 		sndrelease(sndp);
 		return 0;
 	}
-
-	//ここからレジスタビュアー設定
-	gb_regdata = sndp->common.regs;
-	ioview_ioread_DEV_DMG = ioview_ioread_bf;
-	//ここまでレジスタビュアー設定
 
 	return &sndp->kmif;
 }
