@@ -698,9 +698,9 @@ First Mapper 7 : %02XH"
 			copy_physical_address(THIS_, a, l, pData + p + 0x10);
 		}
 	}
-	THIS_->hessnd = HESSoundAlloc();
+	THIS_->hessnd = HESSoundAlloc(pNezPlay);
 	if (!THIS_->hessnd) return NEZ_NESERR_SHORTOFMEMORY;
-	THIS_->hespcm = HESAdPcmAlloc();
+	THIS_->hespcm = HESAdPcmAlloc(pNezPlay);
 	if (!THIS_->hespcm) return NEZ_NESERR_SHORTOFMEMORY;
 
 	return NEZ_NESERR_NOERROR;
@@ -708,17 +708,17 @@ First Mapper 7 : %02XH"
 }
 
 
-static int32_t ExecuteHES(void *pNezPlay)
+static int32_t ExecuteHES(NEZ_PLAY *pNezPlay)
 {
 	return ((NEZ_PLAY*)pNezPlay)->heshes ? execute((HESHES*)((NEZ_PLAY*)pNezPlay)->heshes) : 0;
 }
 
-static void HESSoundRenderStereo(void *pNezPlay, int32_t *d)
+static void HESSoundRenderStereo(NEZ_PLAY *pNezPlay, int32_t *d)
 {
 	synth((HESHES*)((NEZ_PLAY*)pNezPlay)->heshes, d);
 }
 
-static int32_t HESSoundRenderMono(void *pNezPlay)
+static int32_t HESSoundRenderMono(NEZ_PLAY *pNezPlay)
 {
 	int32_t d[2] = { 0,0 } ;
 	synth((HESHES*)((NEZ_PLAY*)pNezPlay)->heshes, d);
@@ -729,13 +729,13 @@ static int32_t HESSoundRenderMono(void *pNezPlay)
 #endif
 }
 
-const static NES_AUDIO_HANDLER heshes_audio_handler[] = {
+const static NEZ_NES_AUDIO_HANDLER heshes_audio_handler[] = {
 	{ 0, ExecuteHES, 0, NULL },
 	{ 3, HESSoundRenderMono, HESSoundRenderStereo, NULL },
 	{ 0, 0, 0, NULL },
 };
 
-static void HESHESVolume(void *pNezPlay, uint32_t v)
+static void HESHESVolume(NEZ_PLAY *pNezPlay, uint32_t v)
 {
 	if (((NEZ_PLAY*)pNezPlay)->heshes)
 	{
@@ -743,22 +743,22 @@ static void HESHESVolume(void *pNezPlay, uint32_t v)
 	}
 }
 
-const static NES_VOLUME_HANDLER heshes_volume_handler[] = {
+const static NEZ_NES_VOLUME_HANDLER heshes_volume_handler[] = {
 	{ HESHESVolume, NULL }, 
 	{ 0, NULL }, 
 };
 
-static void HESHESReset(void *pNezPlay)
+static void HESHESReset(NEZ_PLAY *pNezPlay)
 {
 	if (((NEZ_PLAY*)pNezPlay)->heshes) reset((NEZ_PLAY*)pNezPlay);
 }
 
-const static NES_RESET_HANDLER heshes_reset_handler[] = {
+const static NEZ_NES_RESET_HANDLER heshes_reset_handler[] = {
 	{ NES_RESET_SYS_LAST, HESHESReset, NULL },
 	{ 0,                  0, NULL },
 };
 
-static void HESHESTerminate(void *pNezPlay)
+static void HESHESTerminate(NEZ_PLAY *pNezPlay)
 {
 	if (((NEZ_PLAY*)pNezPlay)->heshes)
 	{
@@ -767,7 +767,7 @@ static void HESHESTerminate(void *pNezPlay)
 	}
 }
 
-const static NES_TERMINATE_HANDLER heshes_terminate_handler[] = {
+const static NEZ_NES_TERMINATE_HANDLER heshes_terminate_handler[] = {
 	{ HESHESTerminate, NULL },
 	{ 0, NULL },
 };

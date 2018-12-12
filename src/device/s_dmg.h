@@ -1,13 +1,14 @@
 #ifndef S_DMG_H__
 #define S_DMG_H__
 
+#include <nezplug/nezplug.h>
 #include "kmsnddev.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-KMIF_SOUND_DEVICE *DMGSoundAlloc(void);
+KMIF_SOUND_DEVICE *DMGSoundAlloc(NEZ_PLAY *pNezPlay);
 
 #ifdef __cplusplus
 }

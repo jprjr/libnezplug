@@ -28,6 +28,7 @@ typedef struct {
 	int32_t volume;
 	int32_t fadetimer;
 	int32_t fadecount;
+    uint8_t *chmask;
 } HESADPCM;
 
 
@@ -267,12 +268,13 @@ static uint32_t ioview_ioread_bf(uint32_t a){
 }
 //ここまでレジスタビュアー設定
 
-KMIF_SOUND_DEVICE *HESAdPcmAlloc(void)
+KMIF_SOUND_DEVICE *HESAdPcmAlloc(NEZ_PLAY *pNezPlay)
 {
 	HESADPCM *sndp;
 	sndp = XMALLOC(sizeof(HESADPCM));
 	if (!sndp) return 0;
 	XMEMSET(sndp, 0, sizeof(HESADPCM));
+    sndp->chmask = pNezPlay->chmask;
 	sndp->kmif.ctx = sndp;
 	sndp->kmif.release = sndrelease;
 	sndp->kmif.reset = sndreset;
@@ -288,6 +290,6 @@ KMIF_SOUND_DEVICE *HESAdPcmAlloc(void)
 	//ここまでレジスタビュアー設定
 
 	//発声部分
-	sndp->deltadev = YMDELTATPCMSoundAlloc(3,sndp->pcmbuf);
+	sndp->deltadev = YMDELTATPCMSoundAlloc(pNezPlay,3,sndp->pcmbuf);
 	return &sndp->kmif;
 }

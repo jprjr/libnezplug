@@ -19,7 +19,7 @@ typedef struct {
 	uint8_t adr;
 } PSGSOUND;
 
-static int32_t PSGSoundRender(void* pNezPlay)
+static int32_t PSGSoundRender(NEZ_PLAY *pNezPlay)
 {
 	PSGSOUND *psgs = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->psgs;
 	int32_t b[2] = {0, 0};
@@ -27,30 +27,30 @@ static int32_t PSGSoundRender(void* pNezPlay)
 	return b[0]*FME7_VOL;
 }
 
-const static NES_AUDIO_HANDLER s_psg_audio_handler[] = {
+const static NEZ_NES_AUDIO_HANDLER s_psg_audio_handler[] = {
 	{ 1, PSGSoundRender, NULL, NULL }, 
 	{ 0, 0, 0, NULL }, 
 };
 
-static void PSGSoundVolume(void* pNezPlay, uint32_t volume)
+static void PSGSoundVolume(NEZ_PLAY *pNezPlay, uint32_t volume)
 {
 	PSGSOUND *psgs = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->psgs;
 	psgs->psgp->volume(psgs->psgp->ctx, volume);
 }
 
-const static NES_VOLUME_HANDLER s_psg_volume_handler[] = {
+const static NEZ_NES_VOLUME_HANDLER s_psg_volume_handler[] = {
 	{ PSGSoundVolume, NULL }, 
 	{ 0, NULL }, 
 };
 
-static void PSGSoundWrireAddr(void *pNezPlay, uint32_t address, uint32_t value)
+static void PSGSoundWrireAddr(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 {
     (void)address;
 	PSGSOUND *psgs = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->psgs;
 	psgs->adr = (uint8_t)value;
 	psgs->psgp->write(psgs->psgp->ctx, 0, value);
 }
-static void PSGSoundWrireData(void *pNezPlay, uint32_t address, uint32_t value)
+static void PSGSoundWrireData(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 {
     (void)address;
 	PSGSOUND *psgs = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->psgs;
@@ -64,18 +64,18 @@ static NES_WRITE_HANDLER s_fme7_write_handler[] =
 	{ 0,      0,      0, NULL },
 };
 
-static void FME7SoundReset(void* pNezPlay)
+static void FME7SoundReset(NEZ_PLAY *pNezPlay)
 {
 	PSGSOUND *psgs = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->psgs;
 	psgs->psgp->reset(psgs->psgp->ctx, BASECYCLES_NES / 12, NESAudioFrequencyGet(pNezPlay));
 }
 
-const static NES_RESET_HANDLER s_fme7_reset_handler[] = {
+const static NEZ_NES_RESET_HANDLER s_fme7_reset_handler[] = {
 	{ NES_RESET_SYS_NOMAL, FME7SoundReset, NULL }, 
 	{ 0,                   0, NULL }, 
 };
 
-static void PSGSoundTerm(void* pNezPlay)
+static void PSGSoundTerm(NEZ_PLAY *pNezPlay)
 {
 	PSGSOUND *psgs = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->psgs;
 	if (psgs->psgp)
@@ -86,7 +86,7 @@ static void PSGSoundTerm(void* pNezPlay)
 	XFREE(psgs);
 }
 
-const static NES_TERMINATE_HANDLER s_psg_terminate_handler[] = {
+const static NEZ_NES_TERMINATE_HANDLER s_psg_terminate_handler[] = {
 	{ PSGSoundTerm, NULL }, 
 	{ 0, NULL }, 
 };
@@ -99,7 +99,7 @@ void FME7SoundInstall(NEZ_PLAY* pNezPlay)
 	XMEMSET(psgs, 0, sizeof(PSGSOUND));
 	((NSFNSF*)pNezPlay->nsf)->psgs = psgs;
 
-	psgs->psgp = PSGSoundAlloc(PSG_TYPE_YM2149); //エンベロープ31段階あったんでYM2149系でしょう。
+	psgs->psgp = PSGSoundAlloc(pNezPlay, PSG_TYPE_YM2149); //エンベロープ31段階あったんでYM2149系でしょう。
 	if (!psgs->psgp) return;
 
 	LogTableInitialize();

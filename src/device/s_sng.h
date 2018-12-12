@@ -1,6 +1,7 @@
 #ifndef S_SNG_H__
 #define S_SNG_H__
 
+#include <nezplug/nezplug.h>
 #include "kmsnddev.h"
 
 #ifdef __cplusplus
@@ -13,7 +14,7 @@ enum {
 	SNG_TYPE_GAMEGEAR	/* SEGA custom VDP (Stereo)    */
 };
 
-KMIF_SOUND_DEVICE *SNGSoundAlloc(uint32_t sng_type);
+KMIF_SOUND_DEVICE *SNGSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t sng_type);
 
 #ifdef __cplusplus
 }

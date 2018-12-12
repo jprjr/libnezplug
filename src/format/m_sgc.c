@@ -659,8 +659,8 @@ RAM Bank      (8000-BFFF): %d\r\n\
 
 	switch(THIS_->systype){
 	case SYNTHMODE_SMS:
-		THIS_->sndp[SND_SNG] = SNGSoundAlloc(SNG_TYPE_SEGAMKIII);
-		THIS_->sndp[SND_FMUNIT] = OPLSoundAlloc(OPL_TYPE_SMSFMUNIT);
+		THIS_->sndp[SND_SNG] = SNGSoundAlloc(pNezPlay,SNG_TYPE_SEGAMKIII);
+		THIS_->sndp[SND_FMUNIT] = OPLSoundAlloc(pNezPlay,OPL_TYPE_SMSFMUNIT);
 		if (!THIS_->sndp[SND_FMUNIT]) return NEZ_NESERR_SHORTOFMEMORY;
 		SONGINFO_SetChannel(pNezPlay->song, 1);
 		//ここからダンプ設定
@@ -684,7 +684,7 @@ RAM Bank      (8000-BFFF): %d\r\n\
 
 		break;
 	case SYNTHMODE_GG:
-		THIS_->sndp[SND_SNG] = SNGSoundAlloc(SNG_TYPE_GAMEGEAR);
+		THIS_->sndp[SND_SNG] = SNGSoundAlloc(pNezPlay,SNG_TYPE_GAMEGEAR);
 		SONGINFO_SetChannel(pNezPlay->song, 2);
 		//ここからダンプ設定
 		dump_DEV_SN76489 = dump_DEV_SN76489_bf2;
@@ -706,7 +706,7 @@ RAM Bank      (8000-BFFF): %d\r\n\
 
 		break;
 	case SYNTHMODE_CV:
-		THIS_->sndp[SND_SNG] = SNGSoundAlloc(SNG_TYPE_SN76489AN);
+		THIS_->sndp[SND_SNG] = SNGSoundAlloc(pNezPlay,SNG_TYPE_SN76489AN);
 		SONGINFO_SetChannel(pNezPlay->song, 1);
 		//ここからダンプ設定
 		dump_DEV_SN76489 = dump_DEV_SN76489_bf;
@@ -731,18 +731,18 @@ RAM Bank      (8000-BFFF): %d\r\n\
 	return NEZ_NESERR_NOERROR;
 }
 
-static int32_t SGCSEQExecuteZ80CPU(void *pNezPlay)
+static int32_t SGCSEQExecuteZ80CPU(NEZ_PLAY *pNezPlay)
 {
 	execute(((NEZ_PLAY*)pNezPlay)->sgcseq);
 	return 0;
 }
 
-static void SGCSEQSoundRenderStereo(void *pNezPlay, int32_t *d)
+static void SGCSEQSoundRenderStereo(NEZ_PLAY *pNezPlay, int32_t *d)
 {
 	synth(((NEZ_PLAY*)pNezPlay)->sgcseq, d);
 }
 
-static int32_t SGCSEQSoundRenderMono(void *pNezPlay)
+static int32_t SGCSEQSoundRenderMono(NEZ_PLAY *pNezPlay)
 {
 	int32_t d[2] = { 0, 0 };
 	synth(((NEZ_PLAY*)pNezPlay)->sgcseq, d);
@@ -753,13 +753,13 @@ static int32_t SGCSEQSoundRenderMono(void *pNezPlay)
 #endif
 }
 
-const static NES_AUDIO_HANDLER sgcseq_audio_handler[] = {
+const static NEZ_NES_AUDIO_HANDLER sgcseq_audio_handler[] = {
 	{ 0, SGCSEQExecuteZ80CPU, 0, NULL },
 	{ 3, SGCSEQSoundRenderMono, SGCSEQSoundRenderStereo, NULL },
 	{ 0, 0, 0, NULL },
 };
 
-static void SGCSEQVolume(void *pNezPlay, uint32_t v)
+static void SGCSEQVolume(NEZ_PLAY *pNezPlay, uint32_t v)
 {
 	if (((NEZ_PLAY*)pNezPlay)->sgcseq)
 	{
@@ -767,22 +767,22 @@ static void SGCSEQVolume(void *pNezPlay, uint32_t v)
 	}
 }
 
-const static NES_VOLUME_HANDLER sgcseq_volume_handler[] = {
+const static NEZ_NES_VOLUME_HANDLER sgcseq_volume_handler[] = {
 	{ SGCSEQVolume, NULL }, 
 	{ 0, NULL }, 
 };
 
-static void SGCSEQReset(void *pNezPlay)
+static void SGCSEQReset(NEZ_PLAY *pNezPlay)
 {
 	if (((NEZ_PLAY*)pNezPlay)->sgcseq) reset((NEZ_PLAY*)pNezPlay);
 }
 
-const static NES_RESET_HANDLER sgcseq_reset_handler[] = {
+const static NEZ_NES_RESET_HANDLER sgcseq_reset_handler[] = {
 	{ NES_RESET_SYS_LAST, SGCSEQReset, NULL },
 	{ 0,                  0, NULL },
 };
 
-static void SGCSEQTerminate(void *pNezPlay)
+static void SGCSEQTerminate(NEZ_PLAY *pNezPlay)
 {
 	if (((NEZ_PLAY*)pNezPlay)->sgcseq)
 	{
@@ -791,7 +791,7 @@ static void SGCSEQTerminate(void *pNezPlay)
 	}
 }
 
-const static NES_TERMINATE_HANDLER sgcseq_terminate_handler[] = {
+const static NEZ_NES_TERMINATE_HANDLER sgcseq_terminate_handler[] = {
 	{ SGCSEQTerminate, NULL },
 	{ 0, NULL },
 };

@@ -17,14 +17,14 @@ enum
 
 
 void NESAudioRender(NEZ_PLAY*, int16_t *bufp, uint32_t buflen);
-void NESAudioHandlerInstall(NEZ_PLAY *, const NES_AUDIO_HANDLER * ph);
+void NESAudioHandlerInstall(NEZ_PLAY *, const NEZ_NES_AUDIO_HANDLER * ph);
 void NESAudioHandlerTerminate(NEZ_PLAY *);
 void NESAudioFrequencySet(NEZ_PLAY *, uint32_t freq);
 uint32_t NESAudioFrequencyGet(NEZ_PLAY *);
 void NESAudioChannelSet(NEZ_PLAY *, uint32_t ch);
 uint32_t NESAudioChannelGet(NEZ_PLAY *);
 void NESAudioHandlerInitialize(NEZ_PLAY *);
-void NESVolumeHandlerInstall(NEZ_PLAY *, const NES_VOLUME_HANDLER * ph);
+void NESVolumeHandlerInstall(NEZ_PLAY *, const NEZ_NES_VOLUME_HANDLER * ph);
 void NESVolumeHandlerTerminate(NEZ_PLAY *);
 void NESVolume(NEZ_PLAY *, uint32_t volume);
 void NESAudioFilterSet(NEZ_PLAY*, uint32_t filter);

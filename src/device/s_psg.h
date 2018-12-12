@@ -1,6 +1,7 @@
 #ifndef S_PSG_H__
 #define S_PSG_H__
 
+#include <nezplug/nezplug.h>
 #include "kmsnddev.h"
 
 #ifdef __cplusplus
@@ -12,7 +13,7 @@ enum {
 	PSG_TYPE_YM2149		= 1		/* YAMAHA YM2149 */
 };
 
-KMIF_SOUND_DEVICE *PSGSoundAlloc(uint32_t psg_type);
+KMIF_SOUND_DEVICE *PSGSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t psg_type);
 
 #ifdef __cplusplus
 }

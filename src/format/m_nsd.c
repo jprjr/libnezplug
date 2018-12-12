@@ -126,7 +126,7 @@ static void NSDPlayCycles(NEZ_PLAY *pNezPlay, uint32_t syncs)
 	nsdplayer->remainsyncs = r - syncs;
 }
 
-static int32_t ExecuteNSD(void *pNezPlay)
+static int32_t ExecuteNSD(NEZ_PLAY *pNezPlay)
 {
 	NSDSEQ *nsdplayer = ((NEZ_PLAY*)pNezPlay)->nsdp;
 	uint32_t cycles;
@@ -147,7 +147,7 @@ static int32_t ExecuteNSD(void *pNezPlay)
 	return 0;
 }
 
-const static NES_AUDIO_HANDLER nsdplay_audio_handler[] = {
+const static NEZ_NES_AUDIO_HANDLER nsdplay_audio_handler[] = {
 	{ 0, ExecuteNSD, NULL, NULL },
 	{ 0, 0, NULL, NULL },
 };
@@ -176,9 +176,8 @@ static uint32_t GetDwordLE(uint8_t *p)
 }
 
 
-static void NSDPLAYReset(void *ctx)
+static void NSDPLAYReset(NEZ_PLAY *pNezPlay)
 {
-    NEZ_PLAY *pNezPlay = (NEZ_PLAY *)ctx;
 	NSDSEQ *nsdplayer = pNezPlay->nsdp;
 	uint32_t freq = NESAudioFrequencyGet(pNezPlay);
 	nsdplayer->cleft = 0;
@@ -214,12 +213,12 @@ static void NSDPLAYReset(void *ctx)
 	nsdplayer->isplaying = 1;
 }
 
-const static NES_RESET_HANDLER nsdplay_reset_handler[] = {
+const static NEZ_NES_RESET_HANDLER nsdplay_reset_handler[] = {
 	{ NES_RESET_SYS_LAST, NSDPLAYReset, NULL },
 	{ 0,                  0, NULL },
 };
 
-static void NSDPLAYTerminate(void *pNezPlay)
+static void NSDPLAYTerminate(NEZ_PLAY *pNezPlay)
 {
 	NSDSEQ *nsdplayer = ((NEZ_PLAY*)pNezPlay)->nsdp;
 	if (nsdplayer)
@@ -234,7 +233,7 @@ static void NSDPLAYTerminate(void *pNezPlay)
 	}
 }
 
-const static NES_TERMINATE_HANDLER nsdplay_terminate_handler[] = {
+const static NEZ_NES_TERMINATE_HANDLER nsdplay_terminate_handler[] = {
 	{ NSDPLAYTerminate, NULL },
 	{ 0, NULL },
 };

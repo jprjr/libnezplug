@@ -74,6 +74,7 @@ typedef struct {
 	} common;
 	uint8_t type;
 	uint8_t regs[0x10];
+    uint8_t *chmask;
 } PSGSOUND;
 
 const static int8_t env_pulse[] = 
@@ -346,11 +347,11 @@ static void sndsynth(void *ctx, int32_t *p)
 	int32_t accum = 0;
 	sndp->common.rngout = PSGSoundNoiseStep(sndp);
 	sndp->common.envout = PSGSoundEnvelopeStep(sndp);
-	accum += PSGSoundSquare(sndp, &sndp->square[0]) * chmask[DEV_AY8910_CH1];
-	accum += PSGSoundSquare(sndp, &sndp->square[1]) * chmask[DEV_AY8910_CH2];
-	accum += PSGSoundSquare(sndp, &sndp->square[2]) * chmask[DEV_AY8910_CH3];
+	accum += PSGSoundSquare(sndp, &sndp->square[0]) * sndp->chmask[DEV_AY8910_CH1];
+	accum += PSGSoundSquare(sndp, &sndp->square[1]) * sndp->chmask[DEV_AY8910_CH2];
+	accum += PSGSoundSquare(sndp, &sndp->square[2]) * sndp->chmask[DEV_AY8910_CH3];
 	MSXSoundDaStep(sndp);
-	if (chmask[DEV_MSX_DA])
+	if (sndp->chmask[DEV_MSX_DA])
 		accum += LogToLin(sndp->logtbl,sndp->common.mastervolume, LOG_LIN_BITS-7)
 		* (sndp->common.daenable ? (sndp->common.davolume*7 + (1<<16))/7 : sndp->common.davolume);
 #ifdef VOLUME_3
@@ -530,12 +531,13 @@ static uint32_t ioview_ioread_bf2(uint32_t a){
 }
 //ここまでレジスタビュアー設定
 
-KMIF_SOUND_DEVICE *PSGSoundAlloc(uint32_t psg_type)
+KMIF_SOUND_DEVICE *PSGSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t psg_type)
 {
 	PSGSOUND *sndp;
 	sndp = XMALLOC(sizeof(PSGSOUND));
 	if (!sndp) return 0;
 	XMEMSET(sndp, 0, sizeof(PSGSOUND));
+    sndp->chmask = pNezPlay->chmask;
 	sndp->type = psg_type;
 	sndp->kmif.ctx = sndp;
 	sndp->kmif.release = sndrelease;

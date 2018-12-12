@@ -86,7 +86,7 @@ static int32_t FDSSoundOperatorRender(FDS_FMOP *op)
 	return op->ofs3 + ((int32_t)op->wave[(op->phase >> 24) & 0x3f] + op->ofs2) * (int32_t)op->fd.volume;
 }
 
-static int32_t FDSSoundRender(void *pNezPlay)
+static int32_t FDSSoundRender(NEZ_PLAY *pNezPlay)
 {
 	FDSSOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
 	fdssound->op[1].input = 0;
@@ -94,24 +94,24 @@ static int32_t FDSSoundRender(void *pNezPlay)
 	return (FDSSoundOperatorRender(&fdssound->op[0]) << (9 + 2 - fdssound->op[0].lvl));
 }
 
-const static NES_AUDIO_HANDLER s_fds_audio_handler[] =
+const static NEZ_NES_AUDIO_HANDLER s_fds_audio_handler[] =
 {
 	{ 1, FDSSoundRender, NULL, NULL }, 
 	{ 0, 0, NULL, NULL }, 
 };
 
-static void FDSSoundVolume(void *pNezPlay, uint32_t volume)
+static void FDSSoundVolume(NEZ_PLAY *pNezPlay, uint32_t volume)
 {
 	FDSSOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
 	fdssound->mastervolume = (volume << (LOG_BITS - 8)) << 1;
 }
 
-const static NES_VOLUME_HANDLER s_fds_volume_handler[] = {
+const static NEZ_NES_VOLUME_HANDLER s_fds_volume_handler[] = {
 	{ FDSSoundVolume, NULL }, 
 	{ 0, NULL }, 
 };
 
-static void FDSSoundWrite(void *pNezPlay, uint32_t address, uint32_t value)
+static void FDSSoundWrite(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 {
 	FDSSOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
 	if (0x4040 <= address && address <= 0x407F)
@@ -194,7 +194,7 @@ static NES_WRITE_HANDLER s_fds_write_handler[] =
 	{ 0,      0,      0, NULL },
 };
 
-static uint32_t FDSSoundRead(void *pNezPlay, uint32_t address)
+static uint32_t FDSSoundRead(NEZ_PLAY *pNezPlay, uint32_t address)
 {
 	FDSSOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
 	if (0x4090 <= address && address <= 0x409F)
@@ -228,7 +228,7 @@ static uint32_t DivFix(uint32_t p1, uint32_t p2, uint32_t fix)
 	return ret;
 }
 
-static void FDSSoundReset(void *pNezPlay)
+static void FDSSoundReset(NEZ_PLAY *pNezPlay)
 {
 	FDSSOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
 	uint32_t i, cps, cpf;
@@ -250,20 +250,20 @@ static void FDSSoundReset(void *pNezPlay)
 	}
 }
 
-const static NES_RESET_HANDLER s_fds_reset_handler[] =
+const static NEZ_NES_RESET_HANDLER s_fds_reset_handler[] =
 {
 	{ NES_RESET_SYS_NOMAL, FDSSoundReset, NULL }, 
 	{ 0,                   0, NULL }, 
 };
 
-static void FDSSoundTerm(void* pNezPlay)
+static void FDSSoundTerm(NEZ_PLAY *pNezPlay)
 {
 	FDSSOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
 	if (fdssound)
 		XFREE(fdssound);
 }
 
-const static NES_TERMINATE_HANDLER s_fds_terminate_handler[] = {
+const static NEZ_NES_TERMINATE_HANDLER s_fds_terminate_handler[] = {
 	{ FDSSoundTerm, NULL }, 
 	{ 0, NULL }, 
 };

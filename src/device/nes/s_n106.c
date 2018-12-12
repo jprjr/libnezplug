@@ -110,7 +110,7 @@ __inline static void UPDATE(N106_WM *chp)
 	chp->update = 0;
 }
 
-static int32_t N106SoundRenderReal2(void* pNezPlay)
+static int32_t N106SoundRenderReal2(NEZ_PLAY *pNezPlay)
 {
 	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->n106s;
 	N106_WM *chp;
@@ -151,7 +151,7 @@ static int32_t N106SoundRenderReal2(void* pNezPlay)
 		}
 		if (((int32_t)chp->count / real2) == chpn)accum += chp->output;
 		count++;
-		if (chmask[DEV_N106_CH1+chpn])outputbuf += accum / count;
+		if (pNezPlay->chmask[DEV_N106_CH1+chpn])outputbuf += accum / count;
 	}
 /*	n106s->ofscount += n106s->ofscps;
 	while(n106s->ofscount >= REAL_OFS_COUNT){
@@ -162,7 +162,7 @@ static int32_t N106SoundRenderReal2(void* pNezPlay)
 */	return outputbuf * NAMCO106_VOL;
 }
 
-static int32_t N106SoundRenderReal(void* pNezPlay)
+static int32_t N106SoundRenderReal(NEZ_PLAY *pNezPlay)
 {
 	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->n106s;
 	N106_WM *chp;
@@ -199,13 +199,13 @@ static int32_t N106SoundRenderReal(void* pNezPlay)
 		}
 		accum += chp->output;
 		count++;
-		if(chmask[DEV_N106_CH1+chpn])outputbuf += accum / count;
+		if(pNezPlay->chmask[DEV_N106_CH1+chpn])outputbuf += accum / count;
 	}
 	return outputbuf * NAMCO106_VOL;
 }
 
 
-static int32_t N106SoundRenderNormal(void* pNezPlay)
+static int32_t N106SoundRenderNormal(NEZ_PLAY *pNezPlay)
 {
 	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->n106s;
 	N106_WM *chp;
@@ -241,11 +241,11 @@ static int32_t N106SoundRenderNormal(void* pNezPlay)
 		}
 		accum += chp->output;
 		count++;
-		if(chmask[DEV_N106_CH1+chpn])outputbuf += accum / count;
+		if(pNezPlay->chmask[DEV_N106_CH1+chpn])outputbuf += accum / count;
 	}
 	return outputbuf * NAMCO106_VOL;
 }
-static int32_t N106SoundRender(void* pNezPlay)
+static int32_t N106SoundRender(NEZ_PLAY *pNezPlay)
 {
 	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->n106s;
 	switch(Namco106_Realmode){
@@ -260,23 +260,23 @@ static int32_t N106SoundRender(void* pNezPlay)
 	}
 }
 
-const static NES_AUDIO_HANDLER s_n106_audio_handler[] = {
+const static NEZ_NES_AUDIO_HANDLER s_n106_audio_handler[] = {
 	{ 1, N106SoundRender, NULL , NULL }, 
 	{ 0, 0, NULL, NULL }, 
 };
 
-static void N106SoundVolume(void* pNezPlay, uint32_t volume)
+static void N106SoundVolume(NEZ_PLAY *pNezPlay, uint32_t volume)
 {
 	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->n106s;
 	n106s->mastervolume = (volume << (LOG_BITS - 8)) << 1;
 }
 
-const static NES_VOLUME_HANDLER s_n106_volume_handler[] = {
+const static NEZ_NES_VOLUME_HANDLER s_n106_volume_handler[] = {
 	{ N106SoundVolume, NULL }, 
 	{ 0, NULL }, 
 };
 
-static void N106SoundWriteAddr(void *pNezPlay, uint32_t address, uint32_t value)
+static void N106SoundWriteAddr(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 {
     (void)address;
 	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->n106s;
@@ -284,7 +284,7 @@ static void N106SoundWriteAddr(void *pNezPlay, uint32_t address, uint32_t value)
 	n106s->addressauto = (value & 0x80) ? 1 : 0;
 }
 
-static void N106SoundWriteData(void *pNezPlay, uint32_t address, uint32_t value)
+static void N106SoundWriteData(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 {
     (void)address;
 	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->n106s;
@@ -361,7 +361,7 @@ static NES_WRITE_HANDLER s_n106_write_handler[] =
 	{ 0,              0,              0, NULL },
 };
 
-static uint32_t N106SoundReadData(void *pNezPlay, uint32_t address)
+static uint32_t N106SoundReadData(NEZ_PLAY *pNezPlay, uint32_t address)
 {
     (void)address;
 	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->n106s;
@@ -379,7 +379,7 @@ static NES_READ_HANDLER s_n106_read_handler[] =
 	{ 0,              0,              0, NULL },
 };
 
-static void N106SoundReset(void* pNezPlay)
+static void N106SoundReset(NEZ_PLAY *pNezPlay)
 {
 	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->n106s;
 	int i,j;
@@ -404,20 +404,20 @@ static void N106SoundReset(void* pNezPlay)
 	n106s->ofscps = REAL_OFS_BASE * REAL_OFS_COUNT / NESAudioFrequencyGet(pNezPlay);
 }
 
-const static NES_RESET_HANDLER s_n106_reset_handler[] = {
+const static NEZ_NES_RESET_HANDLER s_n106_reset_handler[] = {
 	{ NES_RESET_SYS_NOMAL, N106SoundReset, NULL }, 
 	{ 0,                   0, NULL }, 
 };
 
 
-static void N106SoundTerm(void* pNezPlay)
+static void N106SoundTerm(NEZ_PLAY *pNezPlay)
 {
 	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->n106s;
 	if (n106s)
 		XFREE(n106s);
 }
 
-const static NES_TERMINATE_HANDLER s_n106_terminate_handler[] = {
+const static NEZ_NES_TERMINATE_HANDLER s_n106_terminate_handler[] = {
 	{ N106SoundTerm, NULL }, 
 	{ 0, NULL }, 
 };

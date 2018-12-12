@@ -36,6 +36,7 @@ typedef struct {
 		uint8_t enable;
 	} common;
 	uint8_t regs[0x10];
+    uint8_t *chmask;
 } SCCSOUND;
 
 __inline static int32_t SCCSoundChSynth(SCCSOUND *sndp, SCC_CH *ch)
@@ -79,7 +80,7 @@ static void sndsynth(void *ctx, int32_t *p)
 	{
 		uint32_t ch;
 		int32_t accum = 0;
-		for (ch = 0; ch < 5; ch++) accum += SCCSoundChSynth(sndp, &sndp->ch[ch]) * chmask[DEV_SCC_CH1 + ch];
+		for (ch = 0; ch < 5; ch++) accum += SCCSoundChSynth(sndp, &sndp->ch[ch]) * sndp->chmask[DEV_SCC_CH1 + ch];
 		accum += LogToLin(sndp->logtbl, sndp->common.mastervolume + sndp->majutushida, LOG_LIN_BITS - LIN_BITS - 14);
 		p[0] += accum;
 		p[1] += accum;
@@ -190,12 +191,13 @@ static uint32_t ioview_ioread_bf(uint32_t a){
 }
 //ここまでレジスタビュアー設定
 
-KMIF_SOUND_DEVICE *SCCSoundAlloc(void)
+KMIF_SOUND_DEVICE *SCCSoundAlloc(NEZ_PLAY *pNezPlay)
 {
 	SCCSOUND *sndp;
 	sndp = XMALLOC(sizeof(SCCSOUND));
 	if (!sndp) return 0;
 	XMEMSET(sndp, 0, sizeof(SCCSOUND));
+    sndp->chmask = pNezPlay->chmask;
 	sndp->kmif.ctx = sndp;
 	sndp->kmif.release = sndrelease;
 	sndp->kmif.reset = sndreset;

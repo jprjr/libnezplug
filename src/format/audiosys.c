@@ -25,7 +25,7 @@ void NESAudioRender(NEZ_PLAY *pNezPlay, int16_t *bufp, uint32_t buflen)
 	uint32_t maxch = NESAudioChannelGet(pNezPlay);
 	while (buflen--)
 	{
-		NES_AUDIO_HANDLER *ph;
+		NEZ_NES_AUDIO_HANDLER *ph;
 		int32_t accum[2] = { 0, 0 };
 		uint32_t ch;
 
@@ -117,16 +117,16 @@ void NESAudioRender(NEZ_PLAY *pNezPlay, int16_t *bufp, uint32_t buflen)
 
 void NESVolume(NEZ_PLAY *pNezPlay, uint32_t volume)
 {
-	NES_VOLUME_HANDLER *ph;
+	NEZ_NES_VOLUME_HANDLER *ph;
 	for (ph = pNezPlay->nvh; ph; ph = ph->next) ph->Proc(pNezPlay, volume);
 }
 
-static void NESAudioHandlerInstallOne(NEZ_PLAY *pNezPlay, const NES_AUDIO_HANDLER *ph)
+static void NESAudioHandlerInstallOne(NEZ_PLAY *pNezPlay, const NEZ_NES_AUDIO_HANDLER *ph)
 {
-	NES_AUDIO_HANDLER *nh;
+	NEZ_NES_AUDIO_HANDLER *nh;
 
 	/* Add to tail of list*/
-	nh = XMALLOC(sizeof(NES_AUDIO_HANDLER));
+	nh = XMALLOC(sizeof(NEZ_NES_AUDIO_HANDLER));
 	nh->fMode = ph->fMode;
 	nh->Proc = ph->Proc;
 	nh->Proc2 = ph->Proc2;
@@ -134,7 +134,7 @@ static void NESAudioHandlerInstallOne(NEZ_PLAY *pNezPlay, const NES_AUDIO_HANDLE
 
 	if (pNezPlay->nah)
 	{
-		NES_AUDIO_HANDLER *p = pNezPlay->nah;
+		NEZ_NES_AUDIO_HANDLER *p = pNezPlay->nah;
 		while (p->next) p = p->next;
 		p->next = nh;
 	}
@@ -143,7 +143,7 @@ static void NESAudioHandlerInstallOne(NEZ_PLAY *pNezPlay, const NES_AUDIO_HANDLE
 		pNezPlay->nah = nh;
 	}
 }
-void NESAudioHandlerInstall(NEZ_PLAY *pNezPlay, const NES_AUDIO_HANDLER * ph)
+void NESAudioHandlerInstall(NEZ_PLAY *pNezPlay, const NEZ_NES_AUDIO_HANDLER * ph)
 {
 	for (;(ph->fMode&2)?(!!ph->Proc2):(!!ph->Proc);ph++) {
 		NESAudioHandlerInstallOne(pNezPlay, ph);
@@ -152,7 +152,7 @@ void NESAudioHandlerInstall(NEZ_PLAY *pNezPlay, const NES_AUDIO_HANDLER * ph)
 
 void NESAudioHandlerTerminate(NEZ_PLAY *pNezPlay)
 {
-	NES_AUDIO_HANDLER *p = pNezPlay->nah, *next;
+	NEZ_NES_AUDIO_HANDLER *p = pNezPlay->nah, *next;
 	while (p) {
 		next = p->next;
 		XFREE(p);
@@ -160,14 +160,14 @@ void NESAudioHandlerTerminate(NEZ_PLAY *pNezPlay)
 	}
 }
 
-void NESVolumeHandlerInstall(NEZ_PLAY *pNezPlay, const NES_VOLUME_HANDLER * ph)
+void NESVolumeHandlerInstall(NEZ_PLAY *pNezPlay, const NEZ_NES_VOLUME_HANDLER * ph)
 {
-	NES_VOLUME_HANDLER *nh;
+	NEZ_NES_VOLUME_HANDLER *nh;
 
 	/* Add to tail of list*/
 	for (;ph->Proc;ph++)
 	{
-		nh = XMALLOC(sizeof(NES_VOLUME_HANDLER));
+		nh = XMALLOC(sizeof(NEZ_NES_VOLUME_HANDLER));
 		nh->Proc = ph->Proc;
 		nh->next = pNezPlay->nvh;
 
@@ -177,7 +177,7 @@ void NESVolumeHandlerInstall(NEZ_PLAY *pNezPlay, const NES_VOLUME_HANDLER * ph)
 
 void NESVolumeHandlerTerminate(NEZ_PLAY *pNezPlay)
 {
-	NES_VOLUME_HANDLER *p = pNezPlay->nvh, *next;
+	NEZ_NES_VOLUME_HANDLER *p = pNezPlay->nvh, *next;
 	while (p) {
 		next = p->next;
 		XFREE(p);

@@ -1,6 +1,7 @@
 #ifndef S_DELTAT_H__
 #define S_DELTAT_H__
 
+#include <nezplug/nezplug.h>
 #include "../kmsnddev.h"
 
 #ifdef __cplusplus
@@ -14,7 +15,7 @@ enum {
 	/* PCE-ADPCM   */ MSM5205
 };
 
-KMIF_SOUND_DEVICE *YMDELTATPCMSoundAlloc(uint32_t ymdeltatpcm_type , uint8_t *pcmbuf);
+KMIF_SOUND_DEVICE *YMDELTATPCMSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t ymdeltatpcm_type , uint8_t *pcmbuf);
 
 #ifdef __cplusplus
 }

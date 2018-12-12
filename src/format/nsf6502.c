@@ -131,9 +131,9 @@ static void NES6502WriteHandlerSet(NEZ_PLAY *pNezPlay, uint32_t bank, WRITEHANDL
 }
 
 #define EXTREADWRITE(p) \
-static uint32_t ExtRd##p (void *pNezPlay, uint32_t A) \
+static uint32_t ExtRd##p (NEZ_PLAY *pNezPlay, uint32_t A) \
 { \
-	NES_READ_HANDLER *ph = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->nprh[0x##p ]; \
+	NES_READ_HANDLER *ph = ((NSFNSF*)pNezPlay->nsf)->nprh[0x##p ]; \
 	do \
 	{ \
 		if (ph->min <= A && A <= ph->max) \
@@ -143,9 +143,9 @@ static uint32_t ExtRd##p (void *pNezPlay, uint32_t A) \
 	} while ((ph = ph->next) != 0); \
 	return 0; \
 } \
-static void ExtWr##p (void *pNezPlay, uint32_t A, uint32_t V) \
+static void ExtWr##p (NEZ_PLAY *pNezPlay, uint32_t A, uint32_t V) \
 { \
-	NES_WRITE_HANDLER *ph = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->npwh[0x##p ]; \
+	NES_WRITE_HANDLER *ph = ((NSFNSF*)pNezPlay->nsf)->npwh[0x##p ]; \
 	do \
 	{ \
 		if (ph->min <= A && A <= ph->max) \
@@ -183,13 +183,13 @@ static const WRITEHANDLER ExtWrTbl[0x10] = {
 	ExtWr8,ExtWr9,ExtWrA,ExtWrB,
 	ExtWrC,ExtWrD,ExtWrE,ExtWrF,
 };
-static uint32_t NullRead(void *pNezPlay, uint32_t A)
+static uint32_t NullRead(NEZ_PLAY *pNezPlay, uint32_t A)
 {
     (void)pNezPlay;
     (void)A;
 	return 0;
 }
-static void NullWrite(void *pNezPlay, uint32_t A, uint32_t V)
+static void NullWrite(NEZ_PLAY *pNezPlay, uint32_t A, uint32_t V)
 {
     (void)pNezPlay;
     (void)A;
@@ -202,7 +202,7 @@ uint32_t (*memview_memread)(uint32_t a);
 NEZ_PLAY* memview_context;
 int MEM_MAX,MEM_IO,MEM_RAM,MEM_ROM;
 uint32_t memview_memread_nes(uint32_t a){
-	if(((NSFNSF*)((NEZ_PLAY*)memview_context)->nsf)->nprh[(a>>12) & 0xF]!=NULL)
+	if(((NSFNSF*)memview_context->nsf)->nprh[(a>>12) & 0xF]!=NULL)
 		return ExtRdTbl[(a>>12) & 0xF](memview_context,a);
 	else return 0xFF;
 }
@@ -315,19 +315,19 @@ static void NSF6502PlaySetup(NEZ_PLAY *pNezPlay)
 	}
 }
 
-static int32_t Execute6502(void *pNezPlay)
+static int32_t Execute6502(NEZ_PLAY *pNezPlay)
 {
-	NSFNSF *nsf = (NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf;
+	NSFNSF *nsf = (NSFNSF*)pNezPlay->nsf;
 	uint32_t cycles;
 	nsf->nsf6502.cleft += nsf->nsf6502.cps;
 	cycles = nsf->nsf6502.cleft >> SHIFT_CPS;
 	if (/*nsf->dpcmirq_ct>-65536 || */!nsf->nsf6502.breaked)
 	{
-		nsf->nsf6502.breaked = NES6502Execute((NEZ_PLAY*)pNezPlay, nsf->nsf6502.total_cycles, cycles);
+		nsf->nsf6502.breaked = NES6502Execute(pNezPlay, nsf->nsf6502.total_cycles, cycles);
 	}else
 	if (nsf->work6502.iRequest & IRQ_INT || nsf->work6502.PC != 0x4103)
 	{
-		NES6502Execute((NEZ_PLAY*)pNezPlay, nsf->nsf6502.total_cycles, cycles);
+		NES6502Execute(pNezPlay, nsf->nsf6502.total_cycles, cycles);
 	}
 	nsf->nsf6502.cleft &= (1 << SHIFT_CPS) - 1;
 	nsf->nsf6502.cycles += cycles * 12;
@@ -338,7 +338,7 @@ static int32_t Execute6502(void *pNezPlay)
 		if (nsf->nsf6502.breaked)
 		{
 			nsf->nsf6502.iframe ^= 1;
-			NSF6502PlaySetup((NEZ_PLAY*)pNezPlay);
+			NSF6502PlaySetup(pNezPlay);
 		}
 	}
 	/*
@@ -351,7 +351,7 @@ static int32_t Execute6502(void *pNezPlay)
 	return 0;
 }
 
-const static NES_AUDIO_HANDLER nsf6502_audio_handler[] = {
+const static NEZ_NES_AUDIO_HANDLER nsf6502_audio_handler[] = {
 	{ 0, Execute6502, NULL, NULL },
 	{ 0, 0, NULL, NULL },
 };
@@ -387,11 +387,11 @@ static uint32_t DivFix(uint32_t p1, uint32_t p2, uint32_t fix)
 	return ret;
 }
 
-static void NSF6502Reset(void *pNezPlay)
+static void NSF6502Reset(NEZ_PLAY *pNezPlay)
 {
-	NSFNSF *nsf = (NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf;
-	uint8_t *nsfhead = NSFGetHeader((NEZ_PLAY*)pNezPlay);
-	uint32_t freq = NESAudioFrequencyGet((NEZ_PLAY*)pNezPlay);
+	NSFNSF *nsf = (NSFNSF*)pNezPlay->nsf;
+	uint8_t *nsfhead = NSFGetHeader(pNezPlay);
+	uint32_t freq = NESAudioFrequencyGet(pNezPlay);
 	uint32_t speed = 0;
 
 	nsf->nsf6502.palntsc = nsfhead[0x7a] & 1;
@@ -419,11 +419,11 @@ static void NSF6502Reset(void *pNezPlay)
 	}
 	nsf->nsf6502.iframe = 0;
 
-	NES6502Reset((NEZ_PLAY*)pNezPlay);
-	NES6502BreakPoint((NEZ_PLAY*)pNezPlay, 0x4103);
-	NSFRomInit((NEZ_PLAY*)pNezPlay, SONGINFO_GetInitAddress(((NEZ_PLAY*)pNezPlay)->song));
+	NES6502Reset(pNezPlay);
+	NES6502BreakPoint(pNezPlay, 0x4103);
+	NSFRomInit(pNezPlay, SONGINFO_GetInitAddress(pNezPlay->song));
 	nsf->work6502.PC = 0x4100;
-	nsf->work6502.A = SONGINFO_GetSongNo(((NEZ_PLAY*)pNezPlay)->song) - 1;
+	nsf->work6502.A = SONGINFO_GetSongNo(pNezPlay->song) - 1;
 	nsf->work6502.X = nsf->nsf6502.palntsc;
 	nsf->work6502.Y = 0;
 	nsf->work6502.S = 0xFF;
@@ -439,14 +439,14 @@ static void NSF6502Reset(void *pNezPlay)
 		uint32_t sec;
 		for (sec = 0; sec < LIMIT_INIT; sec++)
 		{
-			nsf->nsf6502.breaked = NES6502Execute((NEZ_PLAY*)pNezPlay, nsf->nsf6502.total_cycles, nsf->nsf6502.cpf[0]);
+			nsf->nsf6502.breaked = NES6502Execute(pNezPlay, nsf->nsf6502.total_cycles, nsf->nsf6502.cpf[0]);
 			if (nsf->nsf6502.breaked) break;
 		}
 	}
 #else
 	while (1)
 	{
-		nsf->nsf6502.breaked = NES6502Execute((NEZ_PLAY*)pNezPlay, nsf->nsf6502.total_cycles, ~0);
+		nsf->nsf6502.breaked = NES6502Execute(pNezPlay, nsf->nsf6502.total_cycles, ~0);
 		if (nsf->nsf6502.breaked) break;
 	}
 #endif
@@ -454,16 +454,16 @@ static void NSF6502Reset(void *pNezPlay)
 	NSF6502PlaySetup(pNezPlay);
 }
 
-const static NES_RESET_HANDLER nsf6502_reset_handler[] = {
+const static NEZ_NES_RESET_HANDLER nsf6502_reset_handler[] = {
 	{ NES_RESET_SYS_LAST, NSF6502Reset, NULL },
 	{ 0,                  0, NULL },
 };
 
 
 /* Nosefart-ROM area */
-static uint32_t ReadNosefartRom(void *pNezPlay, uint32_t A)
+static uint32_t ReadNosefartRom(NEZ_PLAY *pNezPlay, uint32_t A)
 {
-	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->nsf6502.rom[A & 0x000F];
+	return ((NSFNSF*)pNezPlay->nsf)->nsf6502.rom[A & 0x000F];
 }
 
 

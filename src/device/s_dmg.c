@@ -142,6 +142,7 @@ typedef struct {
 		uint8_t regs[0x30];
 		uint8_t enablefg;
 	} common;
+    uint8_t *chmask;
 } DMGSOUND;
 
 const static uint8_t square_duty_table[4][8] = 
@@ -541,25 +542,25 @@ static void sndsynth(void *ctx, int32_t *p)
 //	DMGSoundNazoRender(sndp, &sndp->nazo);
 
 	outputch = DMGSoundSquareRender(sndp, &sndp->square[0]);
-	if(chmask[DEV_DMG_SQ1]){
+	if(sndp->chmask[DEV_DMG_SQ1]){
 		if ((sndp->common.regs[0x15] & 0x10)) b[0] += outputch; else b[0] += outputidle;
 		if ((sndp->common.regs[0x15] & 0x01)) b[1] += outputch; else b[1] += outputidle;
 	}
 
 	outputch = DMGSoundSquareRender(sndp, &sndp->square[1]);
-	if(chmask[DEV_DMG_SQ2]){
+	if(sndp->chmask[DEV_DMG_SQ2]){
 		if ((sndp->common.regs[0x15] & 0x20)) b[0] += outputch; else b[0] += outputidle;
 		if ((sndp->common.regs[0x15] & 0x02)) b[1] += outputch; else b[1] += outputidle;
 	}
 
 	outputch = DMGSoundWaveMemoryRender(sndp, &sndp->wavememory);
-	if(chmask[DEV_DMG_WM]){
+	if(sndp->chmask[DEV_DMG_WM]){
 		if ((sndp->common.regs[0x15] & 0x40)) b[0] += outputch; else b[0] += outputidle;
 		if ((sndp->common.regs[0x15] & 0x04)) b[1] += outputch; else b[1] += outputidle;
 	}
 
 	outputch = DMGSoundNoiseRender(sndp, &sndp->noise);
-	if(chmask[DEV_DMG_NOISE]){
+	if(sndp->chmask[DEV_DMG_NOISE]){
 		if ((sndp->common.regs[0x15] & 0x80)) b[0] += outputch; else b[0] += outputidle;
 		if ((sndp->common.regs[0x15] & 0x08)) b[1] += outputch; else b[1] += outputidle;
 	}
@@ -1006,12 +1007,13 @@ static uint32_t ioview_ioread_bf(uint32_t a){
 //ここまでレジスタビュアー設定
 
 
-KMIF_SOUND_DEVICE *DMGSoundAlloc(void)
+KMIF_SOUND_DEVICE *DMGSoundAlloc(NEZ_PLAY *pNezPlay)
 {
 	DMGSOUND *sndp;
 	sndp = XMALLOC(sizeof(DMGSOUND));
 	if (!sndp) return 0;
 	XMEMSET(sndp, 0, sizeof(DMGSOUND));
+    sndp->chmask = pNezPlay->chmask;
 	sndp->kmif.ctx = sndp;
 	sndp->kmif.release = sndrelease;
 	sndp->kmif.reset = sndreset;

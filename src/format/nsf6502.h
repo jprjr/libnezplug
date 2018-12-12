@@ -1,14 +1,15 @@
 #ifndef NSF6502_H__
 #define NSF6502_H__
 
+#include <nezplug/nezplug.h>
 #include "handler.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef uint32_t (*READHANDLER)(void*, uint32_t a);
-typedef void (*WRITEHANDLER)(void*, uint32_t a, uint32_t v);
+typedef uint32_t (*READHANDLER)(NEZ_PLAY *, uint32_t a);
+typedef void (*WRITEHANDLER)(NEZ_PLAY*, uint32_t a, uint32_t v);
 
 typedef struct NES_READ_HANDLER_TAG {
 	uint32_t min;

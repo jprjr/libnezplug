@@ -1,13 +1,14 @@
 #ifndef S_HESAD_H__
 #define S_HESAD_H__
 
+#include <nezplug/nezplug.h>
 #include "kmsnddev.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-KMIF_SOUND_DEVICE *HESAdPcmAlloc(void);
+KMIF_SOUND_DEVICE *HESAdPcmAlloc(NEZ_PLAY *pNezPlay);
 
 #ifdef __cplusplus
 }

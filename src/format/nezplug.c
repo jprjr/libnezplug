@@ -13,13 +13,6 @@
 #include "m_nsd.h"
 #include "m_sgc.h"
 
-
-uint8_t chmask[0x80]={
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-};
 extern int (*ioview_ioread_DEV_2A03   )(int a);
 extern int (*ioview_ioread_DEV_FDS    )(int a);
 extern int (*ioview_ioread_DEV_MMC5   )(int a);
@@ -64,6 +57,7 @@ NEZ_PLAY* NEZNew()
 
 	if (pNezPlay != NULL) {
 		XMEMSET(pNezPlay, 0, sizeof(NEZ_PLAY));
+        XMEMSET(pNezPlay->chmask,1,0x80);
 		pNezPlay->song = SONGINFO_New();
 		if (!pNezPlay->song) {
 			XFREE(pNezPlay);
@@ -322,3 +316,20 @@ void NEZGetFileInfo(char **p1, char **p2, char **p3, char **p4)
 	*p4 = songinfodata.detail;
 }
 
+void NEZMuteChannel(NEZ_PLAY *pNezPlay, int32_t chan)
+{
+    if(chan < 0) {
+        XMEMSET(pNezPlay->chmask,0,sizeof(pNezPlay->chmask));
+    } else if ((size_t)chan < sizeof(pNezPlay->chmask)) {
+        pNezPlay->chmask[chan] = 0;
+    }
+}
+
+void NEZUnmuteChannel(NEZ_PLAY *pNezPlay, int32_t chan)
+{
+    if(chan < 0) {
+        XMEMSET(pNezPlay->chmask,1,sizeof(pNezPlay->chmask));
+    } else if ((size_t)chan < sizeof(pNezPlay->chmask)) {
+        pNezPlay->chmask[chan] = 1;
+    }
+}

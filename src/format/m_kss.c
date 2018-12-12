@@ -759,7 +759,7 @@ Extra Device : %s%s%s%s%s"
 		THIS_->synthmode = SYNTHMODE_SMS;
 		if (THIS_->extdevice & EXTDEVICE_GGSTEREO)
 		{
-			THIS_->sndp[SND_SNG] = SNGSoundAlloc(SNG_TYPE_GAMEGEAR);
+			THIS_->sndp[SND_SNG] = SNGSoundAlloc(pNezPlay,SNG_TYPE_GAMEGEAR);
 			SONGINFO_SetChannel(pNezPlay->song, 2);
 			//ここからダンプ設定
 			dump_DEV_SN76489 = dump_DEV_SN76489_bf2;
@@ -767,7 +767,7 @@ Extra Device : %s%s%s%s%s"
 		}
 		else
 		{
-			THIS_->sndp[SND_SNG] = SNGSoundAlloc(SNG_TYPE_SEGAMKIII);
+			THIS_->sndp[SND_SNG] = SNGSoundAlloc(pNezPlay,SNG_TYPE_SEGAMKIII);
 			SONGINFO_SetChannel(pNezPlay->song, 1);
 			//ここからダンプ設定
 			dump_DEV_SN76489 = dump_DEV_SN76489_bf;
@@ -776,7 +776,7 @@ Extra Device : %s%s%s%s%s"
 		if (!THIS_->sndp[SND_SNG]) return NEZ_NESERR_SHORTOFMEMORY;
 		if (THIS_->extdevice & EXTDEVICE_FMUNIT)
 		{
-			THIS_->sndp[SND_FMUNIT] = OPLSoundAlloc(OPL_TYPE_SMSFMUNIT);
+			THIS_->sndp[SND_FMUNIT] = OPLSoundAlloc(pNezPlay,OPL_TYPE_SMSFMUNIT);
 			if (!THIS_->sndp[SND_FMUNIT]) return NEZ_NESERR_SHORTOFMEMORY;
 			//ここからダンプ設定
 			dump_DEV_OPLL = dump_DEV_OPLL_bf;
@@ -814,9 +814,9 @@ Extra Device : %s%s%s%s%s"
 			THIS_->synthmode = SYNTHMODE_MSX;
 		}
 		if(MSXPSGType){
-			THIS_->sndp[SND_PSG] = PSGSoundAlloc(PSG_TYPE_YM2149);
+			THIS_->sndp[SND_PSG] = PSGSoundAlloc(pNezPlay,PSG_TYPE_YM2149);
 		}else{
-			THIS_->sndp[SND_PSG] = PSGSoundAlloc(PSG_TYPE_AY_3_8910);
+			THIS_->sndp[SND_PSG] = PSGSoundAlloc(pNezPlay,PSG_TYPE_AY_3_8910);
 		}
 		if (!THIS_->sndp[SND_PSG]) return NEZ_NESERR_SHORTOFMEMORY;
 		//ここからダンプ設定
@@ -824,7 +824,7 @@ Extra Device : %s%s%s%s%s"
 		//ここまでダンプ設定
 		if (THIS_->extdevice & EXTDEVICE_MSXMUSIC)
 		{
-			THIS_->sndp[SND_MSXMUSIC] = OPLSoundAlloc(OPL_TYPE_MSXMUSIC);
+			THIS_->sndp[SND_MSXMUSIC] = OPLSoundAlloc(pNezPlay,OPL_TYPE_MSXMUSIC);
 			if (!THIS_->sndp[SND_MSXMUSIC]) return NEZ_NESERR_SHORTOFMEMORY;
 			//ここからダンプ設定
 			dump_DEV_OPLL = dump_DEV_OPLL_bf;
@@ -832,7 +832,7 @@ Extra Device : %s%s%s%s%s"
 		}
 		if (THIS_->extdevice & EXTDEVICE_MSXAUDIO)
 		{
-			THIS_->sndp[SND_MSXAUDIO] = OPLSoundAlloc(OPL_TYPE_MSXAUDIO);
+			THIS_->sndp[SND_MSXAUDIO] = OPLSoundAlloc(pNezPlay,OPL_TYPE_MSXAUDIO);
 			//THIS_->sndp[SND_MSXAUDIO] = OPLSoundAlloc(OPL_TYPE_OPL2);
 			if (!THIS_->sndp[SND_MSXAUDIO]) return NEZ_NESERR_SHORTOFMEMORY;
 			//ここからダンプ設定
@@ -847,7 +847,7 @@ Extra Device : %s%s%s%s%s"
 		}
 		else
 		{
-			THIS_->sndp[SND_SCC] = SCCSoundAlloc();
+			THIS_->sndp[SND_SCC] = SCCSoundAlloc(pNezPlay);
 			if (!THIS_->sndp[SND_SCC]) return NEZ_NESERR_SHORTOFMEMORY;
 			//ここからダンプ設定
 			dump_DEV_SCC = dump_DEV_SCC_bf;
@@ -859,18 +859,18 @@ Extra Device : %s%s%s%s%s"
 	return NEZ_NESERR_NOERROR;
 }
 
-static int32_t KSSSEQExecuteZ80CPU(void *pNezPlay)
+static int32_t KSSSEQExecuteZ80CPU(NEZ_PLAY *pNezPlay)
 {
 	execute(((NEZ_PLAY*)pNezPlay)->kssseq);
 	return 0;
 }
 
-static void KSSSEQSoundRenderStereo(void *pNezPlay, int32_t *d)
+static void KSSSEQSoundRenderStereo(NEZ_PLAY *pNezPlay, int32_t *d)
 {
 	synth(((NEZ_PLAY*)pNezPlay)->kssseq, d);
 }
 
-static int32_t KSSSEQSoundRenderMono(void *pNezPlay)
+static int32_t KSSSEQSoundRenderMono(NEZ_PLAY *pNezPlay)
 {
 	int32_t d[2] = { 0, 0 };
 	synth(((NEZ_PLAY*)pNezPlay)->kssseq, d);
@@ -881,13 +881,13 @@ static int32_t KSSSEQSoundRenderMono(void *pNezPlay)
 #endif
 }
 
-const static NES_AUDIO_HANDLER kssseq_audio_handler[] = {
+const static NEZ_NES_AUDIO_HANDLER kssseq_audio_handler[] = {
 	{ 0, KSSSEQExecuteZ80CPU, 0, NULL },
 	{ 3, KSSSEQSoundRenderMono, KSSSEQSoundRenderStereo, NULL },
 	{ 0, 0, 0, NULL },
 };
 
-static void KSSSEQVolume(void *pNezPlay, uint32_t v)
+static void KSSSEQVolume(NEZ_PLAY *pNezPlay, uint32_t v)
 {
 	if (((NEZ_PLAY*)pNezPlay)->kssseq)
 	{
@@ -895,22 +895,22 @@ static void KSSSEQVolume(void *pNezPlay, uint32_t v)
 	}
 }
 
-const static NES_VOLUME_HANDLER kssseq_volume_handler[] = {
+const static NEZ_NES_VOLUME_HANDLER kssseq_volume_handler[] = {
 	{ KSSSEQVolume, NULL }, 
 	{ 0, NULL }, 
 };
 
-static void KSSSEQReset(void *pNezPlay)
+static void KSSSEQReset(NEZ_PLAY *pNezPlay)
 {
 	if (((NEZ_PLAY*)pNezPlay)->kssseq) reset((NEZ_PLAY*)pNezPlay);
 }
 
-const static NES_RESET_HANDLER kssseq_reset_handler[] = {
+const static NEZ_NES_RESET_HANDLER kssseq_reset_handler[] = {
 	{ NES_RESET_SYS_LAST, KSSSEQReset, NULL },
 	{ 0,                  0, NULL },
 };
 
-static void KSSSEQTerminate(void *pNezPlay)
+static void KSSSEQTerminate(NEZ_PLAY *pNezPlay)
 {
 	if (((NEZ_PLAY*)pNezPlay)->kssseq)
 	{
@@ -919,7 +919,7 @@ static void KSSSEQTerminate(void *pNezPlay)
 	}
 }
 
-const static NES_TERMINATE_HANDLER kssseq_terminate_handler[] = {
+const static NEZ_NES_TERMINATE_HANDLER kssseq_terminate_handler[] = {
 	{ KSSSEQTerminate, NULL },
 	{ 0, NULL },
 };

@@ -55,12 +55,12 @@ typedef struct {
 /*  MMC5 EXTEND RAM  */
 /* ----------------- */
 
-static uint32_t mmc5exram_read(void *pNezPlay, uint32_t address)
+static uint32_t mmc5exram_read(NEZ_PLAY *pNezPlay, uint32_t address)
 {
 	return ((MMC5SOUND*)((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->mmc5)->mmc5exram[address & 0x03FF];
 }
 
-static void mmc5exram_write(void *pNezPlay, uint32_t address, uint32_t value)
+static void mmc5exram_write(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 {
 	((MMC5SOUND*)((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->mmc5)->mmc5exram[address & 0x03FF] = (uint8_t)value;
 }
@@ -88,7 +88,7 @@ void MMC5ExtendRamInstall(NEZ_PLAY *pNezPlay)
 /*  MMC5 MULTIPLIER  */
 /* ----------------- */
 
-static uint32_t mmc5mul_read(void *pNezPlay, uint32_t address)
+static uint32_t mmc5mul_read(NEZ_PLAY *pNezPlay, uint32_t address)
 {
 	MMC5SOUND *mmc5 = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->mmc5;
 	uint32_t mul;
@@ -98,7 +98,7 @@ static uint32_t mmc5mul_read(void *pNezPlay, uint32_t address)
 	return address ? (uint8_t)(mul >> 8) & 0xff : (uint8_t)(mul & 0xff);
 }
 
-static void mmc5mul_write(void *pNezPlay, uint32_t address, uint32_t value)
+static void mmc5mul_write(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 {
 	MMC5SOUND *mmc5 = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->mmc5;
 	address = address - 0x5205;
@@ -281,23 +281,23 @@ static void MMC5SoundSquareReset(NEZ_PLAY *pNezPlay, MMC5_SQUARE *ch)
 
 
 
-static int32_t MMC5SoundRender(void* pNezPlay)
+static int32_t MMC5SoundRender(NEZ_PLAY *pNezPlay)
 {
 	MMC5SOUND *mmc5 = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->mmc5;
 	int32_t accum = 0;
-	accum += MMC5SoundSquareRender(&mmc5->square[0]) * chmask[DEV_MMC5_SQ1];
-	accum += MMC5SoundSquareRender(&mmc5->square[1]) * chmask[DEV_MMC5_SQ2];
-	if(chmask[DEV_MMC5_DA])
+	accum += MMC5SoundSquareRender(&mmc5->square[0]) * pNezPlay->chmask[DEV_MMC5_SQ1];
+	accum += MMC5SoundSquareRender(&mmc5->square[1]) * pNezPlay->chmask[DEV_MMC5_SQ2];
+	if(pNezPlay->chmask[DEV_MMC5_DA])
 		if (!mmc5->da.key && !mmc5->da.mute) accum += mmc5->da.output * mmc5->da.linearvolume;
 	return accum;
 }
 
-const static NES_AUDIO_HANDLER s_mmc5_audio_handler[] = {
+const static NEZ_NES_AUDIO_HANDLER s_mmc5_audio_handler[] = {
 	{ 1, MMC5SoundRender, NULL, NULL }, 
 	{ 0, 0, NULL, NULL }, 
 };
 
-static void MMC5SoundVolume(void* pNezPlay, uint32_t volume)
+static void MMC5SoundVolume(NEZ_PLAY *pNezPlay, uint32_t volume)
 {
 	MMC5SOUND *mmc5 = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->mmc5;
 	volume = (volume << (LOG_BITS - 8)) << 1;
@@ -306,12 +306,12 @@ static void MMC5SoundVolume(void* pNezPlay, uint32_t volume)
 	mmc5->da.linearvolume = LogToLinear(volume, LOG_LIN_BITS - 16);
 }
 
-const static NES_VOLUME_HANDLER s_mmc5_volume_handler[] = {
+const static NEZ_NES_VOLUME_HANDLER s_mmc5_volume_handler[] = {
 	{ MMC5SoundVolume, NULL },
 	{ 0, NULL }, 
 };
 
-static void MMC5SoundWrite(void *pNezPlay, uint32_t address, uint32_t value)
+static void MMC5SoundWrite(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 {
 	if (0x5000 <= address && address <= 0x5015)
 	{
@@ -365,7 +365,7 @@ static void MMC5SoundDaReset(MMC5_DA *ch)
 	XMEMSET(ch, 0, sizeof(MMC5_DA));
 }
 
-static void MMC5SoundReset(void* pNezPlay)
+static void MMC5SoundReset(NEZ_PLAY *pNezPlay)
 {
 	MMC5SOUND *mmc5 = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->mmc5;
 	MMC5SoundSquareReset(pNezPlay, &mmc5->square[0]);
@@ -382,19 +382,19 @@ static void MMC5SoundReset(void* pNezPlay)
 	MMC5SoundWrite(pNezPlay, 0x5011, 0x80);
 }
 
-const static NES_RESET_HANDLER s_mmc5_reset_handler[] = {
+const static NEZ_NES_RESET_HANDLER s_mmc5_reset_handler[] = {
 	{ NES_RESET_SYS_NOMAL, MMC5SoundReset, NULL }, 
 	{ 0,                   0, NULL }, 
 };
 
-static void MMC5SoundTerm(void* pNezPlay)
+static void MMC5SoundTerm(NEZ_PLAY *pNezPlay)
 {
 	MMC5SOUND *mmc5 = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->mmc5;
 	if (mmc5)
 		XFREE(mmc5);
 }
 
-const static NES_TERMINATE_HANDLER s_mmc5_terminate_handler[] = {
+const static NEZ_NES_TERMINATE_HANDLER s_mmc5_terminate_handler[] = {
 	{ MMC5SoundTerm, NULL }, 
 	{ 0, NULL }, 
 };

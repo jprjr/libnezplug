@@ -567,7 +567,7 @@ __inline static void NESAPUSoundDpcmRead(NEZ_PLAY *pNezPlay, NESAPU_DPCM *ch)
 	
 }
 
-static void NESAPUSoundDpcmStart(NEZ_PLAY* pNezPlay, NESAPU_DPCM *ch)
+static void NESAPUSoundDpcmStart(NEZ_PLAY *pNezPlay, NESAPU_DPCM *ch)
 {
 	ch->adr = 0xC000 + ((uint32_t)ch->start_adr << 6);
 	ch->length = (((uint32_t)ch->start_length << 4) + 1) << 3;
@@ -581,7 +581,7 @@ static void NESAPUSoundDpcmStart(NEZ_PLAY* pNezPlay, NESAPU_DPCM *ch)
 	NESAPUSoundDpcmRead(pNezPlay, ch);
 }
 
-static int32_t NESAPUSoundDpcmRender(void *pNezPlay)
+static int32_t NESAPUSoundDpcmRender(NEZ_PLAY *pNezPlay)
 {
 #define ch (&((APUSOUND*)((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->apu)->dpcm)
 #define DPCM_OUT ch->dactbl[((ch->dacout<<1) + ch->dacout0)] * DPCM_VOL;
@@ -664,12 +664,12 @@ static int32_t NESAPUSoundDpcmRender(void *pNezPlay)
 }
 
 
-static int32_t APUSoundRender(void *pNezPlay)
+static int32_t APUSoundRender(NEZ_PLAY *pNezPlay)
 {
-	APUSOUND *apu = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->apu;
+	APUSOUND *apu = ((NSFNSF*)pNezPlay->nsf)->apu;
 	int32_t accum = 0 , sqout = 0 , tndout = 0;
-	sqout += NESAPUSoundSquareRender(&apu->square[0]) * chmask[DEV_2A03_SQ1];
-	sqout += NESAPUSoundSquareRender(&apu->square[1]) * chmask[DEV_2A03_SQ2];
+	sqout += NESAPUSoundSquareRender(&apu->square[0]) * pNezPlay->chmask[DEV_2A03_SQ1];
+	sqout += NESAPUSoundSquareRender(&apu->square[1]) * pNezPlay->chmask[DEV_2A03_SQ2];
 //DACの仕様がよく分かるまでは無効にしておく
 //	if (NESRealDAC) {
 //		sqout = apu->amptbl[sqout >> (16 + 1 + 1 - AMPTML_BITS)];
@@ -677,9 +677,9 @@ static int32_t APUSoundRender(void *pNezPlay)
 		sqout >>= 1;
 //	}
 	accum += sqout * apu->square[0].mastervolume / 20/*20kΩ*/;
-	tndout += NESAPUSoundDpcmRender(pNezPlay) * chmask[DEV_2A03_DPCM];
-	tndout += NESAPUSoundTriangleRender(&apu->triangle) * chmask[DEV_2A03_TR];
-	tndout += NESAPUSoundNoiseRender(&apu->noise) * chmask[DEV_2A03_NOISE];
+	tndout += NESAPUSoundDpcmRender(pNezPlay) * pNezPlay->chmask[DEV_2A03_DPCM];
+	tndout += NESAPUSoundTriangleRender(&apu->triangle) * pNezPlay->chmask[DEV_2A03_TR];
+	tndout += NESAPUSoundNoiseRender(&apu->noise) * pNezPlay->chmask[DEV_2A03_NOISE];
 //	if (NESRealDAC) {
 //		tndout = apu->amptbl[tndout >> (16 + 1 + 1 - AMPTML_BITS)];
 //	} else {
@@ -691,14 +691,14 @@ static int32_t APUSoundRender(void *pNezPlay)
 	return accum * NESAPUVolume / 8;
 }
 
-const static NES_AUDIO_HANDLER s_apu_audio_handler[] = {
+const static NEZ_NES_AUDIO_HANDLER s_apu_audio_handler[] = {
 	{ 1, APUSoundRender, NULL, NULL }, 
 	{ 0, 0, NULL, NULL }, 
 };
 
-static void APUSoundVolume(void *pNezPlay, uint32_t volume)
+static void APUSoundVolume(NEZ_PLAY *pNezPlay, uint32_t volume)
 {
-	APUSOUND *apu = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->apu;
+	APUSOUND *apu = ((NSFNSF*)pNezPlay->nsf)->apu;
 	
 	if(volume > 255) volume = 255;
 	volume = 256 - volume;
@@ -712,14 +712,14 @@ static void APUSoundVolume(void *pNezPlay, uint32_t volume)
 	apu->dpcm.mastervolume = volume;
 }
 
-const static NES_VOLUME_HANDLER s_apu_volume_handler[] = {
+const static NEZ_NES_VOLUME_HANDLER s_apu_volume_handler[] = {
 	{ APUSoundVolume, NULL },
 	{ 0, NULL }, 
 };
 
-static void APUSoundWrite(void *pNezPlay, uint32_t address, uint32_t value)
+static void APUSoundWrite(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 {
-	APUSOUND *apu = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->apu;
+	APUSOUND *apu = ((NSFNSF*)pNezPlay->nsf)->apu;
 	if (0x4000 <= address && address <= 0x4017)
 	{
 		apu->regs[address - 0x4000] = (uint8_t)value;
@@ -903,7 +903,7 @@ static void APUSoundWrite(void *pNezPlay, uint32_t address, uint32_t value)
 					if (!apu->dpcm.key)
 					{
 						apu->dpcm.key = 1;
-						NESAPUSoundDpcmStart((NEZ_PLAY*)pNezPlay, &apu->dpcm);
+						NESAPUSoundDpcmStart(pNezPlay, &apu->dpcm);
 					}
 				}
 				else
@@ -948,9 +948,9 @@ static NES_WRITE_HANDLER s_apu_write_handler[] =
 	{ 0,      0,      0, NULL },
 };
 
-static uint32_t APUSoundRead(void *pNezPlay, uint32_t address)
+static uint32_t APUSoundRead(NEZ_PLAY *pNezPlay, uint32_t address)
 {
-	APUSOUND *apu = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->apu;
+	APUSOUND *apu = ((NSFNSF*)pNezPlay->nsf)->apu;
 	if (0x4015 == address)
 	{
 		int key = 0;
@@ -960,9 +960,9 @@ static uint32_t APUSoundRead(void *pNezPlay, uint32_t address)
 		if (apu->noise.key && apu->noise.lc.counter) key |= 8;
 		if (apu->dpcm.length) key |= 16;
 		key |= apu->dpcm.irq_report;
-		key |= ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->vsyncirq_fg;
+		key |= ((NSFNSF*)pNezPlay->nsf)->vsyncirq_fg;
 		apu->dpcm.irq_report = 0;
-		((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->vsyncirq_fg = 0;
+		((NSFNSF*)pNezPlay->nsf)->vsyncirq_fg = 0;
 		return key;
 	}
 	if (0x4000 <= address && address <= 0x4017)
@@ -994,9 +994,9 @@ static uint32_t DivFix(uint32_t p1, uint32_t p2, uint32_t fix)
 	return ret;
 }
 
-static uint32_t GetNTSCPAL(void *pNezPlay)
+static uint32_t GetNTSCPAL(NEZ_PLAY *pNezPlay)
 {
-	uint8_t *nsfhead = NSFGetHeader((NEZ_PLAY*)pNezPlay);
+	uint8_t *nsfhead = NSFGetHeader(pNezPlay);
 	if (nsfhead[0x7a] & 1){
 		return 13;
 	}
@@ -1007,18 +1007,18 @@ static uint32_t GetNTSCPAL(void *pNezPlay)
 
 }
 
-static void NESAPUSoundSquareReset(void *pNezPlay, NESAPU_SQUARE *ch)
+static void NESAPUSoundSquareReset(NEZ_PLAY *pNezPlay, NESAPU_SQUARE *ch)
 {
 	XMEMSET(ch, 0, sizeof(NESAPU_SQUARE));
 	ch->cps = DivFix(NES_BASECYCLES, GetNTSCPAL(pNezPlay) * NESAudioFrequencyGet(pNezPlay), CPS_BITS);
 }
-static void NESAPUSoundTriangleReset(void *pNezPlay, NESAPU_TRIANGLE *ch)
+static void NESAPUSoundTriangleReset(NEZ_PLAY *pNezPlay, NESAPU_TRIANGLE *ch)
 {
 	XMEMSET(ch, 0, sizeof(NESAPU_TRIANGLE));
 	ch->cps = DivFix(NES_BASECYCLES, GetNTSCPAL(pNezPlay) * NESAudioFrequencyGet(pNezPlay), CPS_BITS);
 	ch->st=0x8;
 }
-static void NESAPUSoundNoiseReset(void *pNezPlay, NESAPU_NOISE *ch)
+static void NESAPUSoundNoiseReset(NEZ_PLAY *pNezPlay, NESAPU_NOISE *ch)
 {
 	XMEMSET(ch, 0, sizeof(NESAPU_NOISE));
 	ch->cps = DivFix(NES_BASECYCLES, GetNTSCPAL(pNezPlay) * NESAudioFrequencyGet(pNezPlay), CPS_BITS);
@@ -1034,15 +1034,15 @@ static void NESAPUSoundNoiseReset(void *pNezPlay, NESAPU_NOISE *ch)
 }
 
 
-static void NESAPUSoundDpcmReset(void *pNezPlay, NESAPU_DPCM *ch)
+static void NESAPUSoundDpcmReset(NEZ_PLAY *pNezPlay, NESAPU_DPCM *ch)
 {
 	XMEMSET(ch, 0, sizeof(NESAPU_DPCM));
 	ch->cps = DivFix(NES_BASECYCLES, 12 * NESAudioFrequencyGet(pNezPlay), CPS_BITS);
 }
 
-static void APUSoundReset(void* pNezPlay)
+static void APUSoundReset(NEZ_PLAY *pNezPlay)
 {
-	APUSOUND *apu = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->apu;
+	APUSOUND *apu = ((NSFNSF*)pNezPlay->nsf)->apu;
 	uint32_t i;
 	NESAPUSoundSquareReset(pNezPlay, &apu->square[0]);
 	NESAPUSoundSquareReset(pNezPlay, &apu->square[1]);
@@ -1097,19 +1097,19 @@ static void APUSoundReset(void* pNezPlay)
 #endif
 }
 
-const static NES_RESET_HANDLER s_apu_reset_handler[] = {
+const static NEZ_NES_RESET_HANDLER s_apu_reset_handler[] = {
 	{ NES_RESET_SYS_NOMAL, APUSoundReset, NULL }, 
 	{ 0,                   0, NULL }, 
 };
 
-static void APUSoundTerm(void* pNezPlay)
+static void APUSoundTerm(NEZ_PLAY *pNezPlay)
 {
-	APUSOUND *apu = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->apu;
+	APUSOUND *apu = ((NSFNSF*)pNezPlay->nsf)->apu;
 	if (apu)
 		XFREE(apu);
 }
 
-const static NES_TERMINATE_HANDLER s_apu_terminate_handler[] = {
+const static NEZ_NES_TERMINATE_HANDLER s_apu_terminate_handler[] = {
 	{ APUSoundTerm, NULL }, 
 	{ 0, NULL }, 
 };

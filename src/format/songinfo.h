@@ -7,22 +7,22 @@
 extern "C" {
 #endif
 
-SONG_INFO* SONGINFO_New();
-void SONGINFO_Delete(SONG_INFO *info);
-uint32_t SONGINFO_GetSongNo(SONG_INFO*);
-void SONGINFO_SetSongNo(SONG_INFO*, uint32_t v);
-uint32_t SONGINFO_GetStartSongNo(SONG_INFO*);
-void SONGINFO_SetStartSongNo(SONG_INFO*, uint32_t v);
-uint32_t SONGINFO_GetMaxSongNo(SONG_INFO*);
-void SONGINFO_SetMaxSongNo(SONG_INFO*, uint32_t v);
-uint32_t SONGINFO_GetExtendDevice(SONG_INFO*);
-void SONGINFO_SetExtendDevice(SONG_INFO*, uint32_t v);
-uint32_t SONGINFO_GetInitAddress(SONG_INFO*);
-void SONGINFO_SetInitAddress(SONG_INFO*, uint32_t v);
-uint32_t SONGINFO_GetPlayAddress(SONG_INFO*);
-void SONGINFO_SetPlayAddress(SONG_INFO*, uint32_t v);
-uint32_t SONGINFO_GetChannel(SONG_INFO*);
-void SONGINFO_SetChannel(SONG_INFO*, uint32_t v);
+NEZ_SONG_INFO* SONGINFO_New();
+void SONGINFO_Delete(NEZ_SONG_INFO *info);
+uint32_t SONGINFO_GetSongNo(NEZ_SONG_INFO*);
+void SONGINFO_SetSongNo(NEZ_SONG_INFO*, uint32_t v);
+uint32_t SONGINFO_GetStartSongNo(NEZ_SONG_INFO*);
+void SONGINFO_SetStartSongNo(NEZ_SONG_INFO*, uint32_t v);
+uint32_t SONGINFO_GetMaxSongNo(NEZ_SONG_INFO*);
+void SONGINFO_SetMaxSongNo(NEZ_SONG_INFO*, uint32_t v);
+uint32_t SONGINFO_GetExtendDevice(NEZ_SONG_INFO*);
+void SONGINFO_SetExtendDevice(NEZ_SONG_INFO*, uint32_t v);
+uint32_t SONGINFO_GetInitAddress(NEZ_SONG_INFO*);
+void SONGINFO_SetInitAddress(NEZ_SONG_INFO*, uint32_t v);
+uint32_t SONGINFO_GetPlayAddress(NEZ_SONG_INFO*);
+void SONGINFO_SetPlayAddress(NEZ_SONG_INFO*, uint32_t v);
+uint32_t SONGINFO_GetChannel(NEZ_SONG_INFO*);
+void SONGINFO_SetChannel(NEZ_SONG_INFO*, uint32_t v);
 
 #ifdef __cplusplus
 }

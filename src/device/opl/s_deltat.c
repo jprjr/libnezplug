@@ -38,6 +38,7 @@ typedef struct {
 	uint8_t ymdeltatpcm_type;
 	uint8_t memshift;
 	uint32_t ram_size;
+    uint8_t *chmask;
 } YMDELTATPCMSOUND;
 
 const static int8_t table_step[16] =
@@ -194,7 +195,7 @@ static void sndsynth(void *ctx, int32_t *p)
 			}
 			sndp->common.output = SSR(sndp->common.output, 8 + 2);
 		}
-		if(chmask[DEV_ADPCM_CH1]){
+		if(sndp->chmask[DEV_ADPCM_CH1]){
 			p[0] += sndp->common.output;
 			p[1] += sndp->common.output;
 		}
@@ -329,7 +330,7 @@ static uint32_t ioview_ioread_bf2(uint32_t a){
 }
 //ここまでレジスタビュアー設定
 
-KMIF_SOUND_DEVICE *YMDELTATPCMSoundAlloc(uint32_t ymdeltatpcm_type , uint8_t *pcmbuf)
+KMIF_SOUND_DEVICE *YMDELTATPCMSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t ymdeltatpcm_type , uint8_t *pcmbuf)
 {
 	uint32_t ram_size;
 	YMDELTATPCMSOUND *sndp;
@@ -350,6 +351,7 @@ KMIF_SOUND_DEVICE *YMDELTATPCMSoundAlloc(uint32_t ymdeltatpcm_type , uint8_t *pc
 	}
 	sndp = XMALLOC(sizeof(YMDELTATPCMSOUND) + ram_size);
 	if (!sndp) return 0;
+    sndp->chmask = pNezPlay->chmask;
 	sndp->ram_size = ram_size;
 	sndp->ymdeltatpcm_type = (uint8_t)ymdeltatpcm_type;
 	switch (ymdeltatpcm_type)

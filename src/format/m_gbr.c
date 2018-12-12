@@ -1048,7 +1048,7 @@ Use INT           : %d"
 #else
 	XMEMCPY(THIS_->bankrom + THIS_->loadaddr, pData, uSize);
 #endif
-	THIS_->dmgsnd = DMGSoundAlloc();
+	THIS_->dmgsnd = DMGSoundAlloc(pNezPlay);
 	if (!THIS_->dmgsnd) return NEZ_NESERR_SHORTOFMEMORY;
 	return NEZ_NESERR_NOERROR;
 }
@@ -1057,17 +1057,17 @@ Use INT           : %d"
 
 
 
-static int32_t ExecuteDMGCPU(void *pNezPlay)
+static int32_t ExecuteDMGCPU(NEZ_PLAY *pNezPlay)
 {
 	return ((NEZ_PLAY*)pNezPlay)->gbrdmg ? execute((GBRDMG*)((NEZ_PLAY*)pNezPlay)->gbrdmg) : 0;
 }
 
-static void DMGSoundRenderStereo(void *pNezPlay, int32_t *d)
+static void DMGSoundRenderStereo(NEZ_PLAY *pNezPlay, int32_t *d)
 {
 	synth((GBRDMG*)((NEZ_PLAY*)pNezPlay)->gbrdmg, d);
 }
 
-static int32_t DMGSoundRenderMono(void *pNezPlay)
+static int32_t DMGSoundRenderMono(NEZ_PLAY *pNezPlay)
 {
 	int32_t d[2] = { 0,0 } ;
 	synth((GBRDMG*)((NEZ_PLAY*)pNezPlay)->gbrdmg, d);
@@ -1078,13 +1078,13 @@ static int32_t DMGSoundRenderMono(void *pNezPlay)
 #endif
 }
 
-const static NES_AUDIO_HANDLER gbrdmg_audio_handler[] = {
+const static NEZ_NES_AUDIO_HANDLER gbrdmg_audio_handler[] = {
 	{ 0, ExecuteDMGCPU, 0, NULL },
 	{ 3, DMGSoundRenderMono, DMGSoundRenderStereo, NULL },
 	{ 0, 0, 0, NULL },
 };
 
-static void GBRDMGVolume(void *pNezPlay, uint32_t v)
+static void GBRDMGVolume(NEZ_PLAY *pNezPlay, uint32_t v)
 {
 	if (((NEZ_PLAY*)pNezPlay)->gbrdmg)
 	{
@@ -1092,22 +1092,22 @@ static void GBRDMGVolume(void *pNezPlay, uint32_t v)
 	}
 }
 
-const static NES_VOLUME_HANDLER gbrdmg_volume_handler[] = {
+const static NEZ_NES_VOLUME_HANDLER gbrdmg_volume_handler[] = {
 	{ GBRDMGVolume, NULL }, 
 	{ 0, NULL }, 
 };
 
-static void GBRDMGCPUReset(void *pNezPlay)
+static void GBRDMGCPUReset(NEZ_PLAY *pNezPlay)
 {
 	if (((NEZ_PLAY*)pNezPlay)->gbrdmg) reset((NEZ_PLAY*)pNezPlay);
 }
 
-const static NES_RESET_HANDLER gbrdmg_reset_handler[] = {
+const static NEZ_NES_RESET_HANDLER gbrdmg_reset_handler[] = {
 	{ NES_RESET_SYS_LAST, GBRDMGCPUReset, NULL },
 	{ 0,                  0, NULL },
 };
 
-static void GBRDMGCPUTerminate(void *pNezPlay)
+static void GBRDMGCPUTerminate(NEZ_PLAY *pNezPlay)
 {
 	if (((NEZ_PLAY*)pNezPlay)->gbrdmg)
 	{
@@ -1116,7 +1116,7 @@ static void GBRDMGCPUTerminate(void *pNezPlay)
 	}
 }
 
-const static NES_TERMINATE_HANDLER gbrdmg_terminate_handler[] = {
+const static NEZ_NES_TERMINATE_HANDLER gbrdmg_terminate_handler[] = {
 	{ GBRDMGCPUTerminate, NULL },
 	{ 0, NULL },
 };

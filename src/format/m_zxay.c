@@ -364,25 +364,25 @@ static uint32_t load(NEZ_PLAY *pNezPlay, ZXAY *THIS_, uint8_t *pData, uint32_t u
 	SONGINFO_SetExtendDevice(pNezPlay->song, 0);
 	SONGINFO_SetChannel(pNezPlay->song, 1);
 
-	THIS_->sndp = PSGSoundAlloc(PSG_TYPE_AY_3_8910);
-	THIS_->amstrad_sndp = PSGSoundAlloc(PSG_TYPE_YM2149);
+	THIS_->sndp = PSGSoundAlloc(pNezPlay,PSG_TYPE_AY_3_8910);
+	THIS_->amstrad_sndp = PSGSoundAlloc(pNezPlay,PSG_TYPE_YM2149);
 	if (!THIS_->sndp || !THIS_->amstrad_sndp) return NEZ_NESERR_SHORTOFMEMORY;
 	return NEZ_NESERR_NOERROR;
 }
 
 
 
-static int32_t ZXAYExecuteZ80CPU(void *pNezPlay)
+static int32_t ZXAYExecuteZ80CPU(NEZ_PLAY *pNezPlay)
 {
 	return ((NEZ_PLAY*)pNezPlay)->zxay ? execute((ZXAY*)((NEZ_PLAY*)pNezPlay)->zxay) : 0;
 }
 
-static void ZXAYSoundRenderStereo(void *pNezPlay, int32_t *d)
+static void ZXAYSoundRenderStereo(NEZ_PLAY *pNezPlay, int32_t *d)
 {
 	synth((ZXAY*)((NEZ_PLAY*)pNezPlay)->zxay, d);
 }
 
-static int32_t ZXAYSoundRenderMono(void *pNezPlay)
+static int32_t ZXAYSoundRenderMono(NEZ_PLAY *pNezPlay)
 {
 	int32_t d[2] = { 0, 0 };
 	synth((ZXAY*)((NEZ_PLAY*)pNezPlay)->zxay, d);
@@ -393,13 +393,13 @@ static int32_t ZXAYSoundRenderMono(void *pNezPlay)
 #endif
 }
 
-const static NES_AUDIO_HANDLER zxay_audio_handler[] = {
+const static NEZ_NES_AUDIO_HANDLER zxay_audio_handler[] = {
 	{ 0, ZXAYExecuteZ80CPU, 0, NULL },
 	{ 3, ZXAYSoundRenderMono, ZXAYSoundRenderStereo, NULL },
 	{ 0, 0, 0, NULL },
 };
 
-static void ZXAYVolume(void *pNezPlay, uint32_t v)
+static void ZXAYVolume(NEZ_PLAY *pNezPlay, uint32_t v)
 {
 	if (((NEZ_PLAY*)pNezPlay)->zxay)
 	{
@@ -407,22 +407,22 @@ static void ZXAYVolume(void *pNezPlay, uint32_t v)
 	}
 }
 
-const static NES_VOLUME_HANDLER zxay_volume_handler[] = {
+const static NEZ_NES_VOLUME_HANDLER zxay_volume_handler[] = {
 	{ ZXAYVolume, NULL }, 
 	{ 0, NULL }, 
 };
 
-static void ZXAYReset(void *pNezPlay)
+static void ZXAYReset(NEZ_PLAY *pNezPlay)
 {
 	if (((NEZ_PLAY*)pNezPlay)->zxay) reset((NEZ_PLAY*)pNezPlay);
 }
 
-const static NES_RESET_HANDLER zxay_reset_handler[] = {
+const static NEZ_NES_RESET_HANDLER zxay_reset_handler[] = {
 	{ NES_RESET_SYS_LAST, ZXAYReset, NULL },
 	{ 0,                  0, NULL },
 };
 
-static void ZXAYTerminate(void *pNezPlay)
+static void ZXAYTerminate(NEZ_PLAY *pNezPlay)
 {
 	if (((NEZ_PLAY*)pNezPlay)->zxay)
 	{
@@ -431,7 +431,7 @@ static void ZXAYTerminate(void *pNezPlay)
 	}
 }
 
-const static NES_TERMINATE_HANDLER zxay_terminate_handler[] = {
+const static NEZ_NES_TERMINATE_HANDLER zxay_terminate_handler[] = {
 	{ ZXAYTerminate, NULL },
 	{ 0, NULL },
 };

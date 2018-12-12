@@ -54,6 +54,7 @@ typedef struct {
 		int32_t mastervolume;
 		uint8_t sysregs[2];
 	} common;
+    uint8_t *chmask;
 } HESSOUND;
 
 #define V(a) ((((uint32_t)(0x1F - (a)) * (uint32_t)(1 << LOG_BITS) * (uint32_t)1000) / (uint32_t)3800) << 1)
@@ -89,7 +90,7 @@ static void HESSoundWaveMemoryRender(HESSOUND *sndp, HES_WAVEMEMORY *ch, int32_t
 	if (ch->regs[4 - 2] & 0x40)	/* DDA */
 	{
 		output = ch->dda;
-		if(chmask[DEV_HUC6230_CH1+chn]){
+		if(sndp->chmask[DEV_HUC6230_CH1+chn]){
 			p[0] += LogToLin(sndp->logtbl, lvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 17 - 1);
 			p[1] += LogToLin(sndp->logtbl, rvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 17 - 1);
 		}
@@ -128,7 +129,7 @@ static void HESSoundWaveMemoryRender(HESSOUND *sndp, HES_WAVEMEMORY *ch, int32_t
 		outputbf[1] += ch->output[1];
 		count++;
 
-		if(chmask[DEV_HUC6230_CH1+chn]){
+		if(sndp->chmask[DEV_HUC6230_CH1+chn]){
 			p[0] += outputbf[0] / count;
 			p[1] += outputbf[1] / count;
 		}
@@ -174,7 +175,7 @@ static void HESSoundWaveMemoryRender(HESSOUND *sndp, HES_WAVEMEMORY *ch, int32_t
 		outputbf[0] += ch->output[0];
 		outputbf[1] += ch->output[1];
 		count++;
-		if(chmask[DEV_HUC6230_CH1+chn]){
+		if(sndp->chmask[DEV_HUC6230_CH1+chn]){
 			p[0] += outputbf[0] / count;
 			p[1] += outputbf[1] / count;
 		}
@@ -506,12 +507,13 @@ uint32_t pce_ioview_ioread_bf(uint32_t a){
 }
 //ここまでレジスタビュアー設定
 
-KMIF_SOUND_DEVICE *HESSoundAlloc(void)
+KMIF_SOUND_DEVICE *HESSoundAlloc(NEZ_PLAY *pNezPlay)
 {
 	HESSOUND *sndp;
 	sndp = XMALLOC(sizeof(HESSOUND));
 	if (!sndp) return 0;
 	XMEMSET(sndp, 0, sizeof(HESSOUND));
+    sndp->chmask = pNezPlay->chmask;
 	sndp->kmif.ctx = sndp;
 	sndp->kmif.release = sndrelease;
 	sndp->kmif.reset = sndreset;

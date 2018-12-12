@@ -56,6 +56,7 @@ typedef struct {
 	} common;
 	uint8_t type;
 	uint8_t regs[0x11];
+    uint8_t *chmask;
 } SNGSOUND;
 
 #define V(a) (((a * (1 << LOG_BITS)) / 3) << 1)
@@ -147,12 +148,12 @@ static void sndsynth(void *ctx, int32_t *p)
 	for (ch = 0; ch < 3; ch++)
 	{
 		accum = SNGSoundSquareSynth(sndp, &sndp->square[ch]);
-		if (chmask[DEV_SN76489_SQ1 + ch]){
+		if (sndp->chmask[DEV_SN76489_SQ1 + ch]){
 			if ((sndp->common.ggs >> ch) & 0x10) p[0] += accum;
 			if ((sndp->common.ggs >> ch) & 0x01) p[1] += accum;
 		}
 	}
-	accum = SNGSoundNoiseSynth(sndp, &sndp->noise) * chmask[DEV_SN76489_NOISE];
+	accum = SNGSoundNoiseSynth(sndp, &sndp->noise) * sndp->chmask[DEV_SN76489_NOISE];
 	if (sndp->common.ggs & 0x80) p[0] += accum;
 	if (sndp->common.ggs & 0x08) p[1] += accum;
 }
@@ -288,12 +289,13 @@ static uint32_t ioview_ioread_bf(uint32_t a){
 }
 //ここまでレジスタビュアー設定
 
-KMIF_SOUND_DEVICE *SNGSoundAlloc(uint32_t sng_type)
+KMIF_SOUND_DEVICE *SNGSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t sng_type)
 {
 	SNGSOUND *sndp;
 	sndp = XMALLOC(sizeof(SNGSOUND));
 	if (!sndp) return 0;
 	XMEMSET(sndp, 0, sizeof(SNGSOUND));
+    sndp->chmask = pNezPlay->chmask;
 	sndp->type = sng_type;
 	sndp->kmif.ctx = sndp;
 	sndp->kmif.release = sndrelease;
