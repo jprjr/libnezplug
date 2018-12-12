@@ -90,7 +90,7 @@ static void HESSoundWaveMemoryRender(HESSOUND *sndp, HES_WAVEMEMORY *ch, int32_t
 	if (ch->regs[4 - 2] & 0x40)	/* DDA */
 	{
 		output = ch->dda;
-		if(sndp->chmask[DEV_HUC6230_CH1+chn]){
+		if(sndp->chmask[NEZ_DEV_HUC6230_CH1+chn]){
 			p[0] += LogToLin(sndp->logtbl, lvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 17 - 1);
 			p[1] += LogToLin(sndp->logtbl, rvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 17 - 1);
 		}
@@ -129,7 +129,7 @@ static void HESSoundWaveMemoryRender(HESSOUND *sndp, HES_WAVEMEMORY *ch, int32_t
 		outputbf[1] += ch->output[1];
 		count++;
 
-		if(sndp->chmask[DEV_HUC6230_CH1+chn]){
+		if(sndp->chmask[NEZ_DEV_HUC6230_CH1+chn]){
 			p[0] += outputbf[0] / count;
 			p[1] += outputbf[1] / count;
 		}
@@ -175,7 +175,7 @@ static void HESSoundWaveMemoryRender(HESSOUND *sndp, HES_WAVEMEMORY *ch, int32_t
 		outputbf[0] += ch->output[0];
 		outputbf[1] += ch->output[1];
 		count++;
-		if(sndp->chmask[DEV_HUC6230_CH1+chn]){
+		if(sndp->chmask[NEZ_DEV_HUC6230_CH1+chn]){
 			p[0] += outputbf[0] / count;
 			p[1] += outputbf[1] / count;
 		}

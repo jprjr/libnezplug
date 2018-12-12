@@ -668,8 +668,8 @@ static int32_t APUSoundRender(NEZ_PLAY *pNezPlay)
 {
 	APUSOUND *apu = ((NSFNSF*)pNezPlay->nsf)->apu;
 	int32_t accum = 0 , sqout = 0 , tndout = 0;
-	sqout += NESAPUSoundSquareRender(&apu->square[0]) * pNezPlay->chmask[DEV_2A03_SQ1];
-	sqout += NESAPUSoundSquareRender(&apu->square[1]) * pNezPlay->chmask[DEV_2A03_SQ2];
+	sqout += NESAPUSoundSquareRender(&apu->square[0]) * pNezPlay->chmask[NEZ_DEV_2A03_SQ1];
+	sqout += NESAPUSoundSquareRender(&apu->square[1]) * pNezPlay->chmask[NEZ_DEV_2A03_SQ2];
 //DACの仕様がよく分かるまでは無効にしておく
 //	if (NESRealDAC) {
 //		sqout = apu->amptbl[sqout >> (16 + 1 + 1 - AMPTML_BITS)];
@@ -677,9 +677,9 @@ static int32_t APUSoundRender(NEZ_PLAY *pNezPlay)
 		sqout >>= 1;
 //	}
 	accum += sqout * apu->square[0].mastervolume / 20/*20kΩ*/;
-	tndout += NESAPUSoundDpcmRender(pNezPlay) * pNezPlay->chmask[DEV_2A03_DPCM];
-	tndout += NESAPUSoundTriangleRender(&apu->triangle) * pNezPlay->chmask[DEV_2A03_TR];
-	tndout += NESAPUSoundNoiseRender(&apu->noise) * pNezPlay->chmask[DEV_2A03_NOISE];
+	tndout += NESAPUSoundDpcmRender(pNezPlay) * pNezPlay->chmask[NEZ_DEV_2A03_DPCM];
+	tndout += NESAPUSoundTriangleRender(&apu->triangle) * pNezPlay->chmask[NEZ_DEV_2A03_TR];
+	tndout += NESAPUSoundNoiseRender(&apu->noise) * pNezPlay->chmask[NEZ_DEV_2A03_NOISE];
 //	if (NESRealDAC) {
 //		tndout = apu->amptbl[tndout >> (16 + 1 + 1 - AMPTML_BITS)];
 //	} else {

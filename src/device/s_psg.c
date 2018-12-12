@@ -347,11 +347,11 @@ static void sndsynth(void *ctx, int32_t *p)
 	int32_t accum = 0;
 	sndp->common.rngout = PSGSoundNoiseStep(sndp);
 	sndp->common.envout = PSGSoundEnvelopeStep(sndp);
-	accum += PSGSoundSquare(sndp, &sndp->square[0]) * sndp->chmask[DEV_AY8910_CH1];
-	accum += PSGSoundSquare(sndp, &sndp->square[1]) * sndp->chmask[DEV_AY8910_CH2];
-	accum += PSGSoundSquare(sndp, &sndp->square[2]) * sndp->chmask[DEV_AY8910_CH3];
+	accum += PSGSoundSquare(sndp, &sndp->square[0]) * sndp->chmask[NEZ_DEV_AY8910_CH1];
+	accum += PSGSoundSquare(sndp, &sndp->square[1]) * sndp->chmask[NEZ_DEV_AY8910_CH2];
+	accum += PSGSoundSquare(sndp, &sndp->square[2]) * sndp->chmask[NEZ_DEV_AY8910_CH3];
 	MSXSoundDaStep(sndp);
-	if (sndp->chmask[DEV_MSX_DA])
+	if (sndp->chmask[NEZ_DEV_MSX_DA])
 		accum += LogToLin(sndp->logtbl,sndp->common.mastervolume, LOG_LIN_BITS-7)
 		* (sndp->common.daenable ? (sndp->common.davolume*7 + (1<<16))/7 : sndp->common.davolume);
 #ifdef VOLUME_3

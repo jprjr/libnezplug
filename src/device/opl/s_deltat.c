@@ -195,7 +195,7 @@ static void sndsynth(void *ctx, int32_t *p)
 			}
 			sndp->common.output = SSR(sndp->common.output, 8 + 2);
 		}
-		if(sndp->chmask[DEV_ADPCM_CH1]){
+		if(sndp->chmask[NEZ_DEV_ADPCM_CH1]){
 			p[0] += sndp->common.output;
 			p[1] += sndp->common.output;
 		}

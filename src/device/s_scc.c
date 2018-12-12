@@ -80,7 +80,7 @@ static void sndsynth(void *ctx, int32_t *p)
 	{
 		uint32_t ch;
 		int32_t accum = 0;
-		for (ch = 0; ch < 5; ch++) accum += SCCSoundChSynth(sndp, &sndp->ch[ch]) * sndp->chmask[DEV_SCC_CH1 + ch];
+		for (ch = 0; ch < 5; ch++) accum += SCCSoundChSynth(sndp, &sndp->ch[ch]) * sndp->chmask[NEZ_DEV_SCC_CH1 + ch];
 		accum += LogToLin(sndp->logtbl, sndp->common.mastervolume + sndp->majutushida, LOG_LIN_BITS - LIN_BITS - 14);
 		p[0] += accum;
 		p[1] += accum;

@@ -285,9 +285,9 @@ static int32_t MMC5SoundRender(NEZ_PLAY *pNezPlay)
 {
 	MMC5SOUND *mmc5 = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->mmc5;
 	int32_t accum = 0;
-	accum += MMC5SoundSquareRender(&mmc5->square[0]) * pNezPlay->chmask[DEV_MMC5_SQ1];
-	accum += MMC5SoundSquareRender(&mmc5->square[1]) * pNezPlay->chmask[DEV_MMC5_SQ2];
-	if(pNezPlay->chmask[DEV_MMC5_DA])
+	accum += MMC5SoundSquareRender(&mmc5->square[0]) * pNezPlay->chmask[NEZ_DEV_MMC5_SQ1];
+	accum += MMC5SoundSquareRender(&mmc5->square[1]) * pNezPlay->chmask[NEZ_DEV_MMC5_SQ2];
+	if(pNezPlay->chmask[NEZ_DEV_MMC5_DA])
 		if (!mmc5->da.key && !mmc5->da.mute) accum += mmc5->da.output * mmc5->da.linearvolume;
 	return accum;
 }

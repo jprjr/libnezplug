@@ -542,25 +542,25 @@ static void sndsynth(void *ctx, int32_t *p)
 //	DMGSoundNazoRender(sndp, &sndp->nazo);
 
 	outputch = DMGSoundSquareRender(sndp, &sndp->square[0]);
-	if(sndp->chmask[DEV_DMG_SQ1]){
+	if(sndp->chmask[NEZ_DEV_DMG_SQ1]){
 		if ((sndp->common.regs[0x15] & 0x10)) b[0] += outputch; else b[0] += outputidle;
 		if ((sndp->common.regs[0x15] & 0x01)) b[1] += outputch; else b[1] += outputidle;
 	}
 
 	outputch = DMGSoundSquareRender(sndp, &sndp->square[1]);
-	if(sndp->chmask[DEV_DMG_SQ2]){
+	if(sndp->chmask[NEZ_DEV_DMG_SQ2]){
 		if ((sndp->common.regs[0x15] & 0x20)) b[0] += outputch; else b[0] += outputidle;
 		if ((sndp->common.regs[0x15] & 0x02)) b[1] += outputch; else b[1] += outputidle;
 	}
 
 	outputch = DMGSoundWaveMemoryRender(sndp, &sndp->wavememory);
-	if(sndp->chmask[DEV_DMG_WM]){
+	if(sndp->chmask[NEZ_DEV_DMG_WM]){
 		if ((sndp->common.regs[0x15] & 0x40)) b[0] += outputch; else b[0] += outputidle;
 		if ((sndp->common.regs[0x15] & 0x04)) b[1] += outputch; else b[1] += outputidle;
 	}
 
 	outputch = DMGSoundNoiseRender(sndp, &sndp->noise);
-	if(sndp->chmask[DEV_DMG_NOISE]){
+	if(sndp->chmask[NEZ_DEV_DMG_NOISE]){
 		if ((sndp->common.regs[0x15] & 0x80)) b[0] += outputch; else b[0] += outputidle;
 		if ((sndp->common.regs[0x15] & 0x08)) b[1] += outputch; else b[1] += outputidle;
 	}

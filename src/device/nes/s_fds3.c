@@ -212,7 +212,7 @@ static int32_t FDSSoundRender(NEZ_PLAY *pNezPlay)
 	}else{
 		outputbuf /= count;
 	}
-	if(!pNezPlay->chmask[DEV_FDS_CH1]) return 0;
+	if(!pNezPlay->chmask[NEZ_DEV_FDS_CH1]) return 0;
 	return outputbuf;
 }
 

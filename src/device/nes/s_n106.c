@@ -151,7 +151,7 @@ static int32_t N106SoundRenderReal2(NEZ_PLAY *pNezPlay)
 		}
 		if (((int32_t)chp->count / real2) == chpn)accum += chp->output;
 		count++;
-		if (pNezPlay->chmask[DEV_N106_CH1+chpn])outputbuf += accum / count;
+		if (pNezPlay->chmask[NEZ_DEV_N106_CH1+chpn])outputbuf += accum / count;
 	}
 /*	n106s->ofscount += n106s->ofscps;
 	while(n106s->ofscount >= REAL_OFS_COUNT){
@@ -199,7 +199,7 @@ static int32_t N106SoundRenderReal(NEZ_PLAY *pNezPlay)
 		}
 		accum += chp->output;
 		count++;
-		if(pNezPlay->chmask[DEV_N106_CH1+chpn])outputbuf += accum / count;
+		if(pNezPlay->chmask[NEZ_DEV_N106_CH1+chpn])outputbuf += accum / count;
 	}
 	return outputbuf * NAMCO106_VOL;
 }
@@ -241,7 +241,7 @@ static int32_t N106SoundRenderNormal(NEZ_PLAY *pNezPlay)
 		}
 		accum += chp->output;
 		count++;
-		if(pNezPlay->chmask[DEV_N106_CH1+chpn])outputbuf += accum / count;
+		if(pNezPlay->chmask[NEZ_DEV_N106_CH1+chpn])outputbuf += accum / count;
 	}
 	return outputbuf * NAMCO106_VOL;
 }

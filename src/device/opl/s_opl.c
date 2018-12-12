@@ -650,8 +650,8 @@ static void sndsynth(void *ctx, int32_t *p)
 						if (sndp->ch[i].op[0].modcar)
 							OpSynthMod(sndp, &sndp->ch[i].op[0]);
 						else
-							accum[0] += OpSynthCarFb(sndp, &sndp->ch[i].op[0]) * sndp->chmask[DEV_YM2413_CH1+i];
-						accum[0] += OpSynthCar(sndp, &sndp->ch[i].op[1]) * sndp->chmask[DEV_YM2413_CH1+i];
+							accum[0] += OpSynthCarFb(sndp, &sndp->ch[i].op[0]) * sndp->chmask[NEZ_DEV_YM2413_CH1+i];
+						accum[0] += OpSynthCar(sndp, &sndp->ch[i].op[1]) * sndp->chmask[NEZ_DEV_YM2413_CH1+i];
 					}
 				else
 					for (i = 0; i < rch; i++)
@@ -659,12 +659,12 @@ static void sndsynth(void *ctx, int32_t *p)
 						if (sndp->ch[i].op[0].modcar)
 							OpSynthMod(sndp, &sndp->ch[i].op[0]);
 						else{
-							if(i==6) accum[0] += OpSynthCarFb(sndp, &sndp->ch[i].op[0]) * sndp->chmask[DEV_YM2413_BD];
-							else     accum[0] += OpSynthCarFb(sndp, &sndp->ch[i].op[0]) * sndp->chmask[DEV_YM2413_CH1+i];
+							if(i==6) accum[0] += OpSynthCarFb(sndp, &sndp->ch[i].op[0]) * sndp->chmask[NEZ_DEV_YM2413_BD];
+							else     accum[0] += OpSynthCarFb(sndp, &sndp->ch[i].op[0]) * sndp->chmask[NEZ_DEV_YM2413_CH1+i];
 						}
 
-						if(i==6) accum[0] += OpSynthCar(sndp, &sndp->ch[i].op[1]) * sndp->chmask[DEV_YM2413_BD];
-						else     accum[0] += OpSynthCar(sndp, &sndp->ch[i].op[1]) * sndp->chmask[DEV_YM2413_CH1+i];
+						if(i==6) accum[0] += OpSynthCar(sndp, &sndp->ch[i].op[1]) * sndp->chmask[NEZ_DEV_YM2413_BD];
+						else     accum[0] += OpSynthCar(sndp, &sndp->ch[i].op[1]) * sndp->chmask[NEZ_DEV_YM2413_CH1+i];
 					}
 
 				if (sndp->common.rmode)
@@ -673,10 +673,10 @@ static void sndsynth(void *ctx, int32_t *p)
 					OpStep(sndp, &sndp->ch[7].op[1]);
 					OpStep(sndp, &sndp->ch[8].op[0]);
 					OpStep(sndp, &sndp->ch[8].op[1]);
-					accum[0] += OpSynthHat (sndp, &sndp->ch[7].op[0], &sndp->ch[8].op[1]) * sndp->chmask[DEV_YM2413_HH];
-					accum[0] += OpSynthSnr (sndp, &sndp->ch[7].op[0], &sndp->ch[7].op[1]) * sndp->chmask[DEV_YM2413_SD];
-					accum[0] += OpSynthTom (sndp, &sndp->ch[8].op[0], &sndp->ch[8].op[1]) * sndp->chmask[DEV_YM2413_TOM];
-					accum[0] += OpSynthRym (sndp, &sndp->ch[7].op[0], &sndp->ch[8].op[1]) * sndp->chmask[DEV_YM2413_TCY];
+					accum[0] += OpSynthHat (sndp, &sndp->ch[7].op[0], &sndp->ch[8].op[1]) * sndp->chmask[NEZ_DEV_YM2413_HH];
+					accum[0] += OpSynthSnr (sndp, &sndp->ch[7].op[0], &sndp->ch[7].op[1]) * sndp->chmask[NEZ_DEV_YM2413_SD];
+					accum[0] += OpSynthTom (sndp, &sndp->ch[8].op[0], &sndp->ch[8].op[1]) * sndp->chmask[NEZ_DEV_YM2413_TOM];
+					accum[0] += OpSynthRym (sndp, &sndp->ch[7].op[0], &sndp->ch[8].op[1]) * sndp->chmask[NEZ_DEV_YM2413_TCY];
 				}
 			}
 			if (sndp->deltatpcm)

@@ -147,9 +147,9 @@ static int32_t VRC6SoundRender(NEZ_PLAY *pNezPlay)
 {
 	VRC6SOUND *vrc6s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->vrc6s;
 	int32_t accum = 0;
-	accum += VRC6SoundSquareRender(pNezPlay, &vrc6s->square[0]) * pNezPlay->chmask[DEV_VRC6_SQ1];
-	accum += VRC6SoundSquareRender(pNezPlay, &vrc6s->square[1]) * pNezPlay->chmask[DEV_VRC6_SQ2];
-	accum += VRC6SoundSawRender(pNezPlay, &vrc6s->saw) * pNezPlay->chmask[DEV_VRC6_SAW];
+	accum += VRC6SoundSquareRender(pNezPlay, &vrc6s->square[0]) * pNezPlay->chmask[NEZ_DEV_VRC6_SQ1];
+	accum += VRC6SoundSquareRender(pNezPlay, &vrc6s->square[1]) * pNezPlay->chmask[NEZ_DEV_VRC6_SQ2];
+	accum += VRC6SoundSawRender(pNezPlay, &vrc6s->saw) * pNezPlay->chmask[NEZ_DEV_VRC6_SAW];
 	return accum;
 }
 

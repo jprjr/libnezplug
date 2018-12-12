@@ -148,12 +148,12 @@ static void sndsynth(void *ctx, int32_t *p)
 	for (ch = 0; ch < 3; ch++)
 	{
 		accum = SNGSoundSquareSynth(sndp, &sndp->square[ch]);
-		if (sndp->chmask[DEV_SN76489_SQ1 + ch]){
+		if (sndp->chmask[NEZ_DEV_SN76489_SQ1 + ch]){
 			if ((sndp->common.ggs >> ch) & 0x10) p[0] += accum;
 			if ((sndp->common.ggs >> ch) & 0x01) p[1] += accum;
 		}
 	}
-	accum = SNGSoundNoiseSynth(sndp, &sndp->noise) * sndp->chmask[DEV_SN76489_NOISE];
+	accum = SNGSoundNoiseSynth(sndp, &sndp->noise) * sndp->chmask[NEZ_DEV_SN76489_NOISE];
 	if (sndp->common.ggs & 0x80) p[0] += accum;
 	if (sndp->common.ggs & 0x08) p[1] += accum;
 }
