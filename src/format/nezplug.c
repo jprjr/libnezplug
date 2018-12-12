@@ -333,3 +333,8 @@ void NEZUnmuteChannel(NEZ_PLAY *pNezPlay, int32_t chan)
         pNezPlay->chmask[chan] = 1;
     }
 }
+
+void NEZGBAMode(NEZ_PLAY *pNezPlay, uint8_t m) {
+    pNezPlay->gb_config.gbamode = m;
+}
+

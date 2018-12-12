@@ -142,6 +142,7 @@ typedef struct {
 		uint8_t regs[0x30];
 		uint8_t enablefg;
 	} common;
+    uint8_t *GBAMode;
     uint8_t *chmask;
 } DMGSOUND;
 
@@ -178,10 +179,8 @@ static const uint32_t spd_limit_table[8] =
 	0x788, 0x7C2, 0x7E1, 0x7F1,
 };
 
-uint8_t GBAMode = 0;
-
 //NR30のキーONフラグを立たせると、矩形チャンネルなどの出力が、KEYOFF時に+8される？
-#define KEYON_MODE (!GBAMode && sndp->wavememory.key)
+#define KEYON_MODE (!sndp->GBAMode[0] && sndp->wavememory.key)
 
 static void LengthCounterStep(LENGTHCOUNTER *lc, uint8_t *key)
 {
@@ -286,7 +285,7 @@ static int32_t DMGSoundSquareRender(DMGSOUND *sndp, DMG_SQUARE *ch)
 	wl = (0x800 - ch->wl) << CPS_BITS;
 	ch->pt += ch->cps << SQ_RENDERS;
 
-	ch->output = ch->key ? (!ch->mute ? ch->ed.volume * square_duty_table[ch->duty][ch->st] : 0 ) : (GBAMode ? 0 : 0x8);
+	ch->output = ch->key ? (!ch->mute ? ch->ed.volume * square_duty_table[ch->duty][ch->st] : 0 ) : (sndp->GBAMode[0] ? 0 : 0x8);
 	ch->output = LinToLog(sndp->logtbl, ch->output) + ch->mastervolume;
 	ch->output = LogToLin(sndp->logtbl, ch->output, LOG_LIN_BITS - LIN_BITS - 14);
 	
@@ -295,7 +294,7 @@ static int32_t DMGSoundSquareRender(DMGSOUND *sndp, DMG_SQUARE *ch)
 		ch->pt%= wl;
 		ch->st&= 0x7;
 
-		ch->output = ch->key ? (!ch->mute ? ch->ed.volume * square_duty_avg[ch->duty] : 0 ) : (GBAMode ? 0 : 0x20);
+		ch->output = ch->key ? (!ch->mute ? ch->ed.volume * square_duty_avg[ch->duty] : 0 ) : (sndp->GBAMode[0] ? 0 : 0x20);
 		ch->output = LinToLog(sndp->logtbl, ch->output) + ch->mastervolume;
 		ch->output = LogToLin(sndp->logtbl, ch->output, LOG_LIN_BITS - LIN_BITS - 11);
 	}
@@ -313,7 +312,7 @@ static int32_t DMGSoundSquareRender(DMGSOUND *sndp, DMG_SQUARE *ch)
 			ch->st++;
 			ch->st &= 0x7;
 
-			ch->output = ch->key ? (!ch->mute ? ch->ed.volume * square_duty_table[ch->duty][ch->st] : 0 ) : (GBAMode ? 0 : 0x8);
+			ch->output = ch->key ? (!ch->mute ? ch->ed.volume * square_duty_table[ch->duty][ch->st] : 0 ) : (sndp->GBAMode[0] ? 0 : 0x8);
 			ch->output = LinToLog(sndp->logtbl, ch->output) + ch->mastervolume;
 			ch->output = LogToLin(sndp->logtbl, ch->output, LOG_LIN_BITS - LIN_BITS - 14);
 		}
@@ -330,7 +329,7 @@ static int32_t DMGSoundSquareRender(DMGSOUND *sndp, DMG_SQUARE *ch)
 }
 #define DMG_WAVE_REN \
 	ch->output = (ch->on/* && ch->initial_volume*/)\
-		 ? (ch->key&&!ch->mute ? (((ch->tone[ch->st] * ch->volume)>>2)<<2) : 0) : (GBAMode ? (0) : (8<<2));
+		 ? (ch->key&&!ch->mute ? (((ch->tone[ch->st] * ch->volume)>>2)<<2) : 0) : (sndp->GBAMode[0] ? (0) : (8<<2));
 //		 ? ((ch->tone[ch->st] >> ch->volume)<<2) : (KEYON_MODE ? 0 : (8<<2));
 
 static int32_t DMGSoundWaveMemoryRender(DMGSOUND *sndp, DMG_WAVEMEMORY *ch)
@@ -366,7 +365,7 @@ static int32_t DMGSoundWaveMemoryRender(DMGSOUND *sndp, DMG_WAVEMEMORY *ch)
 		ch->pt %= wl;
 		ch->st &= 0x1f;
 
-		ch->output = (ch->on/* && ch->initial_volume*/) ? (total >> ch->volume) : (GBAMode ? 0 : (8<<2));
+		ch->output = (ch->on/* && ch->initial_volume*/) ? (total >> ch->volume) : (sndp->GBAMode[0] ? 0 : (8<<2));
 		ch->output = LinToLog(sndp->logtbl, ch->output) + ch->mastervolume;
 		ch->output = LogToLin(sndp->logtbl, ch->output, LOG_LIN_BITS - LIN_BITS - 12);
 		outputbuf += ch->output;
@@ -438,7 +437,7 @@ static int32_t DMGSoundNoiseRender(DMGSOUND *sndp, DMG_NOISE *ch)
 
 	ch->pt += ch->cps;
 
-	ch->output = ch->key ? (!ch->mute ? ch->ed.volume - (ch->edge * ch->ed.volume) : 0 ) : (GBAMode ? (0) : (8));
+	ch->output = ch->key ? (!ch->mute ? ch->ed.volume - (ch->edge * ch->ed.volume) : 0 ) : (sndp->GBAMode[0] ? (0) : (8));
 	ch->output = LinToLog(sndp->logtbl, ch->output) + ch->mastervolume;
 	ch->output = LogToLin(sndp->logtbl, ch->output, LOG_LIN_BITS - LIN_BITS - 14);
 
@@ -457,7 +456,7 @@ static int32_t DMGSoundNoiseRender(DMGSOUND *sndp, DMG_NOISE *ch)
 			ch->edge ^=/*|=*/ (ch->rng/* ^ ch->rngold*/) & 1;
 			ch->rngold = ch->rng;
 
-			ch->output = ch->key ? (!ch->mute ? ch->ed.volume - (ch->edge * ch->ed.volume) : 0 ) : (GBAMode ? (0) : (8));
+			ch->output = ch->key ? (!ch->mute ? ch->ed.volume - (ch->edge * ch->ed.volume) : 0 ) : (sndp->GBAMode[0] ? (0) : (8));
 			ch->output = LinToLog(sndp->logtbl, ch->output) + ch->mastervolume;
 			ch->output = LogToLin(sndp->logtbl, ch->output, LOG_LIN_BITS - LIN_BITS - 14);
 		}
@@ -533,7 +532,7 @@ static void sndsynth(void *ctx, int32_t *p)
 	}
 
 	//MRN : GBでは、NR52-7bit目を一旦OFFすると、キーオンされるまでｸﾘｯｸﾉｲｽﾞすら出ない？
-	if (!GBAMode && !sndp->common.enablefg) {
+	if (!sndp->GBAMode[0] && !sndp->common.enablefg) {
 		b[0] += outputidle * 4;
 		b[1] += outputidle * 4;
 		return;
@@ -586,7 +585,7 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 		// GB・GBPは”まれに”変なところに書かさるらしい。
 		// GBCは”ときどき”変なところに書かさるらしい。
 		// GBAは全く書かれない。
-		if(!GBAMode){//GB では、再生中の波形位置のメモリデータに書くんだと思う。
+		if(!sndp->GBAMode[0]){//GB では、再生中の波形位置のメモリデータに書くんだと思う。
 			if(!sndp->wavememory.key || sndp->wavememory.initial_volume == 0){
 				sndp->wavememory.tone[((a - 0xff30) << 1) + 0] = (v >> 4) & 0x0f;
 				sndp->wavememory.tone[((a - 0xff30) << 1) + 1] = (v << 0) & 0x0f;
@@ -664,7 +663,7 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 			sndp->square[ch].lc.enable = v & 0x40;
 			
 			//MRN : GBでは、NR*4に書き込むたびに、lcカウンタが減算される？
-			if(!GBAMode)LengthCounterStep(&sndp->square[ch].lc, &sndp->square[ch].key);
+			if(!sndp->GBAMode[0])LengthCounterStep(&sndp->square[ch].lc, &sndp->square[ch].key);
 			
 			if (v & 0x80)
 			{
@@ -752,7 +751,7 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 			//			if(sndp->nazo)sndp->square[0].st=4;
 //			if(sndp->nazo)sndp->square[1].st=4;
 //			if(sndp->nazo)sndp->wavememory.st = 0x10;
-			sndp->wavememory.initial_volume = (v >> 5) & (GBAMode ? 3 : 7);
+			sndp->wavememory.initial_volume = (v >> 5) & (sndp->GBAMode[0] ? 3 : 7);
 			sndp->wavememory.volume = wavememory_volume_table[sndp->wavememory.initial_volume];
 			break;
 		case 0xff1d:
@@ -766,7 +765,7 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 			if(sndp->wavememory.lc.enable)sndp->wavememory.lc.enable = v & 0x40;
 
 			//MRN : GBでは、NR*4に書き込むたびに、lcカウンタが減算される？
-			if(!GBAMode)LengthCounterStep(&sndp->wavememory.lc, &sndp->wavememory.key);
+			if(!sndp->GBAMode[0])LengthCounterStep(&sndp->wavememory.lc, &sndp->wavememory.key);
 
 			if (v & 0x80)
 			{
@@ -827,7 +826,7 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 			sndp->noise.lc.enable = v & 0x40;
 
 			//MRN : GBでは、NR*4に書き込むたびに、lcカウンタが減算される？
-			if(!GBAMode)LengthCounterStep(&sndp->noise.lc, &sndp->noise.key);
+			if(!sndp->GBAMode[0])LengthCounterStep(&sndp->noise.lc, &sndp->noise.key);
 
 			if (v & 0x80)
 			{
@@ -855,7 +854,7 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 			}
 			break;
 		case 0xff26:
-			if(!(v & 0x80) && !GBAMode){
+			if(!(v & 0x80) && !sndp->GBAMode[0]){
 				if(
 					(!sndp->square[0].ed.volume||!sndp->square[0].key)
 				 && (!sndp->square[1].ed.volume||!sndp->square[1].key)
@@ -909,7 +908,7 @@ static uint32_t sndread(void *ctx, uint32_t a)
 	if (0xff30 <= a && a <= 0xff3f)
 	{
 		//MRN : なんと、GBAではch3再生中に波形メモリを読めない！？
-		if(!GBAMode){//GB では、再生中の波形位置のメモリデータに書くんだと思う。
+		if(!sndp->GBAMode[0]){//GB では、再生中の波形位置のメモリデータに書くんだと思う。
 			if(!sndp->wavememory.key || sndp->wavememory.initial_volume == 0){
 				return sndp->common.regs[a - 0xff10];
 			}else{
@@ -976,7 +975,7 @@ static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
 	for (p = 0; reset_table[p] || reset_table[p+1]; p+=2)
 		sndwrite(sndp, 0xff00 + reset_table[p], reset_table[p+1]);
 //MRN : GBC・GBAでは、00 FF 00 FF…と、綺麗に初期化される
-	if	(GBAMode)
+	if	(sndp->GBAMode[0])
 		for (a = 0xff30; a <= 0xff3f; a++) sndwrite(sndp, a, (a & 1) ? 0xff : 0);
 	sndp->common.enablefg = 2;
 }
@@ -1023,6 +1022,7 @@ KMIF_SOUND_DEVICE *DMGSoundAlloc(NEZ_PLAY *pNezPlay)
 	sndp->kmif.read = sndread;
 	sndp->kmif.setinst = setinst;
 	sndp->logtbl = LogTableAddRef();
+    sndp->GBAMode = &(pNezPlay->gb_config.gbamode);
 	if (!sndp->logtbl)
 	{
 		sndrelease(sndp);

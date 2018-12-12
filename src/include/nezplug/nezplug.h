@@ -151,6 +151,9 @@ struct NEZ_PLAY_ {
 	uint32_t naf_type;
 	uint32_t naf_prev[2];
     uint8_t chmask[0x80];
+    struct {
+        uint8_t gbamode;
+    } gb_config;
 	void *nsf;
 	void *gbrdmg;
 	void *heshes;
@@ -183,6 +186,8 @@ uint32_t NEZGetFrequency(NEZ_PLAY*);
 
 void NEZMuteChannel(NEZ_PLAY *, int32_t chan);
 void NEZUnmuteChannel(NEZ_PLAY *, int32_t chan);
+
+void NEZGBAMode(NEZ_PLAY *, uint8_t m);
 
 void NEZGetFileInfo(char **p1, char **p2, char **p3, char **p4);
 
