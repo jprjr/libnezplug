@@ -16,6 +16,9 @@
 #define USE_USERPOINTER	1
 #define External __inline static
 
+#define SPEED_NTSC 16639
+#define SPEED_PAL 19997
+
 #include "m_nsf.h"
 #include "../cpu/km6502/km2a03m.h"
 
@@ -401,7 +404,7 @@ static void NSF6502Reset(NEZ_PLAY *pNezPlay)
 		speed = GetWordLE(nsfhead + 0x78);	/* PAL  tune */
 
 	if (speed == 0)
-		speed = nsf->nsf6502.palntsc ? 0x4e20 : 0x411A;
+		speed = nsf->nsf6502.palntsc ? SPEED_PAL : 0x411A;
 
 	nsf->nsf6502.cleft = 0;
 	nsf->nsf6502.cps = DivFix(NES_BASECYCLES, 12 * freq, SHIFT_CPS);
@@ -409,13 +412,13 @@ static void NSF6502Reset(NEZ_PLAY *pNezPlay)
 	nsf->nsf6502.cycles = 0;
 	if (nsf->nsf6502.palntsc)
 	{
-		nsf->nsf6502.cpf[0] = muldiv(speed, 4 * 341 * 313    , 0x4e20);
-		nsf->nsf6502.cpf[1] = muldiv(speed, 4 * 341 * 313 - 4, 0x4e20);
+		nsf->nsf6502.cpf[0] = muldiv(speed, 4 * 341 * 313    , SPEED_PAL);
+		nsf->nsf6502.cpf[1] = muldiv(speed, 4 * 341 * 313 - 4, SPEED_PAL);
 	}
 	else
 	{
-		nsf->nsf6502.cpf[0] = muldiv(speed, 4 * 341 * 262    , 0x411a);
-		nsf->nsf6502.cpf[1] = muldiv(speed, 4 * 341 * 262 - 4, 0x411a);
+		nsf->nsf6502.cpf[0] = muldiv(speed, 4 * 341 * 262    , SPEED_NTSC);
+		nsf->nsf6502.cpf[1] = muldiv(speed, 4 * 341 * 262 - 4, SPEED_NTSC);
 	}
 	nsf->nsf6502.iframe = 0;
 
