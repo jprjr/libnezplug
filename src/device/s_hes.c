@@ -55,6 +55,13 @@ typedef struct {
 		uint8_t sysregs[2];
 	} common;
     uint8_t *chmask;
+#if HES_TONE_DEBUG_OPTION_ENABLE
+    uint8_t *tone_debug_option;
+#endif
+    uint8_t *noise_debug_option1;
+    uint8_t *noise_debug_option2;
+    int32_t *noise_debug_option3;
+    int32_t *noise_debug_option4;
 } HESSOUND;
 
 #define V(a) ((((uint32_t)(0x1F - (a)) * (uint32_t)(1 << LOG_BITS) * (uint32_t)1000) / (uint32_t)3800) << 1)
@@ -66,14 +73,6 @@ const static uint32_t voltbl[0x20] = {
 };
 
 #undef V
-
-#if HES_TONE_DEBUG_OPTION_ENABLE
-uint8_t HES_tone_debug_option = 0;
-#endif
-uint8_t HES_noise_debug_option1 = 9;
-uint8_t HES_noise_debug_option2 = 10;
-int32_t HES_noise_debug_option3 = 3;
-int32_t HES_noise_debug_option4 = 508;
 
 static void HESSoundWaveMemoryRender(HESSOUND *sndp, HES_WAVEMEMORY *ch, int32_t *p, uint8_t chn)
 {
@@ -317,7 +316,7 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 				int32_t data = v & 0x1f;
 				sndp->cur->regs[6 - 2] = v;
 #if HES_TONE_DEBUG_OPTION_ENABLE
-				switch (HES_tone_debug_option)
+				switch (sndp->tone_debug_option[0])
 				{
 					default:
 					case 0:
@@ -365,64 +364,64 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 			{
 				uint32_t nwl;
 				sndp->cur->regs[7 - 2] = v;
-				switch (HES_noise_debug_option1)
+				switch (sndp->noise_debug_option1[0])
 				{
 				case 1:
 					/* v0.9.3beta7 old linear frequency */
 					/* HES_noise_debug_option1=1 */
-					/* HES_noise_debug_option2=HES_noise_debug_option(default:5) */
-					/* HES_noise_debug_option3=512 */
+					/* sndp->noise_debug_option2[0]=HES_noise_debug_option(default:5) */
+					/* sndp->noise_debug_option3[0]=512 */
 					/* HES_noise_debug_option5=0 */
-					nwl = HES_noise_debug_option4 << (CPS_SHIFT - 10);
-					nwl += (((v & 0x1f) << 9) + HES_noise_debug_option3) << (CPS_SHIFT - 9 + HES_noise_debug_option2);
+					nwl = sndp->noise_debug_option4[0] << (CPS_SHIFT - 10);
+					nwl += (((v & 0x1f) << 9) + sndp->noise_debug_option3[0]) << (CPS_SHIFT - 9 + sndp->noise_debug_option2[0]);
 					break;
 				case 2:
 					/* linear frequency */
-					nwl = HES_noise_debug_option4 << (CPS_SHIFT - 10);
-					nwl += (v & 0x1f) << (CPS_SHIFT - 10 + HES_noise_debug_option2 - HES_noise_debug_option3);
+					nwl = sndp->noise_debug_option4[0] << (CPS_SHIFT - 10);
+					nwl += (v & 0x1f) << (CPS_SHIFT - 10 + sndp->noise_debug_option2[0] - sndp->noise_debug_option3[0]);
 					break;
 				default:
 				case 3:
 					/* positive logarithmic frequency */
-					nwl = HES_noise_debug_option4 << (CPS_SHIFT - 10);
-					nwl -= LogToLin(sndp->logtbl, ((0 & 0x1f) ^ 0x1f) << (LOG_BITS - HES_noise_debug_option3 + 1), LOG_LIN_BITS - CPS_SHIFT - HES_noise_debug_option2);
-					nwl += LogToLin(sndp->logtbl, ((v & 0x1f) ^ 0x1f) << (LOG_BITS - HES_noise_debug_option3 + 1), LOG_LIN_BITS - CPS_SHIFT - HES_noise_debug_option2);
+					nwl = sndp->noise_debug_option4[0] << (CPS_SHIFT - 10);
+					nwl -= LogToLin(sndp->logtbl, ((0 & 0x1f) ^ 0x1f) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
+					nwl += LogToLin(sndp->logtbl, ((v & 0x1f) ^ 0x1f) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
 					break;
 				case 4:
 					/* negative logarithmic frequency */
-					nwl = HES_noise_debug_option4 << (CPS_SHIFT - 10);
-					nwl += LogToLin(sndp->logtbl, ((0 & 0x1f) ^ 0x00) << (LOG_BITS - HES_noise_debug_option3 + 1), LOG_LIN_BITS - CPS_SHIFT - HES_noise_debug_option2);
-					nwl -= LogToLin(sndp->logtbl, ((v & 0x1f) ^ 0x00) << (LOG_BITS - HES_noise_debug_option3 + 1), LOG_LIN_BITS - CPS_SHIFT - HES_noise_debug_option2);
+					nwl = sndp->noise_debug_option4[0] << (CPS_SHIFT - 10);
+					nwl += LogToLin(sndp->logtbl, ((0 & 0x1f) ^ 0x00) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
+					nwl -= LogToLin(sndp->logtbl, ((v & 0x1f) ^ 0x00) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
 					break;
 				case 5:
 					/* positive logarithmic frequency (reverse) */
-					nwl = HES_noise_debug_option4 << (CPS_SHIFT - 10);
-					nwl -= LogToLin(sndp->logtbl, ((0 & 0x1f) ^ 0x1f) << (LOG_BITS - HES_noise_debug_option3 + 1), LOG_LIN_BITS - CPS_SHIFT - HES_noise_debug_option2);
-					nwl += LogToLin(sndp->logtbl, ((v & 0x1f) ^ 0x00) << (LOG_BITS - HES_noise_debug_option3 + 1), LOG_LIN_BITS - CPS_SHIFT - HES_noise_debug_option2);
+					nwl = sndp->noise_debug_option4[0] << (CPS_SHIFT - 10);
+					nwl -= LogToLin(sndp->logtbl, ((0 & 0x1f) ^ 0x1f) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
+					nwl += LogToLin(sndp->logtbl, ((v & 0x1f) ^ 0x00) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
 					break;
 				case 6:
 					/* negative logarithmic frequency (reverse) */
-					nwl = HES_noise_debug_option4 << (CPS_SHIFT - 10);
-					nwl += LogToLin(sndp->logtbl, ((0 & 0x1f) ^ 0x00) << (LOG_BITS - HES_noise_debug_option3 + 1), LOG_LIN_BITS - CPS_SHIFT - HES_noise_debug_option2);
-					nwl -= LogToLin(sndp->logtbl, (((v & 0x1f) ^ 0x1f)+1) << (LOG_BITS - HES_noise_debug_option3 + 1), LOG_LIN_BITS - CPS_SHIFT - HES_noise_debug_option2);
+					nwl = sndp->noise_debug_option4[0] << (CPS_SHIFT - 10);
+					nwl += LogToLin(sndp->logtbl, ((0 & 0x1f) ^ 0x00) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
+					nwl -= LogToLin(sndp->logtbl, (((v & 0x1f) ^ 0x1f)+1) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
 					break;
 				case 7:
 					/* v0.9.3beta8 old logarithmic frequency type B */
-					nwl = HES_noise_debug_option4 << (CPS_SHIFT - 10);
-					nwl += LogToLin(sndp->logtbl, ((v & 0x1f) ^ 0x1f) << (LOG_BITS - HES_noise_debug_option3 + 1), LOG_LIN_BITS - CPS_SHIFT - HES_noise_debug_option2);
+					nwl = sndp->noise_debug_option4[0] << (CPS_SHIFT - 10);
+					nwl += LogToLin(sndp->logtbl, ((v & 0x1f) ^ 0x1f) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
 					break;
 				case 8:
 					/* v0.9.3beta8 old logarithmic frequency type C */
 					/* HES_noise_debug_option1=3 */
-					/* HES_noise_debug_option2=13 */
-					/* HES_noise_debug_option3=2 */
-					/* HES_noise_debug_option4=0 */
-					nwl = HES_noise_debug_option4;
-					nwl += LogToLin(sndp->logtbl, (v & 0x1f) << (LOG_BITS - HES_noise_debug_option3 + 1), LOG_LIN_BITS - CPS_SHIFT - HES_noise_debug_option2);
+					/* sndp->noise_debug_option2[0]=13 */
+					/* sndp->noise_debug_option3[0]=2 */
+					/* sndp->noise_debug_option4[0]=0 */
+					nwl = sndp->noise_debug_option4[0];
+					nwl += LogToLin(sndp->logtbl, (v & 0x1f) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
 					break;
 				case 9:
 					/* v0.9.4.8 +2 +5 */
-//					nwl = LogToLin(sndp->logtbl, ((((v & 0x1f)<<4) - (0x0c<<4))<<5) + ((((v & 0x1f)<<4) - (0x0c<<4))<<3) + ((((v & 0x1f)<<4) - (0x0c<<4))<<1), LOG_LIN_BITS - CPS_SHIFT - HES_noise_debug_option2);
+//					nwl = LogToLin(sndp->logtbl, ((((v & 0x1f)<<4) - (0x0c<<4))<<5) + ((((v & 0x1f)<<4) - (0x0c<<4))<<3) + ((((v & 0x1f)<<4) - (0x0c<<4))<<1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
 					if(0x1f - (v & 0x1f))
 						nwl = 0x1000 / ((0x1f - (v & 0x1f))) ;
 					else
@@ -506,6 +505,13 @@ KMIF_SOUND_DEVICE *HESSoundAlloc(NEZ_PLAY *pNezPlay)
 	sndp->kmif.read = sndread;
 	sndp->kmif.setinst = setinst;
 	sndp->logtbl = LogTableAddRef();
+#if HES_TONE_DEBUG_OPTION_ENABLE
+    sndp->tone_debug_option = &pNezPlay->hes_config.tone_debug_option;
+#endif
+    sndp->noise_debug_option1 = &pNezPlay->hes_config.noise_debug_option1;
+    sndp->noise_debug_option2 = &pNezPlay->hes_config.noise_debug_option2;
+    sndp->noise_debug_option3 = &pNezPlay->hes_config.noise_debug_option3;
+    sndp->noise_debug_option4 = &pNezPlay->hes_config.noise_debug_option4;
 	if (!sndp->logtbl)
 	{
 		sndrelease(sndp);

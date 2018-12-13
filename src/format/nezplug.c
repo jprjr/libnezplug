@@ -54,6 +54,13 @@ NEZ_PLAY* NEZNew()
         pNezPlay->nes_config.realdac = 1;
         pNezPlay->nes_config.noise_random_reset = 0;
         pNezPlay->nes_config.nes2A03type = 1;
+#if HES_TONE_DEBUG_OPTION_ENABLE
+        pNezPlay->hes_config.tone_debug_option = 0;
+#endif
+        pNezPlay->hes_config.noise_debug_option1 = 9;
+        pNezPlay->hes_config.noise_debug_option2 = 10;
+        pNezPlay->hes_config.noise_debug_option3 = 3;
+        pNezPlay->hes_config.noise_debug_option4 = 508;
 		pNezPlay->naf_prev[0] = pNezPlay->naf_prev[1] = 0x8000;
 	}
 

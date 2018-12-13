@@ -160,6 +160,15 @@ struct NEZ_PLAY_ {
         int32_t noise_random_reset;
         int32_t nes2A03type;
     } nes_config;
+    struct {
+#if HES_TONE_DEBUG_OPTION_ENABLE
+        uint8_t tone_debug_option;
+#endif
+        uint8_t noise_debug_option1;
+        uint8_t noise_debug_option2;
+        int32_t noise_debug_option3;
+        int32_t noise_debug_option4;
+    } hes_config;
 	void *nsf;
 	void *gbrdmg;
 	void *heshes;
