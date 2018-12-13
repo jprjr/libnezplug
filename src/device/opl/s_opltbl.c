@@ -5,7 +5,7 @@
 // https://docs.google.com/Doc?docid=0Aeywjj51RsmGZGQ4a3FuOWZfMTNjcWprZjRncA&hl=en&pli=1 から取ってきた。
 // よくこんなことできるなぁ・・・
 
-uint32_t sintable_base[] = {
+static uint32_t sintable_base[] = {
 	2137,
 	1731,
 	1543,
@@ -264,7 +264,7 @@ uint32_t sintable_base[] = {
 	0
 };
 
-uint32_t exptable_base[] = {
+static uint32_t exptable_base[] = {
 	0,
 	3,
 	6,

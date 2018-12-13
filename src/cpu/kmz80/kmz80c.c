@@ -50,7 +50,8 @@ void dox(int pc, int i, int af, int bc, int de, int hl ,int sp)
 #define DEBUG_OUTPUT(i) {}
 #endif
 
-uint8_t flagtable[0x200] = {
+#if USE_FLAGTBL
+static uint8_t flagtable[0x200] = {
 /*
   0 <= i <= 0x1ff
   CF(bit0) (i > 0xff)
@@ -127,7 +128,6 @@ uint8_t flagtable[0x200] = {
         0xaf, 0xab, 0xab, 0xaf, 0xab, 0xaf, 0xaf, 0xab,
         0xbb, 0xbf, 0xbf, 0xbb, 0xbf, 0xbb, 0xbb, 0xbf
 };
-#if USE_FLAGTBL
 #define FLAGTBL(x) flagtable[x]
 
 #else
