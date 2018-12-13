@@ -154,6 +154,12 @@ struct NEZ_PLAY_ {
     struct {
         uint8_t gbamode;
     } gb_config;
+    struct {
+        int32_t apu_volume;
+        int32_t realdac;
+        int32_t noise_random_reset;
+        int32_t nes2A03type;
+    } nes_config;
 	void *nsf;
 	void *gbrdmg;
 	void *heshes;

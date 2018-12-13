@@ -175,11 +175,6 @@ typedef struct {
 } APUSOUND;
 
 
-
-int32_t NSF_noise_random_reset = 0;
-int32_t NESAPUVolume = 64;
-int32_t NESRealDAC = 1;
-int32_t NSF_2A03Type = 1;
 /* ------------------------- */
 /*  NES INTERNAL SOUND(APU)  */
 /* ------------------------- */
@@ -516,7 +511,7 @@ static void NESAPUSoundNoiseCount(NESAPU_NOISE *ch){
 	}
 
 }
-static int32_t NESAPUSoundNoiseRender(NESAPU_NOISE *ch)
+static int32_t NESAPUSoundNoiseRender(NEZ_PLAY *pNezPlay, NESAPU_NOISE *ch)
 {
 	int32_t outputbuf=0,count=0;
 
@@ -529,7 +524,7 @@ static int32_t NESAPUSoundNoiseRender(NESAPU_NOISE *ch)
 	ch->output = (ch->rng & 1) * (ch->ed.disable ? ch->ed.volume : ch->ed.counter);
 	ch->output *= NOISE_VOL;
 	//クソ互換機は、やたらとノイズがでかい。
-	if(NSF_2A03Type==2)ch->output *= 2;
+	if(pNezPlay->nes_config.nes2A03type==2)ch->output *= 2;
 
 	ch->pt += ch->cps << NOISE_RENDERS;
 	while (ch->pt >= ch->wl << (CPS_BITS + 1))
@@ -549,7 +544,7 @@ static int32_t NESAPUSoundNoiseRender(NESAPU_NOISE *ch)
 			ch->output = (ch->rng & 1) * (ch->ed.disable ? ch->ed.volume : ch->ed.counter);
 			ch->output *= NOISE_VOL;
 			//クソ互換機は、やたらとノイズがでかい。
-			if(NSF_2A03Type==2)ch->output *= 2;
+			if(pNezPlay->nes_config.nes2A03type==2)ch->output *= 2;
 		}
 	}
 	outputbuf += ch->output;
@@ -641,11 +636,10 @@ static int32_t NESAPUSoundDpcmRender(NEZ_PLAY *pNezPlay)
 		}
 	}
 	if (ch->mute) return 0;
-#if 1
 	outputbuf += ch->output;
 	count++;
 	outputbuf /= count;
-	if (NESRealDAC) {
+	if (pNezPlay->nes_config.realdac) {
 		((APUSOUND*)((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->apu)->triangle.dpcmout = 
 		((APUSOUND*)((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->apu)->noise.dpcmout = 
 			DPCM_VOL_DOWN - (outputbuf / DPCM_VOL);
@@ -655,11 +649,6 @@ static int32_t NESAPUSoundDpcmRender(NEZ_PLAY *pNezPlay)
 			DPCM_VOL_DOWN;
 	}
 	return	outputbuf;
-#else
-	return (LogToLinear(LinearToLog((ch->dacout << 1) + ch->dacout0) + ch->mastervolume, LOG_LIN_BITS - LIN_BITS - 16 + VOL_SHIFT + 1)
-		  - LogToLinear(LinearToLog( ch->dacbase                   ) + ch->mastervolume, LOG_LIN_BITS - LIN_BITS - 16 + VOL_SHIFT + 1)
-		  ) * NESAPUVolume / 64;
-#endif
 #undef ch
 }
 
@@ -670,25 +659,16 @@ static int32_t APUSoundRender(NEZ_PLAY *pNezPlay)
 	int32_t accum = 0 , sqout = 0 , tndout = 0;
 	sqout += NESAPUSoundSquareRender(&apu->square[0]) * pNezPlay->chmask[NEZ_DEV_2A03_SQ1];
 	sqout += NESAPUSoundSquareRender(&apu->square[1]) * pNezPlay->chmask[NEZ_DEV_2A03_SQ2];
-//DACの仕様がよく分かるまでは無効にしておく
-//	if (NESRealDAC) {
-//		sqout = apu->amptbl[sqout >> (16 + 1 + 1 - AMPTML_BITS)];
-//	} else {
-		sqout >>= 1;
-//	}
+	sqout >>= 1;
 	accum += sqout * apu->square[0].mastervolume / 20/*20kΩ*/;
 	tndout += NESAPUSoundDpcmRender(pNezPlay) * pNezPlay->chmask[NEZ_DEV_2A03_DPCM];
 	tndout += NESAPUSoundTriangleRender(&apu->triangle) * pNezPlay->chmask[NEZ_DEV_2A03_TR];
-	tndout += NESAPUSoundNoiseRender(&apu->noise) * pNezPlay->chmask[NEZ_DEV_2A03_NOISE];
-//	if (NESRealDAC) {
-//		tndout = apu->amptbl[tndout >> (16 + 1 + 1 - AMPTML_BITS)];
-//	} else {
-		tndout >>= 1;
-//	}
+	tndout += NESAPUSoundNoiseRender(pNezPlay,&apu->noise) * pNezPlay->chmask[NEZ_DEV_2A03_NOISE];
+	tndout >>= 1;
 	accum += tndout * apu->triangle.mastervolume / 12/*12kΩ*/;
 	//accum = apu->amptbl[tndout >> (26 - AMPTML_BITS)];
 	accum -= 0x60000;
-	return accum * NESAPUVolume / 8;
+	return accum * pNezPlay->nes_config.apu_volume / 8;
 }
 
 const static NEZ_NES_AUDIO_HANDLER s_apu_audio_handler[] = {
@@ -735,7 +715,7 @@ static void APUSoundWrite(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 					apu->square[ch].lc.clock_disable = (uint8_t)(value & 0x20);
 					apu->square[ch].ed.looping_enable = (uint8_t)(value & 0x20);
 					//クソ互換機のへんてこDuty比にするのを、ここでやる。
-					if(NSF_2A03Type==2){
+					if(pNezPlay->nes_config.nes2A03type==2){
 						apu->square[ch].duty = ((value >> 6) & 3)|4;
 					}else{
 						apu->square[ch].duty = (value >> 6) & 3;
@@ -828,7 +808,7 @@ static void APUSoundWrite(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 				break;
 			case 0x400e:
 				//初代2A03では、ノイズ15段階＆短周期無しなので、それをレジスタいじりで再現。
-				if(NSF_2A03Type==0){
+				if(pNezPlay->nes_config.nes2A03type==0){
 					apu->noise.wl = wavelength_converter_table[(value & 0x0f)==0xf ? (0xe) : (value & 0x0f)];
 					apu->noise.rngshort = 0;
 				}else{
@@ -1024,7 +1004,7 @@ static void NESAPUSoundNoiseReset(NEZ_PLAY *pNezPlay, NESAPU_NOISE *ch)
 	ch->cps = DivFix(NES_BASECYCLES, GetNTSCPAL(pNezPlay) * NESAudioFrequencyGet(pNezPlay), CPS_BITS);
 
 	//ノイズ音のランダム初期化
-	if(NSF_noise_random_reset){
+	if(pNezPlay->nes_config.noise_random_reset){
 		srand(time(NULL) + clock());
 		ch->rng = rand() + (rand()<<16);
 	}else{

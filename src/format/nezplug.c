@@ -44,9 +44,16 @@ NEZ_PLAY* NEZNew()
 			XFREE(pNezPlay);
 			return 0;
 		}
+
 		pNezPlay->frequency = 48000;
 		pNezPlay->channel = 1;
+
 		pNezPlay->naf_type = NES_AUDIO_FILTER_NONE;
+
+        pNezPlay->nes_config.apu_volume = 64;
+        pNezPlay->nes_config.realdac = 1;
+        pNezPlay->nes_config.noise_random_reset = 0;
+        pNezPlay->nes_config.nes2A03type = 1;
 		pNezPlay->naf_prev[0] = pNezPlay->naf_prev[1] = 0x8000;
 	}
 
