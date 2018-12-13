@@ -53,6 +53,7 @@ NEZ_PLAY* NEZNew()
         pNezPlay->nes_config.apu_volume = 64;
         pNezPlay->nes_config.n106_volume = 16;
         pNezPlay->nes_config.n106_realmode = 0;
+        pNezPlay->nes_config.fds_realmode = 3;
         pNezPlay->nes_config.realdac = 1;
         pNezPlay->nes_config.noise_random_reset = 0;
         pNezPlay->nes_config.nes2A03type = 1;

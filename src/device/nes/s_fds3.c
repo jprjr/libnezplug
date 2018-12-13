@@ -7,7 +7,6 @@
 #include "s_fds.h"
 //#include <math.h>
 #define FDS_DYNAMIC_BIAS 1
-int FDS_RealMode = 3;
 
 #define FM_DEPTH 0 /* 0,1,2 */
 #define NES_BASECYCLES (21477270)
@@ -205,7 +204,7 @@ static int32_t FDSSoundRender(NEZ_PLAY *pNezPlay)
 	}
 
 	outputbuf = (fdssound->op[0].pg.freq != 0) ? outputbuf / 3 : 0;
-	if(FDS_RealMode & 1)
+	if(pNezPlay->nes_config.fds_realmode & 1)
 	{
 		fdssound->outbf += (outputbuf/count - fdssound->outbf) *4 / fdssound->lowpass;
 		outputbuf = fdssound->outbf;
@@ -408,7 +407,7 @@ static void FDSSoundReset(NEZ_PLAY *pNezPlay)
 #define BIT(x) ((i&(1<<x))>>x)
 	for (i = 0; i < 0x40; i++)
 	{
-		if(FDS_RealMode & 2)
+		if(pNezPlay->nes_config.fds_realmode & 2)
 			/* FDS音源出力の際、NOT回路のIC（BU4069UB）によるローパスフィルタをかけているので、波形が上下逆になる。 */
 			fdssound->realout[i]=-(i*4+(BIT(0)+BIT(1)+BIT(2)+BIT(3)+BIT(4)+BIT(5))*(0+(i*3)/0x5) - 239);
 		else

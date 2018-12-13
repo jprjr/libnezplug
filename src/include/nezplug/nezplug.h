@@ -163,6 +163,7 @@ struct NEZ_PLAY_ {
         uint8_t fds_debug_option2;
         int32_t n106_volume;
         int32_t n106_realmode;
+        int32_t fds_realmode;
     } nes_config;
     struct {
 #if HES_TONE_DEBUG_OPTION_ENABLE
