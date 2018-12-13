@@ -54,6 +54,8 @@ NEZ_PLAY* NEZNew()
         pNezPlay->nes_config.realdac = 1;
         pNezPlay->nes_config.noise_random_reset = 0;
         pNezPlay->nes_config.nes2A03type = 1;
+        pNezPlay->nes_config.fds_debug_option1 = 1;
+        pNezPlay->nes_config.fds_debug_option2 = 0;
 #if HES_TONE_DEBUG_OPTION_ENABLE
         pNezPlay->hes_config.tone_debug_option = 0;
 #endif

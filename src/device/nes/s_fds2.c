@@ -45,9 +45,6 @@ typedef struct FDSSOUND {
 	uint8_t waveaddr;
 } FDSSOUND;
 
-uint8_t NSF_fds_debug_option1 = 1;
-uint8_t NSF_fds_debug_option2 = 0;
-
 static int32_t FDSSoundOperatorRender(FDS_FMOP *op)
 {
 	int32_t spd;
@@ -144,12 +141,12 @@ static void FDSSoundWrite(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 						dat = value & 0x7f;
 					else
 						dat = ((int32_t)(value & 0x7f)) - 0x80;
-					switch (NSF_fds_debug_option1)
+					switch (pNezPlay->nes_config.fds_debug_option1)
 					{
 						default:
-						case 1: pop->ofs1 = dat << NSF_fds_debug_option2; break;
-						case 2: pop->ofs2 = dat >> NSF_fds_debug_option2; break;
-						case 3: pop->ofs3 = dat << NSF_fds_debug_option2; break;
+						case 1: pop->ofs1 = dat << pNezPlay->nes_config.fds_debug_option2; break;
+						case 2: pop->ofs2 = dat >> pNezPlay->nes_config.fds_debug_option2; break;
+						case 3: pop->ofs3 = dat << pNezPlay->nes_config.fds_debug_option2; break;
 					}
 				}
 				break;
