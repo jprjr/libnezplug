@@ -17,10 +17,8 @@
 #define REAL_OFS_BASE 200000
 #define REAL_OFS_COUNT 16
 #define RENDERS 4
-#define NAMCO106_VOL Namco106_Volume/16
+#define NAMCO106_VOL pNezPlay->nes_config.n106_volume/16
 #define CPSF_SHIFT 4
-int Namco106_Realmode = 0;
-int Namco106_Volume = 16;
 
 typedef struct {
 	uint32_t logvol;
@@ -248,7 +246,7 @@ static int32_t N106SoundRenderNormal(NEZ_PLAY *pNezPlay)
 static int32_t N106SoundRender(NEZ_PLAY *pNezPlay)
 {
 	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->n106s;
-	switch(Namco106_Realmode){
+	switch(pNezPlay->nes_config.n106_realmode){
 	case 1:
 		return n106s->chinuse < 8 ? N106SoundRenderReal(pNezPlay) : N106SoundRenderReal2(pNezPlay);
 	case 2:
