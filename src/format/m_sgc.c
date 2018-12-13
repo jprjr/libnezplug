@@ -43,7 +43,7 @@ enum{
 	SYNTHMODE_MAX
 };
 
-const char *system_name[]={
+static const char *system_name[]={
 	"Sega Master System","Game Gear","Coleco Vision","?????"
 };
 
