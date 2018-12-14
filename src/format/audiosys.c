@@ -8,7 +8,8 @@
 
 #define SHIFT_BITS 8
 
-int32_t output2[2],filter;
+static int32_t output2[2];
+int32_t filter;
 static int lowlevel;
 
 void NESAudioFilterSet(NEZ_PLAY *pNezPlay, uint32_t filter)
