@@ -461,13 +461,13 @@ struct {
 	char* copyright;
 	char detail[1024];
 }songinfodata;
-uint8_t titlebuffer[0x21];
-uint8_t artistbuffer[0x21];
-uint8_t copyrightbuffer[0x21];
 
 static uint32_t load(NEZ_PLAY *pNezPlay, SGCSEQ *THIS_, uint8_t *pData, uint32_t uSize)
 {
 	uint32_t i, headersize;
+    uint8_t titlebuffer[0x21];
+    uint8_t artistbuffer[0x21];
+    uint8_t copyrightbuffer[0x21];
 	XMEMSET(THIS_, 0, sizeof(SGCSEQ));
 	for (i = 0; i < SND_MAX; i++) THIS_->sndp[i] = 0;
 	for (i = 0; i < SND_MAX; i++) THIS_->vola[i] = 0x80;

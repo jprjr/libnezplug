@@ -31,9 +31,6 @@ struct {
 	char* copyright;
 	char detail[1024];
 }songinfodata;
-uint8_t titlebuffer[0x21];
-uint8_t artistbuffer[0x21];
-uint8_t copyrightbuffer[0x21];
 
 /* RAM area */
 static uint32_t ReadRam(NEZ_PLAY *pNezPlay, uint32_t A)
@@ -357,6 +354,10 @@ uint32_t NSFDeviceInitialize(NEZ_PLAY *pNezPlay)
 
 static void NSFMapperSetInfo(NEZ_PLAY *pNezPlay, uint8_t *pData)
 {
+    uint8_t titlebuffer[0x21];
+    uint8_t artistbuffer[0x21];
+    uint8_t copyrightbuffer[0x21];
+
 	XMEMCPY(((NSFNSF*)pNezPlay->nsf)->head, pData, 0x80);
 	SONGINFO_SetStartSongNo(pNezPlay->song, pData[0x07]);
 	SONGINFO_SetMaxSongNo(pNezPlay->song, pData[0x06]);
