@@ -76,6 +76,8 @@ struct  KSSSEQ_TAG {
 	uint32_t bankofs;
 	uint32_t banknum;
 	uint32_t banksize;
+    int32_t *msx_psg_volume;
+    int32_t *msx_psg_type;
 	enum
 	{
 		KSS_BANK_OFF,
@@ -97,9 +99,6 @@ struct  KSSSEQ_TAG {
 	uint8_t usertone_enable[2];
 	uint8_t usertone[2][16 * 19];
 };
-
-int32_t MSXPSGType = 1;
-int32_t MSXPSGVolume = 64;
 
 static uint32_t GetWordLE(uint8_t *p)
 {
@@ -156,7 +155,7 @@ __inline static void synth(KSSSEQ *THIS_, int32_t *d)
 				int32_t b[2];
 				b[0] = 0;
 				THIS_->sndp[SND_PSG]->synth(THIS_->sndp[SND_PSG]->ctx, b);
-				b[0] = b[0] * MSXPSGVolume / 64;
+				b[0] = b[0] * THIS_->msx_psg_volume[0] / 64;
 				d[0] += b[0];
 				d[1] += b[0];
 				THIS_->sndp[SND_SCC]->synth(THIS_->sndp[SND_SCC]->ctx, d);
@@ -169,7 +168,7 @@ __inline static void synth(KSSSEQ *THIS_, int32_t *d)
 				int32_t b[3];
 				b[0] = b[1] = b[2] = 0;
 				THIS_->sndp[SND_PSG]->synth(THIS_->sndp[SND_PSG]->ctx, &b[0]);
-				b[0] = b[1] = b[0] * MSXPSGVolume / 64;
+				b[0] = b[1] = b[0] * THIS_->msx_psg_volume[0] / 64;
 				THIS_->sndp[SND_SCC]->synth(THIS_->sndp[SND_SCC]->ctx, &b[0]);
 				if (THIS_->sndp[SND_MSXMUSIC]) THIS_->sndp[SND_MSXMUSIC]->synth(THIS_->sndp[SND_MSXMUSIC]->ctx, &b[0]);
 				if (THIS_->sndp[SND_MSXAUDIO]) THIS_->sndp[SND_MSXAUDIO]->synth(THIS_->sndp[SND_MSXAUDIO]->ctx, &b[1]);
@@ -640,7 +639,7 @@ Extra Device : %s%s%s%s%s"
 			SONGINFO_SetChannel(pNezPlay->song, 1);
 			THIS_->synthmode = SYNTHMODE_MSX;
 		}
-		if(MSXPSGType){
+		if(pNezPlay->kss_config.msx_psg_type){
 			THIS_->sndp[SND_PSG] = PSGSoundAlloc(pNezPlay,PSG_TYPE_YM2149);
 		}else{
 			THIS_->sndp[SND_PSG] = PSGSoundAlloc(pNezPlay,PSG_TYPE_AY_3_8910);
@@ -752,6 +751,8 @@ uint32_t KSSLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 		return ret;
 	}
 	pNezPlay->kssseq = THIS_;
+    THIS_->msx_psg_type = &(pNezPlay->kss_config.msx_psg_type);
+    THIS_->msx_psg_volume = &(pNezPlay->kss_config.msx_psg_volume);
 	NESAudioHandlerInstall(pNezPlay, kssseq_audio_handler);
 	NESVolumeHandlerInstall(pNezPlay, kssseq_volume_handler);
 	NESResetHandlerInstall(pNezPlay->nrh, kssseq_reset_handler);

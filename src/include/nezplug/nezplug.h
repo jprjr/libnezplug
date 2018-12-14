@@ -174,6 +174,10 @@ struct NEZ_PLAY_ {
         int32_t noise_debug_option3;
         int32_t noise_debug_option4;
     } hes_config;
+    struct {
+        int32_t msx_psg_volume;
+        int32_t msx_psg_type;
+    } kss_config;
 	void *nsf;
 	void *gbrdmg;
 	void *heshes;

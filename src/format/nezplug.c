@@ -66,6 +66,8 @@ NEZ_PLAY* NEZNew()
         pNezPlay->hes_config.noise_debug_option2 = 10;
         pNezPlay->hes_config.noise_debug_option3 = 3;
         pNezPlay->hes_config.noise_debug_option4 = 508;
+        pNezPlay->kss_config.msx_psg_type = 1;
+        pNezPlay->kss_config.msx_psg_volume = 64;
 		pNezPlay->naf_prev[0] = pNezPlay->naf_prev[1] = 0x8000;
 	}
 
