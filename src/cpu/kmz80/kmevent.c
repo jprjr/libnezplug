@@ -9,7 +9,7 @@ enum {
 	KMEVENT_FLAG_BREAKED = (1 << 0),
 	KMEVENT_FLAG_DISPATCHED = (1 << 1),
 	KMEVENT_FLAG_ALLOCED = (1 << 7)
-} KMEVENT_FLAG;
+};
 
 void kmevent_reset(KMEVENT *kme)
 {

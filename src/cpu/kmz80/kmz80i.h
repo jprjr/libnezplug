@@ -14,12 +14,12 @@ enum {
 	ST_DD = (1 << 1),	/* ix */
 	ST_FD = (1 << 2),	/* iy */
 	ST_CB = (1 << 3)	/* DDCB FDCB (ii+d) write back */
-} KMZ80_STATE;
+};
 
 enum {
 	EXF_ICEXIST = (1 << 0),
 	EXF_AUTOIRQCLEAR = (1 << 1)
-} KMZ80_EXFLAG;
+};
 
 enum {
 	OP_NOP,
@@ -138,7 +138,7 @@ enum {
 	OP_STOP = OP_HALT,
 	/* HD64180CPU制御命令 */
 	OP_SLP = OP_HALT2
-} KMZ80_OP_CODE;
+};
 
 enum {
 	STO_NONE,
@@ -169,7 +169,7 @@ enum {
 	STO_ST,	/* (-sp).w */
 	STO_AFDMG,	/* af(dmg) */
 	STO_MAX
-} KMZ80_POSTOP_CODE;
+};
 
 enum {
 	LDO_NONE,
@@ -200,7 +200,7 @@ enum {
 	LDO_SN,		/* signed n */
 	LDO_AFDMG,	/* af(dmg) */
 	LDO_MAX
-} KMZ80_PREOP_CODE;
+};
 
 enum {
 	/* Z80 R800 HD64180 DMG */
@@ -223,7 +223,7 @@ enum {
 	ADR_HC,		/* (ff00h+c) */
 	ADR_SP,		/* (sp+n) */
 	ADR_MAX
-} KMZ80_OP_ADR;
+};
 
 typedef struct {
 	uint8_t post;
