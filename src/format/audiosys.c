@@ -9,7 +9,6 @@
 #define SHIFT_BITS 8
 
 int32_t output2[2],filter;
-int LowPassFilterLevel=8;
 static int lowlevel;
 
 void NESAudioFilterSet(NEZ_PLAY *pNezPlay, uint32_t filter)
@@ -198,7 +197,7 @@ void NESAudioFrequencySet(NEZ_PLAY *pNezPlay, uint32_t freq)
 	filter = freq/3000;
 	if(!filter)filter=1;
 
-	lowlevel = 33-LowPassFilterLevel;
+	lowlevel = 33 - pNezPlay->lowpass_filter_level;
 }
 uint32_t NESAudioFrequencyGet(NEZ_PLAY *pNezPlay)
 {

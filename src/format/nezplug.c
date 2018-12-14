@@ -47,6 +47,7 @@ NEZ_PLAY* NEZNew()
 
 		pNezPlay->frequency = 48000;
 		pNezPlay->channel = 1;
+        pNezPlay->lowpass_filter_level = 8;
 
 		pNezPlay->naf_type = NES_AUDIO_FILTER_NONE;
 

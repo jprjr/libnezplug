@@ -151,6 +151,7 @@ struct NEZ_PLAY_ {
 	uint32_t naf_type;
 	uint32_t naf_prev[2];
     uint8_t chmask[0x80];
+    int32_t lowpass_filter_level;
     struct {
         uint8_t gbamode;
     } gb_config;
