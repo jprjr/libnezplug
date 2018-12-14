@@ -179,6 +179,9 @@ struct NEZ_PLAY_ {
         int32_t msx_psg_volume;
         int32_t msx_psg_type;
     } kss_config;
+    struct {
+        char *coleco_bios_path;
+    } sgc_config;
 	void *nsf;
 	void *gbrdmg;
 	void *heshes;

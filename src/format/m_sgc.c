@@ -93,8 +93,6 @@ struct  SGCSEQ_TAG {
 	uint8_t bios[0x2000];
 };
 
-char ColecoBIOSFilePath[0x200];
-
 static uint32_t GetWordLE(uint8_t *p)
 {
 	return p[0] | (p[1] << 8);
@@ -375,7 +373,7 @@ static void reset(NEZ_PLAY *pNezPlay)
 
 		{	//BIOSのロード 
 			static FILE *fp = NULL;
-			fp = fopen(ColecoBIOSFilePath, "rb");
+			fp = fopen(pNezPlay->sgc_config.coleco_bios_path, "rb");
 			if (fp){
 				fread(THIS_->bios,0x01,0x2000,fp);
 				fclose(fp);
