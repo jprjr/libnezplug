@@ -11,7 +11,6 @@ LIBNEZPLUG_SRCS = \
   src/cpu/kmz80/kmz80.c \
   src/cpu/kmz80/kmz80c.c \
   src/cpu/kmz80/kmz80t.c \
-  src/cpu/kmz80/makeft.c \
   src/device/nes/logtable.c \
   src/device/nes/s_apu.c \
   src/device/nes/s_fds.c \
