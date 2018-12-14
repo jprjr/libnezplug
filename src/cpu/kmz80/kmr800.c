@@ -352,9 +352,6 @@ static void kmr800_memwrite(KMZ80_CONTEXT *context, uint32_t a, uint32_t d)
 	context->memwrite(context->user, a, d);
 }
 
-extern const OPT_ITEM kmz80_ot_xx[0x100];
-extern const uint8_t kmz80_ot_cbxx[0x20];
-extern void kmz80_reset_common(KMZ80_CONTEXT *context);
 void kmr800_reset(KMZ80_CONTEXT *context) {
 	kmz80_reset_common(context);
 	EXFLAG = EXF_ICEXIST;
@@ -368,3 +365,4 @@ void kmr800_reset(KMZ80_CONTEXT *context) {
 	SYSMEMREAD = kmr800_memread;
 	SYSMEMWRITE = kmr800_memwrite;
 }
+

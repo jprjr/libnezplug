@@ -5,8 +5,6 @@
 
 #include "kmz80i.h"
 
-
-
 const static OPT_ITEM kmz80_ot_edxx[0x100] = {
 /* ED 00-0F  0000???? */	OPTABLENOP16,
 /* ED 10-1F  0001???? */	OPTABLENOP16,
@@ -254,9 +252,6 @@ static void kmz80_memwrite(KMZ80_CONTEXT *context, uint32_t a, uint32_t d)
 	context->memwrite(context->user, a, d);
 }
 
-extern const OPT_ITEM kmz80_ot_xx[0x100];
-extern const uint8_t kmz80_ot_cbxx[0x20];
-extern void kmz80_reset_common(KMZ80_CONTEXT *context);
 void kmz80_reset(KMZ80_CONTEXT *context) {
 	kmz80_reset_common(context);
 	EXFLAG = EXF_ICEXIST;
@@ -270,3 +265,4 @@ void kmz80_reset(KMZ80_CONTEXT *context) {
 	SYSMEMREAD = kmz80_memread;
 	SYSMEMWRITE = kmz80_memwrite;
 }
+

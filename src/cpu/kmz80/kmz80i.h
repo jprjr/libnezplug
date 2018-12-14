@@ -2,12 +2,16 @@
   KMZ80 internal header
   by Mamiya
 */
+#ifndef KMZ80I_H_
+#define KMZ80I_H_
 
 #include "kmz80.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+void kmz80_reset_common(KMZ80_CONTEXT *context);
 
 enum {
 	ST_LOCKINT = (1 << 0),
@@ -328,4 +332,6 @@ typedef struct {
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif
