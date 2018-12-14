@@ -1,8 +1,6 @@
 #include "songinfo.h"
 #include "../normalize.h"
 
-int32_t Always_stereo = 0;
-
 NEZ_SONG_INFO* SONGINFO_New()
 {
 	NEZ_SONG_INFO *info = (NEZ_SONG_INFO*)XMALLOC(sizeof(NEZ_SONG_INFO));
@@ -80,10 +78,5 @@ uint32_t SONGINFO_GetChannel(NEZ_SONG_INFO *info)
 }
 void SONGINFO_SetChannel(NEZ_SONG_INFO *info, uint32_t v)
 {
-
-	if(Always_stereo)
-		info->channel = 2;
-	else
-		info->channel = v;
-
+	info->channel = v;
 }
