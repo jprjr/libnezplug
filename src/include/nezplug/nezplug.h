@@ -182,6 +182,12 @@ struct NEZ_PLAY_ {
     struct {
         char *coleco_bios_path;
     } sgc_config;
+    struct {
+    	char* title;
+    	char* artist;
+    	char* copyright;
+    	char detail[1024];
+    } songinfodata;
 	void *nsf;
 	void *gbrdmg;
 	void *heshes;
@@ -217,7 +223,10 @@ void NEZUnmuteChannel(NEZ_PLAY *, int32_t chan);
 
 void NEZGBAMode(NEZ_PLAY *, uint8_t m);
 
-void NEZGetFileInfo(char **p1, char **p2, char **p3, char **p4);
+char *NEZGetGameTitle(NEZ_PLAY *pNezPlay);
+char *NEZGetGameArtist(NEZ_PLAY *pNezPlay);
+char *NEZGetGameCopyright(NEZ_PLAY *pNezPlay);
+char *NEZGetGameDetail(NEZ_PLAY *pNezPlay);
 
 #ifdef __cplusplus
 }

@@ -128,19 +128,7 @@ struct  GBRDMG_TAG {
 		GB_MAPPER_SSC,
 		GB_MAPPER_GBR
 	} mapper_type;
-
-	uint8_t titlebuffer[0x21];
-	uint8_t artistbuffer[0x21];
-	uint8_t copyrightbuffer[0x21];
-
 };
-
-struct {
-	char* title;
-	char* artist;
-	char* copyright;
-	char detail[1024];
-}songinfodata;
 
 
 static int32_t execute(GBRDMG *THIS_)
@@ -812,6 +800,9 @@ static uint32_t GetWordLE(uint8_t *p)
 
 static uint32_t load(NEZ_PLAY *pNezPlay, GBRDMG *THIS_, uint8_t *pData, uint32_t uSize)
 {
+	uint8_t titlebuffer[0x21];
+	uint8_t artistbuffer[0x21];
+	uint8_t copyrightbuffer[0x21];
 
 	XMEMSET(THIS_, 0, sizeof(GBRDMG));
 	THIS_->dmgsnd = 0;
@@ -863,17 +854,30 @@ static uint32_t load(NEZ_PLAY *pNezPlay, GBRDMG *THIS_, uint8_t *pData, uint32_t
 		if (uSize > ((uint32_t)THIS_->bankromnum) << 14)
 			uSize = ((uint32_t)THIS_->bankromnum) << 14;
 
-		XMEMSET(THIS_->titlebuffer, 0, 0x21);
-		XMEMCPY(THIS_->titlebuffer, pData + 0x0134, 0x10);
-		songinfodata.title=(char *)THIS_->titlebuffer;
+		XMEMSET(titlebuffer, 0, 0x21);
+		XMEMCPY(titlebuffer, pData + 0x0134, 0x10);
+        if(pNezPlay->songinfodata.title) {
+            XFREE(pNezPlay->songinfodata.title);
+        }
+        pNezPlay->songinfodata.title = (char *)XMALLOC(strlen((const char *)titlebuffer)+1);
+        if(pNezPlay->songinfodata.title == NULL) {
+            return NEZ_NESERR_SHORTOFMEMORY;
+        }
+        XMEMCPY(pNezPlay->songinfodata.title,titlebuffer,strlen((const char *)titlebuffer)+1);
 
-		XMEMSET(THIS_->artistbuffer, 0, 0x21);
-		songinfodata.artist=(char *)THIS_->artistbuffer;
+		XMEMSET(artistbuffer, 0, 0x21);
+        if(pNezPlay->songinfodata.artist) {
+            XFREE(pNezPlay->songinfodata.artist);
+            pNezPlay->songinfodata.artist = NULL;
+        }
 
-		XMEMSET(THIS_->copyrightbuffer, 0, 0x21);
-		songinfodata.copyright=(char *)THIS_->copyrightbuffer;
+		XMEMSET(copyrightbuffer, 0, 0x21);
+        if(pNezPlay->songinfodata.copyright) {
+            XFREE(pNezPlay->songinfodata.copyright);
+            pNezPlay->songinfodata.copyright = NULL;
+        }
 
-		sprintf(songinfodata.detail,
+		sprintf(pNezPlay->songinfodata.detail,
 "Type               : GBRF\r\n\
 Bank ROM Num       : %XH\r\n\
 Bank ROM(0000-3FFF): %XH\r\n\
@@ -936,19 +940,43 @@ First TMC          : %02XH"
 		THIS_->isCGB = (pData[0x0f] & 0x80) ? 1 : 0;
 		THIS_->mapper_type = GB_MAPPER_MBC1;
 
-		XMEMSET(THIS_->titlebuffer, 0, 0x21);
-		XMEMCPY(THIS_->titlebuffer, pData + 0x0010, 0x20);
-		songinfodata.title=(char *)THIS_->titlebuffer;
+		XMEMSET(titlebuffer, 0, 0x21);
+		XMEMCPY(titlebuffer, pData + 0x0010, 0x20);
 
-		XMEMSET(THIS_->artistbuffer, 0, 0x21);
-		XMEMCPY(THIS_->artistbuffer, pData + 0x0030, 0x20);
-		songinfodata.artist=(char *)THIS_->artistbuffer;
+        if(pNezPlay->songinfodata.title != NULL) {
+            XFREE(pNezPlay->songinfodata.title);
+        }
+        pNezPlay->songinfodata.title = (char *)XMALLOC(strlen((const char *)titlebuffer)+1);
+        if(pNezPlay->songinfodata.title == NULL) {
+            return NEZ_NESERR_SHORTOFMEMORY;
+        }
+        XMEMCPY(pNezPlay->songinfodata.title,titlebuffer,strlen((const char *)titlebuffer)+1);
 
-		XMEMSET(THIS_->copyrightbuffer, 0, 0x21);
-		XMEMCPY(THIS_->copyrightbuffer, pData + 0x0050, 0x20);
-		songinfodata.copyright=(char *)THIS_->copyrightbuffer;
+		XMEMSET(artistbuffer, 0, 0x21);
+		XMEMCPY(artistbuffer, pData + 0x0030, 0x20);
 
-		sprintf(songinfodata.detail,
+        if(pNezPlay->songinfodata.artist != NULL) {
+            XFREE(pNezPlay->songinfodata.artist);
+        }
+        pNezPlay->songinfodata.artist = (char *)XMALLOC(strlen((const char *)artistbuffer)+1);
+        if(pNezPlay->songinfodata.artist == NULL) {
+            return NEZ_NESERR_SHORTOFMEMORY;
+        }
+        XMEMCPY(pNezPlay->songinfodata.artist,artistbuffer,strlen((const char *)artistbuffer)+1);
+
+		XMEMSET(copyrightbuffer, 0, 0x21);
+		XMEMCPY(copyrightbuffer, pData + 0x0050, 0x20);
+
+        if(pNezPlay->songinfodata.copyright != NULL) {
+            XFREE(pNezPlay->songinfodata.copyright);
+        }
+        pNezPlay->songinfodata.copyright = (char *)XMALLOC(strlen((const char *)copyrightbuffer)+1);
+        if(pNezPlay->songinfodata.copyright == NULL) {
+            return NEZ_NESERR_SHORTOFMEMORY;
+        }
+        XMEMCPY(pNezPlay->songinfodata.copyright,copyrightbuffer,strlen((const char *)copyrightbuffer)+1);
+
+		sprintf(pNezPlay->songinfodata.detail,
 "Type              : GBS\r\n\
 Song Max          : %d\r\n\
 Start Song        : %d\r\n\

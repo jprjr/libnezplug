@@ -464,13 +464,6 @@ static void terminate(KSSSEQ *THIS_)
 	XFREE(THIS_);
 }
 
-struct {
-	char* title;
-	char* artist;
-	char* copyright;
-	char detail[1024];
-}songinfodata;
-
 static uint32_t load(NEZ_PLAY *pNezPlay, KSSSEQ *THIS_, uint8_t *pData, uint32_t uSize)
 {
 	uint32_t i, headersize;
@@ -523,7 +516,22 @@ static uint32_t load(NEZ_PLAY *pNezPlay, KSSSEQ *THIS_, uint8_t *pData, uint32_t
 	SONGINFO_SetPlayAddress(pNezPlay->song, THIS_->playaddr);
 	SONGINFO_SetExtendDevice(pNezPlay->song, THIS_->extdevice << 8);
 
-	sprintf(songinfodata.detail,
+    if(pNezPlay->songinfodata.title != NULL) {
+        XFREE(pNezPlay->songinfodata.title);
+        pNezPlay->songinfodata.title = NULL;
+    }
+
+    if(pNezPlay->songinfodata.artist != NULL) {
+        XFREE(pNezPlay->songinfodata.artist);
+        pNezPlay->songinfodata.artist = NULL;
+    }
+
+    if(pNezPlay->songinfodata.copyright != NULL) {
+        XFREE(pNezPlay->songinfodata.copyright);
+        pNezPlay->songinfodata.copyright = NULL;
+    }
+
+	sprintf(pNezPlay->songinfodata.detail,
 "Type         : KS%c%c\r\n\
 Load Address : %04XH\r\n\
 Load Size    : %04XH\r\n\

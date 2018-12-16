@@ -5,12 +5,7 @@ AR = ar
 CFLAGS = -g -O0 -Wall -Wextra -Werror -Isrc/include $(CFLAGS_EXTRA)
 
 LIBNEZPLUG_SRCS = \
-  src/cpu/kmz80/kmdmg.c \
-  src/cpu/kmz80/kmevent.c \
-  src/cpu/kmz80/kmr800.c \
-  src/cpu/kmz80/kmz80.c \
-  src/cpu/kmz80/kmz80c.c \
-  src/cpu/kmz80/kmz80t.c \
+  src/cpu/kmz80.c \
   src/device/nes/logtable.c \
   src/device/nes/s_apu.c \
   src/device/nes/s_fds.c \

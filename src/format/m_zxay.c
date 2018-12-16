@@ -449,6 +449,22 @@ uint32_t ZXAYLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 		terminate(THIS_);
 		return ret;
 	}
+    if(pNezPlay->songinfodata.title != NULL) {
+        XFREE(pNezPlay->songinfodata.title);
+        pNezPlay->songinfodata.title = NULL;
+    }
+
+    if(pNezPlay->songinfodata.artist != NULL) {
+        XFREE(pNezPlay->songinfodata.artist);
+        pNezPlay->songinfodata.artist = NULL;
+    }
+
+    if(pNezPlay->songinfodata.copyright != NULL) {
+        XFREE(pNezPlay->songinfodata.copyright);
+        pNezPlay->songinfodata.copyright = NULL;
+    }
+    pNezPlay->songinfodata.detail[0] = 0;
+
 	pNezPlay->zxay = THIS_;
 	NESAudioHandlerInstall(pNezPlay, zxay_audio_handler);
 	NESVolumeHandlerInstall(pNezPlay, zxay_volume_handler);

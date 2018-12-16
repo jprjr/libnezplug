@@ -25,13 +25,6 @@
 #define EXTSOUND_FME7	(1 << 5)
 #define EXTSOUND_J86	(1 << 6)	/* JALECO-86 */
 
-struct {
-	char* title;
-	char* artist;
-	char* copyright;
-	char detail[1024];
-}songinfodata;
-
 /* RAM area */
 static uint32_t ReadRam(NEZ_PLAY *pNezPlay, uint32_t A)
 {
@@ -352,7 +345,7 @@ uint32_t NSFDeviceInitialize(NEZ_PLAY *pNezPlay)
 }
 
 
-static void NSFMapperSetInfo(NEZ_PLAY *pNezPlay, uint8_t *pData)
+static int32_t NSFMapperSetInfo(NEZ_PLAY *pNezPlay, uint8_t *pData)
 {
     uint8_t titlebuffer[0x21];
     uint8_t artistbuffer[0x21];
@@ -368,17 +361,38 @@ static void NSFMapperSetInfo(NEZ_PLAY *pNezPlay, uint8_t *pData)
 
 	XMEMSET(titlebuffer, 0, 0x21);
 	XMEMCPY(titlebuffer, pData + 0x000e, 0x20);
-	songinfodata.title=(char *)titlebuffer;
+    if(pNezPlay->songinfodata.title != NULL) {
+        XFREE(pNezPlay->songinfodata.title);
+    }
+    pNezPlay->songinfodata.title = (char *)XMALLOC(strlen((const char *)titlebuffer)+1);
+    if(pNezPlay->songinfodata.title == NULL) {
+        return NEZ_NESERR_SHORTOFMEMORY;
+    }
+    XMEMCPY(pNezPlay->songinfodata.title,titlebuffer,strlen((const char *)titlebuffer)+1);
 
 	XMEMSET(artistbuffer, 0, 0x21);
 	XMEMCPY(artistbuffer, pData + 0x002e, 0x20);
-	songinfodata.artist=(char *)artistbuffer;
+    if(pNezPlay->songinfodata.artist != NULL) {
+        XFREE(pNezPlay->songinfodata.artist);
+    }
+    pNezPlay->songinfodata.artist = (char *)XMALLOC(strlen((const char *)artistbuffer)+1);
+    if(pNezPlay->songinfodata.artist == NULL) {
+        return NEZ_NESERR_SHORTOFMEMORY;
+    }
+    XMEMCPY(pNezPlay->songinfodata.artist,artistbuffer,strlen((const char *)artistbuffer)+1);
 
 	XMEMSET(copyrightbuffer, 0, 0x21);
 	XMEMCPY(copyrightbuffer, pData + 0x004e, 0x20);
-	songinfodata.copyright=(char *)copyrightbuffer;
+    if(pNezPlay->songinfodata.copyright != NULL) {
+        XFREE(pNezPlay->songinfodata.copyright);
+    }
+    pNezPlay->songinfodata.copyright = (char *)XMALLOC(strlen((const char *)copyrightbuffer)+1);
+    if(pNezPlay->songinfodata.copyright == NULL) {
+        return NEZ_NESERR_SHORTOFMEMORY;
+    }
+    XMEMCPY(pNezPlay->songinfodata.copyright,copyrightbuffer,strlen((const char *)copyrightbuffer)+1);
 
-	sprintf(songinfodata.detail,
+	sprintf(pNezPlay->songinfodata.detail,
 "Type          : NSF\r\n\
 Song Max      : %d\r\n\
 Start Song    : %d\r\n\
@@ -413,6 +427,8 @@ First ROM Bank(F000-FFFF or 7000-7FFF): %02XH"
 		,pData[0x70]|pData[0x71]|pData[0x72]|pData[0x73]|pData[0x74]|pData[0x75]|pData[0x76]|pData[0x77] ? 1 : 0
 		,pData[0x70],pData[0x71],pData[0x72],pData[0x73],pData[0x74],pData[0x75],pData[0x76],pData[0x77]
 	);
+
+    return NEZ_NESERR_NOERROR;
 }
 
 uint32_t NSFLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
@@ -424,7 +440,8 @@ uint32_t NSFLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	THIS_->fds_type = 2;
 	pNezPlay->nsf = THIS_;
 	NESMemoryHandlerInitialize(pNezPlay);
-	NSFMapperSetInfo(pNezPlay, pData);
+	ret = NSFMapperSetInfo(pNezPlay, pData);
+    if (ret) return ret;
 	ret = NSF6502Install(pNezPlay);
 	if (ret) return ret;
 	ret = NSFMapperInitialize(pNezPlay, pData + 0x80, uSize - 0x80);

@@ -276,6 +276,21 @@ uint32_t NSDLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 		pNezPlay->nsf = 0;
 		return NEZ_NESERR_SHORTOFMEMORY;
 	}
+    if(pNezPlay->songinfodata.title != NULL) {
+        XFREE(pNezPlay->songinfodata.title);
+        pNezPlay->songinfodata.title = NULL;
+    }
+
+    if(pNezPlay->songinfodata.artist != NULL) {
+        XFREE(pNezPlay->songinfodata.artist);
+        pNezPlay->songinfodata.artist = NULL;
+    }
+
+    if(pNezPlay->songinfodata.copyright != NULL) {
+        XFREE(pNezPlay->songinfodata.copyright);
+        pNezPlay->songinfodata.copyright = NULL;
+    }
+    pNezPlay->songinfodata.detail[0] = 0;
 	NESMemoryHandlerInitialize(pNezPlay);
 	XMEMSET(nsf->head, 0, 0x80);
 	SONGINFO_SetStartSongNo(pNezPlay->song, 1);

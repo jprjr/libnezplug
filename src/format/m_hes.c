@@ -78,14 +78,6 @@ struct  HESHES_TAG {
 };
 
 
-struct {
-	char* title;
-	char* artist;
-	char* copyright;
-	char detail[1024];
-}songinfodata;
-
-
 static uint32_t km6280_exec(struct K6280_Context *ctx, uint32_t cycles)
 {
 	HESHES *THIS_ = (HESHES *)ctx->user;
@@ -551,7 +543,22 @@ static uint32_t load(NEZ_PLAY *pNezPlay, HESHES *THIS_, uint8_t *pData, uint32_t
 	SONGINFO_SetInitAddress(pNezPlay->song, THIS_->initaddr);
 	SONGINFO_SetPlayAddress(pNezPlay->song, 0);
 
-	sprintf(songinfodata.detail,
+    if(pNezPlay->songinfodata.title != NULL) {
+        XFREE(pNezPlay->songinfodata.title);
+        pNezPlay->songinfodata.title = NULL;
+    }
+
+    if(pNezPlay->songinfodata.artist != NULL) {
+        XFREE(pNezPlay->songinfodata.artist);
+        pNezPlay->songinfodata.artist = NULL;
+    }
+
+    if(pNezPlay->songinfodata.copyright != NULL) {
+        XFREE(pNezPlay->songinfodata.copyright);
+        pNezPlay->songinfodata.copyright = NULL;
+    }
+
+	sprintf(pNezPlay->songinfodata.detail,
 "Type           : HES\r\n\
 Start Song     : %02XH\r\n\
 Init Address   : %04XH\r\n\

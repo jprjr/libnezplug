@@ -13,13 +13,6 @@
 #include "m_nsd.h"
 #include "m_sgc.h"
 
-struct {
-	char* title;
-	char* artist;
-	char* copyright;
-	char detail[1024];
-}songinfodata;
-
 static uint32_t GetWordLE(uint8_t *p)
 {
 	return p[0] | (p[1] << 8);
@@ -83,6 +76,9 @@ void NEZDelete(NEZ_PLAY *pNezPlay)
 		NESAudioHandlerTerminate(pNezPlay);
 		NESVolumeHandlerTerminate(pNezPlay);
 		SONGINFO_Delete(pNezPlay->song);
+        if(pNezPlay->songinfodata.title != NULL) XFREE(pNezPlay->songinfodata.title);
+        if(pNezPlay->songinfodata.artist != NULL) XFREE(pNezPlay->songinfodata.artist);
+        if(pNezPlay->songinfodata.copyright != NULL) XFREE(pNezPlay->songinfodata.copyright);
 		XFREE(pNezPlay);
 	}
 }
@@ -181,10 +177,7 @@ uint32_t NEZLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 {
 	uint32_t ret = NEZ_NESERR_NOERROR;
 
-	songinfodata.title=NULL;
-	songinfodata.artist=NULL;
-	songinfodata.copyright=NULL;
-	songinfodata.detail[0]=0;
+	pNezPlay->songinfodata.detail[0]=0;
 
 	while (1)
 	{
@@ -277,15 +270,6 @@ uint32_t NEZLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	return ret;
 }
 
-
-void NEZGetFileInfo(char **p1, char **p2, char **p3, char **p4)
-{
-	*p1 = songinfodata.title;
-	*p2 = songinfodata.artist;
-	*p3 = songinfodata.copyright;
-	*p4 = songinfodata.detail;
-}
-
 void NEZMuteChannel(NEZ_PLAY *pNezPlay, int32_t chan)
 {
     if(chan < 0) {
@@ -306,5 +290,21 @@ void NEZUnmuteChannel(NEZ_PLAY *pNezPlay, int32_t chan)
 
 void NEZGBAMode(NEZ_PLAY *pNezPlay, uint8_t m) {
     pNezPlay->gb_config.gbamode = m;
+}
+
+char *NEZGetGameTitle(NEZ_PLAY *pNezPlay) {
+    return pNezPlay->songinfodata.title;
+}
+
+char *NEZGetGameArtist(NEZ_PLAY *pNezPlay) {
+    return pNezPlay->songinfodata.artist;
+}
+
+char *NEZGetGameCopyright(NEZ_PLAY *pNezPlay) {
+    return pNezPlay->songinfodata.copyright;
+}
+
+char *NEZGetGameDetail(NEZ_PLAY *pNezPlay) {
+    return pNezPlay->songinfodata.detail;
 }
 

@@ -455,12 +455,6 @@ static void terminate(SGCSEQ *THIS_)
 	XFREE(THIS_);
 }
 
-struct {
-	char* title;
-	char* artist;
-	char* copyright;
-	char detail[1024];
-}songinfodata;
 
 static uint32_t load(NEZ_PLAY *pNezPlay, SGCSEQ *THIS_, uint8_t *pData, uint32_t uSize)
 {
@@ -505,7 +499,7 @@ static uint32_t load(NEZ_PLAY *pNezPlay, SGCSEQ *THIS_, uint8_t *pData, uint32_t
 	SONGINFO_SetPlayAddress(pNezPlay->song, THIS_->playaddr);
 //	SONGINFO_SetExtendDevice(pNezPlay->song, THIS_->extdevice << 8);
 
-	sprintf(songinfodata.detail,
+	sprintf(pNezPlay->songinfodata.detail,
 "Type          : SGC\r\n\
 System        : %s\r\n\
 Song Max      : %d\r\n\
@@ -553,15 +547,39 @@ RAM Bank      (8000-BFFF): %d\r\n\
 
 	XMEMSET(titlebuffer, 0, 0x21);
 	XMEMCPY(titlebuffer, pData + 0x0040, 0x20);
-	songinfodata.title=(char *)titlebuffer;
+
+    if(pNezPlay->songinfodata.title != NULL) {
+        XFREE(pNezPlay->songinfodata.title);
+    }
+    pNezPlay->songinfodata.title = (char *)XMALLOC(strlen((const char *)titlebuffer)+1);
+    if(pNezPlay->songinfodata.title == NULL) {
+        return NEZ_NESERR_SHORTOFMEMORY;
+    }
+    XMEMCPY(pNezPlay->songinfodata.title,titlebuffer,strlen((const char *)titlebuffer)+1);
 
 	XMEMSET(artistbuffer, 0, 0x21);
 	XMEMCPY(artistbuffer, pData + 0x0060, 0x20);
-	songinfodata.artist=(char *)artistbuffer;
+
+    if(pNezPlay->songinfodata.artist != NULL) {
+        XFREE(pNezPlay->songinfodata.artist);
+    }
+    pNezPlay->songinfodata.artist = (char *)XMALLOC(strlen((const char *)artistbuffer)+1);
+    if(pNezPlay->songinfodata.artist == NULL) {
+        return NEZ_NESERR_SHORTOFMEMORY;
+    }
+    XMEMCPY(pNezPlay->songinfodata.artist,artistbuffer,strlen((const char *)artistbuffer)+1);
 
 	XMEMSET(copyrightbuffer, 0, 0x21);
 	XMEMCPY(copyrightbuffer, pData + 0x0080, 0x20);
-	songinfodata.copyright=(char *)copyrightbuffer;
+
+    if(pNezPlay->songinfodata.copyright != NULL) {
+        XFREE(pNezPlay->songinfodata.copyright);
+    }
+    pNezPlay->songinfodata.copyright = (char *)XMALLOC(strlen((const char *)copyrightbuffer)+1);
+    if(pNezPlay->songinfodata.copyright == NULL) {
+        return NEZ_NESERR_SHORTOFMEMORY;
+    }
+    XMEMCPY(pNezPlay->songinfodata.copyright,copyrightbuffer,strlen((const char *)copyrightbuffer)+1);
 
 	switch(THIS_->systype){
 	case SYNTHMODE_SMS:
