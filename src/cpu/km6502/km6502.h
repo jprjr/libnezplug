@@ -65,11 +65,7 @@ enum K6502_IRQ {
 	K6502_INT	= 16
 };
 
-#ifdef STATIC_CONTEXT6502
-External void K6502_Exec(void);
-#else
 External void K6502_Exec(struct K6502_Context *pc);
-#endif
 
 #if !USE_CALLBACK
 #if USE_USERPOINTER

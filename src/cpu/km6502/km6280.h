@@ -71,11 +71,7 @@ enum K6280_IRQ {
 	K6280_INT2	= 64
 };
 
-#ifdef STATIC_CONTEXT6280
-External void K6280_Exec(void);
-#else
 External void K6280_Exec(struct K6280_Context *pc);
-#endif
 
 #if !USE_CALLBACK
 #if USE_USERPOINTER

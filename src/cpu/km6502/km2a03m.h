@@ -29,20 +29,11 @@
 #define IRQ_BRK		K6502_BRK
 #define IRQ_INT		K6502_INT
 
-#ifdef STATIC_CONTEXT6502
-extern struct K6502_Context STATIC_CONTEXT6502;
-#define __THIS__	STATIC_CONTEXT6502
-#define __CONTEXT	void
-#define __CONTEXT_	/* none */
-#define __THISP		/* none */
-#define __THISP_	/* none */
-#else
 #define __THIS__	(*pc)
 #define __CONTEXT	struct K6502_Context *pc
 #define __CONTEXT_	struct K6502_Context *pc,
 #define __THISP		pc
 #define __THISP_	pc,
-#endif
 
 #define K_EXEC		K6502_Exec
 
