@@ -1,3 +1,7 @@
+#ifndef DIVFIX_H_
+#define DIVFIX_H_
+
+#include "../include/nezplug/pstdint.h"
 
 static uint32_t DivFix(uint32_t p1, uint32_t p2, uint32_t fix)
 {
@@ -16,3 +20,5 @@ static uint32_t DivFix(uint32_t p1, uint32_t p2, uint32_t fix)
 	}
 	return ret;
 }
+
+#endif

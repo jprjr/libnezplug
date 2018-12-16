@@ -6,6 +6,7 @@
 #include "logtable.h"
 #include "../../format/m_nsf.h"
 #include "s_mmc5.h"
+#include "../divfix.h"
 
 #define NES_BASECYCLES (21477270)
 
@@ -252,24 +253,6 @@ static int32_t MMC5SoundSquareRender(MMC5_SQUARE *ch)
 
 	return outputbuf /count;
 
-}
-
-static uint32_t DivFix(uint32_t p1, uint32_t p2, uint32_t fix)
-{
-	uint32_t ret;
-	ret = p1 / p2;
-	p1  = p1 % p2;/* p1 = p1 - p2 * ret; */
-	while (fix--)
-	{
-		p1 += p1;
-		ret += ret;
-		if (p1 >= p2)
-		{
-			p1 -= p2;
-			ret++;
-		}
-	}
-	return ret;
 }
 
 static void MMC5SoundSquareReset(NEZ_PLAY *pNezPlay, MMC5_SQUARE *ch)

@@ -10,6 +10,8 @@
 #include <time.h>
 #include <math.h>
 
+#include "../divfix.h"
+
 #define NES_BASECYCLES (21477270)
 
 /* 31 - log2(NES_BASECYCLES/(12*MIN_FREQ)) > CPS_BITS  */
@@ -955,24 +957,6 @@ static NES_READ_HANDLER s_apu_read_handler[] =
 	{ 0x4000, 0x4017, APUSoundRead, NULL },
 	{ 0,      0,      0, NULL },
 };
-
-static uint32_t DivFix(uint32_t p1, uint32_t p2, uint32_t fix)
-{
-	uint32_t ret;
-	ret = p1 / p2;
-	p1  = p1 % p2;/* p1 = p1 - p2 * ret; */
-	while (fix--)
-	{
-		p1 += p1;
-		ret += ret;
-		if (p1 >= p2)
-		{
-			p1 -= p2;
-			ret++;
-		}
-	}
-	return ret;
-}
 
 static uint32_t GetNTSCPAL(NEZ_PLAY *pNezPlay)
 {

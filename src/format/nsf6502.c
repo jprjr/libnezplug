@@ -5,6 +5,7 @@
 #include "songinfo.h"
 
 #include "../device/nes/s_apu.h"
+#include "../device/divfix.h"
 
 /* ------------ */
 /*  km6502 I/F  */
@@ -348,24 +349,6 @@ static uint32_t muldiv(uint32_t m, uint32_t n, uint32_t d)
 	return ((double)m) * n / d;
 }
 #endif
-
-static uint32_t DivFix(uint32_t p1, uint32_t p2, uint32_t fix)
-{
-	uint32_t ret;
-	ret = p1 / p2;
-	p1  = p1 % p2;/* p1 = p1 - p2 * ret; */
-	while (fix--)
-	{
-		p1 += p1;
-		ret += ret;
-		if (p1 >= p2)
-		{
-			p1 -= p2;
-			ret++;
-		}
-	}
-	return ret;
-}
 
 static void NSF6502Reset(NEZ_PLAY *pNezPlay)
 {

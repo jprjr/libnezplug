@@ -6,6 +6,7 @@
 #include "logtable.h"
 #include "../../format/m_nsf.h"
 #include "s_vrc6.h"
+#include "../divfix.h"
 //#include <stdio.h>
 
 #define NES_BASECYCLES (21477270)
@@ -202,24 +203,6 @@ static NES_WRITE_HANDLER s_vrc6_write_handler[] =
 	{ 0xB000, 0xB002, VRC6SoundWriteB000, NULL },
 	{ 0,      0,      0, NULL },
 };
-
-static uint32_t DivFix(uint32_t p1, uint32_t p2, uint32_t fix)
-{
-	uint32_t ret;
-	ret = p1 / p2;
-	p1  = p1 % p2;/* p1 = p1 - p2 * ret; */
-	while (fix--)
-	{
-		p1 += p1;
-		ret += ret;
-		if (p1 >= p2)
-		{
-			p1 -= p2;
-			ret++;
-		}
-	}
-	return ret;
-}
 
 static void VRC6SoundSquareReset(NEZ_PLAY *pNezPlay, VRC6_SQUARE *ch)
 {

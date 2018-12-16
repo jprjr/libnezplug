@@ -5,6 +5,7 @@
 #include "nsf6502.h"
 #include "m_nsf.h"
 #include "m_nsd.h"
+#include "../device/divfix.h"
 
 uint32_t NSDPlayerGetCycles(void)
 {
@@ -151,24 +152,6 @@ const static NEZ_NES_AUDIO_HANDLER nsdplay_audio_handler[] = {
 	{ 0, ExecuteNSD, NULL, NULL },
 	{ 0, 0, NULL, NULL },
 };
-
-static uint32_t DivFix(uint32_t p1, uint32_t p2, uint32_t fix)
-{
-	uint32_t ret;
-	ret = p1 / p2;
-	p1  = p1 % p2;/* p1 = p1 - p2 * ret; */
-	while (fix--)
-	{
-		p1 += p1;
-		ret += ret;
-		if (p1 >= p2)
-		{
-			p1 -= p2;
-			ret++;
-		}
-	}
-	return ret;
-}
 
 static uint32_t GetDwordLE(uint8_t *p)
 {

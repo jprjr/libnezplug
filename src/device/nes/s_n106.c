@@ -6,6 +6,7 @@
 #include "logtable.h"
 #include "../../format/m_nsf.h"
 #include "s_n106.h"
+#include "../divfix.h"
 
 #define NES_BASECYCLES (21477270)
 #define CPS_SHIFT (16)
@@ -59,27 +60,6 @@ typedef struct {
 	uint32_t tone[0x100];	/* TONE DATA */
 	uint8_t data[0x80];
 } N106SOUND;
-
-static uint32_t DivFix(uint32_t p1, uint32_t p2, uint32_t fix)
-{
-	uint32_t ret;
-	ret = p1 / p2;
-	p1 %= p2;/* p1 = p1 - p2 * ret; */
-	//while(p1 >= p2)p1 -= p2;
-	while (fix--)
-	{
-		//p1 += p1;
-		//ret += ret;
-		p1 <<= 1;
-		ret <<= 1;
-		if (p1 >= p2)
-		{
-			p1 -= p2;
-			ret++;
-		}
-	}
-	return ret;
-}
 
 __inline static void UPDATE(N106_WM *chp)
 {
