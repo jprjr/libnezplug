@@ -1,7 +1,7 @@
 #include "kmsnddev.h"
-#include "divfix.h"
 #include "s_hes.h"
 #include "s_logtbl.h"
+#include "../common/divfix.h"
 
 #define CPS_SHIFT 16
 #define RENDERS 5

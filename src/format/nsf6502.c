@@ -5,7 +5,7 @@
 #include "songinfo.h"
 
 #include "../device/nes/s_apu.h"
-#include "../device/divfix.h"
+#include "../common/divfix.h"
 
 /* ------------ */
 /*  km6502 I/F  */

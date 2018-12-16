@@ -5,7 +5,7 @@
 #include "nsf6502.h"
 #include "m_nsf.h"
 #include "m_nsd.h"
-#include "../device/divfix.h"
+#include "../common/divfix.h"
 
 uint32_t NSDPlayerGetCycles(void)
 {

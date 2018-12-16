@@ -5,7 +5,7 @@
 #include "logtable.h"
 #include "../../format/m_nsf.h"
 #include "s_fds.h"
-#include "../divfix.h"
+#include "../../common/divfix.h"
 //#include <math.h>
 #define FDS_DYNAMIC_BIAS 1
 

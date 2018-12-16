@@ -5,7 +5,7 @@
 
 #include "m_gbr.h"
 #include "../device/s_dmg.h"
-#include "../device/divfix.h"
+#include "../common/divfix.h"
 
 #include "../cpu/kmz80/kmz80.h"
 #include <stdio.h>

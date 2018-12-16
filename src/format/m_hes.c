@@ -5,7 +5,7 @@
 
 #include "../device/s_hes.h"
 #include "../device/s_hesad.h"
-#include "../device/divfix.h"
+#include "../common/divfix.h"
 
 #include "m_hes.h"
 #include <stdio.h>

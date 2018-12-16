@@ -6,7 +6,7 @@
 #include "logtable.h"
 #include "../../format/m_nsf.h"
 #include "s_vrc6.h"
-#include "../divfix.h"
+#include "../../common/divfix.h"
 //#include <stdio.h>
 
 #define NES_BASECYCLES (21477270)

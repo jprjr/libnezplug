@@ -10,7 +10,7 @@
 #include <time.h>
 #include <math.h>
 
-#include "../divfix.h"
+#include "../../common/divfix.h"
 
 #define NES_BASECYCLES (21477270)
 

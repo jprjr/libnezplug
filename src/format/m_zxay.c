@@ -6,7 +6,7 @@
 #include "m_zxay.h"
 
 #include "../device/s_psg.h"
-#include "../device/divfix.h"
+#include "../common/divfix.h"
 
 #include "../cpu/kmz80/kmz80.h"
 

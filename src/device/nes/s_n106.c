@@ -6,7 +6,7 @@
 #include "logtable.h"
 #include "../../format/m_nsf.h"
 #include "s_n106.h"
-#include "../divfix.h"
+#include "../../common/divfix.h"
 
 #define NES_BASECYCLES (21477270)
 #define CPS_SHIFT (16)

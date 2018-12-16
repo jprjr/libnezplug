@@ -7,7 +7,7 @@
 
 #include "../device/s_sng.h"
 #include "../device/opl/s_opl.h"
-#include "../device/divfix.h"
+#include "../common/divfix.h"
 
 #include "../cpu/kmz80/kmz80.h"
 
