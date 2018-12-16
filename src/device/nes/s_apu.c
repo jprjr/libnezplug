@@ -4,7 +4,6 @@
 #include "../kmsnddev.h"
 #include "../../format/handler.h"
 #include "../../format/nsf6502.h"
-#include "logtable.h"
 #include "../../format/m_nsf.h"
 #include "s_apu.h"
 #include <time.h>
@@ -35,11 +34,7 @@
 #define AMPTML_BITS 14
 #define AMPTML_MAX (1 << (AMPTML_BITS))
 
-#if 1
 #define VOL_SHIFT 0 /* 後期型 */
-#else
-#define VOL_SHIFT 1 /* 初期型 */
-#endif
 
 typedef struct {
 	uint32_t counter;				/* length counter */
@@ -173,7 +168,6 @@ typedef struct {
 	NESAPU_DPCM dpcm;
 	uint32_t cpf[4];	/* cycles per frame (240/192Hz) ($4017.bit7) */
 	uint8_t regs[0x20];
-	//int32_t amptbl[1 << AMPTML_BITS];
 } APUSOUND;
 
 
@@ -496,7 +490,6 @@ static int32_t NESAPUSoundTriangleRender(NESAPU_TRIANGLE *ch)
 	outputbuf = outputbuf / count;
 	return outputbuf * ch->dpcmout / DPCM_VOL_DOWN;
 
-//	return LogToLinear(output, LOG_LIN_BITS - LIN_BITS - 18 + VOL_SHIFT) * ((0x80 - ch->dpcmvol)/128.0) * 1.25;
 }
 
 static void NESAPUSoundNoiseCount(NESAPU_NOISE *ch){
@@ -652,6 +645,7 @@ static int32_t NESAPUSoundDpcmRender(NEZ_PLAY *pNezPlay)
 	}
 	return	outputbuf;
 #undef ch
+#undef DPCM_OUT
 }
 
 
@@ -1033,21 +1027,6 @@ static void APUSoundReset(NEZ_PLAY *pNezPlay)
 		APUSoundWrite(pNezPlay, 0x4000 + i, (i == 0x10) ? 0x10 : 0x00);
 	}
 	APUSoundWrite(pNezPlay, 0x4015, 0x0f);
-/*	
-#define TBL_MAX (1 << (AMPTML_BITS-2))
-#define OUTPUT_VOL 4
-#define SQRT_MIN 1.0
-#define MINUS_CALC(x) ((1 << AMPTML_BITS) / (((1 << AMPTML_BITS) - x) * 0.0000001 + 1.2))
-
-	for (i = 0; i < (1 << AMPTML_BITS); i++)
-	{
-//		apu->amptbl[i] = (int32_t)(i * OUTPUT_VOL - (CV_MAX / (1.0 - j * 0.99 / CV_MAX) * OUTPUT_VOL));
-//		apu->amptbl[i] = (int32_t)((sqrt(SQRT_MIN + i / ((1 << AMPTML_BITS) * 0.05)) - sqrt(SQRT_MIN)) * 0x8000);
-//		apu->amptbl[i] = (int32_t)((200.0 / (100.0 / ((i+1.0) / (1 << AMPTML_BITS)) + 100)) / 2 * 0x20000);
-//		apu->amptbl[i] = (int32_t)(i - (sqrt(0.25 + i / ((1 << AMPTML_BITS) * 0.3)) - 0.5) * 0x2);
-		apu->amptbl[i] = (int32_t)((i - (MINUS_CALC(i) - MINUS_CALC(0)) ) * 8);
-	}
-*/
 
 	for (i = 0; i < 128; i++)
 	{
@@ -1086,7 +1065,6 @@ void APUSoundInstall(NEZ_PLAY *pNezPlay)
 	XMEMSET(apu, 0, sizeof(APUSOUND));
 	((NSFNSF*)pNezPlay->nsf)->apu = apu;
 
-	LogTableInitialize();
 	NESAudioHandlerInstall(pNezPlay, s_apu_audio_handler);
 	NESVolumeHandlerInstall(pNezPlay, s_apu_volume_handler);
 	NESTerminateHandlerInstall(&pNezPlay->nth, s_apu_terminate_handler);
@@ -1094,3 +1072,18 @@ void APUSoundInstall(NEZ_PLAY *pNezPlay)
 	NESWriteHandlerInstall(pNezPlay, s_apu_write_handler);
 	NESResetHandlerInstall(pNezPlay->nrh, s_apu_reset_handler);
 }
+
+#undef NES_BASECYCLES
+#undef CPS_BITS
+#undef SQUARE_RENDERS
+#undef TRIANGLE_RENDERS
+#undef NOISE_RENDERS
+#undef DPCM_RENDERS
+#undef SQ_VOL_BIT
+#undef TR_VOL
+#undef NOISE_VOL
+#undef DPCM_VOL
+#undef DPCM_VOL_DOWN
+#undef AMPTML_BITS
+#undef AMPTML_MAX
+#undef VOL_SHIFT

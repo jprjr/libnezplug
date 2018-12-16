@@ -2,7 +2,6 @@
 #include "../kmsnddev.h"
 #include "../../format/audiosys.h"
 #include "../../format/nsf6502.h"
-#include "logtable.h"
 #include "../../format/m_nsf.h"
 #include "s_fds.h"
 #include "../../common/divfix.h"
@@ -10,6 +9,7 @@
 #define NES_BASECYCLES (21477270)
 #define CPS_BITS (16)
 #define CPF_BITS (12)
+#define LOG_BITS (12)
 
 typedef struct {
 	uint32_t phase;
@@ -256,7 +256,6 @@ void FDSSoundInstall2(NEZ_PLAY *pNezPlay)
 	XMEMSET(fdssound, 0, sizeof(FDSSOUND));
 	((NSFNSF*)pNezPlay->nsf)->fdssound = fdssound;
 
-	LogTableInitialize();
 	NESAudioHandlerInstall(pNezPlay, s_fds_audio_handler);
 	NESVolumeHandlerInstall(pNezPlay, s_fds_volume_handler);
 	NESTerminateHandlerInstall(&pNezPlay->nth, s_fds_terminate_handler);
@@ -264,3 +263,8 @@ void FDSSoundInstall2(NEZ_PLAY *pNezPlay)
 	NESWriteHandlerInstall(pNezPlay, s_fds_write_handler);
 	NESResetHandlerInstall(pNezPlay->nrh, s_fds_reset_handler);
 }
+
+#undef NES_BASECYCLES
+#undef CPS_BITS
+#undef CPF_BITS
+#undef LOG_BITS

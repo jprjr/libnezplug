@@ -3,7 +3,6 @@
 #include "../../format/audiosys.h"
 #include "../../format/handler.h"
 #include "../../format/nsf6502.h"
-#include "logtable.h"
 #include "../../format/m_nsf.h"
 #include "s_vrc7.h"
 
@@ -139,7 +138,6 @@ void VRC7SoundInstall(NEZ_PLAY *pNezPlay)
 	((NSFNSF*)pNezPlay->nsf)->sndp = sndp;
 
 	sndp->usertone_enable[0] = 0;
-	LogTableInitialize();
 	sndp->kmif = OPLSoundAlloc(pNezPlay, OPL_TYPE_VRC7);
 	if (sndp->kmif)
 	{
@@ -152,3 +150,6 @@ void VRC7SoundInstall(NEZ_PLAY *pNezPlay)
 	}
 }
 
+#undef GetDwordLEM
+#undef MASTER_CLOCK
+#undef VRC7_VOL

@@ -3,7 +3,6 @@
 #include "../../format/audiosys.h"
 #include "../../format/handler.h"
 #include "../../format/nsf6502.h"
-#include "logtable.h"
 #include "../../format/m_nsf.h"
 #include "s_fme7.h"
 #include "../s_psg.h"
@@ -102,7 +101,6 @@ void FME7SoundInstall(NEZ_PLAY* pNezPlay)
 	psgs->psgp = PSGSoundAlloc(pNezPlay, PSG_TYPE_YM2149); //エンベロープ31段階あったんでYM2149系でしょう。
 	if (!psgs->psgp) return;
 
-	LogTableInitialize();
 	NESTerminateHandlerInstall(&pNezPlay->nth, s_psg_terminate_handler);
 	NESVolumeHandlerInstall(pNezPlay, s_psg_volume_handler);
 
@@ -110,3 +108,9 @@ void FME7SoundInstall(NEZ_PLAY* pNezPlay)
 	NESWriteHandlerInstall(pNezPlay, s_fme7_write_handler);
 	NESResetHandlerInstall(pNezPlay->nrh, s_fme7_reset_handler);
 }
+
+#undef BASECYCLES_ZX
+#undef BASECYCLES_AMSTRAD
+#undef BASECYCLES_MSX
+#undef BASECYCLES_NES
+#undef FME7_VOL

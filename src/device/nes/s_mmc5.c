@@ -50,6 +50,7 @@ typedef struct {
 	uint8_t mmc5multiplier[2];
 	uint8_t mmc5exram[0x400];
 	uint8_t regs[0x20];
+    LOG_TABLE logtable;
 } MMC5SOUND;
 
 /* ----------------- */
@@ -58,12 +59,12 @@ typedef struct {
 
 static uint32_t mmc5exram_read(NEZ_PLAY *pNezPlay, uint32_t address)
 {
-	return ((MMC5SOUND*)((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->mmc5)->mmc5exram[address & 0x03FF];
+	return ((MMC5SOUND*)((NSFNSF*)pNezPlay->nsf)->mmc5)->mmc5exram[address & 0x03FF];
 }
 
 static void mmc5exram_write(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 {
-	((MMC5SOUND*)((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->mmc5)->mmc5exram[address & 0x03FF] = (uint8_t)value;
+	((MMC5SOUND*)((NSFNSF*)pNezPlay->nsf)->mmc5)->mmc5exram[address & 0x03FF] = (uint8_t)value;
 }
 
 static NES_READ_HANDLER mmc5exram_read_handler[] =
@@ -91,7 +92,7 @@ void MMC5ExtendRamInstall(NEZ_PLAY *pNezPlay)
 
 static uint32_t mmc5mul_read(NEZ_PLAY *pNezPlay, uint32_t address)
 {
-	MMC5SOUND *mmc5 = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->mmc5;
+	MMC5SOUND *mmc5 = ((NSFNSF*)pNezPlay->nsf)->mmc5;
 	uint32_t mul;
 	address = address - 0x5205;
 	/* if (address > 1) return; */
@@ -101,7 +102,7 @@ static uint32_t mmc5mul_read(NEZ_PLAY *pNezPlay, uint32_t address)
 
 static void mmc5mul_write(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 {
-	MMC5SOUND *mmc5 = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->mmc5;
+	MMC5SOUND *mmc5 = ((NSFNSF*)pNezPlay->nsf)->mmc5;
 	address = address - 0x5205;
 	/* if (address > 1) return; */
 	mmc5->mmc5multiplier[address] = (uint8_t)value;
@@ -150,8 +151,9 @@ const static uint32_t vbl_length[32] =
 const static uint8_t square_duty_table[4][8] = 
 	{ {0,0,0,1,0,0,0,0} , {0,0,0,1,1,0,0,0} , {0,0,0,1,1,1,1,0} , {1,0,0,1,1,1,1,1} };
 
-static int32_t MMC5SoundSquareRender(MMC5_SQUARE *ch)
+static int32_t MMC5SoundSquareRender(NEZ_PLAY *pNezPlay, MMC5_SQUARE *ch)
 {
+	MMC5SOUND *mmc5 = ((NSFNSF*)pNezPlay->nsf)->mmc5;
 	int32_t outputbuf=0,count=0;
 	if (ch->update)
 	{
@@ -216,9 +218,9 @@ static int32_t MMC5SoundSquareRender(MMC5_SQUARE *ch)
 	else
 		ch->output = 15 - ch->envadr;
 
-	ch->output = LinearToLog(ch->output) + ch->mastervolume;
+	ch->output = LinearToLog(&mmc5->logtable,ch->output) + ch->mastervolume;
 	ch->output += square_duty_table[ch->duty][ch->adr];
-	ch->output = LogToLinear(ch->output, LOG_LIN_BITS - LIN_BITS - 16);
+	ch->output = LogToLinear(&mmc5->logtable,ch->output, mmc5->logtable.log_lin_bits - mmc5->logtable.lin_bits - 16);
 	
 	ch->cycles -= ch->cps << 6;
 	while (ch->cycles < 0)
@@ -239,9 +241,9 @@ static int32_t MMC5SoundSquareRender(MMC5_SQUARE *ch)
 			else
 				ch->output = 15 - ch->envadr;
 
-			ch->output = LinearToLog(ch->output) + ch->mastervolume;
+			ch->output = LinearToLog(&mmc5->logtable,ch->output) + ch->mastervolume;
 			ch->output += square_duty_table[ch->duty][ch->adr];
-			ch->output = LogToLinear(ch->output, LOG_LIN_BITS - LIN_BITS - 16);
+			ch->output = LogToLinear(&mmc5->logtable,ch->output, mmc5->logtable.log_lin_bits - mmc5->logtable.lin_bits - 16);
 		}
 
 	}
@@ -266,10 +268,10 @@ static void MMC5SoundSquareReset(NEZ_PLAY *pNezPlay, MMC5_SQUARE *ch)
 
 static int32_t MMC5SoundRender(NEZ_PLAY *pNezPlay)
 {
-	MMC5SOUND *mmc5 = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->mmc5;
+	MMC5SOUND *mmc5 = ((NSFNSF*)pNezPlay->nsf)->mmc5;
 	int32_t accum = 0;
-	accum += MMC5SoundSquareRender(&mmc5->square[0]) * pNezPlay->chmask[NEZ_DEV_MMC5_SQ1];
-	accum += MMC5SoundSquareRender(&mmc5->square[1]) * pNezPlay->chmask[NEZ_DEV_MMC5_SQ2];
+	accum += MMC5SoundSquareRender(pNezPlay, &mmc5->square[0]) * pNezPlay->chmask[NEZ_DEV_MMC5_SQ1];
+	accum += MMC5SoundSquareRender(pNezPlay, &mmc5->square[1]) * pNezPlay->chmask[NEZ_DEV_MMC5_SQ2];
 	if(pNezPlay->chmask[NEZ_DEV_MMC5_DA])
 		if (!mmc5->da.key && !mmc5->da.mute) accum += mmc5->da.output * mmc5->da.linearvolume;
 	return accum;
@@ -282,11 +284,11 @@ const static NEZ_NES_AUDIO_HANDLER s_mmc5_audio_handler[] = {
 
 static void MMC5SoundVolume(NEZ_PLAY *pNezPlay, uint32_t volume)
 {
-	MMC5SOUND *mmc5 = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->mmc5;
-	volume = (volume << (LOG_BITS - 8)) << 1;
+	MMC5SOUND *mmc5 = ((NSFNSF*)pNezPlay->nsf)->mmc5;
+	volume = (volume << (mmc5->logtable.log_bits - 8)) << 1;
 	mmc5->square[0].mastervolume = volume;
 	mmc5->square[1].mastervolume = volume;
-	mmc5->da.linearvolume = LogToLinear(volume, LOG_LIN_BITS - 16);
+	mmc5->da.linearvolume = LogToLinear(&mmc5->logtable,volume, mmc5->logtable.log_lin_bits - 16);
 }
 
 const static NEZ_NES_VOLUME_HANDLER s_mmc5_volume_handler[] = {
@@ -298,7 +300,7 @@ static void MMC5SoundWrite(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 {
 	if (0x5000 <= address && address <= 0x5015)
 	{
-		MMC5SOUND *mmc5 = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->mmc5;
+		MMC5SOUND *mmc5 = ((NSFNSF*)pNezPlay->nsf)->mmc5;
 		mmc5->regs[address-0x5000] = value;
 		switch (address)
 		{
@@ -350,7 +352,9 @@ static void MMC5SoundDaReset(MMC5_DA *ch)
 
 static void MMC5SoundReset(NEZ_PLAY *pNezPlay)
 {
-	MMC5SOUND *mmc5 = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->mmc5;
+	MMC5SOUND *mmc5 = ((NSFNSF*)pNezPlay->nsf)->mmc5;
+    uint32_t *lineartbl = mmc5->logtable.lineartbl;
+    uint32_t *logtbl = mmc5->logtable.logtbl;
 	MMC5SoundSquareReset(pNezPlay, &mmc5->square[0]);
 	MMC5SoundSquareReset(pNezPlay, &mmc5->square[1]);
 	MMC5SoundDaReset(&mmc5->da);
@@ -363,6 +367,11 @@ static void MMC5SoundReset(NEZ_PLAY *pNezPlay)
 	MMC5SoundWrite(pNezPlay, 0x5007, 0x00);
 	MMC5SoundWrite(pNezPlay, 0x5010, 0x00);
 	MMC5SoundWrite(pNezPlay, 0x5011, 0x80);
+    mmc5->logtable.log_bits = 12;
+    mmc5->logtable.lin_bits = 8;
+    mmc5->logtable.log_lin_bits = 30;
+    mmc5->logtable.lineartbl = lineartbl;
+    mmc5->logtable.logtbl = logtbl;
 }
 
 const static NEZ_NES_RESET_HANDLER s_mmc5_reset_handler[] = {
@@ -372,9 +381,11 @@ const static NEZ_NES_RESET_HANDLER s_mmc5_reset_handler[] = {
 
 static void MMC5SoundTerm(NEZ_PLAY *pNezPlay)
 {
-	MMC5SOUND *mmc5 = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->mmc5;
-	if (mmc5)
+	MMC5SOUND *mmc5 = ((NSFNSF*)pNezPlay->nsf)->mmc5;
+	if (mmc5) {
+        LogTableFree(&mmc5->logtable);
 		XFREE(mmc5);
+    }
 }
 
 const static NEZ_NES_TERMINATE_HANDLER s_mmc5_terminate_handler[] = {
@@ -390,7 +401,10 @@ void MMC5SoundInstall(NEZ_PLAY *pNezPlay)
 	XMEMSET(mmc5, 0, sizeof(MMC5SOUND));
 	((NSFNSF*)pNezPlay->nsf)->mmc5 = mmc5;
 
-	LogTableInitialize();
+    mmc5->logtable.log_bits = 12;
+    mmc5->logtable.lin_bits = 8;
+    mmc5->logtable.log_lin_bits = 30;
+	if(LogTableInitialize(&mmc5->logtable) != 0) return;
 	NESAudioHandlerInstall(pNezPlay, s_mmc5_audio_handler);
 	NESVolumeHandlerInstall(pNezPlay, s_mmc5_volume_handler);
 	NESTerminateHandlerInstall(&pNezPlay->nth, s_mmc5_terminate_handler);
@@ -398,3 +412,11 @@ void MMC5SoundInstall(NEZ_PLAY *pNezPlay)
 	NESResetHandlerInstall(pNezPlay->nrh, s_mmc5_reset_handler);
 
 }
+
+#undef SPF_BITS
+#undef ENV_BITS
+#undef KEY_ON
+#undef KEY_RELEASE
+
+#undef NES_BASECYCLES
+#undef CPS_BITS
