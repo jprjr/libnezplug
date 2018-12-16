@@ -6,6 +6,7 @@
 
 #include "../device/nes/s_apu.h"
 #include "../common/divfix.h"
+#include "../common/muldiv.h"
 
 /* ------------ */
 /*  km6502 I/F  */
@@ -337,19 +338,6 @@ const static NEZ_NES_AUDIO_HANDLER nsf6502_audio_handler[] = {
 	{ 0, 0, NULL, NULL },
 };
 
-#ifdef _WIN32
-extern int __stdcall MulDiv(int nNumber,int nNumerator,int nDenominator);
-static uint32_t __forceinline muldiv(uint32_t m, uint32_t n, uint32_t d)
-{
-	return MulDiv(m,n,d);
-}
-#else
-static uint32_t muldiv(uint32_t m, uint32_t n, uint32_t d)
-{
-	return ((double)m) * n / d;
-}
-#endif
-
 static void NSF6502Reset(NEZ_PLAY *pNezPlay)
 {
 	NSFNSF *nsf = (NSFNSF*)pNezPlay->nsf;
@@ -372,13 +360,13 @@ static void NSF6502Reset(NEZ_PLAY *pNezPlay)
 	nsf->nsf6502.cycles = 0;
 	if (nsf->nsf6502.palntsc)
 	{
-		nsf->nsf6502.cpf[0] = muldiv(speed, 4 * 341 * 313    , SPEED_PAL);
-		nsf->nsf6502.cpf[1] = muldiv(speed, 4 * 341 * 313 - 4, SPEED_PAL);
+		nsf->nsf6502.cpf[0] = MulDiv(speed, 4 * 341 * 313    , SPEED_PAL);
+		nsf->nsf6502.cpf[1] = MulDiv(speed, 4 * 341 * 313 - 4, SPEED_PAL);
 	}
 	else
 	{
-		nsf->nsf6502.cpf[0] = muldiv(speed, 4 * 341 * 262    , SPEED_NTSC);
-		nsf->nsf6502.cpf[1] = muldiv(speed, 4 * 341 * 262 - 4, SPEED_NTSC);
+		nsf->nsf6502.cpf[0] = MulDiv(speed, 4 * 341 * 262    , SPEED_NTSC);
+		nsf->nsf6502.cpf[1] = MulDiv(speed, 4 * 341 * 262 - 4, SPEED_NTSC);
 	}
 	nsf->nsf6502.iframe = 0;
 
