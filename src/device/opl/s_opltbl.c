@@ -523,26 +523,6 @@ static uint32_t exptable_base[] = {
 	1018
 };
 
-#if STATIC_TABLES
-
-static void OplTableRelease(void *ctx)
-{
-}
-
-static KMIF_OPLTABLE opl_static_tables = {
-	&opl_static_tables;
-	OplTableRelease,
-//#include "s_oplt.h"
-};
-
-KMIF_OPLTABLE *OplTableAddRef(void)
-{
-	opl_static_tables.release = OplTableRelease;
-	return &opl_static_tables;
-}
-
-#else
-
 #include <math.h>
 #ifndef M_PI
 #ifdef PI
@@ -568,26 +548,6 @@ KMIF_OPLTABLE *OplTableAddRef(void)
 static volatile uint32_t opl_tables_mutex = 0;
 static uint32_t opl_tables_refcount = 0;
 static KMIF_OPLTABLE *opl_tables = 0;
-
-#define DEBUGX2 0
-#if DEBUGX2
-#include <stdio.h>
-void dox(uint32_t *sint)
-{
-	static int i = 0;
-	static FILE *fp = NULL;
-	static int stop = 0;
-	if (!fp) fp = fopen("c:\\kmz80d.out", "wb");
-	if (fp) { 
-	for (i = 0; i < (1 << SINTBL_BITS); i++)
-	{
-		fprintf(fp,"%08X\r\n",sint[i]);
-	}
-	if (fp) { fclose(fp); fp = 0; }
-	}
-}
-#endif
-
 
 static void OplTableRelease(void *ctx)
 {
@@ -682,10 +642,8 @@ static void OplTableCalc(KMIF_OPLTABLE *tbl)
 //	    AR_ADJUST_TABLE[i] = (uint32)((double)(1<<EG_BITS) - 1 - (1<<EG_BITS) * log(i) / log(128)) ; 
 //		u = (uint32_t)(((double)AR_MAX) - 1 - ((double)AR_MAX) * log(i) / log(128));
 		tbl->ar_tablelog[i] = u;
-#if 1
 		u = (uint32_t)(((double)AR_MAX) * (pow(1 - i / (double)(1 << ARTBL_BITS), 8)));
 		tbl->ar_tablepow[i] = u;
-#endif
 	}
 	tbl->ar_tablelog[0] = AR_MAX;
 }
@@ -712,4 +670,3 @@ KMIF_OPLTABLE *OplTableAddRef()
 	return opl_tables;
 }
 
-#endif

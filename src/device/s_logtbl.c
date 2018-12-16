@@ -1,27 +1,6 @@
 #include "../normalize.h"
 #include "s_logtbl.h"
 
-#if STATIC_TABLES
-
-static void LogTableRelease(void *ctx)
-{
-}
-
-static KMIF_LOGTABLE log_static_tables = {
-	&log_static_tables;
-	LogTableRelease,
-//#include "s_logt.h"
-};
-
-
-KMIF_LOGTABLE *LogTableAddRef(void)
-{
-	log_static_tables.release = LogTableRelease;
-	return &log_static_tables;
-}
-
-#else
-
 #include <math.h>
 
 static volatile uint32_t log_tables_mutex = 0;
@@ -86,4 +65,3 @@ KMIF_LOGTABLE *LogTableAddRef(void)
 	return log_tables;
 }
 
-#endif
