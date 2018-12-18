@@ -5,7 +5,7 @@
 
 #include "kmz80i.h"
 
-const static OPT_ITEM kmdmg_ot_xx[0x100] = {
+static const OPT_ITEM kmdmg_ot_xx[0x100] = {
 /* DMG 00-3F  00?????? */
 /*     INC r  00rrr100 */
 /*     DEC r  00rrr101 */
@@ -301,14 +301,14 @@ const static OPT_ITEM kmdmg_ot_xx[0x100] = {
 	OPTABLE(0,		0,		0,		OP_RST),
 };
 
-const static uint8_t kmdmg_ot_cbxx[0x20] = {
+static const uint8_t kmdmg_ot_cbxx[0x20] = {
 	OP_RLC, OP_RRC, OP_RL,  OP_RR,  OP_SLA, OP_SRA, OP_SWAP, OP_SRL,
 	OP_BIT, OP_BIT, OP_BIT, OP_BIT, OP_BIT, OP_BIT, OP_BIT, OP_BIT,
 	OP_RES, OP_RES, OP_RES, OP_RES, OP_RES, OP_RES, OP_RES, OP_RES,
 	OP_SET, OP_SET, OP_SET, OP_SET, OP_SET, OP_SET, OP_SET, OP_SET,
 };
 
-const static uint8_t kmdmg_ct[0x510] = {
+static const uint8_t kmdmg_ct[0x510] = {
 /* DMG 追加クロック */
 /* XX		0 1 2 3 4 5 6 7  8 9 A B C D E F */
 /* 0 */		0,0,0,4,0,0,0,0, 0,4,0,4,0,0,0,0,

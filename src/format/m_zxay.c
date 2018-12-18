@@ -393,7 +393,7 @@ static int32_t ZXAYSoundRenderMono(NEZ_PLAY *pNezPlay)
 #endif
 }
 
-const static NEZ_NES_AUDIO_HANDLER zxay_audio_handler[] = {
+static const NEZ_NES_AUDIO_HANDLER zxay_audio_handler[] = {
 	{ 0, ZXAYExecuteZ80CPU, 0, NULL },
 	{ 3, ZXAYSoundRenderMono, ZXAYSoundRenderStereo, NULL },
 	{ 0, 0, 0, NULL },
@@ -407,7 +407,7 @@ static void ZXAYVolume(NEZ_PLAY *pNezPlay, uint32_t v)
 	}
 }
 
-const static NEZ_NES_VOLUME_HANDLER zxay_volume_handler[] = {
+static const NEZ_NES_VOLUME_HANDLER zxay_volume_handler[] = {
 	{ ZXAYVolume, NULL }, 
 	{ 0, NULL }, 
 };
@@ -417,7 +417,7 @@ static void ZXAYReset(NEZ_PLAY *pNezPlay)
 	if (((NEZ_PLAY*)pNezPlay)->zxay) reset((NEZ_PLAY*)pNezPlay);
 }
 
-const static NEZ_NES_RESET_HANDLER zxay_reset_handler[] = {
+static const NEZ_NES_RESET_HANDLER zxay_reset_handler[] = {
 	{ NES_RESET_SYS_LAST, ZXAYReset, NULL },
 	{ 0,                  0, NULL },
 };
@@ -431,7 +431,7 @@ static void ZXAYTerminate(NEZ_PLAY *pNezPlay)
 	}
 }
 
-const static NEZ_NES_TERMINATE_HANDLER zxay_terminate_handler[] = {
+static const NEZ_NES_TERMINATE_HANDLER zxay_terminate_handler[] = {
 	{ ZXAYTerminate, NULL },
 	{ 0, NULL },
 };

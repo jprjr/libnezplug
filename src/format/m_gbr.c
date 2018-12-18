@@ -48,7 +48,7 @@ A000-BFFF 8kB External switchable RAM bank
 
 #endif
 
-const static uint32_t timer_clock_table[4] = {
+static const uint32_t timer_clock_table[4] = {
 	10, 4, 6, 8,
 };
 
@@ -1062,7 +1062,7 @@ static int32_t DMGSoundRenderMono(NEZ_PLAY *pNezPlay)
 #endif
 }
 
-const static NEZ_NES_AUDIO_HANDLER gbrdmg_audio_handler[] = {
+static const NEZ_NES_AUDIO_HANDLER gbrdmg_audio_handler[] = {
 	{ 0, ExecuteDMGCPU, 0, NULL },
 	{ 3, DMGSoundRenderMono, DMGSoundRenderStereo, NULL },
 	{ 0, 0, 0, NULL },
@@ -1076,7 +1076,7 @@ static void GBRDMGVolume(NEZ_PLAY *pNezPlay, uint32_t v)
 	}
 }
 
-const static NEZ_NES_VOLUME_HANDLER gbrdmg_volume_handler[] = {
+static const NEZ_NES_VOLUME_HANDLER gbrdmg_volume_handler[] = {
 	{ GBRDMGVolume, NULL }, 
 	{ 0, NULL }, 
 };
@@ -1086,7 +1086,7 @@ static void GBRDMGCPUReset(NEZ_PLAY *pNezPlay)
 	if (((NEZ_PLAY*)pNezPlay)->gbrdmg) reset((NEZ_PLAY*)pNezPlay);
 }
 
-const static NEZ_NES_RESET_HANDLER gbrdmg_reset_handler[] = {
+static const NEZ_NES_RESET_HANDLER gbrdmg_reset_handler[] = {
 	{ NES_RESET_SYS_LAST, GBRDMGCPUReset, NULL },
 	{ 0,                  0, NULL },
 };
@@ -1100,7 +1100,7 @@ static void GBRDMGCPUTerminate(NEZ_PLAY *pNezPlay)
 	}
 }
 
-const static NEZ_NES_TERMINATE_HANDLER gbrdmg_terminate_handler[] = {
+static const NEZ_NES_TERMINATE_HANDLER gbrdmg_terminate_handler[] = {
 	{ GBRDMGCPUTerminate, NULL },
 	{ 0, NULL },
 };

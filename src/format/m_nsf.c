@@ -259,7 +259,7 @@ static void ResetBank(NEZ_PLAY *pNezPlay)
 	}
 }
 
-const static NEZ_NES_RESET_HANDLER nsf_mapper_reset_handler[] = {
+static const NEZ_NES_RESET_HANDLER nsf_mapper_reset_handler[] = {
 	{ NES_RESET_SYS_FIRST, ResetBank, NULL },
 	{ 0,                   0, NULL },
 };
@@ -279,7 +279,7 @@ static void Terminate(NEZ_PLAY *pNezPlay)
 	}
 }
 
-const static NEZ_NES_TERMINATE_HANDLER nsf_mapper_terminate_handler[] = {
+static const NEZ_NES_TERMINATE_HANDLER nsf_mapper_terminate_handler[] = {
 	{ Terminate, NULL },
     { 0, NULL },
 };

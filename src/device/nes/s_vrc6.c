@@ -155,7 +155,7 @@ static int32_t VRC6SoundRender(NEZ_PLAY *pNezPlay)
 	return accum;
 }
 
-const static NEZ_NES_AUDIO_HANDLER s_vrc6_audio_handler[] = {
+static const NEZ_NES_AUDIO_HANDLER s_vrc6_audio_handler[] = {
 	{ 1, VRC6SoundRender, NULL, NULL }, 
 	{ 0, 0, NULL, NULL }, 
 };
@@ -167,7 +167,7 @@ static void VRC6SoundVolume(NEZ_PLAY *pNezPlay, uint32_t volume)
 	vrc6s->mastervolume = (volume << (vrc6s->logtable.log_bits - 8)) << 1;
 }
 
-const static NEZ_NES_VOLUME_HANDLER s_vrc6_volume_handler[] = {
+static const NEZ_NES_VOLUME_HANDLER s_vrc6_volume_handler[] = {
 	{ VRC6SoundVolume, NULL },
 	{ 0, NULL }, 
 };
@@ -231,7 +231,7 @@ static void VRC6SoundReset(NEZ_PLAY *pNezPlay)
     vrc6s->logtable.logtbl = logtbl;
 }
 
-const static NEZ_NES_RESET_HANDLER s_vrc6_reset_handler[] = {
+static const NEZ_NES_RESET_HANDLER s_vrc6_reset_handler[] = {
 	{ NES_RESET_SYS_NOMAL, VRC6SoundReset, NULL }, 
 	{ 0,                   0, NULL }, 
 };
@@ -245,7 +245,7 @@ static void VRC6SoundTerm(NEZ_PLAY *pNezPlay)
     }
 }
 
-const static NEZ_NES_TERMINATE_HANDLER s_vrc6_terminate_handler[] = {
+static const NEZ_NES_TERMINATE_HANDLER s_vrc6_terminate_handler[] = {
 	{ VRC6SoundTerm, NULL }, 
 	{ 0, NULL }, 
 };

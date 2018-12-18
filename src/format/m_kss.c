@@ -702,7 +702,7 @@ static int32_t KSSSEQSoundRenderMono(NEZ_PLAY *pNezPlay)
 #endif
 }
 
-const static NEZ_NES_AUDIO_HANDLER kssseq_audio_handler[] = {
+static const NEZ_NES_AUDIO_HANDLER kssseq_audio_handler[] = {
 	{ 0, KSSSEQExecuteZ80CPU, 0, NULL },
 	{ 3, KSSSEQSoundRenderMono, KSSSEQSoundRenderStereo, NULL },
 	{ 0, 0, 0, NULL },
@@ -716,7 +716,7 @@ static void KSSSEQVolume(NEZ_PLAY *pNezPlay, uint32_t v)
 	}
 }
 
-const static NEZ_NES_VOLUME_HANDLER kssseq_volume_handler[] = {
+static const NEZ_NES_VOLUME_HANDLER kssseq_volume_handler[] = {
 	{ KSSSEQVolume, NULL }, 
 	{ 0, NULL }, 
 };
@@ -726,7 +726,7 @@ static void KSSSEQReset(NEZ_PLAY *pNezPlay)
 	if (((NEZ_PLAY*)pNezPlay)->kssseq) reset((NEZ_PLAY*)pNezPlay);
 }
 
-const static NEZ_NES_RESET_HANDLER kssseq_reset_handler[] = {
+static const NEZ_NES_RESET_HANDLER kssseq_reset_handler[] = {
 	{ NES_RESET_SYS_LAST, KSSSEQReset, NULL },
 	{ 0,                  0, NULL },
 };
@@ -740,7 +740,7 @@ static void KSSSEQTerminate(NEZ_PLAY *pNezPlay)
 	}
 }
 
-const static NEZ_NES_TERMINATE_HANDLER kssseq_terminate_handler[] = {
+static const NEZ_NES_TERMINATE_HANDLER kssseq_terminate_handler[] = {
 	{ KSSSEQTerminate, NULL },
 	{ 0, NULL },
 };

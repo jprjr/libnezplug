@@ -240,7 +240,7 @@ static int32_t N106SoundRender(NEZ_PLAY *pNezPlay)
 	}
 }
 
-const static NEZ_NES_AUDIO_HANDLER s_n106_audio_handler[] = {
+static const NEZ_NES_AUDIO_HANDLER s_n106_audio_handler[] = {
 	{ 1, N106SoundRender, NULL , NULL }, 
 	{ 0, 0, NULL, NULL }, 
 };
@@ -251,7 +251,7 @@ static void N106SoundVolume(NEZ_PLAY *pNezPlay, uint32_t volume)
 	n106s->mastervolume = (volume << (n106s->logtable.log_bits - 8)) << 1;
 }
 
-const static NEZ_NES_VOLUME_HANDLER s_n106_volume_handler[] = {
+static const NEZ_NES_VOLUME_HANDLER s_n106_volume_handler[] = {
 	{ N106SoundVolume, NULL }, 
 	{ 0, NULL }, 
 };
@@ -391,7 +391,7 @@ static void N106SoundReset(NEZ_PLAY *pNezPlay)
     n106s->logtable.logtbl = logtbl;
 }
 
-const static NEZ_NES_RESET_HANDLER s_n106_reset_handler[] = {
+static const NEZ_NES_RESET_HANDLER s_n106_reset_handler[] = {
 	{ NES_RESET_SYS_NOMAL, N106SoundReset, NULL }, 
 	{ 0,                   0, NULL }, 
 };
@@ -406,7 +406,7 @@ static void N106SoundTerm(NEZ_PLAY *pNezPlay)
     }
 }
 
-const static NEZ_NES_TERMINATE_HANDLER s_n106_terminate_handler[] = {
+static const NEZ_NES_TERMINATE_HANDLER s_n106_terminate_handler[] = {
 	{ N106SoundTerm, NULL }, 
 	{ 0, NULL }, 
 };

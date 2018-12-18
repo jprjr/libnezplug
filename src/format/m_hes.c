@@ -634,7 +634,7 @@ static int32_t HESSoundRenderMono(NEZ_PLAY *pNezPlay)
 #endif
 }
 
-const static NEZ_NES_AUDIO_HANDLER heshes_audio_handler[] = {
+static const NEZ_NES_AUDIO_HANDLER heshes_audio_handler[] = {
 	{ 0, ExecuteHES, 0, NULL },
 	{ 3, HESSoundRenderMono, HESSoundRenderStereo, NULL },
 	{ 0, 0, 0, NULL },
@@ -648,7 +648,7 @@ static void HESHESVolume(NEZ_PLAY *pNezPlay, uint32_t v)
 	}
 }
 
-const static NEZ_NES_VOLUME_HANDLER heshes_volume_handler[] = {
+static const NEZ_NES_VOLUME_HANDLER heshes_volume_handler[] = {
 	{ HESHESVolume, NULL }, 
 	{ 0, NULL }, 
 };
@@ -658,7 +658,7 @@ static void HESHESReset(NEZ_PLAY *pNezPlay)
 	if (((NEZ_PLAY*)pNezPlay)->heshes) reset((NEZ_PLAY*)pNezPlay);
 }
 
-const static NEZ_NES_RESET_HANDLER heshes_reset_handler[] = {
+static const NEZ_NES_RESET_HANDLER heshes_reset_handler[] = {
 	{ NES_RESET_SYS_LAST, HESHESReset, NULL },
 	{ 0,                  0, NULL },
 };
@@ -672,7 +672,7 @@ static void HESHESTerminate(NEZ_PLAY *pNezPlay)
 	}
 }
 
-const static NEZ_NES_TERMINATE_HANDLER heshes_terminate_handler[] = {
+static const NEZ_NES_TERMINATE_HANDLER heshes_terminate_handler[] = {
 	{ HESHESTerminate, NULL },
 	{ 0, NULL },
 };

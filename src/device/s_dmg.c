@@ -140,7 +140,7 @@ typedef struct {
     uint8_t *chmask;
 } DMGSOUND;
 
-const static uint8_t square_duty_table[4][8] = 
+static const uint8_t square_duty_table[4][8] = 
 /* （単純パターン）こうしないと、アスミッくんワールド２で満足に喋ってくれない */
 //	{ {1,0,0,0,0,0,0,0} , {1,1,0,0,0,0,0,0} , {1,1,1,1,0,0,0,0} , {1,1,1,1,1,1,0,0} };
 
@@ -149,12 +149,12 @@ const static uint8_t square_duty_table[4][8] =
 /* GBSOUND.TXTの逆 */
 //	{ {1,1,1,1,0,1,1,1} , {1,1,1,1,0,0,1,1} , {1,1,0,0,0,0,1,1} , {0,0,0,0,1,1,0,0} };
 
-const static uint8_t square_duty_avg[4] = {1,2,4,6};
+static const uint8_t square_duty_avg[4] = {1,2,4,6};
 
-const static uint8_t wavememory_volume_table[8] = { 0, 4, 2, 1, 0, 4, 2, 1 };
-const static uint8_t noise_divratio_table[8] = { 1,2,4,6,8,10,12,14 };
+static const uint8_t wavememory_volume_table[8] = { 0, 4, 2, 1, 0, 4, 2, 1 };
+static const uint8_t noise_divratio_table[8] = { 1,2,4,6,8,10,12,14 };
 
-const static uint8_t reset_table[] = 
+static const uint8_t reset_table[] = 
 {
 	0x10,0x80,0x11,0xbf,0x12,0x00,0x13,0xff,0x15,0xff,0x16,0x3f,0x17,0x00,0x18,0xff,
 	0x1a,0x00,0x1b,0xff,0x1c,0x00,0x1d,0xff,0x1f,0xff,0x20,0xff,0x21,0x00,0x22,0x00,

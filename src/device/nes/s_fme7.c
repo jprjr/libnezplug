@@ -26,7 +26,7 @@ static int32_t PSGSoundRender(NEZ_PLAY *pNezPlay)
 	return b[0]*FME7_VOL;
 }
 
-const static NEZ_NES_AUDIO_HANDLER s_psg_audio_handler[] = {
+static const NEZ_NES_AUDIO_HANDLER s_psg_audio_handler[] = {
 	{ 1, PSGSoundRender, NULL, NULL }, 
 	{ 0, 0, 0, NULL }, 
 };
@@ -37,7 +37,7 @@ static void PSGSoundVolume(NEZ_PLAY *pNezPlay, uint32_t volume)
 	psgs->psgp->volume(psgs->psgp->ctx, volume);
 }
 
-const static NEZ_NES_VOLUME_HANDLER s_psg_volume_handler[] = {
+static const NEZ_NES_VOLUME_HANDLER s_psg_volume_handler[] = {
 	{ PSGSoundVolume, NULL }, 
 	{ 0, NULL }, 
 };
@@ -69,7 +69,7 @@ static void FME7SoundReset(NEZ_PLAY *pNezPlay)
 	psgs->psgp->reset(psgs->psgp->ctx, BASECYCLES_NES / 12, NESAudioFrequencyGet(pNezPlay));
 }
 
-const static NEZ_NES_RESET_HANDLER s_fme7_reset_handler[] = {
+static const NEZ_NES_RESET_HANDLER s_fme7_reset_handler[] = {
 	{ NES_RESET_SYS_NOMAL, FME7SoundReset, NULL }, 
 	{ 0,                   0, NULL }, 
 };
@@ -85,7 +85,7 @@ static void PSGSoundTerm(NEZ_PLAY *pNezPlay)
 	XFREE(psgs);
 }
 
-const static NEZ_NES_TERMINATE_HANDLER s_psg_terminate_handler[] = {
+static const NEZ_NES_TERMINATE_HANDLER s_psg_terminate_handler[] = {
 	{ PSGSoundTerm, NULL }, 
 	{ 0, NULL }, 
 };

@@ -333,7 +333,7 @@ static int32_t Execute6502(NEZ_PLAY *pNezPlay)
 	return 0;
 }
 
-const static NEZ_NES_AUDIO_HANDLER nsf6502_audio_handler[] = {
+static const NEZ_NES_AUDIO_HANDLER nsf6502_audio_handler[] = {
 	{ 0, Execute6502, NULL, NULL },
 	{ 0, 0, NULL, NULL },
 };
@@ -405,7 +405,7 @@ static void NSF6502Reset(NEZ_PLAY *pNezPlay)
 	NSF6502PlaySetup(pNezPlay);
 }
 
-const static NEZ_NES_RESET_HANDLER nsf6502_reset_handler[] = {
+static const NEZ_NES_RESET_HANDLER nsf6502_reset_handler[] = {
 	{ NES_RESET_SYS_LAST, NSF6502Reset, NULL },
 	{ 0,                  0, NULL },
 };

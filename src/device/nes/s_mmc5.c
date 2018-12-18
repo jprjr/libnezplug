@@ -139,7 +139,7 @@ void MMC5MutiplierInstall(NEZ_PLAY *pNezPlay)
 #define KEY_RELEASE 2
 
 #define V(x) (x*64/60)
-const static uint32_t vbl_length[32] =
+static const uint32_t vbl_length[32] =
 {
 	V(0x05), V(0x7F), V(0x0A), V(0x01), V(0x14), V(0x02), V(0x28), V(0x03),
 	V(0x50), V(0x04), V(0x1E), V(0x05), V(0x07), V(0x06), V(0x0E), V(0x07),
@@ -148,7 +148,7 @@ const static uint32_t vbl_length[32] =
 };
 #undef V
 
-const static uint8_t square_duty_table[4][8] = 
+static const uint8_t square_duty_table[4][8] = 
 	{ {0,0,0,1,0,0,0,0} , {0,0,0,1,1,0,0,0} , {0,0,0,1,1,1,1,0} , {1,0,0,1,1,1,1,1} };
 
 static int32_t MMC5SoundSquareRender(NEZ_PLAY *pNezPlay, MMC5_SQUARE *ch)
@@ -277,7 +277,7 @@ static int32_t MMC5SoundRender(NEZ_PLAY *pNezPlay)
 	return accum;
 }
 
-const static NEZ_NES_AUDIO_HANDLER s_mmc5_audio_handler[] = {
+static const NEZ_NES_AUDIO_HANDLER s_mmc5_audio_handler[] = {
 	{ 1, MMC5SoundRender, NULL, NULL }, 
 	{ 0, 0, NULL, NULL }, 
 };
@@ -291,7 +291,7 @@ static void MMC5SoundVolume(NEZ_PLAY *pNezPlay, uint32_t volume)
 	mmc5->da.linearvolume = LogToLinear(&mmc5->logtable,volume, mmc5->logtable.log_lin_bits - 16);
 }
 
-const static NEZ_NES_VOLUME_HANDLER s_mmc5_volume_handler[] = {
+static const NEZ_NES_VOLUME_HANDLER s_mmc5_volume_handler[] = {
 	{ MMC5SoundVolume, NULL },
 	{ 0, NULL }, 
 };
@@ -374,7 +374,7 @@ static void MMC5SoundReset(NEZ_PLAY *pNezPlay)
     mmc5->logtable.logtbl = logtbl;
 }
 
-const static NEZ_NES_RESET_HANDLER s_mmc5_reset_handler[] = {
+static const NEZ_NES_RESET_HANDLER s_mmc5_reset_handler[] = {
 	{ NES_RESET_SYS_NOMAL, MMC5SoundReset, NULL }, 
 	{ 0,                   0, NULL }, 
 };
@@ -388,7 +388,7 @@ static void MMC5SoundTerm(NEZ_PLAY *pNezPlay)
     }
 }
 
-const static NEZ_NES_TERMINATE_HANDLER s_mmc5_terminate_handler[] = {
+static const NEZ_NES_TERMINATE_HANDLER s_mmc5_terminate_handler[] = {
 	{ MMC5SoundTerm, NULL }, 
 	{ 0, NULL }, 
 };

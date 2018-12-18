@@ -667,7 +667,7 @@ static int32_t SGCSEQSoundRenderMono(NEZ_PLAY *pNezPlay)
 #endif
 }
 
-const static NEZ_NES_AUDIO_HANDLER sgcseq_audio_handler[] = {
+static const NEZ_NES_AUDIO_HANDLER sgcseq_audio_handler[] = {
 	{ 0, SGCSEQExecuteZ80CPU, 0, NULL },
 	{ 3, SGCSEQSoundRenderMono, SGCSEQSoundRenderStereo, NULL },
 	{ 0, 0, 0, NULL },
@@ -681,7 +681,7 @@ static void SGCSEQVolume(NEZ_PLAY *pNezPlay, uint32_t v)
 	}
 }
 
-const static NEZ_NES_VOLUME_HANDLER sgcseq_volume_handler[] = {
+static const NEZ_NES_VOLUME_HANDLER sgcseq_volume_handler[] = {
 	{ SGCSEQVolume, NULL }, 
 	{ 0, NULL }, 
 };
@@ -691,7 +691,7 @@ static void SGCSEQReset(NEZ_PLAY *pNezPlay)
 	if (((NEZ_PLAY*)pNezPlay)->sgcseq) reset((NEZ_PLAY*)pNezPlay);
 }
 
-const static NEZ_NES_RESET_HANDLER sgcseq_reset_handler[] = {
+static const NEZ_NES_RESET_HANDLER sgcseq_reset_handler[] = {
 	{ NES_RESET_SYS_LAST, SGCSEQReset, NULL },
 	{ 0,                  0, NULL },
 };
@@ -705,7 +705,7 @@ static void SGCSEQTerminate(NEZ_PLAY *pNezPlay)
 	}
 }
 
-const static NEZ_NES_TERMINATE_HANDLER sgcseq_terminate_handler[] = {
+static const NEZ_NES_TERMINATE_HANDLER sgcseq_terminate_handler[] = {
 	{ SGCSEQTerminate, NULL },
 	{ 0, NULL },
 };

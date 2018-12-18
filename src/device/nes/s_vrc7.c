@@ -62,7 +62,7 @@ static int32_t OPLLSoundRender(NEZ_PLAY *pNezPlay)
 	return b[0]*VRC7_VOL;
 }
 
-const static NEZ_NES_AUDIO_HANDLER s_opll_audio_handler[] = {
+static const NEZ_NES_AUDIO_HANDLER s_opll_audio_handler[] = {
 	{ 1, OPLLSoundRender, NULL, NULL }, 
 	{ 0, 0, 0, NULL }, 
 };
@@ -73,7 +73,7 @@ static void OPLLSoundVolume(NEZ_PLAY *pNezPlay, uint32_t volume)
 	sndp->kmif->volume(sndp->kmif->ctx, volume);
 }
 
-const static NEZ_NES_VOLUME_HANDLER s_opll_volume_handler[] = {
+static const NEZ_NES_VOLUME_HANDLER s_opll_volume_handler[] = {
 	{ OPLLSoundVolume, NULL },
 	{ 0, NULL }, 
 };
@@ -85,7 +85,7 @@ static void VRC7SoundReset(NEZ_PLAY *pNezPlay)
 	sndp->kmif->reset(sndp->kmif->ctx, MASTER_CLOCK, NESAudioFrequencyGet(pNezPlay));
 }
 
-const static NEZ_NES_RESET_HANDLER s_vrc7_reset_handler[] = {
+static const NEZ_NES_RESET_HANDLER s_vrc7_reset_handler[] = {
 	{ NES_RESET_SYS_NOMAL, VRC7SoundReset, NULL }, 
 	{ 0,                   0, NULL }, 
 };
@@ -102,7 +102,7 @@ static void OPLLSoundTerm(NEZ_PLAY *pNezPlay)
 	}
 }
 
-const static NEZ_NES_TERMINATE_HANDLER s_opll_terminate_handler[] = {
+static const NEZ_NES_TERMINATE_HANDLER s_opll_terminate_handler[] = {
 	{ OPLLSoundTerm, NULL }, 
 	{ 0, NULL }, 
 };

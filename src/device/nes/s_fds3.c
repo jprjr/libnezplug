@@ -217,7 +217,7 @@ static int32_t FDSSoundRender(NEZ_PLAY *pNezPlay)
 	return outputbuf;
 }
 
-const static NEZ_NES_AUDIO_HANDLER s_fds_audio_handler[] =
+static const NEZ_NES_AUDIO_HANDLER s_fds_audio_handler[] =
 {
 	{ 1, FDSSoundRender, NULL, NULL }, 
 	{ 0, 0, NULL, NULL }, 
@@ -234,7 +234,7 @@ static void FDSSoundVolume(NEZ_PLAY *pNezPlay, uint32_t volume)
 	fdssound->mastervolumel[3] = LogToLinear(&fdssound->logtable,fdssound->mastervolume, fdssound->logtable.log_lin_bits - fdssound->logtable.lin_bits - VOL_BITS) * 8 / 10;
 }
 
-const static NEZ_NES_VOLUME_HANDLER s_fds_volume_handler[] = {
+static const NEZ_NES_VOLUME_HANDLER s_fds_volume_handler[] = {
 	{ FDSSoundVolume, NULL }, 
 	{ 0, NULL }, 
 };
@@ -410,7 +410,7 @@ static void FDSSoundReset(NEZ_PLAY *pNezPlay)
     fdssound->logtable.logtbl = logtbl;
 }
 
-const static NEZ_NES_RESET_HANDLER s_fds_reset_handler[] =
+static const NEZ_NES_RESET_HANDLER s_fds_reset_handler[] =
 {
 	{ NES_RESET_SYS_NOMAL, FDSSoundReset, NULL }, 
 	{ 0,                   0, NULL }, 
@@ -425,7 +425,7 @@ static void FDSSoundTerm(NEZ_PLAY *pNezPlay)
     }
 }
 
-const static NEZ_NES_TERMINATE_HANDLER s_fds_terminate_handler[] = {
+static const NEZ_NES_TERMINATE_HANDLER s_fds_terminate_handler[] = {
 	{ FDSSoundTerm, NULL }, 
 	{ 0, NULL }, 
 };

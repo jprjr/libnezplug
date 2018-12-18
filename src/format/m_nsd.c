@@ -148,7 +148,7 @@ static int32_t ExecuteNSD(NEZ_PLAY *pNezPlay)
 	return 0;
 }
 
-const static NEZ_NES_AUDIO_HANDLER nsdplay_audio_handler[] = {
+static const NEZ_NES_AUDIO_HANDLER nsdplay_audio_handler[] = {
 	{ 0, ExecuteNSD, NULL, NULL },
 	{ 0, 0, NULL, NULL },
 };
@@ -196,7 +196,7 @@ static void NSDPLAYReset(NEZ_PLAY *pNezPlay)
 	nsdplayer->isplaying = 1;
 }
 
-const static NEZ_NES_RESET_HANDLER nsdplay_reset_handler[] = {
+static const NEZ_NES_RESET_HANDLER nsdplay_reset_handler[] = {
 	{ NES_RESET_SYS_LAST, NSDPLAYReset, NULL },
 	{ 0,                  0, NULL },
 };
@@ -216,7 +216,7 @@ static void NSDPLAYTerminate(NEZ_PLAY *pNezPlay)
 	}
 }
 
-const static NEZ_NES_TERMINATE_HANDLER nsdplay_terminate_handler[] = {
+static const NEZ_NES_TERMINATE_HANDLER nsdplay_terminate_handler[] = {
 	{ NSDPLAYTerminate, NULL },
 	{ 0, NULL },
 };

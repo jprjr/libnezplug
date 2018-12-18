@@ -63,7 +63,7 @@ typedef struct {
 } SNGSOUND;
 
 #define V(a) (((a * (1 << LOG_BITS)) / 3) << 1)
-const static uint32_t voltbl[16] = {
+static const uint32_t voltbl[16] = {
 	V(0x0), V(0x1), V(0x2),V(0x3),V(0x4), V(0x5), V(0x6),V(0x7),
 	V(0x8), V(0x9), V(0xA),V(0xB),V(0xC), V(0xD), V(0xE),LOG_KEYOFF
 };

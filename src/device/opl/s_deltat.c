@@ -44,18 +44,18 @@ typedef struct {
     uint8_t *chmask;
 } YMDELTATPCMSOUND;
 
-const static int8_t table_step[16] =
+static const int8_t table_step[16] =
 {
 	1,	3,	5,	7,	9,	11,	13,	15,
 	-1,	-1,	-1,	-1,	2,	4,	6,	8
 };
-const static uint8_t table_scale[16] =
+static const uint8_t table_scale[16] =
 {
 	 57,  57,  57,  57,  77, 102, 128, 153,
 	 57,  57,  57,  57,  77, 102, 128, 153,
 };
 
-const static int32_t scaletable[49*16]={
+static const int32_t scaletable[49*16]={
     2,    6,   10,   14,   18,   22,   26,   30,   -2,   -6,  -10,  -14,  -18,  -22,  -26,  -30,
     2,    6,   10,   14,   19,   23,   27,   31,   -2,   -6,  -10,  -14,  -19,  -23,  -27,  -31,
     2,    6,   11,   15,   21,   25,   30,   34,   -2,   -6,  -11,  -15,  -21,  -25,  -30,  -34,

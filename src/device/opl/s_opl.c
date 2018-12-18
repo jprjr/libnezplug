@@ -235,7 +235,7 @@ static uint8_t romtone[3][16 * 19] =
 #define SSR(x, y) (((x) >= 0) ? ((x) >> (y)) : (-((-(x) - 1) >> (y)) - 1))
 #endif
 
-const static uint8_t ksltable[4]={15,2,1,0};
+static const uint8_t ksltable[4]={15,2,1,0};
 
 __inline static void SetOpOff(OPL_OP *opp)
 {
@@ -724,7 +724,7 @@ static void sndvolume(void *ctx, int32_t volume)
 	sndp->common.mastervolume = volume;
 }
 
-const static uint8_t op_table[0x20]=
+static const uint8_t op_table[0x20]=
 {
 	   0,   2,   4,   1,   3,   5,0xff,0xff,
 	   6,   8,  10,   7,   9,  11,0xff,0xff,
@@ -732,14 +732,14 @@ const static uint8_t op_table[0x20]=
 	0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
 };
 
-const static uint8_t mul_table[0x10]=
+static const uint8_t mul_table[0x10]=
 {
 	 1+0, 2+0, 4+0, 2+4, 8+0, 8+2, 8+4,16-2,
 	16+0,16+2,16+4,16+4,16+8,16+8,32-2,32-2,
 };
 
 #define DB2TLL(x) (x * 2 / 375)
-const static uint32_t ksl_table[8][16]=
+static const uint32_t ksl_table[8][16]=
 {
 	{
 		DB2TLL(    0), DB2TLL(    0), DB2TLL(    0), DB2TLL(    0),
@@ -1418,7 +1418,7 @@ static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
 	}
 	else
 	{
-		const static uint8_t fmbios_initdata[8] = "\x30\x10\x20\x20\xfb\xb2\xf3\xf3";
+		static const uint8_t fmbios_initdata[8] = "\x30\x10\x20\x20\xfb\xb2\xf3\xf3";
 		XMEMSET(&sndp->regs, 0, 0x40);
 		sndp->common.ar_table = sndp->opltbl->ar_tablelog;
 		sndp->common.wfe = 1;

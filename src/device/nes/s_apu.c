@@ -176,7 +176,7 @@ typedef struct {
 /* ------------------------- */
 
 /* GBSOUND.TXT */
-const static uint8_t square_duty_table[][8] = 
+static const uint8_t square_duty_table[][8] = 
 {
 	{0,0,0,1,0,0,0,0} , {0,0,0,1,1,0,0,0} , {0,0,0,1,1,1,1,0} , {1,1,1,0,0,1,1,1} ,
 	{1,0,0,0,0,0,0,0} , {1,1,1,1,0,0,0,0} , {1,1,0,0,0,0,0,0} , {1,1,1,1,1,1,0,0}  //クソ互換機のDuty比のひっくり返ってるやつ 
@@ -667,7 +667,7 @@ static int32_t APUSoundRender(NEZ_PLAY *pNezPlay)
 	return accum * pNezPlay->nes_config.apu_volume / 8;
 }
 
-const static NEZ_NES_AUDIO_HANDLER s_apu_audio_handler[] = {
+static const NEZ_NES_AUDIO_HANDLER s_apu_audio_handler[] = {
 	{ 1, APUSoundRender, NULL, NULL }, 
 	{ 0, 0, NULL, NULL }, 
 };
@@ -688,7 +688,7 @@ static void APUSoundVolume(NEZ_PLAY *pNezPlay, uint32_t volume)
 	apu->dpcm.mastervolume = volume;
 }
 
-const static NEZ_NES_VOLUME_HANDLER s_apu_volume_handler[] = {
+static const NEZ_NES_VOLUME_HANDLER s_apu_volume_handler[] = {
 	{ APUSoundVolume, NULL },
 	{ 0, NULL }, 
 };
@@ -1040,7 +1040,7 @@ static void APUSoundReset(NEZ_PLAY *pNezPlay)
 #endif
 }
 
-const static NEZ_NES_RESET_HANDLER s_apu_reset_handler[] = {
+static const NEZ_NES_RESET_HANDLER s_apu_reset_handler[] = {
 	{ NES_RESET_SYS_NOMAL, APUSoundReset, NULL }, 
 	{ 0,                   0, NULL }, 
 };
@@ -1052,7 +1052,7 @@ static void APUSoundTerm(NEZ_PLAY *pNezPlay)
 		XFREE(apu);
 }
 
-const static NEZ_NES_TERMINATE_HANDLER s_apu_terminate_handler[] = {
+static const NEZ_NES_TERMINATE_HANDLER s_apu_terminate_handler[] = {
 	{ APUSoundTerm, NULL }, 
 	{ 0, NULL }, 
 };
