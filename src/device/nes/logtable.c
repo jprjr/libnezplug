@@ -34,21 +34,23 @@ int32_t LogTableInitialize(LOG_TABLE *tbl)
     tbl->lineartbl = NULL;
     tbl->logtbl = NULL;
 
-    tbl->lineartbl = XMALLOC((1 << tbl->lin_bits) + 1);
+    tbl->lineartbl = XMALLOC(sizeof(uint32_t) * ((1 << tbl->lin_bits) + 1));
     if(tbl->lineartbl == NULL) {
         return 1;
     }
 
-    tbl->logtbl = XMALLOC(1 << tbl->log_bits);
+    tbl->logtbl = XMALLOC(sizeof(uint32_t) * (1 << tbl->log_bits));
     if(tbl->logtbl == NULL) {
         return 1;
     }
+
 	for (i = 0; i < (1 << tbl->log_bits); i++)
 	{
 		a = (1 << tbl->log_lin_bits) / pow(2, i / (double)(1 << tbl->log_bits));
 		tbl->logtbl[i] = (uint32_t)a;
 	}
 	tbl->lineartbl[0] = tbl->log_lin_bits << tbl->log_bits;
+
 	for (i = 1; i < (1 << tbl->lin_bits) + 1; i++)
 	{
 		uint32_t ua;
