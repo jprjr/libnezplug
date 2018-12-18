@@ -1,5 +1,4 @@
 #include "../../normalize.h"
-#include "../s_logtbl.h"
 #include "s_opltbl.h"
 
 // https://docs.google.com/Doc?docid=0Aeywjj51RsmGZGQ4a3FuOWZfMTNjcWprZjRncA&hl=en&pli=1 から取ってきた。

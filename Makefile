@@ -23,7 +23,6 @@ LIBNEZPLUG_SRCS = \
   src/device/s_dmg.c \
   src/device/s_hes.c \
   src/device/s_hesad.c \
-  src/device/s_logtbl.c \
   src/device/s_psg.c \
   src/device/s_scc.c \
   src/device/s_sng.c \
