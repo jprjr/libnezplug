@@ -536,6 +536,11 @@ static uint32_t exptable_base[] = {
 #define AM_DEPTH2 1.0  /* dB */
 #define PM_DEPTH1 13.75 /* cent */
 #define PM_DEPTH2  7.0 /* cent */
+
+#define LIN_BITS 7
+#define LOG_BITS 12
+#define LOG_LIN_BITS 30
+
 #define LOG_KEYOFF (15 << (LOG_BITS + 1))
 #define TLL_POW 1.7
 
@@ -670,3 +675,16 @@ KMIF_OPLTABLE *OplTableAddRef()
 	return opl_tables;
 }
 
+#undef AM_DEPTH1
+#undef AM_DEPTH2
+#undef PM_DEPTH1
+#undef PM_DEPTH2
+#undef LIN_BITS
+#undef LOG_BITS
+#undef LOG_LIN_BITS
+#undef LOG_KEYOFF
+#undef TLL_POW
+#undef DB0375_TO_LOG
+#undef AR_OFF
+#undef AR_MAX
+#undef dB2

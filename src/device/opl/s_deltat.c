@@ -1,14 +1,17 @@
 #include "../kmsnddev.h"
 #include "../../common/divfix.h"
-#include "../s_logtbl.h"
+#include "../nes/logtable.h"
 #include "s_deltat.h"
 
 #define CPS_SHIFT 16
 #define PHASE_SHIFT 16 /* 16(fix) */
+#define LIN_BITS 7
+#define LOG_BITS 12
+#define LOG_LIN_BITS 30
 
 typedef struct {
 	KMIF_SOUND_DEVICE kmif;
-	KMIF_LOGTABLE *logtbl;
+    LOG_TABLE logtbl;
 	struct YMDELTATPCMSOUND_COMMON_TAG {
 		int32_t mastervolume;
 		int32_t step;
@@ -253,7 +256,7 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 			break;
 		case 0x0b:	/* Level Control */
 			sndp->common.level = (uint8_t)v;
-			sndp->common.level32 = ((int32_t)(sndp->common.level * LogToLin(sndp->logtbl, sndp->common.mastervolume, LOG_LIN_BITS - 15))) >> 7;
+			sndp->common.level32 = ((int32_t)(sndp->common.level * LogToLinear(&sndp->logtbl, sndp->common.mastervolume, LOG_LIN_BITS - 15))) >> 7;
 			if(sndp->ymdeltatpcm_type==MSM5205){
 				sndp->common.output = sndp->common.scale * sndp->common.level32;
 			}else{
@@ -286,7 +289,7 @@ static void sndvolume(void *ctx, int32_t volume)
     YMDELTATPCMSOUND *sndp = (YMDELTATPCMSOUND *)ctx;
 	volume = (volume << (LOG_BITS - 8)) << 1;
 	sndp->common.mastervolume = volume;
-	sndp->common.level32 = ((int32_t)(sndp->common.level * LogToLin(sndp->logtbl, sndp->common.mastervolume, LOG_LIN_BITS - 15))) >> 7;
+	sndp->common.level32 = ((int32_t)(sndp->common.level * LogToLinear(&sndp->logtbl, sndp->common.mastervolume, LOG_LIN_BITS - 15))) >> 7;
 	sndp->common.output = sndp->common.step * sndp->common.level32;
 	sndp->common.output = SSR(sndp->common.output, 8 + 2);
 }
@@ -295,7 +298,7 @@ static void sndrelease(void *ctx)
 {
     YMDELTATPCMSOUND *sndp = (YMDELTATPCMSOUND *)ctx;
 	if (sndp) {
-		if (sndp->logtbl) sndp->logtbl->release(sndp->logtbl->ctx);
+        LogTableFree(&sndp->logtbl);
 		XFREE(sndp);
 	}
 }
@@ -340,6 +343,15 @@ KMIF_SOUND_DEVICE *YMDELTATPCMSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t ymdeltatpc
 	}
 	sndp = XMALLOC(sizeof(YMDELTATPCMSOUND) + ram_size);
 	if (!sndp) return 0;
+
+    sndp->logtbl.log_bits = LOG_BITS;
+    sndp->logtbl.lin_bits = LIN_BITS;
+    sndp->logtbl.log_lin_bits = LOG_LIN_BITS;
+	if(LogTableInitialize(&sndp->logtbl) != 0) {
+        sndrelease(sndp);
+        return 0;
+    }
+
     sndp->chmask = pNezPlay->chmask;
 	sndp->ram_size = ram_size;
 	sndp->ymdeltatpcm_type = (uint8_t)ymdeltatpcm_type;
@@ -376,11 +388,12 @@ KMIF_SOUND_DEVICE *YMDELTATPCMSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t ymdeltatpc
 	/* ROM */
 	sndp->rombuf = 0;
 	sndp->rommask = 0;
-	sndp->logtbl = LogTableAddRef();
-	if (!sndp->logtbl)
-	{
-		sndrelease(sndp);
-		return 0;
-	}
+
 	return &sndp->kmif;
 }
+
+#undef CPS_SHIFT
+#undef PHASE_SHIFT
+#undef LIN_BITS
+#undef LOG_BITS
+#undef LOG_LIN_BITS

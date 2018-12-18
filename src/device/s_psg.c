@@ -1,12 +1,15 @@
 #include "kmsnddev.h"
 #include "../common/divfix.h"
-#include "s_logtbl.h"
+#include "nes/logtable.h"
 #include "s_psg.h"
 
 #define DCFIX 0/*8*/
 #define ANAEX 0
 #define CPS_SHIFT 18
 #define CPS_ENVSHIFT 12
+#define LIN_BITS 7
+#define LOG_BITS 12
+#define LOG_LIN_BITS 30
 #define LOG_KEYOFF (31 << (LOG_BITS + 1))
 
 #define RENDERS 7
@@ -58,7 +61,7 @@ typedef struct {
 
 typedef struct {
 	KMIF_SOUND_DEVICE kmif;
-	KMIF_LOGTABLE *logtbl;
+    LOG_TABLE logtbl;
 	PSG_SQUARE square[3];
 	PSG_ENVELOPE envelope;
 	PSG_NOISE noise;
@@ -228,9 +231,9 @@ __inline static int32_t PSGSoundEnvelopeStep(PSGSOUND *sndp)
 	if (sndp->envelope.adr[0] & sndp->envelope.adrmask)
 	{
 #ifdef VOLUME_3
-		return LogToLin(sndp->logtbl, voltbl[sndp->type][sndp->envelope.adr[0] & sndp->envelope.adrmask] + sndp->common.mastervolume, LOG_LIN_BITS - 21);
+		return LogToLinear(&sndp->logtbl, voltbl[sndp->type][sndp->envelope.adr[0] & sndp->envelope.adrmask] + sndp->common.mastervolume, LOG_LIN_BITS - 21);
 #else
-		return LogToLin(sndp->logtbl, ((sndp->envelope.adrmask - (sndp->envelope.adr[0] & sndp->envelope.adrmask)) << (LOG_BITS - 2 + 1)) + sndp->common.mastervolume, LOG_LIN_BITS - 21);
+		return LogToLinear(&sndp->logtbl, ((sndp->envelope.adrmask - (sndp->envelope.adr[0] & sndp->envelope.adrmask)) << (LOG_BITS - 2 + 1)) + sndp->common.mastervolume, LOG_LIN_BITS - 21);
 #endif
 	}
 	else
@@ -248,9 +251,9 @@ __inline static uint32_t PSGSoundSquareSub(PSGSOUND *sndp, PSG_SQUARE *chp)
 	else if (chp->regs[2] & 0xF)
 	{
 #ifdef VOLUME_3
-		volume = LogToLin(sndp->logtbl, voltbl[sndp->type][(chp->regs[2] & 0xF)<<1] + sndp->common.mastervolume, LOG_LIN_BITS - 21);
+		volume = LogToLinear(&sndp->logtbl, voltbl[sndp->type][(chp->regs[2] & 0xF)<<1] + sndp->common.mastervolume, LOG_LIN_BITS - 21);
 #else
-		volume = LogToLin(sndp->logtbl, ((0xF - (chp->regs[2] & 0xF)) << (LOG_BITS - 1 + 1)) + sndp->common.mastervolume, LOG_LIN_BITS - 21);
+		volume = LogToLinear(&sndp->logtbl, ((0xF - (chp->regs[2] & 0xF)) << (LOG_BITS - 1 + 1)) + sndp->common.mastervolume, LOG_LIN_BITS - 21);
 #endif
 	}
 	else
@@ -352,7 +355,7 @@ static void sndsynth(void *ctx, int32_t *p)
 	accum += PSGSoundSquare(sndp, &sndp->square[2]) * sndp->chmask[NEZ_DEV_AY8910_CH3];
 	MSXSoundDaStep(sndp);
 	if (sndp->chmask[NEZ_DEV_MSX_DA])
-		accum += LogToLin(sndp->logtbl,sndp->common.mastervolume, LOG_LIN_BITS-7)
+		accum += LogToLinear(&sndp->logtbl,sndp->common.mastervolume, LOG_LIN_BITS-7)
 		* (sndp->common.daenable ? (sndp->common.davolume*7 + (1<<16))/7 : sndp->common.davolume);
 #ifdef VOLUME_3
 	accum = accum * PSG_VOL;
@@ -506,7 +509,7 @@ static void sndrelease(void *ctx)
 {
 	PSGSOUND *sndp = ctx;
 	if (sndp) {
-		if (sndp->logtbl) sndp->logtbl->release(sndp->logtbl->ctx);
+        LogTableFree(&sndp->logtbl);
 		XFREE(sndp);
 	}
 }
@@ -525,6 +528,15 @@ KMIF_SOUND_DEVICE *PSGSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t psg_type)
 	sndp = XMALLOC(sizeof(PSGSOUND));
 	if (!sndp) return 0;
 	XMEMSET(sndp, 0, sizeof(PSGSOUND));
+
+    sndp->logtbl.log_bits = LOG_BITS;
+    sndp->logtbl.lin_bits = LIN_BITS;
+    sndp->logtbl.log_lin_bits = LOG_LIN_BITS;
+	if(LogTableInitialize(&sndp->logtbl) != 0) {
+        sndrelease(sndp);
+        return 0;
+    }
+
     sndp->chmask = pNezPlay->chmask;
 	sndp->type = psg_type;
 	sndp->kmif.ctx = sndp;
@@ -535,11 +547,19 @@ KMIF_SOUND_DEVICE *PSGSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t psg_type)
 	sndp->kmif.write = sndwrite;
 	sndp->kmif.read = sndread;
 	sndp->kmif.setinst = setinst;
-	sndp->logtbl = LogTableAddRef();
-	if (!sndp->logtbl)
-	{
-		sndrelease(sndp);
-		return 0;
-	}
+
 	return &sndp->kmif;
 }
+
+#undef DCFIX
+#undef ANAEX
+#undef CPS_SHIFT
+#undef CPS_ENVSHIFT
+#undef LIN_BITS
+#undef LOG_BITS
+#undef LOG_LIN_BITS
+#undef LOG_KEYOFF
+#undef RENDERS
+#undef NOISE_RENDERS
+#undef VOLUME_3
+#undef PSG_VOL

@@ -280,3 +280,7 @@ KMIF_SOUND_DEVICE *HESAdPcmAlloc(NEZ_PLAY *pNezPlay)
 	sndp->deltadev = YMDELTATPCMSoundAlloc(pNezPlay,3,sndp->pcmbuf);
 	return &sndp->kmif;
 }
+
+#undef CPS_SHIFT
+#undef PCE_VOLUME
+#undef ADPCM_VOLUME

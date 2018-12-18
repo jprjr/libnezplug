@@ -1,9 +1,12 @@
 #include "kmsnddev.h"
 #include "../common/divfix.h"
-#include "s_logtbl.h"
+#include "nes/logtable.h"
 #include "s_sng.h"
 
 #define CPS_SHIFT 18
+#define LIN_BITS 7
+#define LOG_BITS 12
+#define LOG_LIN_BITS 30
 #define LOG_KEYOFF (31 << LOG_BITS)
 
 #define FB_WNOISE   0xc000
@@ -44,7 +47,7 @@ typedef struct {
 
 typedef struct {
 	KMIF_SOUND_DEVICE kmif;
-	KMIF_LOGTABLE *logtbl;
+    LOG_TABLE logtbl;
 	SNG_SQUARE square[3];
 	SNG_NOISE noise;
 	struct {
@@ -71,10 +74,10 @@ __inline static int32_t SNGSoundSquareSynth(SNGSOUND *sndp, SNG_SQUARE *ch)
 	int32_t outputbuf=0,count=0;
 	if (ch->spd < (0x4 << CPS_SHIFT))
 	{
-		return LogToLin(sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21);
+		return LogToLinear(&sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21);
 	}
 	ch->cycles += sndp->common.cps<<RENDERS;
-	ch->output = LogToLin(sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21);
+	ch->output = LogToLinear(&sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21);
 	ch->output *= !(ch->adr & 1);
 	while (ch->cycles >= ch->spd)
 	{
@@ -86,7 +89,7 @@ __inline static int32_t SNGSoundSquareSynth(SNGSOUND *sndp, SNG_SQUARE *ch)
 		if(ch->count >= 1<<RENDERS){
 			ch->count = 0;
 			ch->adr++;
-			ch->output = LogToLin(sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21);
+			ch->output = LogToLinear(&sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21);
 			ch->output *= !(ch->adr & 1);
 		}
 	}
@@ -101,7 +104,7 @@ __inline static int32_t SNGSoundNoiseSynth(SNGSOUND *sndp, SNG_NOISE *ch)
 	int32_t outputbuf=0,count=0;
 	//if (ch->spd < (0x1 << (CPS_SHIFT - 1))) return 0;
 	ch->cycles += (sndp->common.ncps >> 1) <<NOISE_RENDERS;
-	ch->output = LogToLin(sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21);
+	ch->output = LogToLinear(&sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21);
 	ch->output *= !(ch->rng & 1);
 	while (ch->cycles >= ch->spd)
 	{
@@ -116,7 +119,7 @@ __inline static int32_t SNGSoundNoiseSynth(SNGSOUND *sndp, SNG_NOISE *ch)
 			//ch->rng += ch->rng + (((ch->rng >> ch->step1)/* ^ (ch->rng >> ch->step2)*/) & 1);
 			ch->rng >>= 1;
 
-			ch->output = LogToLin(sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21);
+			ch->output = LogToLinear(&sndp->logtbl, ch->vol + sndp->common.mastervolume, LOG_LIN_BITS - 21);
 			ch->output *= !(ch->rng & 1);
 		}
 	}
@@ -262,7 +265,7 @@ static void sndrelease(void *ctx)
 {
 	SNGSOUND *sndp = (SNGSOUND*)ctx;
 	if (sndp) {
-		if (sndp->logtbl) sndp->logtbl->release(sndp->logtbl->ctx);
+        LogTableFree(&sndp->logtbl);
 		XFREE(sndp);
 	}
 }
@@ -281,6 +284,15 @@ KMIF_SOUND_DEVICE *SNGSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t sng_type)
 	sndp = XMALLOC(sizeof(SNGSOUND));
 	if (!sndp) return 0;
 	XMEMSET(sndp, 0, sizeof(SNGSOUND));
+
+    sndp->logtbl.log_bits = LOG_BITS;
+    sndp->logtbl.lin_bits = LIN_BITS;
+    sndp->logtbl.log_lin_bits = LOG_LIN_BITS;
+	if(LogTableInitialize(&sndp->logtbl) != 0) {
+        sndrelease(sndp);
+        return 0;
+    }
+
     sndp->chmask = pNezPlay->chmask;
 	sndp->type = sng_type;
 	sndp->kmif.ctx = sndp;
@@ -291,11 +303,18 @@ KMIF_SOUND_DEVICE *SNGSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t sng_type)
 	sndp->kmif.write = sndwrite;
 	sndp->kmif.read = sndread;
 	sndp->kmif.setinst = setinst;
-	sndp->logtbl = LogTableAddRef();
-	if (!sndp->logtbl)
-	{
-		sndrelease(sndp);
-		return 0;
-	}
+
 	return &sndp->kmif;
 }
+
+#undef CPS_SHIFT
+#undef LIN_BITS
+#undef LOG_BITS
+#undef LOG_LIN_BITS
+#undef LOG_KEYOFF
+#undef FB_WNOISE
+#undef FB_PNOISE
+#undef SN76489AN_PRESET
+#undef SG76489_PRESET
+#undef RENDERS
+#undef NOISE_RENDERS

@@ -15,6 +15,10 @@
 #define WM_RENDERS 5
 #define KAERUNOISE_BITS 2
 
+#define LIN_BITS 7
+#define LOG_BITS 12
+#define LOG_LIN_BITS 30
+
 /* -------------------- */
 /*  DMG INTERNAL SOUND  */
 /* -------------------- */
@@ -994,9 +998,9 @@ KMIF_SOUND_DEVICE *DMGSoundAlloc(NEZ_PLAY *pNezPlay)
 	if (!sndp) return 0;
 	XMEMSET(sndp, 0, sizeof(DMGSOUND));
 
-    sndp->logtbl.log_bits = 12;
-    sndp->logtbl.lin_bits = 7;
-    sndp->logtbl.log_lin_bits = 30;
+    sndp->logtbl.log_bits = LOG_BITS;
+    sndp->logtbl.lin_bits = LIN_BITS;
+    sndp->logtbl.log_lin_bits = LOG_LIN_BITS;
 	if(LogTableInitialize(&sndp->logtbl) != 0) {
         sndrelease(sndp);
         return 0;
@@ -1015,3 +1019,16 @@ KMIF_SOUND_DEVICE *DMGSoundAlloc(NEZ_PLAY *pNezPlay)
 
 	return &sndp->kmif;
 }
+
+#undef CPS_BITS
+#undef CPFWM_BITS
+#undef NOISE_EDGE
+#undef WAVETABLE_REAL_RW
+#undef RESET_MODE
+#undef SQ_RENDERS
+#undef WM_RENDERS
+#undef KAERUNOISE_BITS
+
+#undef LIN_BITS
+#undef LOG_BITS
+#undef LOG_LIN_BITS

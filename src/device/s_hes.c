@@ -1,14 +1,16 @@
 #include "kmsnddev.h"
 #include "s_hes.h"
-#include "s_logtbl.h"
 #include "../common/divfix.h"
+#include "nes/logtable.h"
 
 #define CPS_SHIFT 16
 #define RENDERS 5
 #define NOISE_RENDERS 3
+#define LIN_BITS 7
+#define LOG_BITS 12
+#define LOG_LIN_BITS 30
 #define LOG_KEYOFF (32 << LOG_BITS)
 #define LFO_BASE (0x10 << 8)
-
 
 typedef struct {
 	uint32_t cps;				/* cycles per sample */
@@ -46,7 +48,7 @@ typedef struct {
 
 typedef struct {
 	KMIF_SOUND_DEVICE kmif;
-	KMIF_LOGTABLE *logtbl;
+	LOG_TABLE logtbl;
 	HES_WAVEMEMORY ch[6];
 	HES_LFO lfo;
 	HES_WAVEMEMORY *cur;
@@ -90,8 +92,8 @@ static void HESSoundWaveMemoryRender(HESSOUND *sndp, HES_WAVEMEMORY *ch, int32_t
 	{
 		output = ch->dda;
 		if(sndp->chmask[NEZ_DEV_HUC6230_CH1+chn]){
-			p[0] += LogToLin(sndp->logtbl, lvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 17 - 1);
-			p[1] += LogToLin(sndp->logtbl, rvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 17 - 1);
+			p[0] += LogToLinear(&sndp->logtbl, lvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 17 - 1);
+			p[1] += LogToLinear(&sndp->logtbl, rvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 17 - 1);
 		}
 	}
 	else if (ch->regs[7 - 2] & 0x80)	/* NOISE */
@@ -99,9 +101,9 @@ static void HESSoundWaveMemoryRender(HESSOUND *sndp, HES_WAVEMEMORY *ch, int32_t
 		/* if (wl == 0) return; */
 		ch->npt += ((ch->cps>>16) * ch->nwl)<<NOISE_RENDERS;
 		//----------
-		output = LinToLog(sndp->logtbl,(ch->edge * 16)) + (1 << (LOG_BITS + 1)) + 1;
-		ch->output[0] = LogToLin(sndp->logtbl, lvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 18 - 1);
-		ch->output[1] = LogToLin(sndp->logtbl, rvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 18 - 1);
+		output = LinearToLog(&sndp->logtbl,(ch->edge * 16)) + (1 << (LOG_BITS + 1)) + 1;
+		ch->output[0] = LogToLinear(&sndp->logtbl, lvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 18 - 1);
+		ch->output[1] = LogToLinear(&sndp->logtbl, rvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 18 - 1);
 		//----------
 		while (ch->npt > (0x1000 << 6))
 		{
@@ -118,9 +120,9 @@ static void HESSoundWaveMemoryRender(HESSOUND *sndp, HES_WAVEMEMORY *ch, int32_t
 				ch->rng |= ((ch->rng>>17)&1) ^ ((ch->rng>>14)&1);
 				ch->edge = ((ch->rng>>17)&1);
 				//----------
-				output = LinToLog(sndp->logtbl,(ch->edge * 16)) + (1 << (LOG_BITS + 1)) + 1;
-				ch->output[0] = LogToLin(sndp->logtbl, lvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 18 - 1);
-				ch->output[1] = LogToLin(sndp->logtbl, rvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 18 - 1);
+				output = LinearToLog(&sndp->logtbl,(ch->edge * 16)) + (1 << (LOG_BITS + 1)) + 1;
+				ch->output[0] = LogToLinear(&sndp->logtbl, lvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 18 - 1);
+				ch->output[1] = LogToLinear(&sndp->logtbl, rvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 18 - 1);
 				//----------
 			}
 		}
@@ -149,8 +151,8 @@ static void HESSoundWaveMemoryRender(HESSOUND *sndp, HES_WAVEMEMORY *ch, int32_t
 
 		//----------
 		output = ch->tone[ch->st & 0x1f];
-		ch->output[0] = LogToLin(sndp->logtbl, lvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 17 - 1);
-		ch->output[1] = LogToLin(sndp->logtbl, rvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 17 - 1);
+		ch->output[0] = LogToLinear(&sndp->logtbl, lvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 17 - 1);
+		ch->output[1] = LogToLinear(&sndp->logtbl, rvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 17 - 1);
 		//----------
 		while (ch->pt >= wl)
 		{
@@ -166,8 +168,8 @@ static void HESSoundWaveMemoryRender(HESSOUND *sndp, HES_WAVEMEMORY *ch, int32_t
 				ch->st++;
 				//----------
 				output = ch->tone[ch->st & 0x1f];
-				ch->output[0] = LogToLin(sndp->logtbl, lvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 17 - 1);
-				ch->output[1] = LogToLin(sndp->logtbl, rvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 17 - 1);
+				ch->output[0] = LogToLinear(&sndp->logtbl, lvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 17 - 1);
+				ch->output[1] = LogToLinear(&sndp->logtbl, rvol + output + sndp->common.mastervolume, LOG_LIN_BITS - LIN_BITS - 17 - 1);
 				//----------
 			}
 		}
@@ -251,7 +253,7 @@ static void HESSoundChReset(HESSOUND *sndp, HES_WAVEMEMORY *ch, uint32_t clock, 
 	int i;
 	XMEMSET(ch, 0, sizeof(HES_WAVEMEMORY));
 	ch->cps = DivFix(clock, 6 * freq, CPS_SHIFT);
-	ch->nvol = LinToLog(sndp->logtbl, 10);
+	ch->nvol = LinearToLog(&sndp->logtbl, 10);
 	ch->dda = LOG_KEYOFF;
 	ch->rng = 1;
 	ch->edge = 0;
@@ -320,19 +322,19 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 				{
 					default:
 					case 0:
-						tone = LinToLog(sndp->logtbl, data - 0x10) + (1 << (LOG_BITS + 1));
+						tone = LinearToLog(&sndp->logtbl, data - 0x10) + (1 << (LOG_BITS + 1));
 						//tone =data - 0x10;
 						break;
 					case 1:
 						tone = voltbl2[data];
 						break;
 					case 2:
-						tone = LinToLog(sndp->logtbl, data) + (1 << (LOG_BITS + 1));
+						tone = LinearToLog(&sndp->logtbl, data) + (1 << (LOG_BITS + 1));
 						break;
 				}
 #else
-				//tone = LinToLog(sndp->logtbl, data - 0x10) + (1 << (LOG_BITS + 1));
-				tone = LinToLog(sndp->logtbl, -data) + (1 << (LOG_BITS + 1));
+				//tone = LinearToLog(sndp->logtbl, data - 0x10) + (1 << (LOG_BITS + 1));
+				tone = LinearToLog(&sndp->logtbl, -data) + (1 << (LOG_BITS + 1));
 #endif
 				if (sndp->cur->regs[4 - 2] & 0x40)
 				{
@@ -384,31 +386,31 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 				case 3:
 					/* positive logarithmic frequency */
 					nwl = sndp->noise_debug_option4[0] << (CPS_SHIFT - 10);
-					nwl -= LogToLin(sndp->logtbl, ((0 & 0x1f) ^ 0x1f) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
-					nwl += LogToLin(sndp->logtbl, ((v & 0x1f) ^ 0x1f) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
+					nwl -= LogToLinear(&sndp->logtbl, ((0 & 0x1f) ^ 0x1f) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
+					nwl += LogToLinear(&sndp->logtbl, ((v & 0x1f) ^ 0x1f) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
 					break;
 				case 4:
 					/* negative logarithmic frequency */
 					nwl = sndp->noise_debug_option4[0] << (CPS_SHIFT - 10);
-					nwl += LogToLin(sndp->logtbl, ((0 & 0x1f) ^ 0x00) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
-					nwl -= LogToLin(sndp->logtbl, ((v & 0x1f) ^ 0x00) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
+					nwl += LogToLinear(&sndp->logtbl, ((0 & 0x1f) ^ 0x00) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
+					nwl -= LogToLinear(&sndp->logtbl, ((v & 0x1f) ^ 0x00) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
 					break;
 				case 5:
 					/* positive logarithmic frequency (reverse) */
 					nwl = sndp->noise_debug_option4[0] << (CPS_SHIFT - 10);
-					nwl -= LogToLin(sndp->logtbl, ((0 & 0x1f) ^ 0x1f) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
-					nwl += LogToLin(sndp->logtbl, ((v & 0x1f) ^ 0x00) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
+					nwl -= LogToLinear(&sndp->logtbl, ((0 & 0x1f) ^ 0x1f) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
+					nwl += LogToLinear(&sndp->logtbl, ((v & 0x1f) ^ 0x00) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
 					break;
 				case 6:
 					/* negative logarithmic frequency (reverse) */
 					nwl = sndp->noise_debug_option4[0] << (CPS_SHIFT - 10);
-					nwl += LogToLin(sndp->logtbl, ((0 & 0x1f) ^ 0x00) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
-					nwl -= LogToLin(sndp->logtbl, (((v & 0x1f) ^ 0x1f)+1) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
+					nwl += LogToLinear(&sndp->logtbl, ((0 & 0x1f) ^ 0x00) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
+					nwl -= LogToLinear(&sndp->logtbl, (((v & 0x1f) ^ 0x1f)+1) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
 					break;
 				case 7:
 					/* v0.9.3beta8 old logarithmic frequency type B */
 					nwl = sndp->noise_debug_option4[0] << (CPS_SHIFT - 10);
-					nwl += LogToLin(sndp->logtbl, ((v & 0x1f) ^ 0x1f) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
+					nwl += LogToLinear(&sndp->logtbl, ((v & 0x1f) ^ 0x1f) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
 					break;
 				case 8:
 					/* v0.9.3beta8 old logarithmic frequency type C */
@@ -417,11 +419,11 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 					/* sndp->noise_debug_option3[0]=2 */
 					/* sndp->noise_debug_option4[0]=0 */
 					nwl = sndp->noise_debug_option4[0];
-					nwl += LogToLin(sndp->logtbl, (v & 0x1f) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
+					nwl += LogToLinear(&sndp->logtbl, (v & 0x1f) << (LOG_BITS - sndp->noise_debug_option3[0] + 1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
 					break;
 				case 9:
 					/* v0.9.4.8 +2 +5 */
-//					nwl = LogToLin(sndp->logtbl, ((((v & 0x1f)<<4) - (0x0c<<4))<<5) + ((((v & 0x1f)<<4) - (0x0c<<4))<<3) + ((((v & 0x1f)<<4) - (0x0c<<4))<<1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
+//					nwl = LogToLinear(sndp->logtbl, ((((v & 0x1f)<<4) - (0x0c<<4))<<5) + ((((v & 0x1f)<<4) - (0x0c<<4))<<3) + ((((v & 0x1f)<<4) - (0x0c<<4))<<1), LOG_LIN_BITS - CPS_SHIFT - sndp->noise_debug_option2[0]);
 					if(0x1f - (v & 0x1f))
 						nwl = 0x1000 / ((0x1f - (v & 0x1f))) ;
 					else
@@ -474,7 +476,7 @@ static void sndrelease(void *ctx)
 {
 	HESSOUND *sndp = ctx;
 	if (sndp) {
-		if (sndp->logtbl) sndp->logtbl->release(sndp->logtbl->ctx);
+        LogTableFree(&sndp->logtbl);
 		XFREE(sndp);
 	}
 }
@@ -495,6 +497,15 @@ KMIF_SOUND_DEVICE *HESSoundAlloc(NEZ_PLAY *pNezPlay)
 	sndp = XMALLOC(sizeof(HESSOUND));
 	if (!sndp) return 0;
 	XMEMSET(sndp, 0, sizeof(HESSOUND));
+
+    sndp->logtbl.log_bits = LOG_BITS;
+    sndp->logtbl.lin_bits = LIN_BITS;
+    sndp->logtbl.log_lin_bits = 30;
+	if(LogTableInitialize(&sndp->logtbl) != 0) {
+        sndrelease(sndp);
+        return 0;
+    }
+
     sndp->chmask = pNezPlay->chmask;
 	sndp->kmif.ctx = sndp;
 	sndp->kmif.release = sndrelease;
@@ -504,7 +515,6 @@ KMIF_SOUND_DEVICE *HESSoundAlloc(NEZ_PLAY *pNezPlay)
 	sndp->kmif.write = sndwrite;
 	sndp->kmif.read = sndread;
 	sndp->kmif.setinst = setinst;
-	sndp->logtbl = LogTableAddRef();
 #if HES_TONE_DEBUG_OPTION_ENABLE
     sndp->tone_debug_option = &pNezPlay->hes_config.tone_debug_option;
 #endif
@@ -512,11 +522,14 @@ KMIF_SOUND_DEVICE *HESSoundAlloc(NEZ_PLAY *pNezPlay)
     sndp->noise_debug_option2 = &pNezPlay->hes_config.noise_debug_option2;
     sndp->noise_debug_option3 = &pNezPlay->hes_config.noise_debug_option3;
     sndp->noise_debug_option4 = &pNezPlay->hes_config.noise_debug_option4;
-	if (!sndp->logtbl)
-	{
-		sndrelease(sndp);
-		return 0;
-	}
 
 	return &sndp->kmif;
 }
+
+#undef CPS_SHIFT
+#undef RENDERS
+#undef NOISE_RENDERS
+#undef LOG_KEYOFF
+#undef LFO_BASE
+#undef LOG_BITS
+#undef LIN_BITS
