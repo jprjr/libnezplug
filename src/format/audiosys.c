@@ -8,17 +8,13 @@
 
 #define SHIFT_BITS 8
 
-static int32_t output2[2];
-static int32_t filter;
-static int lowlevel;
-
 void NESAudioFilterSet(NEZ_PLAY *pNezPlay, uint32_t filter)
 {
 	pNezPlay->naf_type = filter;
 	pNezPlay->naf_prev[0] = 0x8000;
 	pNezPlay->naf_prev[1] = 0x8000;
-	output2[0] = 0x7fffffff;
-	output2[1] = 0x7fffffff;
+	pNezPlay->output2[0] = 0x7fffffff;
+	pNezPlay->output2[1] = 0x7fffffff;
 }
 
 void NESAudioRender(NEZ_PLAY *pNezPlay, int16_t *bufp, uint32_t buflen)
@@ -63,12 +59,11 @@ void NESAudioRender(NEZ_PLAY *pNezPlay, int16_t *bufp, uint32_t buflen)
 				//DCオフセットフィルタ
 				if(!(pNezPlay->naf_type&4)){
 					int32_t buffer;
-					if (output2[ch] == 0x7fffffff){
-						output2[ch] = ((int32_t)output[ch]<<14) - 0x40000000;
-						//output2[ch] *= -1;
+					if (pNezPlay->output2[ch] == 0x7fffffff){
+						pNezPlay->output2[ch] = ((int32_t)output[ch]<<14) - 0x40000000;
 					}
-					output2[ch] -= (output2[ch] - (((int32_t)output[ch]<<14) - 0x40000000))/(64*filter);
-					buffer =  output[ch]/2 - output2[ch]/0x8000;
+					pNezPlay->output2[ch] -= (pNezPlay->output2[ch] - (((int32_t)output[ch]<<14) - 0x40000000))/(64*pNezPlay->filter);
+					buffer =  output[ch]/2 - pNezPlay->output2[ch]/0x8000;
 
 					if (buffer < 0)
 						output[ch] = 0;
@@ -85,7 +80,7 @@ void NESAudioRender(NEZ_PLAY *pNezPlay, int16_t *bufp, uint32_t buflen)
 						{
 							uint32_t prev = pNezPlay->naf_prev[ch];
 							//output[ch] = (output[ch] + prev) >> 1;
-							output[ch] = (output[ch] * lowlevel + prev * filter) / (lowlevel+filter);
+							output[ch] = (output[ch] * pNezPlay->lowlevel + prev * pNezPlay->filter) / (pNezPlay->lowlevel+pNezPlay->filter);
 							pNezPlay->naf_prev[ch] = output[ch];
 						}
 						break;
@@ -100,7 +95,7 @@ void NESAudioRender(NEZ_PLAY *pNezPlay, int16_t *bufp, uint32_t buflen)
 						{
 							uint32_t prev = pNezPlay->naf_prev[ch];
 							//output[ch] = (output[ch] + prev) >> 1;
-							output[ch] = (output[ch] * lowlevel + prev * filter) / (lowlevel+filter);
+							output[ch] = (output[ch] * pNezPlay->lowlevel + prev * pNezPlay->filter) / (pNezPlay->lowlevel+pNezPlay->filter);
 							pNezPlay->naf_prev[ch] = output[ch];
 						}
 						{
@@ -195,10 +190,10 @@ void NESAudioHandlerInitialize(NEZ_PLAY *pNezPlay)
 void NESAudioFrequencySet(NEZ_PLAY *pNezPlay, uint32_t freq)
 {
 	pNezPlay->frequency = freq;
-	filter = freq/3000;
-	if(!filter)filter=1;
+	pNezPlay->filter = freq/3000;
+	if(!pNezPlay->filter)pNezPlay->filter=1;
 
-	lowlevel = 33 - pNezPlay->lowpass_filter_level;
+	pNezPlay->lowlevel = 33 - pNezPlay->lowpass_filter_level;
 }
 uint32_t NESAudioFrequencyGet(NEZ_PLAY *pNezPlay)
 {
@@ -214,3 +209,5 @@ uint32_t NESAudioChannelGet(NEZ_PLAY *pNezPlay)
 {
 	return pNezPlay->channel;
 }
+
+#undef SHIFT_BITS

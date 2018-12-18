@@ -188,6 +188,9 @@ struct NEZ_PLAY_ {
     	char* copyright;
     	char detail[1024];
     } songinfodata;
+    int32_t output2[2];
+    int32_t filter;
+    int32_t lowlevel;
 	void *nsf;
 	void *gbrdmg;
 	void *heshes;
