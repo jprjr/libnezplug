@@ -18,6 +18,8 @@
 #include "s_opltbl.h"
 #include "s_opl.h"
 #include "s_deltat.h"
+#include "../../logtable/log_table.h"
+#include "../../logtable/log_table_12_7_30.c"
 
 #define PG_SHIFT 13 /* fix */
 #define CPS_SHIFTE 20
@@ -331,7 +333,7 @@ __inline static void OpSynthMod(OPLSOUND *sndp, OPL_OP *opp)
 		if (opp->flag & FLAG_AME) tll += sndp->lfo[LFO_UNIT_AM].output;
 #endif
 		tll += opp->sintable[sndp->common.sintablemask & (opp->input + (opp->pg.phase >> PG_SHIFT))];
-		output = LogToLinear(&sndp->logtbl, tll, -8 + ((LOG_LIN_BITS + 1) - (SINTBL_BITS + 2))-1);
+		output = LogToLinear((LOG_TABLE *)&log_table_12_7_30, tll, -8 + ((LOG_LIN_BITS + 1) - (SINTBL_BITS + 2))-1);
 		if (opp->fb)
 		{
 #if USE_FBBUF == 1
@@ -351,39 +353,6 @@ __inline static void OpSynthMod(OPLSOUND *sndp, OPL_OP *opp)
 		opp[1].input = output;
 	}
 }
-/*
-__inline static void OpSynthMod(OPLSOUND *sndp, OPL_OP *opp)
-{
-	if (opp->enable)
-	{
-		uint32_t tll;
-		int32_t output;
-		OpStep(sndp, opp);
-		tll = opp->tll + (opp->eg.phase >> EG_SHIFT);
-		tll = (tll >= (1 << TLLTBL_BITS)) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
-		tll += opp->tl_ofs;
-#if TESTING_OPTIMIZE_AME
-		tll += *opp->amin;
-#else
-		if (opp->flag & FLAG_AME) tll += sndp->lfo[LFO_UNIT_AM].output;
-#endif
-		tll += opp->sintable[sndp->common.sintablemask & (opp->input + (opp->pg.phase >> PG_SHIFT))];
-		output = LogToLinear(&sndp->logtbl, tll, -8 + ((LOG_LIN_BITS + 1) - (SINTBL_BITS + 2)));
-		if (opp->fb)
-		{
-#if USE_FBBUF
-			int32_t fbtmp;
-			fbtmp = opp->fbbuf + output;
-			opp->fbbuf = output;
-			opp->input = SSR(fbtmp, (9 - opp->fb));
-#else
-			opp->input = SSR(output, (8 - opp->fb));
-#endif
-		}
-		opp[1].input = output;
-	}
-}
-*/
 
 __inline static int32_t OpSynthCarFb(OPLSOUND *sndp, OPL_OP *opp)
 {
@@ -404,55 +373,20 @@ __inline static int32_t OpSynthCarFb(OPLSOUND *sndp, OPL_OP *opp)
 		{
 #if USE_FBBUF
 			int32_t output, fbtmp;
-			output = LogToLinear(&sndp->logtbl, tll, -8 + ((LOG_LIN_BITS + 1) - (SINTBL_BITS + 2)) -1);
+			output = LogToLinear((LOG_TABLE *)&log_table_12_7_30, tll, -8 + ((LOG_LIN_BITS + 1) - (SINTBL_BITS + 2)) -1);
 			fbtmp = opp->fbbuf + output;
 			opp->fbbuf = output;
 			opp->input = SSR(fbtmp, (9 - opp->fb));
 #else
 			int32_t output;
-			output = LogToLinear(&sndp->logtbl, tll, -8 + ((LOG_LIN_BITS + 1) - (SINTBL_BITS + 2)) -1);
+			output = LogToLinear((LOG_TABLE *)&log_table_12_7_30, tll, -8 + ((LOG_LIN_BITS + 1) - (SINTBL_BITS + 2)) -1);
 			opp->input = SSR(output, (8 - opp->fb));
 #endif
 		}
-		return LogToLinear(&sndp->logtbl, tll + sndp->common.mastervolume, -8 + LOG_LIN_BITS - 19 - opp->lvl);
+		return LogToLinear((LOG_TABLE *)&log_table_12_7_30, tll + sndp->common.mastervolume, -8 + LOG_LIN_BITS - 19 - opp->lvl);
 	}
 	return 0;
 }
-/*
-__inline static int32_t OpSynthCarFb(OPLSOUND *sndp, OPL_OP *opp)
-{
-	if (opp->enable)
-	{
-		uint32_t tll;
-		OpStep(sndp, opp);
-		tll = opp->tll + (opp->eg.phase >> EG_SHIFT);
-		tll = (tll >= (1 << TLLTBL_BITS)) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
-		tll += opp->tl_ofs;
-#if TESTING_OPTIMIZE_AME
-		tll += *opp->amin;
-#else
-		if (opp->flag & FLAG_AME) tll += sndp->lfo[LFO_UNIT_AM].output;
-#endif
-		tll += opp->sintable[sndp->common.sintablemask & (opp->input + (opp->pg.phase >> PG_SHIFT))];
-		if (opp->fb)
-		{
-#if USE_FBBUF
-			int32_t output, fbtmp;
-			output = LogToLinear(&sndp->logtbl, tll, -8 + ((LOG_LIN_BITS + 1) - (SINTBL_BITS + 2)));
-			fbtmp = opp->fbbuf + output;
-			opp->fbbuf = output;
-			opp->input = SSR(fbtmp, (9 - opp->fb));
-#else
-			int32_t output;
-			output = LogToLinear(&sndp->logtbl, tll, -8 + ((LOG_LIN_BITS + 1) - (SINTBL_BITS + 2)));
-			opp->input = SSR(output, (8 - opp->fb));
-#endif
-		}
-		return LogToLinear(&sndp->logtbl, tll + sndp->common.mastervolume, -8 + LOG_LIN_BITS - 19 - opp->lvl);
-	}
-	return 0;
-}
-*/
 
 __inline static int32_t OpSynthCar(OPLSOUND *sndp, OPL_OP *opp)
 {
@@ -469,31 +403,10 @@ __inline static int32_t OpSynthCar(OPLSOUND *sndp, OPL_OP *opp)
 		if (opp->flag & FLAG_AME) tll += sndp->lfo[LFO_UNIT_AM].output;
 #endif
 		tll += opp->sintable[sndp->common.sintablemask & (opp->input + (opp->pg.phase >> PG_SHIFT))];
-		return LogToLinear(&sndp->logtbl, tll + sndp->common.mastervolume, -8 + LOG_LIN_BITS - 19 - opp->lvl -1);
+		return LogToLinear((LOG_TABLE *)&log_table_12_7_30, tll + sndp->common.mastervolume, -8 + LOG_LIN_BITS - 19 - opp->lvl -1);
 	}
 	return 0;
 }
-/*
-__inline static int32_t OpSynthCar(OPLSOUND *sndp, OPL_OP *opp)
-{
-	if (opp->enable)
-	{
-		uint32_t tll;
-		OpStep(sndp, opp);
-		tll = opp->tll + (opp->eg.phase >> EG_SHIFT);
-		tll = (tll >= (1 << TLLTBL_BITS)) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
-		tll += opp->tl_ofs;
-#if TESTING_OPTIMIZE_AME
-		tll += *opp->amin;
-#else
-		if (opp->flag & FLAG_AME) tll += sndp->lfo[LFO_UNIT_AM].output;
-#endif
-		tll += opp->sintable[sndp->common.sintablemask & (opp->input + (opp->pg.phase >> PG_SHIFT))];
-		return LogToLinear(&sndp->logtbl, tll + sndp->common.mastervolume, -8 + LOG_LIN_BITS - 19 - opp->lvl);
-	}
-	return 0;
-}
-*/
 
 __inline static int32_t OpSynthTom(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 {
@@ -506,7 +419,7 @@ __inline static int32_t OpSynthTom(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 		tll = (tll >= 128 - 16) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
 		tll += opp->tl_ofs;
 		tll += opp->sintable[sndp->common.sintablemask & (opp->pg.phase >> PG_SHIFT)];
-		output = LogToLinear(&sndp->logtbl, tll + sndp->common.mastervolume, -8 + LOG_LIN_BITS - 18 - opp->lvl);
+		output = LogToLinear((LOG_TABLE *)&log_table_12_7_30, tll + sndp->common.mastervolume, -8 + LOG_LIN_BITS - 18 - opp->lvl);
 		return output;
 	}
 	return 0;
@@ -515,26 +428,6 @@ __inline static int32_t OpSynthTom(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 
 static int32_t OpSynthRym(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 {
-/*
-	if (opp2->enable)
-	{
-		uint32_t tll,c1,c2;
-		int32_t output=0;
-		tll = opp2->tll + (opp2->eg.phase / EG_SHIFT2);
-		tll = (tll >= (1 << TLLTBL_BITS)) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
-		tll += opp2->tl_ofs;
-		c1 = (((opp->pg.pgout >> (NOISE_SHIFT - 8)) & 1) 
-			^ ((opp->pg.pgout >> (NOISE_SHIFT - 3)) & 1)) 
-			| ((opp->pg.pgout >> (NOISE_SHIFT - 7)) & 1);
-		c2 = (((opp2->pg.pgout >> (NOISE_SHIFT - 7)) & 1)
-			^ ((opp2->pg.pgout >> (NOISE_SHIFT - 5)) & 1));
-		output = LogToLinear(&sndp->logtbl, tll + sndp->common.mastervolume + LinearToLog(&sndp->logtbl, rymouttable[(c1<<1) | c2]), -13 + LOG_LIN_BITS - 18 - opp2->lvl);
-
-		return output;
-	}
-	return 0;
-*/
-//	OpStep(sndp, opp);
 	if (opp2->enable)
 	{
 		uint32_t tll;
@@ -548,9 +441,8 @@ static int32_t OpSynthRym(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 			^ ( ((opp2->pg.pgout >> (NOISE_SHIFT - 7)) & 1)
 			& !((opp2->pg.pgout >> (NOISE_SHIFT - 5)) & 1))
 		)tll += 1;
-//		tll += (sndp->rng & 1);
-//		if(sndp->ch[7].op[0].rkey)
-		output = LogToLinear(&sndp->logtbl, tll + sndp->common.mastervolume, -8 + LOG_LIN_BITS - 20 - opp2->lvl);
+
+		output = LogToLinear((LOG_TABLE *)&log_table_12_7_30, tll + sndp->common.mastervolume, -8 + LOG_LIN_BITS - 20 - opp2->lvl);
 		return output;
 	}
 	return 0;
@@ -559,27 +451,6 @@ static int32_t OpSynthRym(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 
 static int32_t OpSynthHat(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 {
-/*
-	if (opp->enable)
-	{
-		uint32_t tll,c1,c2,c3;
-		int32_t output=0;
-		tll = opp->tll + (opp->eg.phase / EG_SHIFT2);
-		tll = (tll >= (1 << TLLTBL_BITS)) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
-		tll += opp->tl_ofs;
-		c1 = (((opp->pg.pgout >> (NOISE_SHIFT - 8)) & 1) 
-			^ ((opp->pg.pgout >> (NOISE_SHIFT - 3)) & 1))
-			| ((opp->pg.pgout >> (NOISE_SHIFT - 7)) & 1);
-		c2 = (((opp2->pg.pgout >> (NOISE_SHIFT - 7)) & 1)
-			^ ((opp2->pg.pgout >> (NOISE_SHIFT - 5)) & 1));
-		c3 = (sndp->rng & 1);
-		output = LogToLinear(&sndp->logtbl, tll + sndp->common.mastervolume + LinearToLog(&sndp->logtbl, hhouttable[(c1<<2) | (c2<<1) | c3]), -13 + LOG_LIN_BITS - 16 - opp->lvl)*3;
-
-		return output;
-	}
-	return 0;
-*/
-//	OpStep(sndp, opp);
 	if (opp->enable)
 	{
 		uint32_t tll;
@@ -593,12 +464,12 @@ static int32_t OpSynthHat(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 			^ ( ((opp2->pg.pgout >> (NOISE_SHIFT - 7)) & 1)
 			& !((opp2->pg.pgout >> (NOISE_SHIFT - 5)) & 1))
 		)tll += 1;
-		output = LogToLinear(&sndp->logtbl, tll + sndp->common.mastervolume, -8 + LOG_LIN_BITS - 19 - opp->lvl);
+		output = LogToLinear((LOG_TABLE *)&log_table_12_7_30, tll + sndp->common.mastervolume, -8 + LOG_LIN_BITS - 19 - opp->lvl);
 
 //		tll = opp->tll + (opp->eg.phase / EG_SHIFT2);
 //		tll = (tll >= (1 << TLLTBL_BITS)) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
 //		tll += opp->tl_ofs;
-		output += LogToLinear(&sndp->logtbl, tll + sndp->common.mastervolume + (sndp->rng & 1), -8 + LOG_LIN_BITS - 19 - opp->lvl);
+		output += LogToLinear((LOG_TABLE *)&log_table_12_7_30, tll + sndp->common.mastervolume + (sndp->rng & 1), -8 + LOG_LIN_BITS - 19 - opp->lvl);
 		return output;
 	}
 	return 0;
@@ -614,7 +485,7 @@ static int32_t OpSynthSnr(OPLSOUND *sndp, OPL_OP *opp, OPL_OP *opp2)
 		tll = opp2->tll + (opp2->eg.phase / EG_SHIFT2);
 		tll = (tll >= (1 << TLLTBL_BITS)-16) ? LOG_KEYOFF : sndp->common.tll2logtbl[tll];
 		tll += opp2->tl_ofs;
-		outval = LogToLinear(&sndp->logtbl, tll + sndp->common.mastervolume + 1, -8 + LOG_LIN_BITS - 17 - opp2->lvl);
+		outval = LogToLinear((LOG_TABLE *)&log_table_12_7_30, tll + sndp->common.mastervolume + 1, -8 + LOG_LIN_BITS - 17 - opp2->lvl);
 
 		return outval * ((((((opp->pg.pgout) >> 7) & 1))*2-1) + ((sndp->rng & 1) * 3-1));
 	}
@@ -1497,7 +1368,6 @@ static void sndrelease(void *ctx)
 {
     OPLSOUND *sndp = (OPLSOUND *)ctx;
 	if (sndp) {
-        LogTableFree(&sndp->logtbl);
 		if (sndp->opltbl) sndp->opltbl->release(sndp->opltbl->ctx);
 		if (sndp->deltatpcm) sndp->deltatpcm->release(sndp->deltatpcm->ctx);
 		XFREE(sndp);
@@ -1510,14 +1380,6 @@ KMIF_SOUND_DEVICE *OPLSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t opl_type)
 	sndp = XMALLOC(sizeof(OPLSOUND));
 	if (!sndp) return 0;
 	XMEMSET(sndp, 0, sizeof(OPLSOUND));
-
-    sndp->logtbl.log_bits = LOG_BITS;
-    sndp->logtbl.lin_bits = LIN_BITS;
-    sndp->logtbl.log_lin_bits = LOG_LIN_BITS;
-	if(LogTableInitialize(&sndp->logtbl) != 0) {
-        sndrelease(sndp);
-        return 0;
-    }
 
     sndp->chmask = pNezPlay->chmask;
 	sndp->opl_type = (uint8_t)opl_type;

@@ -21,9 +21,7 @@ typedef struct
 	uint32_t ar_tablelog[1 << ARTBL_BITS];
 	uint32_t am_table1[1 << AMTBL_BITS];
 	uint32_t pm_table1[1 << PMTBL_BITS];
-#if 1
 	uint32_t ar_tablepow[1 << ARTBL_BITS];
-#endif
 	uint32_t am_table2[1 << AMTBL_BITS];
 	uint32_t pm_table2[1 << PMTBL_BITS];
 } KMIF_OPLTABLE;

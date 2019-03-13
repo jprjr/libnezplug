@@ -3,6 +3,8 @@
 #include "nes/logtable.h"
 #include "s_scc.h"
 
+#include "../logtable/log_table.h"
+#include "../logtable/log_table_12_7_30.c"
 
 #define CPS_SHIFT 17
 #define RENDERS 6
@@ -29,7 +31,6 @@ typedef struct {
 
 typedef struct {
 	KMIF_SOUND_DEVICE kmif;
-    LOG_TABLE logtbl;
 	SCC_CH ch[5];
 	uint32_t majutushida;
 	struct {
@@ -48,7 +49,7 @@ __inline static int32_t SCCSoundChSynth(SCCSOUND *sndp, SCC_CH *ch)
 	if (ch->spd <= (9 << CPS_SHIFT)) return 0;
 
 	ch->cycles += sndp->common.cps<<RENDERS;
-	ch->output = LogToLinear(&sndp->logtbl, ch->volume + sndp->common.mastervolume + ch->tone[ch->adr & 0x1F], LOG_LIN_BITS - LIN_BITS - LIN_BITS - 9);
+	ch->output = LogToLinear((LOG_TABLE *)&log_table_12_7_30, ch->volume + sndp->common.mastervolume + ch->tone[ch->adr & 0x1F], LOG_LIN_BITS - LIN_BITS - LIN_BITS - 9);
 	while (ch->cycles >= ch->spd)
 	{
 		outputbuf += ch->output;
@@ -59,7 +60,7 @@ __inline static int32_t SCCSoundChSynth(SCCSOUND *sndp, SCC_CH *ch)
 		if(ch->count >= 1<<RENDERS){
 			ch->count = 0;
 			ch->adr++;
-			ch->output = LogToLinear(&sndp->logtbl, ch->volume + sndp->common.mastervolume + ch->tone[ch->adr & 0x1F], LOG_LIN_BITS - LIN_BITS - LIN_BITS - 9);
+			ch->output = LogToLinear((LOG_TABLE *)&log_table_12_7_30, ch->volume + sndp->common.mastervolume + ch->tone[ch->adr & 0x1F], LOG_LIN_BITS - LIN_BITS - LIN_BITS - 9);
 		}
 	}
 	outputbuf += ch->output;
@@ -84,7 +85,7 @@ static void sndsynth(void *ctx, int32_t *p)
 		uint32_t ch;
 		int32_t accum = 0;
 		for (ch = 0; ch < 5; ch++) accum += SCCSoundChSynth(sndp, &sndp->ch[ch]) * sndp->chmask[NEZ_DEV_SCC_CH1 + ch];
-		accum += LogToLinear(&sndp->logtbl, sndp->common.mastervolume + sndp->majutushida, LOG_LIN_BITS - LIN_BITS - 14);
+		accum += LogToLinear((LOG_TABLE *)&log_table_12_7_30, sndp->common.mastervolume + sndp->majutushida, LOG_LIN_BITS - LIN_BITS - 14);
 		p[0] += accum;
 		p[1] += accum;
 
@@ -114,13 +115,13 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 	}
 	else if ((0x9800 <= a && a <= 0x985F) || (0xB800 <= a && a <= 0xB89F))
 	{
-		uint32_t tone = LinearToLog(&sndp->logtbl, ((int32_t)(v ^ 0x80)) - 0x80);
+		uint32_t tone = LinearToLog((LOG_TABLE *)&log_table_12_7_30, ((int32_t)(v ^ 0x80)) - 0x80);
 		sndp->ch[(a & 0xE0) >> 5].tone[a & 0x1F] = tone;
 		sndp->ch[(a & 0xE0) >> 5].tonereg[a & 0x1F] = v;
 	}
 	else if (0x9860 <= a && a <= 0x987F)
 	{
-		uint32_t tone = LinearToLog(&sndp->logtbl, ((int32_t)(v ^ 0x80)) - 0x80);
+		uint32_t tone = LinearToLog((LOG_TABLE *)&log_table_12_7_30, ((int32_t)(v ^ 0x80)) - 0x80);
 		sndp->ch[3].tone[a & 0x1F] = sndp->ch[4].tone[a & 0x1F] = tone;
 		sndp->ch[3].tonereg[a & 0x1F] = sndp->ch[4].tonereg[a & 0x1F] = v;
 	}
@@ -138,7 +139,7 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 		{
 			SCC_CH *ch = &sndp->ch[port - 0xA];
 			ch->regs[2] = v;
-			ch->volume = LinearToLog(&sndp->logtbl, ch->regs[2] & 0xF);
+			ch->volume = LinearToLog((LOG_TABLE *)&log_table_12_7_30, ch->regs[2] & 0xF);
 		}
 		else
 		{
@@ -150,7 +151,7 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 	else if (0x5000 <= a && a <= 0x5FFF)
 	{
 		sndp->common.enable = 1;
-		sndp->majutushida = LinearToLog(&sndp->logtbl, ((int32_t)(v ^ 0x00)) - 0x80);
+		sndp->majutushida = LinearToLog((LOG_TABLE *)&log_table_12_7_30, ((int32_t)(v ^ 0x00)) - 0x80);
 	}
 }
 
@@ -169,7 +170,6 @@ static void sndrelease(void *ctx)
 {
 	SCCSOUND *sndp = ctx;
 	if (sndp) {
-        LogTableFree(&sndp->logtbl);
 		XFREE(sndp);
 	}
 }
@@ -188,14 +188,6 @@ KMIF_SOUND_DEVICE *SCCSoundAlloc(NEZ_PLAY *pNezPlay)
 	sndp = XMALLOC(sizeof(SCCSOUND));
 	if (!sndp) return 0;
 	XMEMSET(sndp, 0, sizeof(SCCSOUND));
-
-    sndp->logtbl.log_bits = LOG_BITS;
-    sndp->logtbl.lin_bits = LIN_BITS;
-    sndp->logtbl.log_lin_bits = LOG_LIN_BITS;
-	if(LogTableInitialize(&sndp->logtbl) != 0) {
-        sndrelease(sndp);
-        return 0;
-    }
 
     sndp->chmask = pNezPlay->chmask;
 	sndp->kmif.ctx = sndp;

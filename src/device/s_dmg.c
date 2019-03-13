@@ -3,6 +3,9 @@
 #include "nes/logtable.h"
 #include "s_dmg.h"
 
+#include "../logtable/log_table.h"
+#include "../logtable/log_table_12_7_30.c"
+
 #define CPS_BITS 11
 #define CPFWM_BITS 4
 
@@ -127,7 +130,6 @@ typedef struct {
 
 typedef struct {
 	KMIF_SOUND_DEVICE kmif;
-    LOG_TABLE logtbl;
 	DMG_SQUARE square[2];
 	DMG_WAVEMEMORY wavememory;
 	DMG_NOISE noise;
@@ -280,8 +282,8 @@ static int32_t DMGSoundSquareRender(DMGSOUND *sndp, DMG_SQUARE *ch)
 	ch->pt += ch->cps << SQ_RENDERS;
 
 	ch->output = ch->key ? (!ch->mute ? ch->ed.volume * square_duty_table[ch->duty][ch->st] : 0 ) : (sndp->GBAMode[0] ? 0 : 0x8);
-	ch->output = LinearToLog(&sndp->logtbl, ch->output) + ch->mastervolume;
-	ch->output = LogToLinear(&sndp->logtbl, ch->output, sndp->logtbl.log_lin_bits - sndp->logtbl.lin_bits - 14);
+	ch->output = LinearToLog((LOG_TABLE *)&log_table_12_7_30, ch->output) + ch->mastervolume;
+	ch->output = LogToLinear((LOG_TABLE *)&log_table_12_7_30, ch->output, log_table_12_7_30.log_lin_bits - log_table_12_7_30.lin_bits - 14);
 	
 	if (ch->wl > 0x7f9){
 		ch->st+= ch->pt / ((wl << CPS_BITS)>>SQ_RENDERS);
@@ -289,8 +291,8 @@ static int32_t DMGSoundSquareRender(DMGSOUND *sndp, DMG_SQUARE *ch)
 		ch->st&= 0x7;
 
 		ch->output = ch->key ? (!ch->mute ? ch->ed.volume * square_duty_avg[ch->duty] : 0 ) : (sndp->GBAMode[0] ? 0 : 0x20);
-		ch->output = LinearToLog(&sndp->logtbl, ch->output) + ch->mastervolume;
-		ch->output = LogToLinear(&sndp->logtbl, ch->output, sndp->logtbl.log_lin_bits - sndp->logtbl.lin_bits - 11);
+		ch->output = LinearToLog((LOG_TABLE *)&log_table_12_7_30, ch->output) + ch->mastervolume;
+		ch->output = LogToLinear((LOG_TABLE *)&log_table_12_7_30, ch->output, log_table_12_7_30.log_lin_bits - log_table_12_7_30.lin_bits - 11);
 	}
 	else 
 	while (ch->pt >= wl)
@@ -307,8 +309,8 @@ static int32_t DMGSoundSquareRender(DMGSOUND *sndp, DMG_SQUARE *ch)
 			ch->st &= 0x7;
 
 			ch->output = ch->key ? (!ch->mute ? ch->ed.volume * square_duty_table[ch->duty][ch->st] : 0 ) : (sndp->GBAMode[0] ? 0 : 0x8);
-			ch->output = LinearToLog(&sndp->logtbl, ch->output) + ch->mastervolume;
-			ch->output = LogToLinear(&sndp->logtbl, ch->output, sndp->logtbl.log_lin_bits - sndp->logtbl.lin_bits - 14);
+			ch->output = LinearToLog((LOG_TABLE *)&log_table_12_7_30, ch->output) + ch->mastervolume;
+			ch->output = LogToLinear((LOG_TABLE *)&log_table_12_7_30, ch->output, log_table_12_7_30.log_lin_bits - log_table_12_7_30.lin_bits - 14);
 		}
 	}
 
@@ -360,22 +362,15 @@ static int32_t DMGSoundWaveMemoryRender(DMGSOUND *sndp, DMG_WAVEMEMORY *ch)
 		ch->st &= 0x1f;
 
 		ch->output = (ch->on/* && ch->initial_volume*/) ? (total >> ch->volume) : (sndp->GBAMode[0] ? 0 : (8<<2));
-		ch->output = LinearToLog(&sndp->logtbl, ch->output) + ch->mastervolume;
-		ch->output = LogToLinear(&sndp->logtbl, ch->output, sndp->logtbl.log_lin_bits - sndp->logtbl.lin_bits - 12);
+		ch->output = LinearToLog((LOG_TABLE *)&log_table_12_7_30, ch->output) + ch->mastervolume;
+		ch->output = LogToLinear((LOG_TABLE *)&log_table_12_7_30, ch->output, log_table_12_7_30.log_lin_bits - log_table_12_7_30.lin_bits - 12);
 		outputbuf += ch->output;
 		count++;
 	}else{
-		//ch->output = !(!ch->key || !ch->on) ? (/*(0x08 >> ch->volume)-*/((ch->tone[ch->st] >> ch->volume)))<<2 : (sndp->common.regs[0xc]&0xf)<<2;
-//		ch->output = ch->key||ch->on ? (ch->tone[ch->st] >> ch->volume)<<2 : (ch->tone[ch->st] >> ch->volume)<<2;
 		DMG_WAVE_REN;
-		ch->output = LinearToLog(&sndp->logtbl, ch->output) + ch->mastervolume;
-		ch->output = LogToLinear(&sndp->logtbl, ch->output, sndp->logtbl.log_lin_bits - sndp->logtbl.lin_bits - 12);
-/*		if(1){
-			int32_t outputch = 0;
-			outputch = LinearToLog(sndp->logtbl, sndp->wavememory.on * ((8-sndp->square[0].ed.direction + 8-sndp->square[1].ed.direction)/4)) + sndp->square[0].mastervolume;
-			ch->output -= LogToLinear(sndp->logtbl, outputch, sndp->logtbl.log_lin_bits - sndp->logtbl.lin_bits - 14);
-		}
-*/		while (ch->pt >= wl)
+		ch->output = LinearToLog((LOG_TABLE *)&log_table_12_7_30, ch->output) + ch->mastervolume;
+		ch->output = LogToLinear((LOG_TABLE *)&log_table_12_7_30, ch->output, log_table_12_7_30.log_lin_bits - log_table_12_7_30.lin_bits - 12);
+		while (ch->pt >= wl)
 		{
 			//---
 			outputbuf += ch->output;
@@ -383,28 +378,15 @@ static int32_t DMGSoundWaveMemoryRender(DMGSOUND *sndp, DMG_WAVEMEMORY *ch)
 			//---
 			ch->pt -= wl;
 			ch->ct++;
-/*			if((ch->ct | (0xff-(1<<(WM_RENDERS-KAERUNOISE_BITS))+1))==(0xff-(1<<(WM_RENDERS-KAERUNOISE_BITS))+1)){
-				//カエルクリックノイズ
-				if(sndp->nazo.enable == 8 && !sndp->wavememory.key){
-						sndp->nazo.enable = 1;
-				}
-			}
-*/			if(ch->ct >= (1 << WM_RENDERS)){
+			if(ch->ct >= (1 << WM_RENDERS)){
 				ch->ct = 0;
 				if(ch->key)ch->st++;
 				ch->st &= 0x1f;
 
 				DMG_WAVE_REN;
-//				ch->output = ch->on ? (ch->key ? (ch->tone[ch->st] >> ch->volume)<<2 : 0) : (sndp->common.regs[0xc]&0xf)<<2;
-//				ch->output = ch->on ? (ch->key ? (ch->tone[ch->st] >> ch->volume)<<2 : 0) : (ch->tone[ch->st] >> ch->volume)<<2;
-				ch->output = LinearToLog(&sndp->logtbl, ch->output) + ch->mastervolume;
-				ch->output = LogToLinear(&sndp->logtbl, ch->output, sndp->logtbl.log_lin_bits - sndp->logtbl.lin_bits - 12);
-/*				if(1){
-					int32_t outputch = 0;
-					outputch = LinearToLog(sndp->logtbl, sndp->wavememory.on * ((8-sndp->square[0].ed.direction + 8-sndp->square[1].ed.direction)/4)) + sndp->square[0].mastervolume;
-					ch->output -= LogToLinear(sndp->logtbl, outputch, sndp->logtbl.log_lin_bits - sndp->logtbl.lin_bits - 14);
-				}
-*/			}
+				ch->output = LinearToLog((LOG_TABLE *)&log_table_12_7_30, ch->output) + ch->mastervolume;
+				ch->output = LogToLinear((LOG_TABLE *)&log_table_12_7_30, ch->output, log_table_12_7_30.log_lin_bits - log_table_12_7_30.lin_bits - 12);
+			}
 		}
 		//---
 		outputbuf += ch->output;
@@ -432,8 +414,8 @@ static int32_t DMGSoundNoiseRender(DMGSOUND *sndp, DMG_NOISE *ch)
 	ch->pt += ch->cps;
 
 	ch->output = ch->key ? (!ch->mute ? ch->ed.volume - (ch->edge * ch->ed.volume) : 0 ) : (sndp->GBAMode[0] ? (0) : (8));
-	ch->output = LinearToLog(&sndp->logtbl, ch->output) + ch->mastervolume;
-	ch->output = LogToLinear(&sndp->logtbl, ch->output, sndp->logtbl.log_lin_bits - sndp->logtbl.lin_bits - 14);
+	ch->output = LinearToLog((LOG_TABLE *)&log_table_12_7_30, ch->output) + ch->mastervolume;
+	ch->output = LogToLinear((LOG_TABLE *)&log_table_12_7_30, ch->output, log_table_12_7_30.log_lin_bits - log_table_12_7_30.lin_bits - 14);
 
 	while (ch->pt >= (ch->divratio << (CPS_BITS-4)))
 	{
@@ -451,8 +433,8 @@ static int32_t DMGSoundNoiseRender(DMGSOUND *sndp, DMG_NOISE *ch)
 			ch->rngold = ch->rng;
 
 			ch->output = ch->key ? (!ch->mute ? ch->ed.volume - (ch->edge * ch->ed.volume) : 0 ) : (sndp->GBAMode[0] ? (0) : (8));
-			ch->output = LinearToLog(&sndp->logtbl, ch->output) + ch->mastervolume;
-			ch->output = LogToLinear(&sndp->logtbl, ch->output, sndp->logtbl.log_lin_bits - sndp->logtbl.lin_bits - 14);
+			ch->output = LinearToLog((LOG_TABLE *)&log_table_12_7_30, ch->output) + ch->mastervolume;
+			ch->output = LogToLinear((LOG_TABLE *)&log_table_12_7_30, ch->output, log_table_12_7_30.log_lin_bits - log_table_12_7_30.lin_bits - 14);
 		}
 		ch->pt -= (ch->divratio << (CPS_BITS-4));
 	}
@@ -503,7 +485,7 @@ static int32_t DMGSoundNazoRender(DMGSOUND *sndp, DMG_NAZO *ch)
 static void sndvolume(void *ctx, int32_t volume)
 {
 	DMGSOUND *sndp = ctx;
-	volume = (volume << (sndp->logtbl.log_bits - 8)) << 1;
+	volume = (volume << (log_table_12_7_30.log_bits - 8)) << 1;
 	sndp->square[0].mastervolume = volume;
 	sndp->square[1].mastervolume = volume;
 	sndp->wavememory.mastervolume = volume;
@@ -515,9 +497,8 @@ static void sndsynth(void *ctx, int32_t *p)
 	DMGSOUND *sndp = ctx;
 	int32_t b[2] = { 0, 0 };
 	int32_t outputch,outputidle;
-//	if(sndp->nazo.halt)return;
-	outputch = LinearToLog(&sndp->logtbl, 0x8) + sndp->square[0].mastervolume;
-	outputidle = LogToLinear(&sndp->logtbl, outputch, sndp->logtbl.log_lin_bits - sndp->logtbl.lin_bits - 14);
+	outputch = LinearToLog((LOG_TABLE *)&log_table_12_7_30, 0x8) + sndp->square[0].mastervolume;
+	outputidle = LogToLinear((LOG_TABLE *)&log_table_12_7_30, outputch, log_table_12_7_30.log_lin_bits - log_table_12_7_30.lin_bits - 14);
 
 	if (!(sndp->common.regs[0x16] & 0x80)) {
 		b[0] += outputidle * 4;
@@ -557,12 +538,6 @@ static void sndsynth(void *ctx, int32_t *p)
 		if ((sndp->common.regs[0x15] & 0x80)) b[0] += outputch; else b[0] += outputidle;
 		if ((sndp->common.regs[0x15] & 0x08)) b[1] += outputch; else b[1] += outputidle;
 	}
-/*
-	outputch = LinearToLog(sndp->logtbl, 0x32) + sndp->square[0].mastervolume;
-	outputch = LogToLinear(sndp->logtbl, outputch, sndp->logtbl.log_lin_bits - sndp->logtbl.lin_bits - 14);
-	b[0] += outputch;
-	b[1] += outputch;
-*/
 	p[0] += b[0] * ((sndp->common.regs[0x14] & 0x70) >> 4) + 1;
 	p[1] += b[1] * (sndp->common.regs[0x14] & 0x07) + 1;
 }
@@ -978,7 +953,6 @@ static void sndrelease(void *ctx)
 {
 	DMGSOUND *sndp = ctx;
 	if (sndp) {
-        LogTableFree(&sndp->logtbl);
 		XFREE(sndp);
 	}
 }
@@ -997,14 +971,6 @@ KMIF_SOUND_DEVICE *DMGSoundAlloc(NEZ_PLAY *pNezPlay)
 	sndp = XMALLOC(sizeof(DMGSOUND));
 	if (!sndp) return 0;
 	XMEMSET(sndp, 0, sizeof(DMGSOUND));
-
-    sndp->logtbl.log_bits = LOG_BITS;
-    sndp->logtbl.lin_bits = LIN_BITS;
-    sndp->logtbl.log_lin_bits = LOG_LIN_BITS;
-	if(LogTableInitialize(&sndp->logtbl) != 0) {
-        sndrelease(sndp);
-        return 0;
-    }
 
     sndp->chmask = pNezPlay->chmask;
 	sndp->kmif.ctx = sndp;

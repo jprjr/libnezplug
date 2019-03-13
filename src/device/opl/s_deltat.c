@@ -2,6 +2,8 @@
 #include "../../common/divfix.h"
 #include "../nes/logtable.h"
 #include "s_deltat.h"
+#include "../../logtable/log_table.h"
+#include "../../logtable/log_table_12_7_30.c"
 
 #define CPS_SHIFT 16
 #define PHASE_SHIFT 16 /* 16(fix) */
@@ -11,7 +13,6 @@
 
 typedef struct {
 	KMIF_SOUND_DEVICE kmif;
-    LOG_TABLE logtbl;
 	struct YMDELTATPCMSOUND_COMMON_TAG {
 		int32_t mastervolume;
 		int32_t step;
@@ -256,7 +257,7 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 			break;
 		case 0x0b:	/* Level Control */
 			sndp->common.level = (uint8_t)v;
-			sndp->common.level32 = ((int32_t)(sndp->common.level * LogToLinear(&sndp->logtbl, sndp->common.mastervolume, LOG_LIN_BITS - 15))) >> 7;
+			sndp->common.level32 = ((int32_t)(sndp->common.level * LogToLinear((LOG_TABLE *)&log_table_12_7_30, sndp->common.mastervolume, LOG_LIN_BITS - 15))) >> 7;
 			if(sndp->ymdeltatpcm_type==MSM5205){
 				sndp->common.output = sndp->common.scale * sndp->common.level32;
 			}else{
@@ -289,7 +290,7 @@ static void sndvolume(void *ctx, int32_t volume)
     YMDELTATPCMSOUND *sndp = (YMDELTATPCMSOUND *)ctx;
 	volume = (volume << (LOG_BITS - 8)) << 1;
 	sndp->common.mastervolume = volume;
-	sndp->common.level32 = ((int32_t)(sndp->common.level * LogToLinear(&sndp->logtbl, sndp->common.mastervolume, LOG_LIN_BITS - 15))) >> 7;
+	sndp->common.level32 = ((int32_t)(sndp->common.level * LogToLinear((LOG_TABLE *)&log_table_12_7_30, sndp->common.mastervolume, LOG_LIN_BITS - 15))) >> 7;
 	sndp->common.output = sndp->common.step * sndp->common.level32;
 	sndp->common.output = SSR(sndp->common.output, 8 + 2);
 }
@@ -298,7 +299,6 @@ static void sndrelease(void *ctx)
 {
     YMDELTATPCMSOUND *sndp = (YMDELTATPCMSOUND *)ctx;
 	if (sndp) {
-        LogTableFree(&sndp->logtbl);
 		XFREE(sndp);
 	}
 }
@@ -343,14 +343,6 @@ KMIF_SOUND_DEVICE *YMDELTATPCMSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t ymdeltatpc
 	}
 	sndp = XMALLOC(sizeof(YMDELTATPCMSOUND) + ram_size);
 	if (!sndp) return 0;
-
-    sndp->logtbl.log_bits = LOG_BITS;
-    sndp->logtbl.lin_bits = LIN_BITS;
-    sndp->logtbl.log_lin_bits = LOG_LIN_BITS;
-	if(LogTableInitialize(&sndp->logtbl) != 0) {
-        sndrelease(sndp);
-        return 0;
-    }
 
     sndp->chmask = pNezPlay->chmask;
 	sndp->ram_size = ram_size;

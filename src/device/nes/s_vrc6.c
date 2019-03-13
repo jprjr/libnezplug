@@ -7,6 +7,8 @@
 #include "../../format/m_nsf.h"
 #include "s_vrc6.h"
 #include "../../common/divfix.h"
+#include "../../logtable/log_table.h"
+#include "../../logtable/log_table_12_8_30.c"
 
 #define NES_BASECYCLES (21477270)
 #define CPS_SHIFT 16
@@ -45,7 +47,6 @@ typedef struct {
 	VRC6_SQUARE square[2];
 	VRC6_SAW saw;
 	uint32_t mastervolume;
-    LOG_TABLE logtable;
 } VRC6SOUND;
 
 /* ------------ */
@@ -68,8 +69,8 @@ static int32_t VRC6SoundSquareRender(NEZ_PLAY *pNezPlay, VRC6_SQUARE *ch)
 	if (ch->spd < (8 << CPS_SHIFT >> RENDERS)) return 0;
 
 	ch->cycles += ch->cps;
-	ch->output = LinearToLog(&vrc6s->logtable,ch->regs[0] & 0x0F) + vrc6s->mastervolume;
-	ch->output = LogToLinear(&vrc6s->logtable,ch->output, vrc6s->logtable.log_lin_bits - vrc6s->logtable.lin_bits - 16 - 1);
+	ch->output = LinearToLog((LOG_TABLE *)&log_table_12_8_30,ch->regs[0] & 0x0F) + vrc6s->mastervolume;
+	ch->output = LogToLinear((LOG_TABLE *)&log_table_12_8_30,ch->output, log_table_12_8_30.log_lin_bits - log_table_12_8_30.lin_bits - 16 - 1);
 	ch->output *= (!(ch->regs[0] & 0x80) && (ch->adr < ((ch->regs[0] >> 4) + 1))) ? 0 : 1;
 	while (ch->cycles > 0)
 	{
@@ -84,8 +85,8 @@ static int32_t VRC6SoundSquareRender(NEZ_PLAY *pNezPlay, VRC6_SQUARE *ch)
 			ch->adr++;
 			ch->adr &= 0xF;
 
-			ch->output = LinearToLog(&vrc6s->logtable,ch->regs[0] & 0x0F) + vrc6s->mastervolume;
-			ch->output = LogToLinear(&vrc6s->logtable,ch->output, vrc6s->logtable.log_lin_bits - vrc6s->logtable.lin_bits - 16 - 1);
+			ch->output = LinearToLog((LOG_TABLE *)&log_table_12_8_30,ch->regs[0] & 0x0F) + vrc6s->mastervolume;
+			ch->output = LogToLinear((LOG_TABLE *)&log_table_12_8_30,ch->output, log_table_12_8_30.log_lin_bits - log_table_12_8_30.lin_bits - 16 - 1);
 			ch->output *= (!(ch->regs[0] & 0x80) && (ch->adr < ((ch->regs[0] >> 4) + 1))) ? 0 : 1;
 		}
 	}
@@ -115,8 +116,8 @@ static int32_t VRC6SoundSawRender(NEZ_PLAY *pNezPlay, VRC6_SAW *ch)
 
 	ch->cycles -= ch->cps << 6;
 
-	ch->outputbf = LinearToLog(&vrc6s->logtable,(ch->output >> 3) & 0x1F) + vrc6s->mastervolume;
-	ch->outputbf = LogToLinear(&vrc6s->logtable,ch->outputbf, vrc6s->logtable.log_lin_bits - vrc6s->logtable.lin_bits - 16 - 1);
+	ch->outputbf = LinearToLog((LOG_TABLE *)&log_table_12_8_30,(ch->output >> 3) & 0x1F) + vrc6s->mastervolume;
+	ch->outputbf = LogToLinear((LOG_TABLE *)&log_table_12_8_30,ch->outputbf, log_table_12_8_30.log_lin_bits - log_table_12_8_30.lin_bits - 16 - 1);
 	while (ch->cycles < 0)
 	{
 		outputbuf += ch->outputbf;
@@ -133,8 +134,8 @@ static int32_t VRC6SoundSawRender(NEZ_PLAY *pNezPlay, VRC6_SAW *ch)
 				ch->adr = 0;
 				ch->output = 0;
 			}
-			ch->outputbf = LinearToLog(&vrc6s->logtable,(ch->output >> 3) & 0x1F) + vrc6s->mastervolume;
-			ch->outputbf = LogToLinear(&vrc6s->logtable,ch->outputbf, vrc6s->logtable.log_lin_bits - vrc6s->logtable.lin_bits - 16 - 1);
+			ch->outputbf = LinearToLog((LOG_TABLE *)&log_table_12_8_30,(ch->output >> 3) & 0x1F) + vrc6s->mastervolume;
+			ch->outputbf = LogToLinear((LOG_TABLE *)&log_table_12_8_30,ch->outputbf, log_table_12_8_30.log_lin_bits - log_table_12_8_30.lin_bits - 16 - 1);
 		}
 	}
 	outputbuf += ch->outputbf;
@@ -164,7 +165,7 @@ static void VRC6SoundVolume(NEZ_PLAY *pNezPlay, uint32_t volume)
 {
 	VRC6SOUND *vrc6s = ((NSFNSF*)pNezPlay->nsf)->vrc6s;
 	volume += 64;
-	vrc6s->mastervolume = (volume << (vrc6s->logtable.log_bits - 8)) << 1;
+	vrc6s->mastervolume = (volume << (log_table_12_8_30.log_bits - 8)) << 1;
 }
 
 static const NEZ_NES_VOLUME_HANDLER s_vrc6_volume_handler[] = {
@@ -218,17 +219,10 @@ static void VRC6SoundSawReset(NEZ_PLAY *pNezPlay, VRC6_SAW *ch)
 static void VRC6SoundReset(NEZ_PLAY *pNezPlay)
 {
 	VRC6SOUND *vrc6s = ((NSFNSF*)pNezPlay->nsf)->vrc6s;
-    uint32_t *lineartbl = vrc6s->logtable.lineartbl;
-    uint32_t *logtbl = vrc6s->logtable.logtbl;
 	XMEMSET(vrc6s, 0, sizeof(VRC6SOUND));
 	VRC6SoundSquareReset(pNezPlay, &vrc6s->square[0]);
 	VRC6SoundSquareReset(pNezPlay, &vrc6s->square[1]);
 	VRC6SoundSawReset(pNezPlay, &vrc6s->saw);
-    vrc6s->logtable.log_bits = 12;
-    vrc6s->logtable.lin_bits = 8;
-    vrc6s->logtable.log_lin_bits = 30;
-    vrc6s->logtable.lineartbl = lineartbl;
-    vrc6s->logtable.logtbl = logtbl;
 }
 
 static const NEZ_NES_RESET_HANDLER s_vrc6_reset_handler[] = {
@@ -240,7 +234,6 @@ static void VRC6SoundTerm(NEZ_PLAY *pNezPlay)
 {
 	VRC6SOUND *vrc6s = ((NSFNSF*)pNezPlay->nsf)->vrc6s;
 	if (vrc6s) {
-        LogTableFree(&vrc6s->logtable);
 		XFREE(vrc6s);
     }
 }
@@ -258,10 +251,6 @@ void VRC6SoundInstall(NEZ_PLAY *pNezPlay)
 	XMEMSET(vrc6s, 0, sizeof(VRC6SOUND));
 	((NSFNSF*)pNezPlay->nsf)->vrc6s = vrc6s;
 
-    vrc6s->logtable.log_bits = 12;
-    vrc6s->logtable.lin_bits = 8;
-    vrc6s->logtable.log_lin_bits = 30;
-	if(LogTableInitialize(&vrc6s->logtable) != 0) return;
 	NESAudioHandlerInstall(pNezPlay, s_vrc6_audio_handler);
 	NESVolumeHandlerInstall(pNezPlay, s_vrc6_volume_handler);
 	NESTerminateHandlerInstall(&pNezPlay->nth, s_vrc6_terminate_handler);

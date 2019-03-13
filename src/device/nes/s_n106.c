@@ -7,6 +7,8 @@
 #include "../../format/m_nsf.h"
 #include "s_n106.h"
 #include "../../common/divfix.h"
+#include "../../logtable/log_table.h"
+#include "../../logtable/log_table_12_8_30.c"
 
 #define NES_BASECYCLES (21477270)
 #define CPS_SHIFT (16)
@@ -59,12 +61,11 @@ typedef struct {
 
 	uint32_t tone[0x100];	/* TONE DATA */
 	uint8_t data[0x80];
-    LOG_TABLE logtable;
 } N106SOUND;
 
 __inline static void UPDATE(NEZ_PLAY *pNezPlay, N106_WM *chp)
 {
-	N106SOUND *n106s = ((NSFNSF*)pNezPlay->nsf)->n106s;
+    (void)pNezPlay;
 	if (chp->update & 3)
 	{
 		uint32_t freq;
@@ -85,7 +86,7 @@ __inline static void UPDATE(NEZ_PLAY *pNezPlay, N106_WM *chp)
 	}
 	if (chp->update & 4)
 	{
-		chp->logvol = LinearToLog(&n106s->logtable,(chp->vreg & 0x0f) << 2);
+		chp->logvol = LinearToLog((LOG_TABLE *)&log_table_12_8_30,(chp->vreg & 0x0f) << 2);
 	}
 	chp->update = 0;
 }
@@ -111,7 +112,7 @@ static int32_t N106SoundRenderReal2(NEZ_PLAY *pNezPlay)
 		if (chp->mute || !chp->logvol) continue;
 		if (chp->update) UPDATE(pNezPlay,chp);
 		chp->cycles2 += n106s->cps << REAL_RENDERS;
-		chp->output = LogToLinear(&n106s->logtable,n106s->tone[((chp->phase >> PHASE_SHIFT) + chp->tadr) & 0xff] + chp->logvol + n106s->mastervolume, n106s->logtable.log_lin_bits - n106s->logtable.lin_bits - n106s->logtable.lin_bits - 11);
+		chp->output = LogToLinear((LOG_TABLE *)&log_table_12_8_30,n106s->tone[((chp->phase >> PHASE_SHIFT) + chp->tadr) & 0xff] + chp->logvol + n106s->mastervolume, log_table_12_8_30.log_lin_bits - log_table_12_8_30.lin_bits - log_table_12_8_30.lin_bits - 11);
 		while (chp->cycles2 >= n106s->cpsf){
 			if (((int32_t)chp->count / real2) + 8 - n106s->chinuse == chpn)accum += chp->output;
 			count++;
@@ -126,7 +127,7 @@ static int32_t N106SoundRenderReal2(NEZ_PLAY *pNezPlay)
 				//while(chp->cycles >= cyclesspd)chp->cycles -= cyclesspd;
 				chp->phase %= chp->tlen;
 				//while(chp->phase >= chp->tlen)chp->phase -= chp->tlen;
-				chp->output = LogToLinear(&n106s->logtable,n106s->tone[((chp->phase >> PHASE_SHIFT) + chp->tadr) & 0xff] + chp->logvol + n106s->mastervolume, n106s->logtable.log_lin_bits - n106s->logtable.lin_bits - n106s->logtable.lin_bits - 11);
+				chp->output = LogToLinear((LOG_TABLE *)&log_table_12_8_30,n106s->tone[((chp->phase >> PHASE_SHIFT) + chp->tadr) & 0xff] + chp->logvol + n106s->mastervolume, log_table_12_8_30.log_lin_bits - log_table_12_8_30.lin_bits - log_table_12_8_30.lin_bits - 11);
 			}
 		}
 		if (((int32_t)chp->count / real2) == chpn)accum += chp->output;
@@ -159,7 +160,7 @@ static int32_t N106SoundRenderReal(NEZ_PLAY *pNezPlay)
 		if (chp->mute || !chp->logvol) continue;
 		if (chp->update) UPDATE(pNezPlay,chp);
 		chp->cycles2 += n106s->cps << REAL_RENDERS;
-		chp->output = LogToLinear(&n106s->logtable,n106s->tone[((chp->phase >> PHASE_SHIFT) + chp->tadr) & 0xff] + chp->logvol + n106s->mastervolume, n106s->logtable.log_lin_bits - n106s->logtable.lin_bits - n106s->logtable.lin_bits - 9);
+		chp->output = LogToLinear((LOG_TABLE *)&log_table_12_8_30,n106s->tone[((chp->phase >> PHASE_SHIFT) + chp->tadr) & 0xff] + chp->logvol + n106s->mastervolume, log_table_12_8_30.log_lin_bits - log_table_12_8_30.lin_bits - log_table_12_8_30.lin_bits - 9);
 		while (chp->cycles2 >= n106s->cpsf){
 			accum += chp->output;
 			count++;
@@ -174,7 +175,7 @@ static int32_t N106SoundRenderReal(NEZ_PLAY *pNezPlay)
 				//while(chp->cycles >= cyclesspd)chp->cycles -= cyclesspd;
 				chp->phase %= chp->tlen;
 				//while(chp->phase >= chp->tlen)chp->phase -= chp->tlen;
-				chp->output = LogToLinear(&n106s->logtable,n106s->tone[((chp->phase >> PHASE_SHIFT) + chp->tadr) & 0xff] + chp->logvol + n106s->mastervolume, n106s->logtable.log_lin_bits - n106s->logtable.lin_bits - n106s->logtable.lin_bits - 9);
+				chp->output = LogToLinear((LOG_TABLE *)&log_table_12_8_30,n106s->tone[((chp->phase >> PHASE_SHIFT) + chp->tadr) & 0xff] + chp->logvol + n106s->mastervolume, log_table_12_8_30.log_lin_bits - log_table_12_8_30.lin_bits - log_table_12_8_30.lin_bits - 9);
 			}
 		}
 		accum += chp->output;
@@ -201,7 +202,7 @@ static int32_t N106SoundRenderNormal(NEZ_PLAY *pNezPlay)
 		count = 0;
 		if (chp->update) UPDATE(pNezPlay,chp);
 		chp->cycles += n106s->cps << RENDERS;
-		chp->output = LogToLinear(&n106s->logtable,n106s->tone[((chp->phase >> PHASE_SHIFT) + chp->tadr) & 0xff] + chp->logvol + n106s->mastervolume, n106s->logtable.log_lin_bits - n106s->logtable.lin_bits - n106s->logtable.lin_bits - 9);
+		chp->output = LogToLinear((LOG_TABLE *)&log_table_12_8_30,n106s->tone[((chp->phase >> PHASE_SHIFT) + chp->tadr) & 0xff] + chp->logvol + n106s->mastervolume, log_table_12_8_30.log_lin_bits - log_table_12_8_30.lin_bits - log_table_12_8_30.lin_bits - 9);
 		while (chp->cycles >= cyclesspd)
 		{
 			accum += chp->output;
@@ -216,7 +217,7 @@ static int32_t N106SoundRenderNormal(NEZ_PLAY *pNezPlay)
 					do{
 						chp->phase -= chp->tlen;
 					}while(chp->phase >= chp->tlen);
-				chp->output = LogToLinear(&n106s->logtable,n106s->tone[((chp->phase >> PHASE_SHIFT) + chp->tadr) & 0xff] + chp->logvol + n106s->mastervolume, n106s->logtable.log_lin_bits - n106s->logtable.lin_bits - n106s->logtable.lin_bits - 9);
+				chp->output = LogToLinear((LOG_TABLE *)&log_table_12_8_30,n106s->tone[((chp->phase >> PHASE_SHIFT) + chp->tadr) & 0xff] + chp->logvol + n106s->mastervolume, log_table_12_8_30.log_lin_bits - log_table_12_8_30.lin_bits - log_table_12_8_30.lin_bits - 9);
 //			}
 		}
 		accum += chp->output;
@@ -248,7 +249,7 @@ static const NEZ_NES_AUDIO_HANDLER s_n106_audio_handler[] = {
 static void N106SoundVolume(NEZ_PLAY *pNezPlay, uint32_t volume)
 {
 	N106SOUND *n106s = ((NSFNSF*)pNezPlay->nsf)->n106s;
-	n106s->mastervolume = (volume << (n106s->logtable.log_bits - 8)) << 1;
+	n106s->mastervolume = (volume << (log_table_12_8_30.log_bits - 8)) << 1;
 }
 
 static const NEZ_NES_VOLUME_HANDLER s_n106_volume_handler[] = {
@@ -269,8 +270,8 @@ static void N106SoundWriteData(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t va
     (void)address;
 	N106SOUND *n106s = ((NSFNSF*)pNezPlay->nsf)->n106s;
 	n106s->data[n106s->address] = (uint8_t)value;
-	n106s->tone[n106s->address * 2]     = LinearToLog(&n106s->logtable,((int32_t)(value & 0xf) << 2) - 0x20);
-	n106s->tone[n106s->address * 2 + 1] = LinearToLog(&n106s->logtable,((int32_t)(value >>  4) << 2) - 0x20);
+	n106s->tone[n106s->address * 2]     = LinearToLog((LOG_TABLE *)&log_table_12_8_30,((int32_t)(value & 0xf) << 2) - 0x20);
+	n106s->tone[n106s->address * 2 + 1] = LinearToLog((LOG_TABLE *)&log_table_12_8_30,((int32_t)(value >>  4) << 2) - 0x20);
 	if (n106s->address >= 0x40)
 	{
 		N106_WM *chp = &n106s->ch[(n106s->address - 0x40) >> 3];
@@ -363,18 +364,16 @@ static void N106SoundReset(NEZ_PLAY *pNezPlay)
 {
 	N106SOUND *n106s = ((NSFNSF*)pNezPlay->nsf)->n106s;
 	int i,j;
-    uint32_t *lineartbl = n106s->logtable.lineartbl;
-    uint32_t *logtbl = n106s->logtable.logtbl;
 	XMEMSET(n106s, 0, sizeof(N106SOUND));
 
 	//波形データの初期化
 	for (j = 0; j < 0xff; j++)
-		n106s->tone[j] =  LinearToLog(&n106s->logtable,(0) - 0x20);
+		n106s->tone[j] =  LinearToLog((LOG_TABLE *)&log_table_12_8_30,(0) - 0x20);
 
 	for (i = 0; i < 8; i++)
 	{
 		n106s->ch[i].tlen = 0x10 << PHASE_SHIFT;
-		n106s->ch[i].logvol = LinearToLog(&n106s->logtable,0);
+		n106s->ch[i].logvol = LinearToLog((LOG_TABLE *)&log_table_12_8_30,0);
 	}
 	n106s->addressauto = 1;
 	n106s->chinuse = 8;
@@ -384,11 +383,6 @@ static void N106SoundReset(NEZ_PLAY *pNezPlay)
 	n106s->outputfg = 0;
 
 	n106s->ofscps = REAL_OFS_BASE * REAL_OFS_COUNT / NESAudioFrequencyGet(pNezPlay);
-    n106s->logtable.log_bits = 12;
-    n106s->logtable.lin_bits = 8;
-    n106s->logtable.log_lin_bits = 30;
-    n106s->logtable.lineartbl = lineartbl;
-    n106s->logtable.logtbl = logtbl;
 }
 
 static const NEZ_NES_RESET_HANDLER s_n106_reset_handler[] = {
@@ -401,7 +395,6 @@ static void N106SoundTerm(NEZ_PLAY *pNezPlay)
 {
 	N106SOUND *n106s = ((NSFNSF*)pNezPlay->nsf)->n106s;
 	if (n106s) {
-        LogTableFree(&n106s->logtable);
 		XFREE(n106s);
     }
 }
@@ -419,10 +412,6 @@ void N106SoundInstall(NEZ_PLAY *pNezPlay)
 	XMEMSET(n106s, 0, sizeof(N106SOUND));
 	((NSFNSF*)pNezPlay->nsf)->n106s = n106s;
 
-    n106s->logtable.log_bits = 12;
-    n106s->logtable.lin_bits = 8;
-    n106s->logtable.log_lin_bits = 30;
-	if(LogTableInitialize(&n106s->logtable) != 0) return;
 	NESAudioHandlerInstall(pNezPlay, s_n106_audio_handler);
 	NESVolumeHandlerInstall(pNezPlay, s_n106_volume_handler);
 	NESTerminateHandlerInstall(&pNezPlay->nth, s_n106_terminate_handler);

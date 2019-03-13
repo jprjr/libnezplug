@@ -7,6 +7,8 @@
 #include "../../format/m_nsf.h"
 #include "s_mmc5.h"
 #include "../../common/divfix.h"
+#include "../../logtable/log_table.h"
+#include "../../logtable/log_table_12_8_30.c"
 
 #define NES_BASECYCLES (21477270)
 
@@ -50,7 +52,6 @@ typedef struct {
 	uint8_t mmc5multiplier[2];
 	uint8_t mmc5exram[0x400];
 	uint8_t regs[0x20];
-    LOG_TABLE logtable;
 } MMC5SOUND;
 
 /* ----------------- */
@@ -153,7 +154,7 @@ static const uint8_t square_duty_table[4][8] =
 
 static int32_t MMC5SoundSquareRender(NEZ_PLAY *pNezPlay, MMC5_SQUARE *ch)
 {
-	MMC5SOUND *mmc5 = ((NSFNSF*)pNezPlay->nsf)->mmc5;
+    (void)pNezPlay;
 	int32_t outputbuf=0,count=0;
 	if (ch->update)
 	{
@@ -218,9 +219,9 @@ static int32_t MMC5SoundSquareRender(NEZ_PLAY *pNezPlay, MMC5_SQUARE *ch)
 	else
 		ch->output = 15 - ch->envadr;
 
-	ch->output = LinearToLog(&mmc5->logtable,ch->output) + ch->mastervolume;
+	ch->output = LinearToLog((LOG_TABLE *)&log_table_12_8_30,ch->output) + ch->mastervolume;
 	ch->output += square_duty_table[ch->duty][ch->adr];
-	ch->output = LogToLinear(&mmc5->logtable,ch->output, mmc5->logtable.log_lin_bits - mmc5->logtable.lin_bits - 16);
+	ch->output = LogToLinear((LOG_TABLE *)&log_table_12_8_30,ch->output, log_table_12_8_30.log_lin_bits - log_table_12_8_30.lin_bits - 16);
 	
 	ch->cycles -= ch->cps << 6;
 	while (ch->cycles < 0)
@@ -241,9 +242,9 @@ static int32_t MMC5SoundSquareRender(NEZ_PLAY *pNezPlay, MMC5_SQUARE *ch)
 			else
 				ch->output = 15 - ch->envadr;
 
-			ch->output = LinearToLog(&mmc5->logtable,ch->output) + ch->mastervolume;
+			ch->output = LinearToLog((LOG_TABLE *)&log_table_12_8_30,ch->output) + ch->mastervolume;
 			ch->output += square_duty_table[ch->duty][ch->adr];
-			ch->output = LogToLinear(&mmc5->logtable,ch->output, mmc5->logtable.log_lin_bits - mmc5->logtable.lin_bits - 16);
+			ch->output = LogToLinear((LOG_TABLE *)&log_table_12_8_30,ch->output, log_table_12_8_30.log_lin_bits - log_table_12_8_30.lin_bits - 16);
 		}
 
 	}
@@ -285,10 +286,10 @@ static const NEZ_NES_AUDIO_HANDLER s_mmc5_audio_handler[] = {
 static void MMC5SoundVolume(NEZ_PLAY *pNezPlay, uint32_t volume)
 {
 	MMC5SOUND *mmc5 = ((NSFNSF*)pNezPlay->nsf)->mmc5;
-	volume = (volume << (mmc5->logtable.log_bits - 8)) << 1;
+	volume = (volume << (log_table_12_8_30.log_bits - 8)) << 1;
 	mmc5->square[0].mastervolume = volume;
 	mmc5->square[1].mastervolume = volume;
-	mmc5->da.linearvolume = LogToLinear(&mmc5->logtable,volume, mmc5->logtable.log_lin_bits - 16);
+	mmc5->da.linearvolume = LogToLinear((LOG_TABLE *)&log_table_12_8_30,volume, log_table_12_8_30.log_lin_bits - 16);
 }
 
 static const NEZ_NES_VOLUME_HANDLER s_mmc5_volume_handler[] = {
@@ -353,8 +354,6 @@ static void MMC5SoundDaReset(MMC5_DA *ch)
 static void MMC5SoundReset(NEZ_PLAY *pNezPlay)
 {
 	MMC5SOUND *mmc5 = ((NSFNSF*)pNezPlay->nsf)->mmc5;
-    uint32_t *lineartbl = mmc5->logtable.lineartbl;
-    uint32_t *logtbl = mmc5->logtable.logtbl;
 	MMC5SoundSquareReset(pNezPlay, &mmc5->square[0]);
 	MMC5SoundSquareReset(pNezPlay, &mmc5->square[1]);
 	MMC5SoundDaReset(&mmc5->da);
@@ -367,11 +366,6 @@ static void MMC5SoundReset(NEZ_PLAY *pNezPlay)
 	MMC5SoundWrite(pNezPlay, 0x5007, 0x00);
 	MMC5SoundWrite(pNezPlay, 0x5010, 0x00);
 	MMC5SoundWrite(pNezPlay, 0x5011, 0x80);
-    mmc5->logtable.log_bits = 12;
-    mmc5->logtable.lin_bits = 8;
-    mmc5->logtable.log_lin_bits = 30;
-    mmc5->logtable.lineartbl = lineartbl;
-    mmc5->logtable.logtbl = logtbl;
 }
 
 static const NEZ_NES_RESET_HANDLER s_mmc5_reset_handler[] = {
@@ -383,7 +377,6 @@ static void MMC5SoundTerm(NEZ_PLAY *pNezPlay)
 {
 	MMC5SOUND *mmc5 = ((NSFNSF*)pNezPlay->nsf)->mmc5;
 	if (mmc5) {
-        LogTableFree(&mmc5->logtable);
 		XFREE(mmc5);
     }
 }
@@ -401,10 +394,6 @@ void MMC5SoundInstall(NEZ_PLAY *pNezPlay)
 	XMEMSET(mmc5, 0, sizeof(MMC5SOUND));
 	((NSFNSF*)pNezPlay->nsf)->mmc5 = mmc5;
 
-    mmc5->logtable.log_bits = 12;
-    mmc5->logtable.lin_bits = 8;
-    mmc5->logtable.log_lin_bits = 30;
-	if(LogTableInitialize(&mmc5->logtable) != 0) return;
 	NESAudioHandlerInstall(pNezPlay, s_mmc5_audio_handler);
 	NESVolumeHandlerInstall(pNezPlay, s_mmc5_volume_handler);
 	NESTerminateHandlerInstall(&pNezPlay->nth, s_mmc5_terminate_handler);

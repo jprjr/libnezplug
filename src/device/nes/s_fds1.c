@@ -6,6 +6,8 @@
 #include "../../format/m_nsf.h"
 #include "s_fds.h"
 #include "../../common/divfix.h"
+#include "../../logtable/log_table.h"
+#include "../../logtable/log_table_12_8_30.c"
 
 #define NES_BASECYCLES (21477270)
 #define CPS_SHIFT (23)
@@ -43,7 +45,6 @@ typedef struct FDSSOUND {
 	uint8_t mute;
 	uint8_t key;
 	uint8_t reg[0x10];
-    LOG_TABLE logtable;
 } FDSSOUND;
 
 static int32_t FDSSoundRender(NEZ_PLAY *pNezPlay)
@@ -79,7 +80,7 @@ static int32_t FDSSoundRender(NEZ_PLAY *pNezPlay)
 			else if (vol > 0x3f)
 				vol = 0x3f;
 		}
-		pop->envout = LinearToLog(&fdssound->logtable,vol);
+		pop->envout = LinearToLog((LOG_TABLE *)&log_table_12_8_30,vol);
 	}
 	fdssound->op[1].envout += fdssound->mastervolume;
 
@@ -96,7 +97,7 @@ static int32_t FDSSoundRender(NEZ_PLAY *pNezPlay)
 				continue;
 			}
 			pop->phase += pop->spd + fdssound->output;
-			fdssound->output = LogToLinear(&fdssound->logtable,pop->envout + pop->wave[(pop->phase >> (PHASE_SHIFT - XXX_SHIFT)) & 0x3f], pop->outlvl);
+			fdssound->output = LogToLinear((LOG_TABLE *)&log_table_12_8_30,pop->envout + pop->wave[(pop->phase >> (PHASE_SHIFT - XXX_SHIFT)) & 0x3f], pop->outlvl);
 		}
 	}
 	if (fdssound->mute) return 0;
@@ -112,7 +113,7 @@ static const NEZ_NES_AUDIO_HANDLER s_fds_audio_handler[] =
 static void FDSSoundVolume(NEZ_PLAY *pNezPlay, uint32_t volume)
 {
 	FDSSOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
-	fdssound->mastervolume = (volume << (fdssound->logtable.log_bits - 8)) << 1;
+	fdssound->mastervolume = (volume << (log_table_12_8_30.log_bits - 8)) << 1;
 }
 
 static const NEZ_NES_VOLUME_HANDLER s_fds_volume_handler[] = {
@@ -125,7 +126,7 @@ static void FDSSoundWrite(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 	FDSSOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
 	if (0x4040 <= address && address <= 0x407F)
 	{
-		fdssound->op[1].wave[address - 0x4040] = LinearToLog(&fdssound->logtable,((int32_t)value & 0x3f) - 0x20);
+		fdssound->op[1].wave[address - 0x4040] = LinearToLog((LOG_TABLE *)&log_table_12_8_30,((int32_t)value & 0x3f) - 0x20);
 	}
 	else if (0x4080 <= address && address <= 0x408F)
 	{
@@ -165,7 +166,7 @@ static void FDSSoundWrite(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 			case 8:
 				{
 					static int8_t lfotbl[8] = { 0,1,2,3,-4,-3,-2,-1 };
-					uint32_t v = LinearToLog(&fdssound->logtable,lfotbl[value & 7]);
+					uint32_t v = LinearToLog((LOG_TABLE *)&log_table_12_8_30,lfotbl[value & 7]);
 					fdssound->op[0].wave[fdssound->waveaddr++] = v;
 					fdssound->op[0].wave[fdssound->waveaddr++] = v;
 					if (fdssound->waveaddr == 0x40)
@@ -175,10 +176,10 @@ static void FDSSoundWrite(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 				}
 				break;
 			case 9:
-				fdssound->op[0].outlvl = fdssound->logtable.log_lin_bits - fdssound->logtable.lin_bits - fdssound->logtable.lin_bits - 10 - (value & 3);
+				fdssound->op[0].outlvl = log_table_12_8_30.log_lin_bits - log_table_12_8_30.lin_bits - log_table_12_8_30.lin_bits - 10 - (value & 3);
 				break;
 			case 10:
-				fdssound->op[1].outlvl = fdssound->logtable.log_lin_bits - fdssound->logtable.lin_bits - fdssound->logtable.lin_bits - 10 - (value & 3);
+				fdssound->op[1].outlvl = log_table_12_8_30.log_lin_bits - log_table_12_8_30.lin_bits - log_table_12_8_30.lin_bits - 10 - (value & 3);
 				break;
 		}
 	}
@@ -211,25 +212,18 @@ static void FDSSoundReset(NEZ_PLAY *pNezPlay)
 	FDSSOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
 	int32_t i;
 	FDS_FMOP *pop;
-    uint32_t *lineartbl = fdssound->logtable.lineartbl;
-    uint32_t *logtbl = fdssound->logtable.logtbl;
 	XMEMSET(fdssound, 0, sizeof(FDSSOUND));
 	fdssound->cps = DivFix(NES_BASECYCLES, 12 * (1 << XXX_SHIFT) * NESAudioFrequencyGet(pNezPlay), CPS_SHIFT);
 	for (pop = &fdssound->op[0]; pop < &fdssound->op[2]; pop++)
 	{
 		pop->enable = 1;
 	}
-	fdssound->op[0].outlvl = fdssound->logtable.log_lin_bits - fdssound->logtable.lin_bits - fdssound->logtable.lin_bits - 10;
-	fdssound->op[1].outlvl = fdssound->logtable.log_lin_bits - fdssound->logtable.lin_bits - fdssound->logtable.lin_bits - 10;
+	fdssound->op[0].outlvl = log_table_12_8_30.log_lin_bits - log_table_12_8_30.lin_bits - log_table_12_8_30.lin_bits - 10;
+	fdssound->op[1].outlvl = log_table_12_8_30.log_lin_bits - log_table_12_8_30.lin_bits - log_table_12_8_30.lin_bits - 10;
 	for (i = 0; i < 0x40; i++)
 	{
-		fdssound->op[1].wave[i] = LinearToLog(&fdssound->logtable,(i < 0x20)?0x1f:-0x20);
+		fdssound->op[1].wave[i] = LinearToLog((LOG_TABLE *)&log_table_12_8_30,(i < 0x20)?0x1f:-0x20);
 	}
-    fdssound->logtable.log_bits = 12;
-    fdssound->logtable.lin_bits = 8;
-    fdssound->logtable.log_lin_bits = 30;
-    fdssound->logtable.lineartbl = lineartbl;
-    fdssound->logtable.logtbl = logtbl;
 }
 
 static const NEZ_NES_RESET_HANDLER s_fds_reset_handler[] =
@@ -242,7 +236,6 @@ static void FDSSoundTerm(NEZ_PLAY *pNezPlay)
 {
 	FDSSOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
 	if (fdssound) {
-        LogTableFree(&fdssound->logtable);
 		XFREE(fdssound);
     }
 }
@@ -260,10 +253,6 @@ void FDSSoundInstall1(NEZ_PLAY *pNezPlay)
 	XMEMSET(fdssound, 0, sizeof(FDSSOUND));
 	((NSFNSF*)pNezPlay->nsf)->fdssound = fdssound;
 
-    fdssound->logtable.log_bits = 12;
-    fdssound->logtable.lin_bits = 8;
-    fdssound->logtable.log_lin_bits = 30;
-	if(LogTableInitialize(&fdssound->logtable) != 0) return;
 	NESAudioHandlerInstall(pNezPlay, s_fds_audio_handler);
 	NESVolumeHandlerInstall(pNezPlay, s_fds_volume_handler);
 	NESTerminateHandlerInstall(&pNezPlay->nth, s_fds_terminate_handler);
