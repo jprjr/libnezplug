@@ -10,6 +10,7 @@
 #include "../common/divfix.h"
 
 #include "../cpu/kmz80/kmz80.h"
+#include "../common/util.h"
 
 #include <stdio.h>
 
@@ -43,7 +44,7 @@ enum{
 	SYNTHMODE_MAX
 };
 
-static const char *system_name[]={
+static const char *sgc_system_name[]={
 	"Sega Master System","Game Gear","Coleco Vision","?????"
 };
 
@@ -93,30 +94,8 @@ struct  SGCSEQ_TAG {
 	uint8_t bios[0x2000];
 };
 
-static uint32_t GetWordLE(uint8_t *p)
-{
-	return p[0] | (p[1] << 8);
-}
 
-static uint32_t GetDwordLE(uint8_t *p)
-{
-	return p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
-}
-
-#define GetDwordLEM(p) (uint32_t)((((uint8_t *)p)[0] | (((uint8_t *)p)[1] << 8) | (((uint8_t *)p)[2] << 16) | (((uint8_t *)p)[3] << 24)))
-
-/*
-void OPLLSetTone(uint8_t *p, uint32_t type)
-{
-	if ((GetDwordLE(p) & 0xf0ffffff) == GetDwordLEM("ILL0"))
-		XMEMCPY(usertone[type], p, 16 * 19);
-	else
-		XMEMCPY(usertone[type], p, 8 * 15);
-	usertone_enable[type] = 1;
-}
-*/
-
-static int32_t execute(SGCSEQ *THIS_)
+static int32_t sgc_execute(SGCSEQ *THIS_)
 {
 	uint32_t cycles;
 	THIS_->cpsrem += THIS_->cps;
@@ -133,7 +112,7 @@ static int32_t execute(SGCSEQ *THIS_)
 	return 0;
 }
 
-__inline static void synth(SGCSEQ *THIS_, int32_t *d)
+__inline static void sgc_synth(SGCSEQ *THIS_, int32_t *d)
 {
 	switch (THIS_->systype)
 	{
@@ -150,7 +129,7 @@ __inline static void synth(SGCSEQ *THIS_, int32_t *d)
 	}
 }
 
-__inline static void volume(SGCSEQ *THIS_, uint32_t v)
+__inline static void sgc_volume(SGCSEQ *THIS_, uint32_t v)
 {
 	v += 256;
 	switch (THIS_->systype)
@@ -168,7 +147,7 @@ __inline static void volume(SGCSEQ *THIS_, uint32_t v)
 	}
 }
 
-static void vsync_setup(SGCSEQ *THIS_)
+static void sgc_vsync_setup(SGCSEQ *THIS_)
 {
 	int32_t cycles;
 	THIS_->cpfrem += THIS_->cpf;
@@ -177,7 +156,7 @@ static void vsync_setup(SGCSEQ *THIS_)
 	kmevent_settimer(&THIS_->kme, THIS_->vsync_id, cycles);
 }
 
-static void play_setup(SGCSEQ *THIS_, uint32_t pc)
+static void sgc_play_setup(SGCSEQ *THIS_, uint32_t pc)
 {
 	THIS_->bios[0x0]=0xcd;
 	THIS_->bios[0x1]=pc&0xff;
@@ -189,14 +168,14 @@ static void play_setup(SGCSEQ *THIS_, uint32_t pc)
 	THIS_->ctx.regs8[REGID_HALTED] = 0;
 }
 
-static uint32_t busread_event(void *ctx, uint32_t a)
+static uint32_t sgc_busread_event(void *ctx, uint32_t a)
 {
     (void)ctx;
     (void)a;
 	return 0x38;
 }
 
-static uint32_t read_event(void *ctx, uint32_t a)
+static uint32_t sgc_read_event(void *ctx, uint32_t a)
 {
 	SGCSEQ *THIS_ = ctx;
 	if(a<0x400)
@@ -215,7 +194,7 @@ static uint32_t read_event(void *ctx, uint32_t a)
 }
 
 
-static void write_event(void *ctx, uint32_t a, uint32_t v)
+static void sgc_write_event(void *ctx, uint32_t a, uint32_t v)
 {
 	SGCSEQ *THIS_ = ctx;
 	uint32_t page = a >> 13;
@@ -253,14 +232,14 @@ static void write_event(void *ctx, uint32_t a, uint32_t v)
 	}
 }
 
-static uint32_t ioread_eventSMS(void *ctx, uint32_t a)
+static uint32_t sgc_ioread_eventSMS(void *ctx, uint32_t a)
 {
     (void)ctx;
     (void)a;
 	return 0xff;
 }
 
-static void iowrite_eventSMS(void *ctx, uint32_t a, uint32_t v)
+static void sgc_iowrite_eventSMS(void *ctx, uint32_t a, uint32_t v)
 {
 	SGCSEQ *THIS_ = ctx;
 	a &= 0xff;
@@ -273,14 +252,14 @@ static void iowrite_eventSMS(void *ctx, uint32_t a, uint32_t v)
 
 }
 
-static uint32_t ioread_eventCV(void *ctx, uint32_t a)
+static uint32_t sgc_ioread_eventCV(void *ctx, uint32_t a)
 {
     (void)ctx;
     (void)a;
 	return 0xff;
 }
 
-static void iowrite_eventCV(void *ctx, uint32_t a, uint32_t v)
+static void sgc_iowrite_eventCV(void *ctx, uint32_t a, uint32_t v)
 {
 	SGCSEQ *THIS_ = ctx;
 	a &= 0xff;
@@ -288,16 +267,16 @@ static void iowrite_eventCV(void *ctx, uint32_t a, uint32_t v)
 		THIS_->sndp[SND_SNG]->write(THIS_->sndp[SND_SNG]->ctx, a & 1, v);
 }
 
-static void vsync_event(KMEVENT *event, KMEVENT_ITEM_ID curid, SGCSEQ *THIS_)
+static void sgc_vsync_event(KMEVENT *event, KMEVENT_ITEM_ID curid, SGCSEQ *THIS_)
 {
     (void)event;
     (void)curid;
-	vsync_setup(THIS_);
-	if (THIS_->ctx.regs8[REGID_HALTED]) play_setup(THIS_, THIS_->playaddr);
+	sgc_vsync_setup(THIS_);
+	if (THIS_->ctx.regs8[REGID_HALTED]) sgc_play_setup(THIS_, THIS_->playaddr);
 }
 
 
-static void reset(NEZ_PLAY *pNezPlay)
+static void sgc_reset(NEZ_PLAY *pNezPlay)
 {
 	SGCSEQ *THIS_ = pNezPlay->sgcseq;
 	uint32_t i, freq, song;
@@ -388,29 +367,29 @@ static void reset(NEZ_PLAY *pNezPlay)
 	kmz80_reset(&THIS_->ctx);
 	THIS_->ctx.user = THIS_;
 	THIS_->ctx.kmevent = &THIS_->kme;
-	THIS_->ctx.memread = read_event;
-	THIS_->ctx.memwrite = write_event;
+	THIS_->ctx.memread = sgc_read_event;
+	THIS_->ctx.memwrite = sgc_write_event;
 	switch(THIS_->systype){
 	case SYNTHMODE_SMS:
 	case SYNTHMODE_GG:
-		THIS_->ctx.ioread = ioread_eventSMS;
-		THIS_->ctx.iowrite = iowrite_eventSMS;
+		THIS_->ctx.ioread = sgc_ioread_eventSMS;
+		THIS_->ctx.iowrite = sgc_iowrite_eventSMS;
 		THIS_->ctx.regs8[REGID_M1CYCLE] = 1;
 		break;
 	case SYNTHMODE_CV:
-		THIS_->ctx.ioread = ioread_eventCV;
-		THIS_->ctx.iowrite = iowrite_eventCV;
+		THIS_->ctx.ioread = sgc_ioread_eventCV;
+		THIS_->ctx.iowrite = sgc_iowrite_eventCV;
 		THIS_->ctx.regs8[REGID_M1CYCLE] = 1;
 		break;
 	default:
 		break;
 	}
-	THIS_->ctx.busread = busread_event;
+	THIS_->ctx.busread = sgc_busread_event;
 
 	THIS_->ctx.regs8[REGID_A] = (uint8_t)((song >> 0) & 0xff);
 	THIS_->ctx.regs8[REGID_H] = (uint8_t)((song >> 8) & 0xff);
 	THIS_->ctx.sp = THIS_->stackaddr;
-	play_setup(THIS_, THIS_->initaddr);
+	sgc_play_setup(THIS_, THIS_->initaddr);
 
 	THIS_->ctx.exflag = 3;	/* ICE/ACI */
 	THIS_->ctx.regs8[REGID_IFF1] = THIS_->ctx.regs8[REGID_IFF2] = 0;
@@ -420,7 +399,7 @@ static void reset(NEZ_PLAY *pNezPlay)
 	/* vsync reset */
 	kmevent_init(&THIS_->kme);
 	THIS_->vsync_id = kmevent_alloc(&THIS_->kme);
-	kmevent_setevent(&THIS_->kme, THIS_->vsync_id, vsync_event, THIS_);
+	kmevent_setevent(&THIS_->kme, THIS_->vsync_id, sgc_vsync_event, THIS_);
 	THIS_->cpsgap = THIS_->cpsrem  = 0;
 	THIS_->cpfrem  = 0;
 	THIS_->cps = DivFix(BASECYCLES, freq, SHIFT_CPS);
@@ -434,16 +413,16 @@ static void reset(NEZ_PLAY *pNezPlay)
 		uint32_t initbreak = 5 << 8; /* 5sec */
 		while (!THIS_->ctx.regs8[REGID_HALTED] && --initbreak) kmz80_exec(&THIS_->ctx, BASECYCLES >> 8);
 	}
-	vsync_setup(THIS_);
+	sgc_vsync_setup(THIS_);
 	if (THIS_->ctx.regs8[REGID_HALTED])
 	{
-		play_setup(THIS_, THIS_->playaddr);
+		sgc_play_setup(THIS_, THIS_->playaddr);
 	}
 	THIS_->total_cycles = 0;
 
 }
 
-static void terminate(SGCSEQ *THIS_)
+static void sgc_terminate(SGCSEQ *THIS_)
 {
 	uint32_t i;
 
@@ -456,7 +435,7 @@ static void terminate(SGCSEQ *THIS_)
 }
 
 
-static uint32_t load(NEZ_PLAY *pNezPlay, SGCSEQ *THIS_, uint8_t *pData, uint32_t uSize)
+static uint32_t sgc_load(NEZ_PLAY *pNezPlay, SGCSEQ *THIS_, uint8_t *pData, uint32_t uSize)
 {
 	uint32_t i, headersize;
     uint8_t titlebuffer[0x21];
@@ -525,7 +504,7 @@ First ROM Bank(4000-7FFF): %02XH\r\n\
 First ROM Bank(8000-BFFF): %02XH\r\n\
 RAM Bank      (8000-BFFF): %d\r\n\
 "
-		,system_name[THIS_->systype]
+		,sgc_system_name[THIS_->systype]
 		,THIS_->maxsong
 		,THIS_->startsong
 		,THIS_->firstse
@@ -647,19 +626,19 @@ RAM Bank      (8000-BFFF): %d\r\n\
 
 static int32_t SGCSEQExecuteZ80CPU(NEZ_PLAY *pNezPlay)
 {
-	execute(((NEZ_PLAY*)pNezPlay)->sgcseq);
+	sgc_execute(((NEZ_PLAY*)pNezPlay)->sgcseq);
 	return 0;
 }
 
 static void SGCSEQSoundRenderStereo(NEZ_PLAY *pNezPlay, int32_t *d)
 {
-	synth(((NEZ_PLAY*)pNezPlay)->sgcseq, d);
+	sgc_synth(((NEZ_PLAY*)pNezPlay)->sgcseq, d);
 }
 
 static int32_t SGCSEQSoundRenderMono(NEZ_PLAY *pNezPlay)
 {
 	int32_t d[2] = { 0, 0 };
-	synth(((NEZ_PLAY*)pNezPlay)->sgcseq, d);
+	sgc_synth(((NEZ_PLAY*)pNezPlay)->sgcseq, d);
 #if (((-1) >> 1) == -1)
 	return (d[0] + d[1]) >> 1;
 #else
@@ -677,7 +656,7 @@ static void SGCSEQVolume(NEZ_PLAY *pNezPlay, uint32_t v)
 {
 	if (((NEZ_PLAY*)pNezPlay)->sgcseq)
 	{
-		volume(((NEZ_PLAY*)pNezPlay)->sgcseq, v);
+		sgc_volume(((NEZ_PLAY*)pNezPlay)->sgcseq, v);
 	}
 }
 
@@ -688,7 +667,7 @@ static const NEZ_NES_VOLUME_HANDLER sgcseq_volume_handler[] = {
 
 static void SGCSEQReset(NEZ_PLAY *pNezPlay)
 {
-	if (((NEZ_PLAY*)pNezPlay)->sgcseq) reset((NEZ_PLAY*)pNezPlay);
+	if (((NEZ_PLAY*)pNezPlay)->sgcseq) sgc_reset((NEZ_PLAY*)pNezPlay);
 }
 
 static const NEZ_NES_RESET_HANDLER sgcseq_reset_handler[] = {
@@ -700,7 +679,7 @@ static void SGCSEQTerminate(NEZ_PLAY *pNezPlay)
 {
 	if (((NEZ_PLAY*)pNezPlay)->sgcseq)
 	{
-		terminate(((NEZ_PLAY*)pNezPlay)->sgcseq);
+		sgc_terminate(((NEZ_PLAY*)pNezPlay)->sgcseq);
 		((NEZ_PLAY*)pNezPlay)->sgcseq = 0;
 	}
 }
@@ -717,10 +696,10 @@ uint32_t SGCLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	if (pNezPlay->sgcseq) __builtin_trap();	/* ASSERT */
 	THIS_ = XMALLOC(sizeof(SGCSEQ));
 	if (!THIS_) return NEZ_NESERR_SHORTOFMEMORY;
-	ret = load(pNezPlay, THIS_, pData, uSize);
+	ret = sgc_load(pNezPlay, THIS_, pData, uSize);
 	if (ret)
 	{
-		terminate(THIS_);
+		sgc_terminate(THIS_);
 		return ret;
 	}
 	pNezPlay->sgcseq = THIS_;
@@ -730,3 +709,18 @@ uint32_t SGCLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	NESTerminateHandlerInstall(&pNezPlay->nth, sgcseq_terminate_handler);
 	return ret;
 }
+#undef SHIFT_CPS
+#undef BASECYCLES
+#undef EXTDEVICE_SNG
+#undef EXTDEVICE_FMUNIT
+#undef EXTDEVICE_GGSTEREO
+#undef EXTDEVICE_GGRAM
+#undef EXTDEVICE_MSXMUSIC
+#undef EXTDEVICE_MSXRAM
+#undef EXTDEVICE_MSXAUDIO
+#undef EXTDEVICE_MSXSTEREO
+#undef DEVICE_PAL
+#undef SND_SNG
+#undef SND_FMUNIT
+#undef SND_MAX
+#undef SND_VOLUME

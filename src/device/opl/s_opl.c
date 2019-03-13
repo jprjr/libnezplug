@@ -20,6 +20,7 @@
 #include "s_deltat.h"
 #include "../../logtable/log_table.h"
 #include "../../logtable/log_table_12_7_30.c"
+#include "../../common/util.h"
 
 #define PG_SHIFT 13 /* fix */
 #define CPS_SHIFTE 20
@@ -215,7 +216,7 @@ typedef struct {
     uint8_t *chmask;
 } OPLSOUND;
 
-static uint8_t romtone[3][16 * 19] =
+static uint8_t opl_romtone[3][16 * 19] =
 {
 	{
 #include "ill/i_fmpac.h"
@@ -501,7 +502,7 @@ __inline static void LfoStep(OPL_LFO *lfop)
 	lfop->output = lfop->table[lfop->adr & lfop->adrmask];
 }
 
-static void sndsynth(void *ctx, int32_t *p)
+static void opl_sndsnyth(void *ctx, int32_t *p)
 {
     OPLSOUND *sndp = (OPLSOUND *)ctx;
 	int32_t accum[2] = { 0, 0 };
@@ -586,7 +587,7 @@ static void sndsynth(void *ctx, int32_t *p)
 	p[1] += sndp->output;
 }
 
-static void sndvolume(void *ctx, int32_t volume)
+static void opl_sndvolume(void *ctx, int32_t volume)
 {
     OPLSOUND *sndp = (OPLSOUND *)ctx;
 	if (sndp->deltatpcm) sndp->deltatpcm->volume(sndp->deltatpcm->ctx, volume);
@@ -978,8 +979,8 @@ static void oplsetrc(OPLSOUND *sndp, uint32_t rc)
 			static uint8_t volini[2] = { 0, 0 };
 			static uint8_t bdtone[8] = { 0x04, 0x20, 0x28, 0x00, 0xDF, 0xF8, 0xFF, 0xF8 };
 			SetChTone(sndp, &sndp->ch[6], bdtone, volini);
-			SetChTone(sndp, &sndp->ch[7], &romtone[0][0x11 << 4], volini);
-			SetChTone(sndp, &sndp->ch[8], &romtone[0][0x12 << 4], volini);
+			SetChTone(sndp, &sndp->ch[7], &opl_romtone[0][0x11 << 4], volini);
+			SetChTone(sndp, &sndp->ch[8], &opl_romtone[0][0x12 << 4], volini);
 #endif
 //			sndp->ch[7].op[0].nst = PG_SHIFT + 4;
 //			sndp->ch[7].op[1].nst = PG_SHIFT + 6;
@@ -1231,7 +1232,7 @@ static void chreset(OPLSOUND *sndp, OPL_CH *chp, uint32_t clock, uint32_t freq)
 	recovercon(sndp, chp);
 }
 
-static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
+static void opl_sndreset(void *ctx, uint32_t clock, uint32_t freq)
 {
     OPLSOUND *sndp = (OPLSOUND *)ctx;
 	uint32_t i, cpse;
@@ -1328,12 +1329,6 @@ static void oplsetinst(void *ctx, uint32_t n, void *p, uint32_t l)
 	if (sndp->deltatpcm) sndp->deltatpcm->setinst(sndp->deltatpcm->ctx, n, p, l);
 }
 
-__inline static uint32_t GetDwordLE(uint8_t *p)
-{
-	return p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
-}
-#define GetDwordLEM(p) (uint32_t)((((uint8_t *)p)[0] | (((uint8_t *)p)[1] << 8) | (((uint8_t *)p)[2] << 16) | (((uint8_t *)p)[3] << 24)))
-
 static void opllsetinst(void *ctx, uint32_t n, void *_p, uint32_t l)
 {
     OPLSOUND *sndp = (OPLSOUND *)ctx;
@@ -1363,7 +1358,7 @@ static void opllsetinst(void *ctx, uint32_t n, void *_p, uint32_t l)
 	sndp->common.sintablemask -= (1 << (SINTBL_BITS - sb)) - 1;
 }
 
-static void sndrelease(void *ctx)
+static void opl_sndrelease(void *ctx)
 {
     OPLSOUND *sndp = (OPLSOUND *)ctx;
 	if (sndp) {
@@ -1383,10 +1378,10 @@ KMIF_SOUND_DEVICE *OPLSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t opl_type)
     sndp->chmask = pNezPlay->chmask;
 	sndp->opl_type = (uint8_t)opl_type;
 	sndp->kmif.ctx = sndp;
-	sndp->kmif.release = sndrelease;
-	sndp->kmif.volume = sndvolume;
-	sndp->kmif.reset = sndreset;
-	sndp->kmif.synth = sndsynth;
+	sndp->kmif.release = opl_sndrelease;
+	sndp->kmif.volume = opl_sndvolume;
+	sndp->kmif.reset = opl_sndreset;
+	sndp->kmif.synth = opl_sndsnyth;
 	if (sndp->opl_type == OPL_TYPE_MSXAUDIO)
 	{
 		sndp->deltatpcm = YMDELTATPCMSoundAlloc(pNezPlay, YMDELTATPCM_TYPE_Y8950 , 0);
@@ -1409,17 +1404,17 @@ KMIF_SOUND_DEVICE *OPLSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t opl_type)
 			case OPL_TYPE_OPLL:
 			case OPL_TYPE_MSXMUSIC:
 			case OPL_TYPE_SMSFMUNIT:
-				opllsetinst(sndp, 0, romtone[0], 16 * 19);//YM2413
+				opllsetinst(sndp, 0, opl_romtone[0], 16 * 19);//YM2413
 				break;
 			case OPL_TYPE_VRC7:
-				opllsetinst(sndp, 0, romtone[2], 16 * 19);//VRC7
+				opllsetinst(sndp, 0, opl_romtone[2], 16 * 19);//VRC7
 				break;
-		}												  //romtone[1]を使う必要全然なし
+		}												  //opl_romtone[1]を使う必要全然なし
 	}
 	sndp->opltbl = OplTableAddRef();
 	if (!sndp->opltbl)
 	{
-		sndrelease(sndp);
+		opl_sndrelease(sndp);
 		return 0;
 	}
 	return &sndp->kmif;

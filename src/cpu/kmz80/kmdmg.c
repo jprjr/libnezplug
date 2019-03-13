@@ -430,7 +430,7 @@ static void kmdmg_memwrite(KMZ80_CONTEXT *context, uint32_t a, uint32_t d)
 	context->memwrite(context->user, a, d);
 }
 
-void kmdmg_reset(KMZ80_CONTEXT *context) {
+PROTECTED void kmdmg_reset(KMZ80_CONTEXT *context) {
 	kmz80_reset_common(context);
 	EXFLAG = 0/*EXF_ICEXIST*/;
 	IMODE = 3;

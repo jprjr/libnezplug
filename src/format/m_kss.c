@@ -10,6 +10,7 @@
 #include "../device/s_sng.h"
 #include "../device/opl/s_opl.h"
 #include "../common/divfix.h"
+#include "../common/util.h"
 
 #include "../cpu/kmz80/kmz80.h"
 
@@ -100,30 +101,7 @@ struct  KSSSEQ_TAG {
 	uint8_t usertone[2][16 * 19];
 };
 
-static uint32_t GetWordLE(uint8_t *p)
-{
-	return p[0] | (p[1] << 8);
-}
-
-static uint32_t GetDwordLE(uint8_t *p)
-{
-	return p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
-}
-
-#define GetDwordLEM(p) (uint32_t)((((uint8_t *)p)[0] | (((uint8_t *)p)[1] << 8) | (((uint8_t *)p)[2] << 16) | (((uint8_t *)p)[3] << 24)))
-
-/*
-void OPLLSetTone(uint8_t *p, uint32_t type)
-{
-	if ((GetDwordLE(p) & 0xf0ffffff) == GetDwordLEM("ILL0"))
-		XMEMCPY(usertone[type], p, 16 * 19);
-	else
-		XMEMCPY(usertone[type], p, 8 * 15);
-	usertone_enable[type] = 1;
-}
-*/
-
-static int32_t execute(KSSSEQ *THIS_)
+static int32_t kss_execute(KSSSEQ *THIS_)
 {
 	uint32_t cycles;
 	THIS_->cpsrem += THIS_->cps;
@@ -140,7 +118,7 @@ static int32_t execute(KSSSEQ *THIS_)
 	return 0;
 }
 
-__inline static void synth(KSSSEQ *THIS_, int32_t *d)
+__inline static void kss_synth(KSSSEQ *THIS_, int32_t *d)
 {
 	switch (THIS_->synthmode)
 	{
@@ -179,7 +157,7 @@ __inline static void synth(KSSSEQ *THIS_, int32_t *d)
 	}
 }
 
-__inline static void volume(KSSSEQ *THIS_, uint32_t v)
+__inline static void kss_volume(KSSSEQ *THIS_, uint32_t v)
 {
 	v += 256;
 	switch (THIS_->synthmode)
@@ -200,7 +178,7 @@ __inline static void volume(KSSSEQ *THIS_, uint32_t v)
 	}
 }
 
-static void vsync_setup(KSSSEQ *THIS_)
+static void kss_vsync_setup(KSSSEQ *THIS_)
 {
 	int32_t cycles;
 	THIS_->cpfrem += THIS_->cpf;
@@ -209,7 +187,7 @@ static void vsync_setup(KSSSEQ *THIS_)
 	kmevent_settimer(&THIS_->kme, THIS_->vsync_id, cycles);
 }
 
-static void play_setup(KSSSEQ *THIS_, uint32_t pc)
+static void kss_play_setup(KSSSEQ *THIS_, uint32_t pc)
 {
 	uint32_t sp = 0xF380, rp;
 	THIS_->ram[--sp] = 0;
@@ -224,14 +202,14 @@ static void play_setup(KSSSEQ *THIS_, uint32_t pc)
 	THIS_->ctx.regs8[REGID_HALTED] = 0;
 }
 
-static uint32_t busread_event(void *ctx, uint32_t a)
+static uint32_t kss_busread_event(void *ctx, uint32_t a)
 {
     (void)ctx;
     (void)a;
 	return 0x38;
 }
 
-static uint32_t read_event(void *ctx, uint32_t a)
+static uint32_t kss_read_event(void *ctx, uint32_t a)
 {
 	KSSSEQ *THIS_ = ctx;
 	return THIS_->readmap[a >> 13][a];
@@ -269,7 +247,7 @@ static void KSSMaper16KWrite(KSSSEQ *THIS_, uint32_t a, uint32_t v)
 	}
 }
 
-static void write_event(void *ctx, uint32_t a, uint32_t v)
+static void kss_write_event(void *ctx, uint32_t a, uint32_t v)
 {
 	KSSSEQ *THIS_ = ctx;
 	uint32_t page = a >> 13;
@@ -295,13 +273,13 @@ static void write_event(void *ctx, uint32_t a, uint32_t v)
 	}
 }
 
-static uint32_t ioread_eventSMS(void *ctx, uint32_t a)
+static uint32_t kss_ioread_eventSMS(void *ctx, uint32_t a)
 {
     (void)ctx;
     (void)a;
 	return 0xff;
 }
-static uint32_t ioread_eventMSX(void *ctx, uint32_t a)
+static uint32_t kss_ioread_eventMSX(void *ctx, uint32_t a)
 {
 	KSSSEQ *THIS_ = ctx;
 	a &= 0xff;
@@ -312,7 +290,7 @@ static uint32_t ioread_eventMSX(void *ctx, uint32_t a)
 	return 0xff;
 }
 
-static void iowrite_eventSMS(void *ctx, uint32_t a, uint32_t v)
+static void kss_iowrite_eventSMS(void *ctx, uint32_t a, uint32_t v)
 {
 	KSSSEQ *THIS_ = ctx;
 	a &= 0xff;
@@ -325,7 +303,7 @@ static void iowrite_eventSMS(void *ctx, uint32_t a, uint32_t v)
 	else if (a == 0xfe && THIS_->bankmode == KSS_16K_MAPPER)
 		KSSMaper16KWrite(THIS_, 0x8000, v);
 }
-static void iowrite_eventMSX(void *ctx, uint32_t a, uint32_t v)
+static void kss_iowrite_eventMSX(void *ctx, uint32_t a, uint32_t v)
 {
 	KSSSEQ *THIS_ = ctx;
 	a &= 0xff;
@@ -341,15 +319,15 @@ static void iowrite_eventMSX(void *ctx, uint32_t a, uint32_t v)
 		KSSMaper16KWrite(THIS_, 0x8000, v);
 }
 
-static void vsync_event(KMEVENT *event, KMEVENT_ITEM_ID curid, KSSSEQ *THIS_)
+static void kss_vsync_event(KMEVENT *event, KMEVENT_ITEM_ID curid, KSSSEQ *THIS_)
 {
     (void)event;
     (void)curid;
-	vsync_setup(THIS_);
-	if (THIS_->ctx.regs8[REGID_HALTED]) play_setup(THIS_, THIS_->playaddr);
+	kss_vsync_setup(THIS_);
+	if (THIS_->ctx.regs8[REGID_HALTED]) kss_play_setup(THIS_, THIS_->playaddr);
 }
 
-static void reset(NEZ_PLAY *pNezPlay)
+static void kss_reset(NEZ_PLAY *pNezPlay)
 {
 	KSSSEQ *THIS_ = pNezPlay->kssseq;
 	uint32_t i, freq, song;
@@ -402,25 +380,25 @@ static void reset(NEZ_PLAY *pNezPlay)
 	kmz80_reset(&THIS_->ctx);
 	THIS_->ctx.user = THIS_;
 	THIS_->ctx.kmevent = &THIS_->kme;
-	THIS_->ctx.memread = read_event;
-	THIS_->ctx.memwrite = write_event;
+	THIS_->ctx.memread = kss_read_event;
+	THIS_->ctx.memwrite = kss_write_event;
 	if (THIS_->extdevice & EXTDEVICE_SNG)
 	{
-		THIS_->ctx.ioread = ioread_eventSMS;
-		THIS_->ctx.iowrite = iowrite_eventSMS;
+		THIS_->ctx.ioread = kss_ioread_eventSMS;
+		THIS_->ctx.iowrite = kss_iowrite_eventSMS;
 		THIS_->ctx.regs8[REGID_M1CYCLE] = 1;
 	}
 	else
 	{
-		THIS_->ctx.ioread = ioread_eventMSX;
-		THIS_->ctx.iowrite = iowrite_eventMSX;
+		THIS_->ctx.ioread = kss_ioread_eventMSX;
+		THIS_->ctx.iowrite = kss_iowrite_eventMSX;
 		THIS_->ctx.regs8[REGID_M1CYCLE] = 2;
 	}
-	THIS_->ctx.busread = busread_event;
+	THIS_->ctx.busread = kss_busread_event;
 
 	THIS_->ctx.regs8[REGID_A] = (uint8_t)((song >> 0) & 0xff);
 	THIS_->ctx.regs8[REGID_H] = (uint8_t)((song >> 8) & 0xff);
-	play_setup(THIS_, THIS_->initaddr);
+	kss_play_setup(THIS_, THIS_->initaddr);
 
 	THIS_->ctx.exflag = 3;	/* ICE/ACI */
 	THIS_->ctx.regs8[REGID_IFF1] = THIS_->ctx.regs8[REGID_IFF2] = 0;
@@ -430,7 +408,7 @@ static void reset(NEZ_PLAY *pNezPlay)
 	/* vsync reset */
 	kmevent_init(&THIS_->kme);
 	THIS_->vsync_id = kmevent_alloc(&THIS_->kme);
-	kmevent_setevent(&THIS_->kme, THIS_->vsync_id, vsync_event, THIS_);
+	kmevent_setevent(&THIS_->kme, THIS_->vsync_id, kss_vsync_event, THIS_);
 	THIS_->cpsgap = THIS_->cpsrem  = 0;
 	THIS_->cpfrem  = 0;
 	THIS_->cps = DivFix(BASECYCLES, freq, SHIFT_CPS);
@@ -444,15 +422,15 @@ static void reset(NEZ_PLAY *pNezPlay)
 		uint32_t initbreak = 5 << 8; /* 5sec */
 		while (!THIS_->ctx.regs8[REGID_HALTED] && --initbreak) kmz80_exec(&THIS_->ctx, BASECYCLES >> 8);
 	}
-	vsync_setup(THIS_);
+	kss_vsync_setup(THIS_);
 	if (THIS_->ctx.regs8[REGID_HALTED])
 	{
-		play_setup(THIS_, THIS_->playaddr);
+		kss_play_setup(THIS_, THIS_->playaddr);
 	}
 	THIS_->total_cycles = 0;
 }
 
-static void terminate(KSSSEQ *THIS_)
+static void kss_terminate(KSSSEQ *THIS_)
 {
 	uint32_t i;
 
@@ -464,7 +442,7 @@ static void terminate(KSSSEQ *THIS_)
 	XFREE(THIS_);
 }
 
-static uint32_t load(NEZ_PLAY *pNezPlay, KSSSEQ *THIS_, uint8_t *pData, uint32_t uSize)
+static uint32_t kss_load(NEZ_PLAY *pNezPlay, KSSSEQ *THIS_, uint8_t *pData, uint32_t uSize)
 {
 	uint32_t i, headersize;
 	XMEMSET(THIS_, 0, sizeof(KSSSEQ));
@@ -682,19 +660,19 @@ Extra Device : %s%s%s%s%s"
 
 static int32_t KSSSEQExecuteZ80CPU(NEZ_PLAY *pNezPlay)
 {
-	execute(((NEZ_PLAY*)pNezPlay)->kssseq);
+	kss_execute(((NEZ_PLAY*)pNezPlay)->kssseq);
 	return 0;
 }
 
 static void KSSSEQSoundRenderStereo(NEZ_PLAY *pNezPlay, int32_t *d)
 {
-	synth(((NEZ_PLAY*)pNezPlay)->kssseq, d);
+	kss_synth(((NEZ_PLAY*)pNezPlay)->kssseq, d);
 }
 
 static int32_t KSSSEQSoundRenderMono(NEZ_PLAY *pNezPlay)
 {
 	int32_t d[2] = { 0, 0 };
-	synth(((NEZ_PLAY*)pNezPlay)->kssseq, d);
+	kss_synth(((NEZ_PLAY*)pNezPlay)->kssseq, d);
 #if (((-1) >> 1) == -1)
 	return (d[0] + d[1]) >> 1;
 #else
@@ -712,7 +690,7 @@ static void KSSSEQVolume(NEZ_PLAY *pNezPlay, uint32_t v)
 {
 	if (((NEZ_PLAY*)pNezPlay)->kssseq)
 	{
-		volume(((NEZ_PLAY*)pNezPlay)->kssseq, v);
+		kss_volume(((NEZ_PLAY*)pNezPlay)->kssseq, v);
 	}
 }
 
@@ -723,7 +701,7 @@ static const NEZ_NES_VOLUME_HANDLER kssseq_volume_handler[] = {
 
 static void KSSSEQReset(NEZ_PLAY *pNezPlay)
 {
-	if (((NEZ_PLAY*)pNezPlay)->kssseq) reset((NEZ_PLAY*)pNezPlay);
+	if (((NEZ_PLAY*)pNezPlay)->kssseq) kss_reset((NEZ_PLAY*)pNezPlay);
 }
 
 static const NEZ_NES_RESET_HANDLER kssseq_reset_handler[] = {
@@ -735,7 +713,7 @@ static void KSSSEQTerminate(NEZ_PLAY *pNezPlay)
 {
 	if (((NEZ_PLAY*)pNezPlay)->kssseq)
 	{
-		terminate(((NEZ_PLAY*)pNezPlay)->kssseq);
+		kss_terminate(((NEZ_PLAY*)pNezPlay)->kssseq);
 		((NEZ_PLAY*)pNezPlay)->kssseq = 0;
 	}
 }
@@ -752,10 +730,10 @@ uint32_t KSSLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	if (pNezPlay->kssseq) __builtin_trap();	/* ASSERT */
 	THIS_ = XMALLOC(sizeof(KSSSEQ));
 	if (!THIS_) return NEZ_NESERR_SHORTOFMEMORY;
-	ret = load(pNezPlay, THIS_, pData, uSize);
+	ret = kss_load(pNezPlay, THIS_, pData, uSize);
 	if (ret)
 	{
-		terminate(THIS_);
+		kss_terminate(THIS_);
 		return ret;
 	}
 	pNezPlay->kssseq = THIS_;
@@ -767,3 +745,27 @@ uint32_t KSSLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	NESTerminateHandlerInstall(&pNezPlay->nth, kssseq_terminate_handler);
 	return ret;
 }
+
+#undef SHIFT_CPS
+#undef BASECYCLES
+#undef EXTDEVICE_SNG
+#undef EXTDEVICE_FMUNIT
+#undef EXTDEVICE_GGSTEREO
+#undef EXTDEVICE_GGRAM
+#undef EXTDEVICE_MSXMUSIC
+#undef EXTDEVICE_MSXRAM
+#undef EXTDEVICE_MSXAUDIO
+#undef EXTDEVICE_MSXSTEREO
+#undef EXTDEVICE_PAL
+#undef EXTDEVICE_EXRAM
+
+#undef SND_PSG
+#undef SND_SCC
+#undef SND_MSXMUSIC
+#undef SND_MSXAUDIO
+#undef SND_MAX
+
+#undef SND_SNG
+#undef SND_FMUNIT
+
+#undef SND_VOLUME

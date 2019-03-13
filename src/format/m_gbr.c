@@ -6,6 +6,7 @@
 #include "m_gbr.h"
 #include "../device/s_dmg.h"
 #include "../common/divfix.h"
+#include "../common/util.h"
 
 #include "../cpu/kmz80/kmz80.h"
 #include <stdio.h>
@@ -48,13 +49,13 @@ A000-BFFF 8kB External switchable RAM bank
 
 #endif
 
-static const uint32_t timer_clock_table[4] = {
+static const uint32_t gbr_timer_clock_table[4] = {
 	10, 4, 6, 8,
 };
 
 typedef struct GBRDMG_TAG GBRDMG;
-typedef uint32_t (*READPROC)(GBRDMG *THIS_, uint32_t a);
-typedef void (*WRITEPROC)(GBRDMG *THIS_, uint32_t a, uint32_t v);
+typedef uint32_t (*GBR_READPROC)(GBRDMG *THIS_, uint32_t a);
+typedef void (*GBR_WRITEPROC)(GBRDMG *THIS_, uint32_t a, uint32_t v);
 
 struct  GBRDMG_TAG {
 	KMZ80_CONTEXT ctx;
@@ -85,9 +86,9 @@ struct  GBRDMG_TAG {
 	uint32_t playerromioaddr;
 
 	uint8_t *readmap[16];
-	READPROC readproc[16];
+	GBR_READPROC readproc[16];
 	uint8_t *writemap[16];
-	WRITEPROC writeproc[16];
+	GBR_WRITEPROC writeproc[16];
 
 	uint8_t highram[0x80];
 	uint8_t io[0x180];
@@ -131,7 +132,7 @@ struct  GBRDMG_TAG {
 };
 
 
-static int32_t execute(GBRDMG *THIS_)
+static int32_t gbr_execute(GBRDMG *THIS_)
 {
 	uint32_t cycles;
 	THIS_->cpsrem += THIS_->cps;
@@ -148,26 +149,26 @@ static int32_t execute(GBRDMG *THIS_)
 	return 0;
 }
 
-__inline static void synth(GBRDMG *THIS_, int32_t *d)
+__inline static void gbr_snyth(GBRDMG *THIS_, int32_t *d)
 {
 	THIS_->dmgsnd->synth(THIS_->dmgsnd->ctx, d);
 }
 
-__inline static void volume(GBRDMG *THIS_, uint32_t v)
+__inline static void gbr_volume(GBRDMG *THIS_, uint32_t v)
 {
 	THIS_->dmgsnd->volume(THIS_->dmgsnd->ctx, v);
 }
 
-static void vsync_setup(GBRDMG *THIS_)
+static void gbr_vsync_setup(GBRDMG *THIS_)
 {
 	kmevent_settimer(&THIS_->kme, THIS_->vsync, THIS_->isCGB ? (154 * 456 * 2) : (154 * 456));
 }
 
-static void timer_setup(GBRDMG *THIS_)
+static void gbr_timer_setup(GBRDMG *THIS_)
 {
 	if (THIS_->gb_TMC & 0x4)
 	{
-		kmevent_settimer(&THIS_->kme, THIS_->timer, (1 << timer_clock_table[THIS_->gb_TMC & 3]) * (256 - THIS_->gb_TIMA));
+		kmevent_settimer(&THIS_->kme, THIS_->timer, (1 << gbr_timer_clock_table[THIS_->gb_TMC & 3]) * (256 - THIS_->gb_TIMA));
 	}
 	else
 	{
@@ -175,68 +176,66 @@ static void timer_setup(GBRDMG *THIS_)
 	}
 }
 
-static void timer_update_TIMA(GBRDMG *THIS_)
+static void gbr_timer_update_TIMA(GBRDMG *THIS_)
 {
 	uint32_t cnt;
 	/* タイマ動作中なら現カウンタを取得 */
 	if (kmevent_gettimer(&THIS_->kme, THIS_->timer, &cnt))
 	{
-		cnt >>= timer_clock_table[THIS_->gb_TMC & 3];
+		cnt >>= gbr_timer_clock_table[THIS_->gb_TMC & 3];
 		THIS_->gb_TIMA = (uint8_t)((256 - cnt) & 0xff);
 	}
 }
 
-
-
-static void map_read_proc8k(GBRDMG *THIS_, uint32_t a, READPROC proc)
+static void gbr_map_read_proc8k(GBRDMG *THIS_, uint32_t a, GBR_READPROC proc)
 {
 	uint32_t page = a >> 12;
 	THIS_->readproc[page] = THIS_->readproc[page + 1] = proc;
 }
-static void map_read_mem4k(GBRDMG *THIS_, uint32_t a, uint8_t *p)
+static void gbr_map_read_mem4k(GBRDMG *THIS_, uint32_t a, uint8_t *p)
 {
 	uint32_t page = a >> 12;
 	THIS_->readproc[page] = 0;
 	THIS_->readmap[page] = p - (page << 12);
 }
-static void map_read_mem8k(GBRDMG *THIS_, uint32_t a, uint8_t *p)
+static void gbr_map_read_mem8k(GBRDMG *THIS_, uint32_t a, uint8_t *p)
 {
 	uint32_t page = a >> 12;
 	THIS_->readproc[page] = THIS_->readproc[page + 1] = 0;
 	THIS_->readmap[page] = THIS_->readmap[page + 1] = p - (page << 12);
 }
-static void map_write_proc8k(GBRDMG *THIS_, uint32_t a, WRITEPROC proc)
+static void gbr_map_write_proc8k(GBRDMG *THIS_, uint32_t a, GBR_WRITEPROC proc)
 {
 	uint32_t page = a >> 12;
 	THIS_->writeproc[page] = THIS_->writeproc[page + 1] = proc;
 }
-static void map_write_mem4k(GBRDMG *THIS_, uint32_t a, uint8_t *p)
+static void gbr_map_write_mem4k(GBRDMG *THIS_, uint32_t a, uint8_t *p)
 {
 	uint32_t page = a >> 12;
 	THIS_->writeproc[page] = 0;
 	THIS_->writemap[page] = p - (page << 12);
 }
-static void map_write_mem8k(GBRDMG *THIS_, uint32_t a, uint8_t *p)
+static void gbr_map_write_mem8k(GBRDMG *THIS_, uint32_t a, uint8_t *p)
 {
 	uint32_t page = a >> 12;
 	THIS_->writeproc[page] = THIS_->writeproc[page + 1] = 0;
 	THIS_->writemap[page] = THIS_->writemap[page + 1] = p - (page << 12);
 }
 
-static uint32_t read_null(GBRDMG *THIS_, uint32_t a)
+static uint32_t gbr_read_null(GBRDMG *THIS_, uint32_t a)
 {
     (void)THIS_;
     (void)a;
 	return 0xFF;
 }
-static void write_null(GBRDMG *THIS_, uint32_t a, uint32_t v)
+static void gbr_write_null(GBRDMG *THIS_, uint32_t a, uint32_t v)
 {
     (void)THIS_;
     (void)a;
     (void)v;
 }
 
-static uint32_t read_E000(GBRDMG *THIS_, uint32_t a)
+static uint32_t gbr_read_E000(GBRDMG *THIS_, uint32_t a)
 {
 	if (a >= 0xff80 && a != 0xffff)
 		return THIS_->highram[a & 0x7f];
@@ -250,7 +249,7 @@ static uint32_t read_E000(GBRDMG *THIS_, uint32_t a)
 			case 0xff04:	/* DIV */
 				return (THIS_->gb_DIV + ((THIS_->total_cycles + THIS_->ctx.cycle) >> 8)) & 0xff;
 			case 0xff05:	/* TIMA */
-				timer_update_TIMA(THIS_);
+				gbr_timer_update_TIMA(THIS_);
 				return THIS_->gb_TIMA;
 			case 0xff06:	/* TMA */
 				return THIS_->gb_TMA;
@@ -272,7 +271,7 @@ static uint32_t read_E000(GBRDMG *THIS_, uint32_t a)
 		return THIS_->io[a & 0x1ff];
 	}
 }
-static void write_E000(GBRDMG *THIS_, uint32_t a, uint32_t v)
+static void gbr_write_E000(GBRDMG *THIS_, uint32_t a, uint32_t v)
 {
 	if (a >= 0xff80 && a != 0xffff)
 		THIS_->highram[a & 0x7f] = (uint8_t)v;
@@ -289,7 +288,7 @@ static void write_E000(GBRDMG *THIS_, uint32_t a, uint32_t v)
 				break;
 			case 0xff05:	/* TIMA */
 				THIS_->gb_TIMA = (uint8_t)v;
-				timer_setup(THIS_);
+				gbr_timer_setup(THIS_);
 				break;
 			case 0xff06:	/* TMA */
 				THIS_->gb_TMA = (uint8_t)v;
@@ -299,9 +298,9 @@ static void write_E000(GBRDMG *THIS_, uint32_t a, uint32_t v)
 					uint32_t nextcount;
 					double cnt;
 					kmevent_gettimer(&THIS_->kme, THIS_->timer, &nextcount);
-					cnt = ((double)nextcount) / (1 << timer_clock_table[THIS_->gb_TMC & 3]);
+					cnt = ((double)nextcount) / (1 << gbr_timer_clock_table[THIS_->gb_TMC & 3]);
 					THIS_->gb_TMC = (uint8_t)v;
-					cnt = cnt * (1 << timer_clock_table[THIS_->gb_TMC & 3]);
+					cnt = cnt * (1 << gbr_timer_clock_table[THIS_->gb_TMC & 3]);
 					if (THIS_->gb_TMC & 0x4)
 					{
 						kmevent_settimer(&THIS_->kme, THIS_->timer, (uint32_t)cnt);
@@ -333,8 +332,8 @@ static void write_E000(GBRDMG *THIS_, uint32_t a, uint32_t v)
 				{
 					uint32_t rampage = v & 7;
 					if (!rampage) rampage = 1;
-					map_read_mem4k(THIS_, 0xd000, &THIS_->ram[rampage << 12]);
-					map_write_mem4k(THIS_, 0xd000, &THIS_->ram[rampage << 12]);
+					gbr_map_read_mem4k(THIS_, 0xd000, &THIS_->ram[rampage << 12]);
+					gbr_map_write_mem4k(THIS_, 0xd000, &THIS_->ram[rampage << 12]);
 				}
 				break;
 			case 0xffff:	/* IE */
@@ -345,7 +344,7 @@ static void write_E000(GBRDMG *THIS_, uint32_t a, uint32_t v)
 	}
 }
 
-static void force_rombank(GBRDMG *THIS_, uint32_t bank, uint32_t data)
+static void gbr_force_rombank(GBRDMG *THIS_, uint32_t bank, uint32_t data)
 {
 	uint32_t base = bank << 14;
 	if (data >= THIS_->bankromnum)
@@ -363,12 +362,12 @@ static void force_rombank(GBRDMG *THIS_, uint32_t bank, uint32_t data)
 	}
 	else
 	{
-		map_read_mem8k(THIS_, base + 0x0000, THIS_->bankrom + (data << 14));
-		map_read_mem8k(THIS_, base + 0x2000, THIS_->bankrom + (data << 14) + 0x2000);
+		gbr_map_read_mem8k(THIS_, base + 0x0000, THIS_->bankrom + (data << 14));
+		gbr_map_read_mem8k(THIS_, base + 0x2000, THIS_->bankrom + (data << 14) + 0x2000);
 	}
 }
 
-static void update_banks(GBRDMG *THIS_)
+static void gbr_update_banks(GBRDMG *THIS_)
 {
 	uint32_t rambankenable = 0;
 	uint32_t rambank = 0;
@@ -419,23 +418,23 @@ static void update_banks(GBRDMG *THIS_)
 	}
 	if (rambankenable)
 	{
-		map_write_mem8k(THIS_, 0xA000, THIS_->bankram + (rambank << 13));
-		map_read_mem8k(THIS_, 0xA000, THIS_->bankram + (rambank << 13));
+		gbr_map_write_mem8k(THIS_, 0xA000, THIS_->bankram + (rambank << 13));
+		gbr_map_read_mem8k(THIS_, 0xA000, THIS_->bankram + (rambank << 13));
 	}
 	else
 	{
 #if USE_DUMMYRAM
-		map_write_mem8k(THIS_, 0xA000, THIS_->dummyram);
-		map_read_mem8k(THIS_, 0xA000, THIS_->dummyram);
+		gbr_map_write_mem8k(THIS_, 0xA000, THIS_->dummyram);
+		gbr_map_read_mem8k(THIS_, 0xA000, THIS_->dummyram);
 #else
-		map_write_proc8k(THIS_, 0xA000, write_null);
-		map_read_proc8k(THIS_, 0xA000, read_null);
+		gbr_map_write_proc8k(THIS_, 0xA000, gbr_write_null);
+		gbr_map_read_proc8k(THIS_, 0xA000, gbr_read_null);
 #endif
 	}
-	force_rombank(THIS_, 1, rombank);
+	gbr_force_rombank(THIS_, 1, rombank);
 }
 
-static void write_rambankenable(GBRDMG *THIS_, uint32_t a, uint32_t v)
+static void gbr_write_rambankenable(GBRDMG *THIS_, uint32_t a, uint32_t v)
 {
 	switch (THIS_->mapper_type)
 	{
@@ -444,13 +443,13 @@ static void write_rambankenable(GBRDMG *THIS_, uint32_t a, uint32_t v)
 		case GB_MAPPER_MBC3:
 		case GB_MAPPER_MBC5:
 			THIS_->rambankenable = (uint8_t)(v & 0x0f);
-			update_banks(THIS_);
+			gbr_update_banks(THIS_);
 			break;
 		case GB_MAPPER_MBC2:
 			if (!(a & 0x0100))
 			{
 				THIS_->rambankenable = (uint8_t)(v & 0x0f);
-				update_banks(THIS_);
+				gbr_update_banks(THIS_);
 			}
 			break;
 		default:
@@ -459,25 +458,25 @@ static void write_rambankenable(GBRDMG *THIS_, uint32_t a, uint32_t v)
 }
 
 
-static void write_rombankselect(GBRDMG *THIS_, uint32_t a, uint32_t v)
+static void gbr_write_rombankselect(GBRDMG *THIS_, uint32_t a, uint32_t v)
 {
 	switch (THIS_->mapper_type)
 	{
 		case GB_MAPPER_MBC1:
 		case GB_MAPPER_SSC:
 			THIS_->rombankselect = (uint8_t)(v & 0x1f);
-			update_banks(THIS_);
+			gbr_update_banks(THIS_);
 			break;
 		case GB_MAPPER_MBC2:
 			if (a & 0x0100)
 			{
 				THIS_->rombankselect = (uint8_t)(v & 0x0f);
-				update_banks(THIS_);
+				gbr_update_banks(THIS_);
 			}
 			break;
 		case GB_MAPPER_MBC3:
 			THIS_->rombankselect = (uint8_t)(v & 0x7f);
-			update_banks(THIS_);
+			gbr_update_banks(THIS_);
 			break;
 		case GB_MAPPER_MBC5:
 		case GB_MAPPER_GBR:
@@ -485,13 +484,13 @@ static void write_rombankselect(GBRDMG *THIS_, uint32_t a, uint32_t v)
 				THIS_->rombankselecthi = (uint8_t)(v & 1);
 			else
 				THIS_->rombankselect = (uint8_t)(v & 0xff);
-			update_banks(THIS_);
+			gbr_update_banks(THIS_);
 			break;
 		default:
 			break;
 	}
 }
-static void write_rambankselect(GBRDMG *THIS_, uint32_t a, uint32_t v)
+static void gbr_write_rambankselect(GBRDMG *THIS_, uint32_t a, uint32_t v)
 {
     (void)a;
 	switch (THIS_->mapper_type)
@@ -499,20 +498,20 @@ static void write_rambankselect(GBRDMG *THIS_, uint32_t a, uint32_t v)
 		case GB_MAPPER_MBC1:
 		case GB_MAPPER_SSC:
 			THIS_->rambankselect = (uint8_t)(v & 0x03);
-			update_banks(THIS_);
+			gbr_update_banks(THIS_);
 			break;
 		case GB_MAPPER_MBC3:
 		case GB_MAPPER_MBC5:
 		case GB_MAPPER_GBR:
 			THIS_->rambankselect = (uint8_t)(v & 0x0f);
-			update_banks(THIS_);
+			gbr_update_banks(THIS_);
 			break;
 		default:
 			break;
 	}
 }
 
-static void write_romramselect(GBRDMG *THIS_, uint32_t a, uint32_t v)
+static void gbr_write_romramselect(GBRDMG *THIS_, uint32_t a, uint32_t v)
 {
     (void)a;
 	switch (THIS_->mapper_type)
@@ -520,7 +519,7 @@ static void write_romramselect(GBRDMG *THIS_, uint32_t a, uint32_t v)
 		case GB_MAPPER_MBC1:
 		case GB_MAPPER_SSC:
 			THIS_->romramselect = (uint8_t)(v & 0x1);
-			update_banks(THIS_);
+			gbr_update_banks(THIS_);
 			break;
 		default:
 			break;
@@ -528,7 +527,7 @@ static void write_romramselect(GBRDMG *THIS_, uint32_t a, uint32_t v)
 }
 
 
-static uint32_t read_event(void *ctx, uint32_t a)
+static uint32_t gbr_read_event(void *ctx, uint32_t a)
 {
 	GBRDMG *THIS_ = ctx;
 	uint32_t page = a >> 12;
@@ -538,7 +537,7 @@ static uint32_t read_event(void *ctx, uint32_t a)
 		return THIS_->readmap[page][a];
 }
 
-static void write_event(void *ctx, uint32_t a, uint32_t v)
+static void gbr_write_event(void *ctx, uint32_t a, uint32_t v)
 {
 	GBRDMG *THIS_ = ctx;
 	uint32_t page = a >> 12;
@@ -548,12 +547,12 @@ static void write_event(void *ctx, uint32_t a, uint32_t v)
 		THIS_->writemap[page][a] = (uint8_t)v;
 }
 
-static void vsync_event(KMEVENT *event, KMEVENT_ITEM_ID curid, GBRDMG *THIS_)
+static void gbr_vsync_event(KMEVENT *event, KMEVENT_ITEM_ID curid, GBRDMG *THIS_)
 {
     (void)event;
     (void)curid;
 
-	vsync_setup(THIS_);
+	gbr_vsync_setup(THIS_);
 	THIS_->gb_IF |= 1;
 	THIS_->ctx.regs8[REGID_INTREQ] |= 1;
 	//---+ [changes_rough.txt]
@@ -565,12 +564,12 @@ static void vsync_event(KMEVENT *event, KMEVENT_ITEM_ID curid, GBRDMG *THIS_)
 	//	vsync_setup2(THIS_);
 }
 
-static void timer_event(KMEVENT *event, KMEVENT_ITEM_ID curid, GBRDMG *THIS_)
+static void gbr_timer_event(KMEVENT *event, KMEVENT_ITEM_ID curid, GBRDMG *THIS_)
 {
     (void)event;
     (void)curid;
 	THIS_->gb_TIMA = THIS_->gb_TMA;
-	timer_setup(THIS_);
+	gbr_timer_setup(THIS_);
 	THIS_->gb_IF |= 4;
 	THIS_->ctx.regs8[REGID_INTREQ] |= 4;
 	//---+ [changes_rough.txt]
@@ -583,7 +582,7 @@ static void timer_event(KMEVENT *event, KMEVENT_ITEM_ID curid, GBRDMG *THIS_)
 
 }
 
-static void reset(NEZ_PLAY *pNezPlay)
+static void gbr_reset(NEZ_PLAY *pNezPlay)
 {
 	GBRDMG *THIS_ = pNezPlay->gbrdmg;
 	uint32_t song, initbreak;
@@ -608,32 +607,32 @@ static void reset(NEZ_PLAY *pNezPlay)
 	THIS_->cps = DivFix(DMG_BASECYCLES, freq, SHIFT_CPS + THIS_->isCGB);
 	THIS_->ctx.user = THIS_;
 	THIS_->ctx.kmevent = &THIS_->kme;
-	THIS_->ctx.memread = read_event;
-	THIS_->ctx.memwrite = write_event;
+	THIS_->ctx.memread = gbr_read_event;
+	THIS_->ctx.memwrite = gbr_write_event;
 	THIS_->vsync = kmevent_alloc(&THIS_->kme);
 	THIS_->timer = kmevent_alloc(&THIS_->kme);
-	kmevent_setevent(&THIS_->kme, THIS_->vsync, vsync_event, THIS_);
-	kmevent_setevent(&THIS_->kme, THIS_->timer, timer_event, THIS_);
+	kmevent_setevent(&THIS_->kme, THIS_->vsync, gbr_vsync_event, THIS_);
+	kmevent_setevent(&THIS_->kme, THIS_->timer, gbr_timer_event, THIS_);
 
 	THIS_->rambankenable = 0xa/*THIS_->isgbr ? 0xa : 0*/;
 	THIS_->rambankselect = 0;
 	THIS_->romramselect =  0;
 	THIS_->rombankselecthi = 0;
-	force_rombank(THIS_, 0, 0);
-	force_rombank(THIS_, 1, 0);
-	force_rombank(THIS_, 0, THIS_->bankromfirst[0]);
+	gbr_force_rombank(THIS_, 0, 0);
+	gbr_force_rombank(THIS_, 1, 0);
+	gbr_force_rombank(THIS_, 0, THIS_->bankromfirst[0]);
 	THIS_->rombankselect = THIS_->bankromfirst[1];
-	map_write_proc8k(THIS_, 0x0000, write_rambankenable);
-	map_write_proc8k(THIS_, 0x2000, write_rombankselect);
-	map_write_proc8k(THIS_, 0x4000, write_rambankselect);
-	map_write_proc8k(THIS_, 0x6000, write_romramselect);
-	map_read_mem8k(THIS_, 0x8000, THIS_->vram);
-	map_write_mem8k(THIS_, 0x8000, THIS_->vram);
-	map_read_mem8k(THIS_, 0xC000, THIS_->ram);
-	map_write_mem8k(THIS_, 0xC000, THIS_->ram);
-	map_read_proc8k(THIS_, 0xE000, read_E000);
-	map_write_proc8k(THIS_, 0xE000, write_E000);
-	update_banks(THIS_);
+	gbr_map_write_proc8k(THIS_, 0x0000, gbr_write_rambankenable);
+	gbr_map_write_proc8k(THIS_, 0x2000, gbr_write_rombankselect);
+	gbr_map_write_proc8k(THIS_, 0x4000, gbr_write_rambankselect);
+	gbr_map_write_proc8k(THIS_, 0x6000, gbr_write_romramselect);
+	gbr_map_read_mem8k(THIS_, 0x8000, THIS_->vram);
+	gbr_map_write_mem8k(THIS_, 0x8000, THIS_->vram);
+	gbr_map_read_mem8k(THIS_, 0xC000, THIS_->ram);
+	gbr_map_write_mem8k(THIS_, 0xC000, THIS_->ram);
+	gbr_map_read_proc8k(THIS_, 0xE000, gbr_read_E000);
+	gbr_map_write_proc8k(THIS_, 0xE000, gbr_write_E000);
+	gbr_update_banks(THIS_);
 
 	THIS_->ctx.regs8[REGID_A] = (uint8_t)(song & 0xff);
 #if 1
@@ -776,8 +775,8 @@ static void reset(NEZ_PLAY *pNezPlay)
 	/* nemesis1/2, last bible1/2 */
 	if (THIS_->timerflag & 4) THIS_->gb_TMC |= 4;
 
-	vsync_setup(THIS_);
-	timer_setup(THIS_);
+	gbr_vsync_setup(THIS_);
+	gbr_timer_setup(THIS_);
 	/* THIS_->gb_TIMA = THIS_->gb_TMA; */
 	/* THIS_->gb_IE = THIS_->timerflag; */
 
@@ -785,7 +784,7 @@ static void reset(NEZ_PLAY *pNezPlay)
 
 }
 
-static void terminate(GBRDMG *THIS_)
+static void gbr_terminate(GBRDMG *THIS_)
 {
 	//ここまでダンプ設定
 	if (THIS_->dmgsnd) THIS_->dmgsnd->release(THIS_->dmgsnd->ctx);
@@ -793,12 +792,7 @@ static void terminate(GBRDMG *THIS_)
 	XFREE(THIS_);
 }
 
-static uint32_t GetWordLE(uint8_t *p)
-{
-	return p[0] | (p[1] << 8);
-}
-
-static uint32_t load(NEZ_PLAY *pNezPlay, GBRDMG *THIS_, uint8_t *pData, uint32_t uSize)
+static uint32_t gbr_load(NEZ_PLAY *pNezPlay, GBRDMG *THIS_, uint8_t *pData, uint32_t uSize)
 {
 	uint8_t titlebuffer[0x21];
 	uint8_t artistbuffer[0x21];
@@ -1037,24 +1031,20 @@ Use INT           : %d"
 	return NEZ_NESERR_NOERROR;
 }
 
-
-
-
-
 static int32_t ExecuteDMGCPU(NEZ_PLAY *pNezPlay)
 {
-	return ((NEZ_PLAY*)pNezPlay)->gbrdmg ? execute((GBRDMG*)((NEZ_PLAY*)pNezPlay)->gbrdmg) : 0;
+	return ((NEZ_PLAY*)pNezPlay)->gbrdmg ? gbr_execute((GBRDMG*)((NEZ_PLAY*)pNezPlay)->gbrdmg) : 0;
 }
 
 static void DMGSoundRenderStereo(NEZ_PLAY *pNezPlay, int32_t *d)
 {
-	synth((GBRDMG*)((NEZ_PLAY*)pNezPlay)->gbrdmg, d);
+	gbr_snyth((GBRDMG*)((NEZ_PLAY*)pNezPlay)->gbrdmg, d);
 }
 
 static int32_t DMGSoundRenderMono(NEZ_PLAY *pNezPlay)
 {
 	int32_t d[2] = { 0,0 } ;
-	synth((GBRDMG*)((NEZ_PLAY*)pNezPlay)->gbrdmg, d);
+	gbr_snyth((GBRDMG*)((NEZ_PLAY*)pNezPlay)->gbrdmg, d);
 #if (((-1) >> 1) == -1)
 	return (d[0] + d[1]) >> 1;
 #else
@@ -1072,18 +1062,18 @@ static void GBRDMGVolume(NEZ_PLAY *pNezPlay, uint32_t v)
 {
 	if (((NEZ_PLAY*)pNezPlay)->gbrdmg)
 	{
-		volume((GBRDMG*)((NEZ_PLAY*)pNezPlay)->gbrdmg, v);
+		gbr_volume((GBRDMG*)((NEZ_PLAY*)pNezPlay)->gbrdmg, v);
 	}
 }
 
-static const NEZ_NES_VOLUME_HANDLER gbrdmg_volume_handler[] = {
+static const NEZ_NES_VOLUME_HANDLER gbrgbr_volume_handler[] = {
 	{ GBRDMGVolume, NULL }, 
 	{ 0, NULL }, 
 };
 
 static void GBRDMGCPUReset(NEZ_PLAY *pNezPlay)
 {
-	if (((NEZ_PLAY*)pNezPlay)->gbrdmg) reset((NEZ_PLAY*)pNezPlay);
+	if (((NEZ_PLAY*)pNezPlay)->gbrdmg) gbr_reset((NEZ_PLAY*)pNezPlay);
 }
 
 static const NEZ_NES_RESET_HANDLER gbrdmg_reset_handler[] = {
@@ -1095,7 +1085,7 @@ static void GBRDMGCPUTerminate(NEZ_PLAY *pNezPlay)
 {
 	if (((NEZ_PLAY*)pNezPlay)->gbrdmg)
 	{
-		terminate((GBRDMG*)((NEZ_PLAY*)pNezPlay)->gbrdmg);
+		gbr_terminate((GBRDMG*)((NEZ_PLAY*)pNezPlay)->gbrdmg);
 		((NEZ_PLAY*)pNezPlay)->gbrdmg = 0;
 	}
 }
@@ -1112,15 +1102,15 @@ uint32_t GBRLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	if (pNezPlay->gbrdmg) __builtin_trap();	/* ASSERT */
 	THIS_ = (GBRDMG *)XMALLOC(sizeof(GBRDMG));
 	if (!THIS_) return NEZ_NESERR_SHORTOFMEMORY;
-	ret = load(pNezPlay, THIS_, pData, uSize);
+	ret = gbr_load(pNezPlay, THIS_, pData, uSize);
 	if (ret)
 	{
-		terminate(THIS_);
+		gbr_terminate(THIS_);
 		return ret;
 	}
 	pNezPlay->gbrdmg = THIS_;
 	NESAudioHandlerInstall(pNezPlay, gbrdmg_audio_handler);
-	NESVolumeHandlerInstall(pNezPlay, gbrdmg_volume_handler);
+	NESVolumeHandlerInstall(pNezPlay, gbrgbr_volume_handler);
 	NESResetHandlerInstall(pNezPlay->nrh, gbrdmg_reset_handler);
 	NESTerminateHandlerInstall(&pNezPlay->nth, gbrdmg_terminate_handler);
 	return ret;

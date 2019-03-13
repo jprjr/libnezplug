@@ -5,6 +5,7 @@
 #include "../../format/nsf6502.h"
 #include "../../format/m_nsf.h"
 #include "s_vrc7.h"
+#include "../../common/util.h"
 
 #define MASTER_CLOCK        (3579545)
 #define VRC7_VOL 4/3
@@ -16,12 +17,6 @@ typedef struct {
 	uint8_t usertone[1][16 * 19];
 	KMIF_SOUND_DEVICE *kmif;
 } OPLLSOUND_INTF;
-
-static uint32_t GetDwordLE(uint8_t *p)
-{
-	return p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
-}
-#define GetDwordLEM(p) (uint32_t)((((uint8_t *)p)[0] | (((uint8_t *)p)[1] << 8) | (((uint8_t *)p)[2] << 16) | (((uint8_t *)p)[3] << 24)))
 
 void OPLLSetTone(NEZ_PLAY *pNezPlay, uint8_t *p, uint32_t type)
 {
@@ -150,6 +145,5 @@ void VRC7SoundInstall(NEZ_PLAY *pNezPlay)
 	}
 }
 
-#undef GetDwordLEM
 #undef MASTER_CLOCK
 #undef VRC7_VOL

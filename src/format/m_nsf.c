@@ -5,6 +5,7 @@
 #include "audiosys.h"
 #include "songinfo.h"
 #include "nsf6502.h"
+#include "../common/util.h"
 #include "../device/nes/s_apu.h"
 #include "../device/nes/s_mmc5.h"
 #include "../device/nes/s_vrc6.h"
@@ -225,11 +226,6 @@ static NES_WRITE_HANDLER nsf_mapper_write_handler2[] = {
 uint8_t *NSFGetHeader(NEZ_PLAY *pNezPlay)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->head;
-}
-
-static uint32_t GetWordLE(uint8_t *p)
-{
-	return p[0] | (p[1] << 8);
 }
 
 static void ResetBank(NEZ_PLAY *pNezPlay)

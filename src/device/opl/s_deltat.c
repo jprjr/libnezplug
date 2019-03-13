@@ -45,18 +45,18 @@ typedef struct {
     uint8_t *chmask;
 } YMDELTATPCMSOUND;
 
-static const int8_t table_step[16] =
+static const int8_t deltat_table_step[16] =
 {
 	1,	3,	5,	7,	9,	11,	13,	15,
 	-1,	-1,	-1,	-1,	2,	4,	6,	8
 };
-static const uint8_t table_scale[16] =
+static const uint8_t deltat_table_scale[16] =
 {
 	 57,  57,  57,  57,  77, 102, 128, 153,
 	 57,  57,  57,  57,  77, 102, 128, 153,
 };
 
-static const int32_t scaletable[49*16]={
+static const int32_t deltat_scaletable[49*16]={
     2,    6,   10,   14,   18,   22,   26,   30,   -2,   -6,  -10,  -14,  -18,  -22,  -26,  -30,
     2,    6,   10,   14,   19,   23,   27,   31,   -2,   -6,  -10,  -14,  -19,  -23,  -27,  -31,
     2,    6,   11,   15,   21,   25,   30,   34,   -2,   -6,  -11,  -15,  -21,  -25,  -30,  -34,
@@ -109,13 +109,13 @@ static const int32_t scaletable[49*16]={
 };
 
 
-__inline static void writeram(YMDELTATPCMSOUND *sndp, uint32_t v)
+__inline static void deltat_writeram(YMDELTATPCMSOUND *sndp, uint32_t v)
 {
 	sndp->rambuf[(sndp->common.mem >> 1) & sndp->rammask] = (uint8_t)v;
 	sndp->common.mem += 1 << 1;
 }
 
-__inline static uint32_t readram(YMDELTATPCMSOUND *sndp)
+__inline static uint32_t deltat_readram(YMDELTATPCMSOUND *sndp)
 {
 	uint32_t v;
 	v = sndp->romrambuf[(sndp->common.play >> 1) & sndp->romrammask];
@@ -147,21 +147,21 @@ __inline static uint32_t readram(YMDELTATPCMSOUND *sndp)
 __inline static void DelrtatStep(YMDELTATPCMSOUND *sndp, uint32_t data)
 {
 	if(sndp->ymdeltatpcm_type==MSM5205){
-		sndp->common.scale = sndp->common.scale + scaletable[(sndp->common.step << 4) + (data & 0xf)];
+		sndp->common.scale = sndp->common.scale + deltat_scaletable[(sndp->common.step << 4) + (data & 0xf)];
 		if (sndp->common.scale >  2047) sndp->common.scale = 2047;
 		if (sndp->common.scale < -2048) sndp->common.scale = -2048;
 
-		sndp->common.step += table_step[(data & 7) + 8];
+		sndp->common.step += deltat_table_step[(data & 7) + 8];
 		if (sndp->common.step > 48) sndp->common.step = 48;
 		if (sndp->common.step < 0) sndp->common.step = 0;
 	}else{
 		if (data & 8)
-			sndp->common.step -= (table_step[data & 7] * sndp->common.scale) >> 3;
+			sndp->common.step -= (deltat_table_step[data & 7] * sndp->common.scale) >> 3;
 		else
-			sndp->common.step += (table_step[data & 7] * sndp->common.scale) >> 3;
+			sndp->common.step += (deltat_table_step[data & 7] * sndp->common.scale) >> 3;
 		if (sndp->common.step > ((1 << 15) - 1)) sndp->common.step = ((1 << 15) - 1);
 		if (sndp->common.step < -(1 << 15)) sndp->common.step = -(1 << 15);
-		sndp->common.scale = (sndp->common.scale * table_scale[data]) >> 6;
+		sndp->common.scale = (sndp->common.scale * deltat_table_scale[data]) >> 6;
 		if (sndp->common.scale > 24576) sndp->common.scale = 24576;
 		if (sndp->common.scale < 127) sndp->common.scale = 127;
 	}
@@ -174,7 +174,7 @@ __inline static void DelrtatStep(YMDELTATPCMSOUND *sndp, uint32_t data)
 #endif
 
 
-static void sndsynth(void *ctx, int32_t *p)
+static void deltat_sndsynth(void *ctx, int32_t *p)
 {
     YMDELTATPCMSOUND *sndp = (YMDELTATPCMSOUND *)ctx;
 	if (sndp->common.key)
@@ -190,7 +190,7 @@ static void sndsynth(void *ctx, int32_t *p)
 		{
 			do
 			{
-				DelrtatStep(sndp, readram(sndp));
+				DelrtatStep(sndp, deltat_readram(sndp));
 			} while (--step);
 			if(sndp->ymdeltatpcm_type==MSM5205){
 				sndp->common.output = sndp->common.scale * sndp->common.level32;
@@ -208,7 +208,7 @@ static void sndsynth(void *ctx, int32_t *p)
 
 
 
-static void sndwrite(void *ctx, uint32_t a, uint32_t v)
+static void deltad_sndwrite(void *ctx, uint32_t a, uint32_t v)
 {
     YMDELTATPCMSOUND *sndp = (YMDELTATPCMSOUND *)ctx;
 	sndp->common.regs[a] = (uint8_t)v;
@@ -248,7 +248,7 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 		case 0x07:	/* Prescale H */
 			break;
 		case 0x08:	/* Data */
-			if ((sndp->common.regs[0] & 0x60) == 0x60) writeram(sndp, v);
+			if ((sndp->common.regs[0] & 0x60) == 0x60) deltat_writeram(sndp, v);
 			break;
 		case 0x09:	/* Delta-N L */
 		case 0x0a:	/* Delta-N H */
@@ -268,14 +268,14 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 	}
 }
 
-static uint32_t sndread(void *ctx, uint32_t a)
+static uint32_t deltat_sndread(void *ctx, uint32_t a)
 {
     (void)ctx;
     (void)a;
 	return 0;
 }
 
-static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
+static void deltat_sndreset(void *ctx, uint32_t clock, uint32_t freq)
 {
     YMDELTATPCMSOUND *sndp = (YMDELTATPCMSOUND *)ctx;
 	XMEMSET(&sndp->common, 0, sizeof(sndp->common));
@@ -285,7 +285,7 @@ static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
 	sndp->common.granuality = 4;
 }
 
-static void sndvolume(void *ctx, int32_t volume)
+static void deltat_sndvolume(void *ctx, int32_t volume)
 {
     YMDELTATPCMSOUND *sndp = (YMDELTATPCMSOUND *)ctx;
 	volume = (volume << (LOG_BITS - 8)) << 1;
@@ -295,7 +295,7 @@ static void sndvolume(void *ctx, int32_t volume)
 	sndp->common.output = SSR(sndp->common.output, 8 + 2);
 }
 
-static void sndrelease(void *ctx)
+static void deltat_sndrelease(void *ctx)
 {
     YMDELTATPCMSOUND *sndp = (YMDELTATPCMSOUND *)ctx;
 	if (sndp) {
@@ -303,7 +303,7 @@ static void sndrelease(void *ctx)
 	}
 }
 
-static void setinst(void *ctx, uint32_t n, void *p, uint32_t l)
+static void deltat_setinst(void *ctx, uint32_t n, void *p, uint32_t l)
 {
     YMDELTATPCMSOUND *sndp = (YMDELTATPCMSOUND *)ctx;
 	if (n) return;
@@ -364,13 +364,13 @@ KMIF_SOUND_DEVICE *YMDELTATPCMSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t ymdeltatpc
 			break;
 	}
 	sndp->kmif.ctx = sndp;
-	sndp->kmif.release = sndrelease;
-	sndp->kmif.synth = sndsynth;
-	sndp->kmif.volume = sndvolume;
-	sndp->kmif.reset = sndreset;
-	sndp->kmif.write = sndwrite;
-	sndp->kmif.read = sndread;
-	sndp->kmif.setinst = setinst;
+	sndp->kmif.release = deltat_sndrelease;
+	sndp->kmif.synth = deltat_sndsynth;
+	sndp->kmif.volume = deltat_sndvolume;
+	sndp->kmif.reset = deltat_sndreset;
+	sndp->kmif.write = deltad_sndwrite;
+	sndp->kmif.read = deltat_sndread;
+	sndp->kmif.setinst = deltat_setinst;
 	/* RAM */
 	if(pcmbuf != NULL)
 		sndp->rambuf = pcmbuf;
@@ -389,3 +389,4 @@ KMIF_SOUND_DEVICE *YMDELTATPCMSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t ymdeltatpc
 #undef LIN_BITS
 #undef LOG_BITS
 #undef LOG_LIN_BITS
+#undef SSR

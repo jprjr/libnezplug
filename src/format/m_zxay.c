@@ -7,6 +7,7 @@
 
 #include "../device/s_psg.h"
 #include "../common/divfix.h"
+#include "../common/util.h"
 
 #include "../cpu/kmz80/kmz80.h"
 
@@ -175,17 +176,6 @@ static void vsync_event(KMEVENT *event, KMEVENT_ITEM_ID curid, ZXAY *THIS_)
 	}
 #endif
 	THIS_->ctx.regs8[REGID_INTREQ] |= 1;
-}
-
-static uint32_t GetWordBE(uint8_t *p)
-{
-	return p[1] | (p[0] << 8);
-}
-
-static void SetWordLE(uint8_t *p, uint32_t v)
-{
-	p[0] = (uint8_t)(v >> (8 * 0)) & 0xFF;
-	p[1] = (uint8_t)(v >> (8 * 1)) & 0xFF;
 }
 
 static uint8_t *ZXAYOffset(uint8_t *p)

@@ -6,6 +6,7 @@
 #include "m_nsf.h"
 #include "m_nsd.h"
 #include "../common/divfix.h"
+#include "../common/util.h"
 
 uint32_t NSDPlayerGetCycles(void)
 {
@@ -152,12 +153,6 @@ static const NEZ_NES_AUDIO_HANDLER nsdplay_audio_handler[] = {
 	{ 0, ExecuteNSD, NULL, NULL },
 	{ 0, 0, NULL, NULL },
 };
-
-static uint32_t GetDwordLE(uint8_t *p)
-{
-	return p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
-}
-
 
 static void NSDPLAYReset(NEZ_PLAY *pNezPlay)
 {
@@ -327,3 +322,5 @@ uint32_t NSDLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	return NEZ_NESERR_NOERROR;
 }
 
+#undef SHIFT_CPS
+#undef NES_BASECYCLES

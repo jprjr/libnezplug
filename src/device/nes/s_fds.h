@@ -2,13 +2,14 @@
 #define S_FDS_H__
 
 #include <nezplug/nezplug.h>
+#include "../../normalize.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void FDSSoundInstall(NEZ_PLAY*);
-void FDSSelect(NEZ_PLAY*, unsigned type);
+PROTECTED void FDSSoundInstall(NEZ_PLAY*);
+PROTECTED void FDSSelect(NEZ_PLAY*, unsigned type);
 
 #ifdef __cplusplus
 }

@@ -11,7 +11,7 @@ enum {
 	KMEVENT_FLAG_ALLOCED = (1 << 7)
 };
 
-void kmevent_reset(KMEVENT *kme)
+PROTECTED void kmevent_reset(KMEVENT *kme)
 {
 	KMEVENT_ITEM_ID id;
 	kme->item[0].count = 0;
@@ -24,7 +24,7 @@ void kmevent_reset(KMEVENT *kme)
 	}
 }
 
-void kmevent_init(KMEVENT *kme)
+PROTECTED void kmevent_init(KMEVENT *kme)
 {
 	KMEVENT_ITEM_ID id;
 	for (id = 0; id <= KMEVENT_ITEM_MAX; id++)
@@ -34,7 +34,7 @@ void kmevent_init(KMEVENT *kme)
 	kmevent_reset(kme);
 }
 
-KMEVENT_ITEM_ID kmevent_alloc(KMEVENT *kme)
+PROTECTED KMEVENT_ITEM_ID kmevent_alloc(KMEVENT *kme)
 {
 	KMEVENT_ITEM_ID id;
 	for (id = 1; id <= KMEVENT_ITEM_MAX; id++)
@@ -86,20 +86,20 @@ static void kmevent_iteminsert(KMEVENT *kme, KMEVENT_ITEM_ID curid)
 	kmevent_itemlist(kme, curid, baseid);
 }
 
-void kmevent_free(KMEVENT *kme, KMEVENT_ITEM_ID curid)
+PROTECTED void kmevent_free(KMEVENT *kme, KMEVENT_ITEM_ID curid)
 {
 	kmevent_itemunlist(kme, curid);
 	kme->item[curid].sysflag = 0;
 }
 
-void kmevent_settimer(KMEVENT *kme, KMEVENT_ITEM_ID curid, uint32_t time)
+PROTECTED void kmevent_settimer(KMEVENT *kme, KMEVENT_ITEM_ID curid, uint32_t time)
 {
 	kmevent_itemunlist(kme, curid);	/* 取り外し */
 	kme->item[curid].count = time ? kme->item[0].count + time : 0;
 	if (kme->item[curid].count) kmevent_iteminsert(kme, curid);	/* ソート */
 }
 
-uint32_t kmevent_gettimer(KMEVENT *kme, KMEVENT_ITEM_ID curid, uint32_t *time)
+PROTECTED uint32_t kmevent_gettimer(KMEVENT *kme, KMEVENT_ITEM_ID curid, uint32_t *time)
 {
 	uint32_t nextcount;
 	nextcount = kme->item[curid ? curid : kme->item[0].next].count;
@@ -109,14 +109,14 @@ uint32_t kmevent_gettimer(KMEVENT *kme, KMEVENT_ITEM_ID curid, uint32_t *time)
 	return 1;
 }
 
-void kmevent_setevent(KMEVENT *kme, KMEVENT_ITEM_ID curid, void (*proc)(), void *user)
+PROTECTED void kmevent_setevent(KMEVENT *kme, KMEVENT_ITEM_ID curid, void (*proc)(), void *user)
 {
 	kme->item[curid].proc = (void (*)(KMEVENT *,uint32_t ,void *))proc;
 	kme->item[curid].user = user;
 }
 
 /* 指定サイクル分実行 */
-void kmevent_process(KMEVENT *kme, uint32_t cycles)
+PROTECTED void kmevent_process(KMEVENT *kme, uint32_t cycles)
 {
 	KMEVENT_ITEM_ID id;
 	uint32_t nextcount;

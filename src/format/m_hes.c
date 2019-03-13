@@ -6,6 +6,7 @@
 #include "../device/s_hes.h"
 #include "../device/s_hesad.h"
 #include "../common/divfix.h"
+#include "../common/util.h"
 
 #include "m_hes.h"
 #include <stdio.h>
@@ -42,8 +43,8 @@ F7		BATTERY RAM
 #endif
 
 typedef struct HESHES_TAG HESHES;
-typedef uint32_t (*READPROC)(HESHES *THIS_, uint32_t a);
-typedef void (*WRITEPROC)(HESHES *THIS_, uint32_t a, uint32_t v);
+typedef uint32_t (*HES_READPROC)(HESHES *THIS_, uint32_t a);
+typedef void (*HES_WRITEPROC)(HESHES *THIS_, uint32_t a, uint32_t v);
 
 struct  HESHES_TAG {
 	struct K6280_Context ctx;
@@ -78,7 +79,7 @@ struct  HESHES_TAG {
 };
 
 
-static uint32_t km6280_exec(struct K6280_Context *ctx, uint32_t cycles)
+static uint32_t hes_km6280_exec(struct K6280_Context *ctx, uint32_t cycles)
 {
 	HESHES *THIS_ = (HESHES *)ctx->user;
 	uint32_t kmecycle;
@@ -125,7 +126,7 @@ static uint32_t km6280_exec(struct K6280_Context *ctx, uint32_t cycles)
 	return kmecycle;
 }
 
-static int32_t execute(HESHES *THIS_)
+static int32_t hes_execute(HESHES *THIS_)
 {
 	uint32_t cycles;
 	THIS_->cpsrem += THIS_->cps;
@@ -135,37 +136,37 @@ static int32_t execute(HESHES *THIS_)
 	else
 	{
 		uint32_t excycles = cycles - THIS_->cpsgap;
-		THIS_->cpsgap = km6280_exec(&THIS_->ctx, excycles) - excycles;
+		THIS_->cpsgap = hes_km6280_exec(&THIS_->ctx, excycles) - excycles;
 	}
 	THIS_->cpsrem &= (1 << SHIFT_CPS) - 1;
 	THIS_->total_cycles += cycles;
 	return 0;
 }
 
-__inline static void synth(HESHES *THIS_, int32_t *d)
+__inline static void hes_synth(HESHES *THIS_, int32_t *d)
 {
 	THIS_->hessnd->synth(THIS_->hessnd->ctx, d);
 	THIS_->hespcm->synth(THIS_->hespcm->ctx, d);
 }
 
-__inline static void volume(HESHES *THIS_, uint32_t v)
+__inline static void hes_volume(HESHES *THIS_, uint32_t v)
 {
 	THIS_->hessnd->volume(THIS_->hessnd->ctx, v);
 	THIS_->hespcm->volume(THIS_->hespcm->ctx, v);
 }
 
 
-static void vsync_setup(HESHES *THIS_)
+static void hes_vsync_setup(HESHES *THIS_)
 {
 	kmevent_settimer(&THIS_->kme, THIS_->vsync, 4 * 342 * 262);
 }
 
-static void timer_setup(HESHES *THIS_)
+static void hes_timer_setup(HESHES *THIS_)
 {
 	kmevent_settimer(&THIS_->kme, THIS_->timer, HES_TIMERCYCLES);
 }
 
-static void write_6270(HESHES *THIS_, uint32_t a, uint32_t v)
+static void hes_write_6270(HESHES *THIS_, uint32_t a, uint32_t v)
 {
 	switch (a)
 	{
@@ -185,7 +186,7 @@ static void write_6270(HESHES *THIS_, uint32_t a, uint32_t v)
 	}
 }
 
-static uint32_t read_6270(HESHES *THIS_, uint32_t a)
+static uint32_t hes_read_6270(HESHES *THIS_, uint32_t a)
 {
 	uint32_t v = 0;
 	if (a == 0)
@@ -203,12 +204,12 @@ static uint32_t read_6270(HESHES *THIS_, uint32_t a)
 	return v;
 }
 
-static uint32_t read_io(HESHES *THIS_, uint32_t a)
+static uint32_t hes_read_io(HESHES *THIS_, uint32_t a)
 {
 	switch (a >> 10)
 	{
 		case 0:	/* VDC */	
-			return read_6270(THIS_, a & 3);
+			return hes_read_6270(THIS_, a & 3);
 		case 2:	/* PSG */
 			return THIS_->hessnd->read(THIS_->hessnd->ctx, a & 0xf);
 		case 3:	/* TIMER */
@@ -262,12 +263,12 @@ static uint32_t read_io(HESHES *THIS_, uint32_t a)
 	}
 }
 
-static void write_io(HESHES *THIS_, uint32_t a, uint32_t v)
+static void hes_write_io(HESHES *THIS_, uint32_t a, uint32_t v)
 {
 	switch (a >> 10)
 	{
 		case 0:	/* VDC */
-			write_6270(THIS_, a & 3, v);
+			hes_write_6270(THIS_, a & 3, v);
 			break;
 		case 2:	/* PSG */
 			THIS_->hessnd->write(THIS_->hessnd->ctx, a & 0xf, v);
@@ -324,29 +325,29 @@ static void write_io(HESHES *THIS_, uint32_t a, uint32_t v)
 }
 
 
-static uint32_t Callback read_event(void *ctx, Uword a)
+static uint32_t Callback hes_read_event(void *ctx, Uword a)
 {
 	HESHES *THIS_ = ctx;
 	uint8_t page = THIS_->mpr[a >> 13];
 	if (THIS_->memmap[page])
 		return THIS_->memmap[page][a & 0x1fff];
 	else if (page == 0xff)
-		return read_io(THIS_, a & 0x1fff);
+		return hes_read_io(THIS_, a & 0x1fff);
 	else
 		return 0xff;
 }
 
-static void Callback write_event(void *ctx, Uword a, Uword v)
+static void Callback hes_write_event(void *ctx, Uword a, Uword v)
 {
 	HESHES *THIS_ = ctx;
 	uint8_t page = THIS_->mpr[a >> 13];
 	if (THIS_->memmap[page])
 		THIS_->memmap[page][a & 0x1fff] = (uint8_t)v;
 	else if (page == 0xff)
-		write_io(THIS_, a & 0x1fff, v);
+		hes_write_io(THIS_, a & 0x1fff, v);
 }
 
-static uint32_t Callback readmpr_event(void *ctx, Uword a)
+static uint32_t Callback hes_readmpr_event(void *ctx, Uword a)
 {
 	HESHES *THIS_ = ctx;
 	uint32_t i;
@@ -354,7 +355,7 @@ static uint32_t Callback readmpr_event(void *ctx, Uword a)
 	return 0xff;
 }
 
-static void Callback writempr_event(void *ctx, Uword a, Uword v)
+static void Callback hes_writempr_event(void *ctx, Uword a, Uword v)
 {
 	HESHES *THIS_ = ctx;
 	uint32_t i;
@@ -362,18 +363,18 @@ static void Callback writempr_event(void *ctx, Uword a, Uword v)
 	for (i = 0; i < 8; i++) if (a & (1 << i)) THIS_->mpr[i] = (uint8_t)v;
 }
 
-static void Callback write6270_event(void *ctx, Uword a, Uword v)
+static void Callback hes_write6270_event(void *ctx, Uword a, Uword v)
 {
 	HESHES *THIS_ = ctx;
-	write_6270(THIS_, a & 0x1fff, v);
+	hes_write_6270(THIS_, a & 0x1fff, v);
 }
 
 
-static void vsync_event(KMEVENT *event, KMEVENT_ITEM_ID curid, HESHES *THIS_)
+static void hes_vsync_event(KMEVENT *event, KMEVENT_ITEM_ID curid, HESHES *THIS_)
 {
     (void)event;
     (void)curid;
-	vsync_setup(THIS_);
+	hes_vsync_setup(THIS_);
 	if (THIS_->hesvdc_CR & 8)
 	{
 		THIS_->ctx.iRequest |= K6280_INT1;
@@ -382,7 +383,7 @@ static void vsync_event(KMEVENT *event, KMEVENT_ITEM_ID curid, HESHES *THIS_)
 	THIS_->hesvdc_STATUS = 1;
 }
 
-static void timer_event(KMEVENT *event, KMEVENT_ITEM_ID curid, HESHES *THIS_)
+static void hes_timer_event(KMEVENT *event, KMEVENT_ITEM_ID curid, HESHES *THIS_)
 {
     (void)event;
     (void)curid;
@@ -392,10 +393,10 @@ static void timer_event(KMEVENT *event, KMEVENT_ITEM_ID curid, HESHES *THIS_)
 		THIS_->ctx.iRequest |= K6280_TIMER;
 		THIS_->breaked = 0;
 	}
-	timer_setup(THIS_);
+	hes_timer_setup(THIS_);
 }
 
-static void reset(NEZ_PLAY *pNezPlay)
+static void hes_reset(NEZ_PLAY *pNezPlay)
 {
 	HESHES *THIS_ = pNezPlay->heshes;
 	uint32_t i, initbreak;
@@ -411,16 +412,16 @@ static void reset(NEZ_PLAY *pNezPlay)
 
 	THIS_->cps = DivFix(HES_BASECYCLES, freq, SHIFT_CPS);
 	THIS_->ctx.user = THIS_;
-	THIS_->ctx.ReadByte = read_event;
-	THIS_->ctx.WriteByte = write_event;
-	THIS_->ctx.ReadMPR = readmpr_event;
-	THIS_->ctx.WriteMPR = writempr_event;
-	THIS_->ctx.Write6270 = write6270_event;
+	THIS_->ctx.ReadByte = hes_read_event;
+	THIS_->ctx.WriteByte = hes_write_event;
+	THIS_->ctx.ReadMPR = hes_readmpr_event;
+	THIS_->ctx.WriteMPR = hes_writempr_event;
+	THIS_->ctx.Write6270 = hes_write6270_event;
 
 	THIS_->vsync = kmevent_alloc(&THIS_->kme);
 	THIS_->timer = kmevent_alloc(&THIS_->kme);
-	kmevent_setevent(&THIS_->kme, THIS_->vsync, vsync_event, THIS_);
-	kmevent_setevent(&THIS_->kme, THIS_->timer, timer_event, THIS_);
+	kmevent_setevent(&THIS_->kme, THIS_->vsync, hes_vsync_event, THIS_);
+	kmevent_setevent(&THIS_->kme, THIS_->timer, hes_timer_event, THIS_);
 
 	THIS_->bp = THIS_->playerromaddr + 3;
 	for (i = 0; i < 8; i++) THIS_->mpr[i] = THIS_->firstmpr[i];
@@ -447,14 +448,14 @@ static void reset(NEZ_PLAY *pNezPlay)
 	THIS_->hesvdc_STATUS = 0;
 	THIS_->hesvdc_CR = 0;
 	THIS_->hesvdc_ADR = 0;
-	vsync_setup(THIS_);
+	hes_vsync_setup(THIS_);
 	THIS_->hestim_RELOAD = THIS_->hestim_COUNTER = THIS_->hestim_START = 0;
-	timer_setup(THIS_);
+	hes_timer_setup(THIS_);
 
 	/* request execute(5sec) */
 	initbreak = 5 << 8;
 	while (!THIS_->breaked && --initbreak)
-		km6280_exec(&THIS_->ctx, HES_BASECYCLES >> 8);
+		hes_km6280_exec(&THIS_->ctx, HES_BASECYCLES >> 8);
 
 	if (THIS_->breaked)
 	{
@@ -466,7 +467,7 @@ static void reset(NEZ_PLAY *pNezPlay)
 
 }
 
-static void terminate(HESHES *THIS_)
+static void hes_terminate(HESHES *THIS_)
 {
 	uint32_t i;
 
@@ -476,17 +477,7 @@ static void terminate(HESHES *THIS_)
 	XFREE(THIS_);
 }
 
-static uint32_t GetWordLE(uint8_t *p)
-{
-	return p[0] | (p[1] << 8);
-}
-
-static uint32_t GetDwordLE(uint8_t *p)
-{
-	return p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
-}
-
-static uint32_t alloc_physical_address(HESHES *THIS_, uint32_t a, uint32_t l)
+static uint32_t hes_alloc_physical_address(HESHES *THIS_, uint32_t a, uint32_t l)
 {
 	uint8_t page = (uint8_t)(a >> 13);
 	uint8_t lastpage = (uint8_t)((a + l - 1) >> 13);
@@ -502,7 +493,7 @@ static uint32_t alloc_physical_address(HESHES *THIS_, uint32_t a, uint32_t l)
 	return 1;
 }
 
-static void copy_physical_address(HESHES *THIS_, uint32_t a, uint32_t l, uint8_t *p)
+static void hes_copy_physical_address(HESHES *THIS_, uint32_t a, uint32_t l, uint8_t *p)
 {
 	uint8_t page = (uint8_t)(a >> 13);
 	uint32_t w;
@@ -524,7 +515,7 @@ static void copy_physical_address(HESHES *THIS_, uint32_t a, uint32_t l, uint8_t
 }
 
 
-static uint32_t load(NEZ_PLAY *pNezPlay, HESHES *THIS_, uint8_t *pData, uint32_t uSize)
+static uint32_t hes_load(NEZ_PLAY *pNezPlay, HESHES *THIS_, uint8_t *pData, uint32_t uSize)
 {
 	uint32_t i, p;
 	XMEMSET(THIS_, 0, sizeof(HESHES));
@@ -581,15 +572,15 @@ First Mapper 7 : %02XH"
 		,pData[0xf]
 		);
 
-	if (!alloc_physical_address(THIS_, 0xf8 << 13, 0x2000))	/* RAM */
+	if (!hes_alloc_physical_address(THIS_, 0xf8 << 13, 0x2000))	/* RAM */
 		return NEZ_NESERR_SHORTOFMEMORY;
-	if (!alloc_physical_address(THIS_, 0xf9 << 13, 0x2000))	/* SGX-RAM */
+	if (!hes_alloc_physical_address(THIS_, 0xf9 << 13, 0x2000))	/* SGX-RAM */
 		return NEZ_NESERR_SHORTOFMEMORY;
-	if (!alloc_physical_address(THIS_, 0xfa << 13, 0x2000))	/* SGX-RAM */
+	if (!hes_alloc_physical_address(THIS_, 0xfa << 13, 0x2000))	/* SGX-RAM */
 		return NEZ_NESERR_SHORTOFMEMORY;
-	if (!alloc_physical_address(THIS_, 0xfb << 13, 0x2000))	/* SGX-RAM */
+	if (!hes_alloc_physical_address(THIS_, 0xfb << 13, 0x2000))	/* SGX-RAM */
 		return NEZ_NESERR_SHORTOFMEMORY;
-	if (!alloc_physical_address(THIS_, 0x00 << 13, 0x2000))	/* IPL-ROM */
+	if (!hes_alloc_physical_address(THIS_, 0x00 << 13, 0x2000))	/* IPL-ROM */
 		return NEZ_NESERR_SHORTOFMEMORY;
 	for (p = 0x10; p + 0x10 < uSize; p += 0x10 + GetDwordLE(pData + p + 4))
 	{
@@ -598,9 +589,9 @@ First Mapper 7 : %02XH"
 			uint32_t a, l;
 			l = GetDwordLE(pData + p + 4);
 			a = GetDwordLE(pData + p + 8);
-			if (!alloc_physical_address(THIS_, a, l)) return NEZ_NESERR_SHORTOFMEMORY;
+			if (!hes_alloc_physical_address(THIS_, a, l)) return NEZ_NESERR_SHORTOFMEMORY;
 			if (l > uSize - p - 0x10) l = uSize - p - 0x10;
-			copy_physical_address(THIS_, a, l, pData + p + 0x10);
+			hes_copy_physical_address(THIS_, a, l, pData + p + 0x10);
 		}
 	}
 	THIS_->hessnd = HESSoundAlloc(pNezPlay);
@@ -615,18 +606,18 @@ First Mapper 7 : %02XH"
 
 static int32_t ExecuteHES(NEZ_PLAY *pNezPlay)
 {
-	return ((NEZ_PLAY*)pNezPlay)->heshes ? execute((HESHES*)((NEZ_PLAY*)pNezPlay)->heshes) : 0;
+	return ((NEZ_PLAY*)pNezPlay)->heshes ? hes_execute((HESHES*)((NEZ_PLAY*)pNezPlay)->heshes) : 0;
 }
 
 static void HESSoundRenderStereo(NEZ_PLAY *pNezPlay, int32_t *d)
 {
-	synth((HESHES*)((NEZ_PLAY*)pNezPlay)->heshes, d);
+	hes_synth((HESHES*)((NEZ_PLAY*)pNezPlay)->heshes, d);
 }
 
 static int32_t HESSoundRenderMono(NEZ_PLAY *pNezPlay)
 {
 	int32_t d[2] = { 0,0 } ;
-	synth((HESHES*)((NEZ_PLAY*)pNezPlay)->heshes, d);
+	hes_synth((HESHES*)((NEZ_PLAY*)pNezPlay)->heshes, d);
 #if (((-1) >> 1) == -1)
 	return (d[0] + d[1]) >> 1;
 #else
@@ -644,7 +635,7 @@ static void HESHESVolume(NEZ_PLAY *pNezPlay, uint32_t v)
 {
 	if (((NEZ_PLAY*)pNezPlay)->heshes)
 	{
-		volume((HESHES*)((NEZ_PLAY*)pNezPlay)->heshes, v);
+		hes_volume((HESHES*)((NEZ_PLAY*)pNezPlay)->heshes, v);
 	}
 }
 
@@ -655,7 +646,7 @@ static const NEZ_NES_VOLUME_HANDLER heshes_volume_handler[] = {
 
 static void HESHESReset(NEZ_PLAY *pNezPlay)
 {
-	if (((NEZ_PLAY*)pNezPlay)->heshes) reset((NEZ_PLAY*)pNezPlay);
+	if (((NEZ_PLAY*)pNezPlay)->heshes) hes_reset((NEZ_PLAY*)pNezPlay);
 }
 
 static const NEZ_NES_RESET_HANDLER heshes_reset_handler[] = {
@@ -667,12 +658,12 @@ static void HESHESTerminate(NEZ_PLAY *pNezPlay)
 {
 	if (((NEZ_PLAY*)pNezPlay)->heshes)
 	{
-		terminate((HESHES*)((NEZ_PLAY*)pNezPlay)->heshes);
+		hes_terminate((HESHES*)((NEZ_PLAY*)pNezPlay)->heshes);
 		((NEZ_PLAY*)pNezPlay)->heshes = 0;
 	}
 }
 
-static const NEZ_NES_TERMINATE_HANDLER heshes_terminate_handler[] = {
+static const NEZ_NES_TERMINATE_HANDLER heshes_hes_terminate_handler[] = {
 	{ HESHESTerminate, NULL },
 	{ 0, NULL },
 };
@@ -684,16 +675,26 @@ uint32_t HESLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	if (pNezPlay->heshes) __builtin_trap();	/* ASSERT */
 	THIS_ = (HESHES *)XMALLOC(sizeof(HESHES));
 	if (!THIS_) return NEZ_NESERR_SHORTOFMEMORY;
-	ret = load(pNezPlay, THIS_, pData, uSize);
+	ret = hes_load(pNezPlay, THIS_, pData, uSize);
 	if (ret)
 	{
-		terminate(THIS_);
+		hes_terminate(THIS_);
 		return ret;
 	}
 	pNezPlay->heshes = THIS_;
 	NESAudioHandlerInstall(pNezPlay, heshes_audio_handler);
 	NESVolumeHandlerInstall(pNezPlay, heshes_volume_handler);
 	NESResetHandlerInstall(pNezPlay->nrh, heshes_reset_handler);
-	NESTerminateHandlerInstall(&pNezPlay->nth, heshes_terminate_handler);
+	NESTerminateHandlerInstall(&pNezPlay->nth, heshes_hes_terminate_handler);
 	return ret;
 }
+
+#undef USE_DIRECT_ZEROPAGE
+#undef USE_CALLBACK
+#undef USE_INLINEMMC
+#undef USE_USERPOINTER
+#undef External
+#undef SHIFT_CPS
+#undef HES_BASECYCLES
+#undef HES_TIMERCYCLES
+

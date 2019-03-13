@@ -4,12 +4,12 @@
 #include "../../normalize.h"
 #include "logtable.h"
 
-uint32_t LinearToLog(LOG_TABLE *tbl,int32_t l)
+PROTECTED uint32_t LinearToLog(LOG_TABLE *tbl,int32_t l)
 {
 	return (l < 0) ? (tbl->lineartbl[-l] + 1) : tbl->lineartbl[l];
 }
 
-int32_t LogToLinear(LOG_TABLE *tbl, uint32_t l, uint32_t sft)
+PROTECTED int32_t LogToLinear(LOG_TABLE *tbl, uint32_t l, uint32_t sft)
 {
 	int32_t ret;
 	uint32_t ofs;

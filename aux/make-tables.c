@@ -3,9 +3,6 @@
 
 void make_table_header(FILE *header_f,uint32_t log_bits, uint32_t lin_bits, uint32_t log_lin_bits) {
     fprintf(header_f,"typedef struct log_table_%d_%d_%d_s {\n",log_bits,lin_bits,log_lin_bits);
-    fprintf(header_f,"  uint32_t log_bits;\n");
-    fprintf(header_f,"  uint32_t lin_bits;\n");
-    fprintf(header_f,"  uint32_t log_lin_bits;\n");
     fprintf(header_f,"  uint32_t lineartbl[%d];\n",(1 << lin_bits) + 1);
     fprintf(header_f,"  uint32_t logtbl[%d];\n",(1 << log_bits));
     fprintf(header_f,"} log_table_%d_%d_%d_t;\n\n",log_bits,lin_bits,log_lin_bits);
@@ -20,12 +17,9 @@ void make_table(FILE *out,uint32_t log_bits, uint32_t lin_bits, uint32_t log_lin
 
     LogTableInitialize(&tbl);
     fprintf(out,"#ifndef LOG_TABLE_%d_%d_%d_C\n",log_bits,lin_bits,log_lin_bits);
-    fprintf(out,"#define LOG_TABLE_%d_%d_%d_C\n",log_bits,lin_bits,log_lin_bits);
+    fprintf(out,"#define LOG_TABLE_%d_%d_%d_C\n\n",log_bits,lin_bits,log_lin_bits);
 
-    fprintf(out,"static const log_table_%d_%d_%d_t log_table_%d_%d_%d = {\n",log_bits,lin_bits,log_lin_bits,log_bits,lin_bits,log_lin_bits);
-    fprintf(out,"  .log_bits = %d,\n",log_bits);
-    fprintf(out,"  .lin_bits = %d,\n",lin_bits);
-    fprintf(out,"  .log_lin_bits = %d,\n",log_lin_bits);
+    fprintf(out,"static const log_table_%d_%d_%d_t log_table_%d_%d_%d_i = {\n",log_bits,lin_bits,log_lin_bits,log_bits,lin_bits,log_lin_bits);
     fprintf(out,"  .lineartbl = {\n");
     for(i=0; i< (1 << lin_bits) +1; i++) {
         fprintf(out,"    %d,\n",tbl.lineartbl[i]);
@@ -36,7 +30,15 @@ void make_table(FILE *out,uint32_t log_bits, uint32_t lin_bits, uint32_t log_lin
         fprintf(out,"    %d,\n",tbl.logtbl[i]);
     }
     fprintf(out,"  }\n");
-    fprintf(out,"};\n");
+    fprintf(out,"};\n\n");
+
+    fprintf(out,"static const LOG_TABLE log_table_%d_%d_%d = {\n",log_bits,lin_bits,log_lin_bits);
+    fprintf(out,"  .log_bits = %d,\n",log_bits);
+    fprintf(out,"  .lin_bits = %d,\n",lin_bits);
+    fprintf(out,"  .log_lin_bits = %d,\n",log_lin_bits);
+    fprintf(out,"  .lineartbl = log_table_%d_%d_%d_i.lineartbl,\n",log_bits,lin_bits,log_lin_bits);
+    fprintf(out,"  .logtbl    = log_table_%d_%d_%d_i.logtbl,\n",log_bits,lin_bits,log_lin_bits);
+    fprintf(out,"};\n\n");
     fprintf(out,"#endif\n");
     LogTableFree(&tbl);
 

@@ -1,9 +1,7 @@
 #ifndef LOG_TABLE_12_7_30_C
 #define LOG_TABLE_12_7_30_C
-static const log_table_12_7_30_t log_table_12_7_30 = {
-  .log_bits = 12,
-  .lin_bits = 7,
-  .log_lin_bits = 30,
+
+static const log_table_12_7_30_t log_table_12_7_30_i = {
   .lineartbl = {
     122880,
     57344,
@@ -4234,4 +4232,13 @@ static const log_table_12_7_30_t log_table_12_7_30 = {
     536961771,
   }
 };
+
+static const LOG_TABLE log_table_12_7_30 = {
+  .log_bits = 12,
+  .lin_bits = 7,
+  .log_lin_bits = 30,
+  .lineartbl = log_table_12_7_30_i.lineartbl,
+  .logtbl    = log_table_12_7_30_i.logtbl,
+};
+
 #endif

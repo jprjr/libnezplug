@@ -69,7 +69,7 @@ typedef struct {
 } HESSOUND;
 
 #define V(a) ((((uint32_t)(0x1F - (a)) * (uint32_t)(1 << LOG_BITS) * (uint32_t)1000) / (uint32_t)3800) << 1)
-static const uint32_t voltbl[0x20] = {
+static const uint32_t hes_voltbl[0x20] = {
 	V(0x00), V(0x01), V(0x02),V(0x03),V(0x04), V(0x05), V(0x06),V(0x07),
 	V(0x08), V(0x09), V(0x0A),V(0x0B),V(0x0C), V(0x0D), V(0x0E),V(0x0F),
 	V(0x10), V(0x11), V(0x12),V(0x13),V(0x14), V(0x15), V(0x16),V(0x17),
@@ -83,12 +83,12 @@ static void HESSoundWaveMemoryRender(HESSOUND *sndp, HES_WAVEMEMORY *ch, int32_t
 	uint32_t wl, output, lvol, rvol;
 	int32_t outputbf[2]={0,0},count=0;
 	if (ch->mute || !(ch->regs[4 - 2] & 0x80)) return;
-	lvol = voltbl[(sndp->common.sysregs[1] >> 3) & 0x1E];
-	lvol +=	voltbl[(ch->regs[5 - 2] >> 3) & 0x1E];
-	lvol += voltbl[ch->regs[4 - 2] & 0x1F];
-	rvol = voltbl[(sndp->common.sysregs[1] << 1) & 0x1E];
-	rvol += voltbl[(ch->regs[5 - 2] << 1) & 0x1E];
-	rvol += voltbl[ch->regs[4 - 2] & 0x1F];
+	lvol = hes_voltbl[(sndp->common.sysregs[1] >> 3) & 0x1E];
+	lvol +=	hes_voltbl[(ch->regs[5 - 2] >> 3) & 0x1E];
+	lvol += hes_voltbl[ch->regs[4 - 2] & 0x1F];
+	rvol = hes_voltbl[(sndp->common.sysregs[1] << 1) & 0x1E];
+	rvol += hes_voltbl[(ch->regs[5 - 2] << 1) & 0x1E];
+	rvol += hes_voltbl[ch->regs[4 - 2] & 0x1F];
 
 	if (ch->regs[4 - 2] & 0x40)	/* DDA */
 	{
@@ -228,7 +228,7 @@ static void HESSoundLfoStep(HESSOUND *sndp)
 	}
 }
 
-static void sndsynth(void *ctx, int32_t *p)
+static void hes_sndsynth(void *ctx, int32_t *p)
 {
 	HESSOUND *sndp = ctx;
 	HESSoundWaveMemoryRender(sndp, &sndp->ch[5], p, 5);
@@ -271,7 +271,7 @@ static void HESSoundLfoReset(HES_LFO *ch, uint32_t clock, uint32_t freq)
 }
 
 
-static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
+static void hes_sndreset(void *ctx, uint32_t clock, uint32_t freq)
 {
 	HESSOUND *sndp = ctx;
 	uint32_t ch;
@@ -282,7 +282,7 @@ static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
 	HESSoundLfoReset(&sndp->lfo, clock, freq);
 }
 
-static void sndwrite(void *ctx, uint32_t a, uint32_t v)
+static void hes_sndwrite(void *ctx, uint32_t a, uint32_t v)
 {
 	HESSOUND *sndp = ctx;
 	switch (a & 0xF)
@@ -328,7 +328,7 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 						//tone =data - 0x10;
 						break;
 					case 1:
-						tone = voltbl2[data];
+						tone = hes_voltbl2[data];
 						break;
 					case 2:
 						tone = LinearToLog((LOG_TABLE *)&log_table_12_7_30, data) + (1 << (LOG_BITS + 1));
@@ -441,7 +441,7 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 	}
 }
 
-static uint32_t sndread(void *ctx, uint32_t a)
+static uint32_t hes_sndread(void *ctx, uint32_t a)
 {
 	HESSOUND *sndp = ctx;
 	a &= 0xF;
@@ -458,14 +458,14 @@ static uint32_t sndread(void *ctx, uint32_t a)
 	return 0;
 }
 
-static void sndvolume(void *ctx, int32_t volume)
+static void hes_sndvolume(void *ctx, int32_t volume)
 {
 	HESSOUND *sndp = ctx;
 	volume = (volume << (LOG_BITS - 8)) << 1;
 	sndp->common.mastervolume = volume;
 }
 
-static void sndrelease(void *ctx)
+static void hes_sndrelease(void *ctx)
 {
 	HESSOUND *sndp = ctx;
 	if (sndp) {
@@ -473,7 +473,7 @@ static void sndrelease(void *ctx)
 	}
 }
 
-static void setinst(void *ctx, uint32_t n, void *p, uint32_t l)
+static void hes_setinst(void *ctx, uint32_t n, void *p, uint32_t l)
 {
     (void)ctx;
     (void)n;
@@ -492,13 +492,13 @@ KMIF_SOUND_DEVICE *HESSoundAlloc(NEZ_PLAY *pNezPlay)
 
     sndp->chmask = pNezPlay->chmask;
 	sndp->kmif.ctx = sndp;
-	sndp->kmif.release = sndrelease;
-	sndp->kmif.reset = sndreset;
-	sndp->kmif.synth = sndsynth;
-	sndp->kmif.volume = sndvolume;
-	sndp->kmif.write = sndwrite;
-	sndp->kmif.read = sndread;
-	sndp->kmif.setinst = setinst;
+	sndp->kmif.release = hes_sndrelease;
+	sndp->kmif.reset = hes_sndreset;
+	sndp->kmif.synth = hes_sndsynth;
+	sndp->kmif.volume = hes_sndvolume;
+	sndp->kmif.write = hes_sndwrite;
+	sndp->kmif.read = hes_sndread;
+	sndp->kmif.setinst = hes_setinst;
 #if HES_TONE_DEBUG_OPTION_ENABLE
     sndp->tone_debug_option = &pNezPlay->hes_config.tone_debug_option;
 #endif

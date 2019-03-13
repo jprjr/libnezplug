@@ -45,7 +45,7 @@ static void HESAdPcmReset(HESADPCM *sndp)
 	sndp->deltadev->write(sndp->deltadev,0,1);
 }
 
-static void sndsynth(void *ctx, int32_t *p)
+static void hesad_sndsynth(void *ctx, int32_t *p)
 {
 	HESADPCM *sndp = ctx;
 	int32_t pbf[2];
@@ -78,7 +78,7 @@ static void sndsynth(void *ctx, int32_t *p)
 	p[1]+=(pbf[1] * ADPCM_VOLUME * sndp->volume / 0xff);
 }
 
-static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
+static void hesad_sndreset(void *ctx, uint32_t clock, uint32_t freq)
 {
 	HESADPCM *sndp = ctx;
 	XMEMSET(&sndp->pcmbuf, 0, sizeof(sndp->pcmbuf));
@@ -93,11 +93,11 @@ static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
 	sndp->deltadev->reset(sndp->deltadev,clock,freq);
 	sndp->deltadev->write(sndp->deltadev,1,0);
 	sndp->deltadev->write(sndp->deltadev,0xb,0xff);
-//	sndp->deltadev->setinst(sndp->deltadev,0,sndp->pcmbuf,0x100);
+//	sndp->deltadev->hesad_setinst(sndp->deltadev,0,sndp->pcmbuf,0x100);
 
 }
 
-static void sndwrite(void *ctx, uint32_t a, uint32_t v)
+static void hesad_sndwrite(void *ctx, uint32_t a, uint32_t v)
 {
 	HESADPCM *sndp = ctx;
 	sndp->port[a & 15] = v;
@@ -204,7 +204,7 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 	}
 }
 
-static uint32_t sndread(void *ctx, uint32_t a)
+static uint32_t hesad_sndread(void *ctx, uint32_t a)
 {
 	HESADPCM *sndp = ctx;
 	switch(a & 15)
@@ -233,7 +233,7 @@ static uint32_t sndread(void *ctx, uint32_t a)
 }
 
 #define LOG_BITS 12
-static void sndvolume(void *ctx, int32_t volume)
+static void hesad_sndvolume(void *ctx, int32_t volume)
 {
 	HESADPCM *sndp = ctx;
 	volume = (volume << (LOG_BITS - 8)) << 1;
@@ -242,7 +242,7 @@ static void sndvolume(void *ctx, int32_t volume)
 	sndp->deltadev->volume(sndp->deltadev,volume);
 }
 
-static void sndrelease(void *ctx)
+static void hesad_sndrelease(void *ctx)
 {
 	HESADPCM *sndp = ctx;
 	
@@ -252,7 +252,7 @@ static void sndrelease(void *ctx)
 		XFREE(sndp);
 }
 
-static void setinst(void *ctx, uint32_t n, void *p, uint32_t l)
+static void hesad_setinst(void *ctx, uint32_t n, void *p, uint32_t l)
 {
     (void)ctx;
     (void)n;
@@ -268,19 +268,20 @@ KMIF_SOUND_DEVICE *HESAdPcmAlloc(NEZ_PLAY *pNezPlay)
 	XMEMSET(sndp, 0, sizeof(HESADPCM));
     sndp->chmask = pNezPlay->chmask;
 	sndp->kmif.ctx = sndp;
-	sndp->kmif.release = sndrelease;
-	sndp->kmif.reset = sndreset;
-	sndp->kmif.synth = sndsynth;
-	sndp->kmif.volume = sndvolume;
-	sndp->kmif.write = sndwrite;
-	sndp->kmif.read = sndread;
-	sndp->kmif.setinst = setinst;
+	sndp->kmif.release = hesad_sndrelease;
+	sndp->kmif.reset = hesad_sndreset;
+	sndp->kmif.synth = hesad_sndsynth;
+	sndp->kmif.volume = hesad_sndvolume;
+	sndp->kmif.write = hesad_sndwrite;
+	sndp->kmif.read = hesad_sndread;
+	sndp->kmif.setinst = hesad_setinst;
 
 	//発声部分
 	sndp->deltadev = YMDELTATPCMSoundAlloc(pNezPlay,3,sndp->pcmbuf);
 	return &sndp->kmif;
 }
 
+#undef LOG_BITS
 #undef CPS_SHIFT
 #undef PCE_VOLUME
 #undef ADPCM_VOLUME

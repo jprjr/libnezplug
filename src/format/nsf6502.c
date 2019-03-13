@@ -7,6 +7,7 @@
 #include "../device/nes/s_apu.h"
 #include "../common/divfix.h"
 #include "../common/muldiv.h"
+#include "../common/util.h"
 
 /* ------------ */
 /*  km6502 I/F  */
@@ -276,12 +277,6 @@ static void NSFRomInit(NEZ_PLAY *pNezPlay, uint32_t A)
 	nsf->nsf6502.rom[4] = 0x03;
 	nsf->nsf6502.rom[5] = 0x41;
 }
-
-static uint32_t GetWordLE(uint8_t *p)
-{
-	return p[0] | (p[1] << 8);
-}
-
 static void NSF6502PlaySetup(NEZ_PLAY *pNezPlay)
 {
 	NSFNSF *nsf = (NSFNSF*)pNezPlay->nsf;
@@ -431,3 +426,10 @@ uint32_t NSF6502Install(NEZ_PLAY *pNezPlay)
 	return NEZ_NESERR_NOERROR;
 }
 
+#undef USE_DIRECT_ZEROPAGE
+#undef USE_CALLBACK
+#undef USE_INLINEMMC
+#undef USE_USERPOINTER
+#undef External
+#undef SPEED_NTSC
+#undef SPEED_PAL

@@ -6,17 +6,7 @@ CFLAGS = -g -O0 -Wall -Wextra -Werror -Isrc/include $(CFLAGS_EXTRA)
 
 LIBNEZPLUG_SRCS = \
   src/cpu/kmz80.c \
-  src/device/nes/logtable.c \
-  src/device/nes/s_apu.c \
-  src/device/nes/s_fds.c \
-  src/device/nes/s_fds1.c \
-  src/device/nes/s_fds2.c \
-  src/device/nes/s_fds3.c \
-  src/device/nes/s_fme7.c \
-  src/device/nes/s_mmc5.c \
-  src/device/nes/s_n106.c \
-  src/device/nes/s_vrc6.c \
-  src/device/nes/s_vrc7.c \
+  src/device/nes.c \
   src/device/opl/s_deltat.c \
   src/device/opl/s_opl.c \
   src/device/opl/s_opltbl.c \

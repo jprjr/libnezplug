@@ -31,13 +31,13 @@ struct KMEVENT_TAG {
 	KMEVENT_ITEM item[KMEVENT_ITEM_MAX + 1];
 };
 
-void kmevent_init(KMEVENT *kme);
-KMEVENT_ITEM_ID kmevent_alloc(KMEVENT *kme);
-void kmevent_free(KMEVENT *kme, KMEVENT_ITEM_ID curid);
-void kmevent_settimer(KMEVENT *kme, KMEVENT_ITEM_ID curid, uint32_t time);
-uint32_t kmevent_gettimer(KMEVENT *kme, KMEVENT_ITEM_ID curid, uint32_t *time);
-void kmevent_setevent(KMEVENT *kme, KMEVENT_ITEM_ID curid, void (*proc)(), void *user);
-void kmevent_process(KMEVENT *kme, uint32_t cycles);
+PROTECTED void kmevent_init(KMEVENT *kme);
+PROTECTED KMEVENT_ITEM_ID kmevent_alloc(KMEVENT *kme);
+PROTECTED void kmevent_free(KMEVENT *kme, KMEVENT_ITEM_ID curid);
+PROTECTED void kmevent_settimer(KMEVENT *kme, KMEVENT_ITEM_ID curid, uint32_t time);
+PROTECTED uint32_t kmevent_gettimer(KMEVENT *kme, KMEVENT_ITEM_ID curid, uint32_t *time);
+PROTECTED void kmevent_setevent(KMEVENT *kme, KMEVENT_ITEM_ID curid, void (*proc)(), void *user);
+PROTECTED void kmevent_process(KMEVENT *kme, uint32_t cycles);
 
 #ifdef __cplusplus
 }

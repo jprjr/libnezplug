@@ -12,18 +12,7 @@
 #include "m_kss.h"
 #include "m_nsd.h"
 #include "m_sgc.h"
-
-static uint32_t GetWordLE(uint8_t *p)
-{
-	return p[0] | (p[1] << 8);
-}
-
-static uint32_t GetDwordLE(uint8_t *p)
-{
-	return p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
-}
-#define GetDwordLEM(p) (uint32_t)((((uint8_t *)p)[0] | (((uint8_t *)p)[1] << 8) | (((uint8_t *)p)[2] << 16) | (((uint8_t *)p)[3] << 24)))
-
+#include "../common/util.h"
 
 NEZ_PLAY* NEZNew()
 {

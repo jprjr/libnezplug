@@ -1,3 +1,6 @@
+#ifndef S_APU_C__
+#define S_APU_C__
+
 #include <nezplug/nezplug.h>
 #include "../../format/audiosys.h"
 #include "../../normalize.h"
@@ -39,7 +42,7 @@
 typedef struct {
 	uint32_t counter;				/* length counter */
 	uint8_t clock_disable;	/* length counter clock disable */
-} LENGTHCOUNTER;
+} APU_LENGTHCOUNTER;
 
 typedef struct {
 	uint8_t disable;			/* envelope decay disable */
@@ -48,7 +51,7 @@ typedef struct {
 	uint8_t timer;			/* envelope decay timer */
 	uint8_t looping_enable;	/* envelope decay looping enable */
 	uint8_t volume;			/* volume */
-} ENVELOPEDECAY;
+} APU_ENVELOPEDECAY;
 
 typedef struct {
 	uint8_t ch;				/* sweep channel */
@@ -57,12 +60,12 @@ typedef struct {
 	uint8_t timer;			/* sweep timer */
 	uint8_t direction;		/* sweep direction */
 	uint8_t shifter;			/* sweep shifter */
-} SWEEP;
+} APU_SWEEP;
 
 typedef struct {
-	LENGTHCOUNTER lc;
-	ENVELOPEDECAY ed;
-	SWEEP sw;
+	APU_LENGTHCOUNTER lc;
+	APU_ENVELOPEDECAY ed;
+	APU_SWEEP sw;
 	uint32_t mastervolume;
 	uint32_t cps;		/* cycles per sample */
 	uint32_t *cpf;	/* cycles per frame (240/192Hz) ($4017.bit7) */
@@ -89,11 +92,11 @@ typedef struct {
 	uint8_t tocount;		/* length counter go to count mode */
 	uint8_t mode;			/* length counter mode load(0) count(1) */
 	uint8_t clock_disable;	/* length counter clock disable */
-} LINEARCOUNTER;
+} APU_LINEARCOUNTER;
 
 typedef struct {
-	LENGTHCOUNTER lc;
-	LINEARCOUNTER li;
+	APU_LENGTHCOUNTER lc;
+	APU_LINEARCOUNTER li;
 	uint32_t mastervolume;
 	uint32_t cps;		/* cycles per sample */
 	uint32_t *cpf;	/* cycles per frame (240/192Hz) ($4017.bit7) */
@@ -114,9 +117,9 @@ typedef struct {
 } NESAPU_TRIANGLE;
 
 typedef struct {
-	LENGTHCOUNTER lc;
-	LINEARCOUNTER li;
-	ENVELOPEDECAY ed;
+	APU_LENGTHCOUNTER lc;
+	APU_LINEARCOUNTER li;
+	APU_ENVELOPEDECAY ed;
 	uint32_t mastervolume;
 	uint32_t cps;		/* cycles per sample */
 	uint32_t *cpf;	/* cycles per frame (240/192Hz) ($4017.bit7) */
@@ -176,14 +179,14 @@ typedef struct {
 /* ------------------------- */
 
 /* GBSOUND.TXT */
-static const uint8_t square_duty_table[][8] = 
+static const uint8_t apu_square_duty_table[][8] = 
 {
 	{0,0,0,1,0,0,0,0} , {0,0,0,1,1,0,0,0} , {0,0,0,1,1,1,1,0} , {1,1,1,0,0,1,1,1} ,
 	{1,0,0,0,0,0,0,0} , {1,1,1,1,0,0,0,0} , {1,1,0,0,0,0,0,0} , {1,1,1,1,1,1,0,0}  //クソ互換機のDuty比のひっくり返ってるやつ 
 };
 //	{ {0,1,0,0,0,0,0,0} , {0,1,1,0,0,0,0,0} , {0,1,1,1,1,0,0,0} , {0,1,1,1,1,1,1,0} };
 
-static const uint8_t vbl_length_table[96] = {
+static const uint8_t apu_vbl_length_table[96] = {
 	0x05, 0x7f, 0x0a, 0x01, 0x14, 0x02, 0x28, 0x03,
 	0x50, 0x04, 0x1e, 0x05, 0x07, 0x06, 0x0d, 0x07,
 	0x06, 0x08, 0x0c, 0x09, 0x18, 0x0a, 0x30, 0x0b,
@@ -199,18 +202,18 @@ static const uint8_t vbl_length_table[96] = {
 
 };
 
-static const uint32_t wavelength_converter_table[16] = {
+static const uint32_t apu_wavelength_converter_table[16] = {
 	0x002, 0x004, 0x008, 0x010, 0x020, 0x030, 0x040, 0x050,
 	0x065, 0x07f, 0x0be, 0x0fe, 0x17d, 0x1fc, 0x3f9, 0x7f2
 };
 
-static const uint32_t spd_limit_table[8] =
+static const uint32_t apu_spd_limit_table[8] =
 {
 	0x3FF, 0x555, 0x666, 0x71C, 
 	0x787, 0x7C1, 0x7E0, 0x7F0,
 };
 
-static const uint32_t dpcm_freq_table[16] =
+static const uint32_t apu_dpcm_freq_table[16] =
 {
 	428, 380, 340, 320,
 	286, 254, 226, 214,
@@ -218,7 +221,7 @@ static const uint32_t dpcm_freq_table[16] =
 	106,  85,  72,  54,
 };
 
-__inline static void LengthCounterStep(LENGTHCOUNTER *lc)
+__inline static void ApuLengthCounterStep(APU_LENGTHCOUNTER *lc)
 {
 	if (lc->counter && !lc->clock_disable) lc->counter--;
 }
@@ -233,7 +236,7 @@ __inline static void LengthCounterStep(LENGTHCOUNTER *lc)
 ・周波数は書いて瞬時に反映される。そのため、8-10bit目をまたぐ周波数変更は、
 　変更の合間の周波数の値によってはプチノイズがときどき出る。
 */
-__inline static void LinearCounterStep(LINEARCOUNTER *li/*, uint32_t cps*/)
+__inline static void ApuLinearCounterStep(APU_LINEARCOUNTER *li/*, uint32_t cps*/)
 {
 //	li->fc += cps;
 //	while (li->fc > li->cpf[0])
@@ -260,7 +263,7 @@ __inline static void LinearCounterStep(LINEARCOUNTER *li/*, uint32_t cps*/)
 //	}
 }
 
-__inline static void EnvelopeDecayStep(ENVELOPEDECAY *ed)
+__inline static void ApuEnvelopeDecayStep(APU_ENVELOPEDECAY *ed)
 {
 //	if (!ed->disable)
 	if((ed->timer & 0x1f) == 0)
@@ -273,7 +276,7 @@ __inline static void EnvelopeDecayStep(ENVELOPEDECAY *ed)
 		ed->timer--;
 }
 
-__inline void SweepStep(SWEEP *sw, uint32_t *wl)
+__inline void ApuSweepStep(APU_SWEEP *sw, uint32_t *wl)
 {
 	if (sw->active && sw->shifter && --sw->timer > 7)
 	{
@@ -301,9 +304,9 @@ static void NESAPUSoundSquareCount(NESAPU_SQUARE *ch){
 	{
 		ch->fc -= ch->cpf[0];
 		if (!(ch->fp & 4)){
-			if (!(ch->fp & 1)) LengthCounterStep(&ch->lc);	/* 120Hz */
-			if (!(ch->fp & 1)) SweepStep(&ch->sw, &ch->wl);	/* 120Hz */
-			EnvelopeDecayStep(&ch->ed);	/* 240Hz */
+			if (!(ch->fp & 1)) ApuLengthCounterStep(&ch->lc);	/* 120Hz */
+			if (!(ch->fp & 1)) ApuSweepStep(&ch->sw, &ch->wl);	/* 120Hz */
+			ApuEnvelopeDecayStep(&ch->ed);	/* 240Hz */
 		}
 		ch->fp++;if(ch->fp >= 4+ch->cpf[2])ch->fp=0;
 	}
@@ -321,7 +324,7 @@ static int32_t NESAPUSoundSquareRender(NESAPU_SQUARE *ch)
 	}
 	else
 	{
-		if (!ch->sw.direction && ch->wl > spd_limit_table[ch->sw.shifter])
+		if (!ch->sw.direction && ch->wl > apu_spd_limit_table[ch->sw.shifter])
 		{
 #if 1
 			return 0;
@@ -337,7 +340,7 @@ static int32_t NESAPUSoundSquareRender(NESAPU_SQUARE *ch)
 		{
 			ch->pt += ch->cps << SQUARE_RENDERS;
 
-			ch->output = (square_duty_table[ch->duty][ch->st]) 
+			ch->output = (apu_square_duty_table[ch->duty][ch->st]) 
 				? (ch->ed.disable ? ch->ed.volume : ch->ed.counter)<<1 : 0;
 			ch->output <<= SQ_VOL_BIT; 
 				while (ch->pt >= ((ch->wl + 1) << CPS_BITS))
@@ -352,7 +355,7 @@ static int32_t NESAPUSoundSquareRender(NESAPU_SQUARE *ch)
 						ch->ct = 0;
 						ch->st = (ch->st + 1) & 0x7;
 
-						ch->output = (square_duty_table[ch->duty][ch->st]) 
+						ch->output = (apu_square_duty_table[ch->duty][ch->st]) 
 							? (ch->ed.disable ? ch->ed.volume : ch->ed.counter)<<1 : 0;
 						ch->output <<= SQ_VOL_BIT; 
 					}
@@ -386,8 +389,8 @@ static void NESAPUSoundTriangleCount(NESAPU_TRIANGLE *ch)
 	{
 		ch->fc -= ch->cpf[0];
 		if (!(ch->fp & 4)){
-			if (!(ch->fp & 1)) LengthCounterStep(&ch->lc);	/* 120Hz */
-			LinearCounterStep(&ch->li);
+			if (!(ch->fp & 1)) ApuLengthCounterStep(&ch->lc);	/* 120Hz */
+			ApuLinearCounterStep(&ch->li);
 		}
 		ch->fp++;if(ch->fp >= 4+ch->cpf[2])ch->fp=0;
 	}
@@ -499,8 +502,8 @@ static void NESAPUSoundNoiseCount(NESAPU_NOISE *ch){
 	{
 		ch->fc -= ch->cpf[0];
 		if (!(ch->fp & 4)){
-			if (!(ch->fp & 1)) LengthCounterStep(&ch->lc);	/* 120Hz */
-			EnvelopeDecayStep(&ch->ed);						/* 240Hz */
+			if (!(ch->fp & 1)) ApuLengthCounterStep(&ch->lc);	/* 120Hz */
+			ApuEnvelopeDecayStep(&ch->ed);						/* 240Hz */
 		}
 		ch->fp++;if(ch->fp >= 4+ch->cpf[2])ch->fp=0;
 	}
@@ -745,7 +748,7 @@ static void APUSoundWrite(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 #endif
 					apu->square[ch].wl &= 0x0ff;
 					apu->square[ch].wl += (value & 7) << 8;
-					apu->square[ch].lc.counter = vbl_length_table[value >> 3] * 2;
+					apu->square[ch].lc.counter = apu_vbl_length_table[value >> 3] * 2;
 					apu->square[ch].ed.counter = 0xf;
 					apu->square[ch].ed.timer = apu->square[ch].ed.rate + 1;
 				}
@@ -780,7 +783,7 @@ static void APUSoundWrite(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 				 || !apu->triangle.li.counter
 				 || !apu->triangle.li.mode)
 *///				apu->triangle.wl = apu->triangle.wlb;
-				apu->triangle.lc.counter = vbl_length_table[value >> 3] * 2;
+				apu->triangle.lc.counter = apu_vbl_length_table[value >> 3] * 2;
 				//apu->triangle.li.mode = apu->triangle.li.clock_disable;
 				//apu->triangle.li.counter = apu->triangle.li.load;
 
@@ -805,22 +808,22 @@ static void APUSoundWrite(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 			case 0x400e:
 				//初代2A03では、ノイズ15段階＆短周期無しなので、それをレジスタいじりで再現。
 				if(pNezPlay->nes_config.nes2A03type==0){
-					apu->noise.wl = wavelength_converter_table[(value & 0x0f)==0xf ? (0xe) : (value & 0x0f)];
+					apu->noise.wl = apu_wavelength_converter_table[(value & 0x0f)==0xf ? (0xe) : (value & 0x0f)];
 					apu->noise.rngshort = 0;
 				}else{
-					apu->noise.wl = wavelength_converter_table[value & 0x0f];
+					apu->noise.wl = apu_wavelength_converter_table[value & 0x0f];
 					apu->noise.rngshort = (uint8_t)(value & 0x80);
 				}
 				break;
 			case 0x400f:
 				// apu.noise.rng = 0x8000;
 				apu->noise.ed.counter = 0xf;
-				apu->noise.lc.counter = vbl_length_table[value >> 3] * 2;
+				apu->noise.lc.counter = apu_vbl_length_table[value >> 3] * 2;
 				apu->noise.ed.timer = apu->noise.ed.rate + 1;
 				break;
 
 			case 0x4010:
-				apu->dpcm.wl = dpcm_freq_table[value & 0x0F];
+				apu->dpcm.wl = apu_dpcm_freq_table[value & 0x0F];
 				apu->dpcm.loop_enable = (uint8_t)(value & 0x40);
 				apu->dpcm.irq_enable = (uint8_t)(value & 0x80);
 				if (!apu->dpcm.irq_enable) apu->dpcm.irq_report = 0;
@@ -1057,7 +1060,7 @@ static const NEZ_NES_TERMINATE_HANDLER s_apu_terminate_handler[] = {
 	{ 0, NULL }, 
 };
 
-void APUSoundInstall(NEZ_PLAY *pNezPlay)
+PROTECTED void APUSoundInstall(NEZ_PLAY *pNezPlay)
 {
 	APUSOUND *apu;
 	apu = XMALLOC(sizeof(APUSOUND));
@@ -1087,3 +1090,5 @@ void APUSoundInstall(NEZ_PLAY *pNezPlay)
 #undef AMPTML_BITS
 #undef AMPTML_MAX
 #undef VOL_SHIFT
+
+#endif

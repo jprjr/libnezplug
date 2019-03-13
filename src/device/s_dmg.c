@@ -39,18 +39,18 @@ typedef struct {
 	uint8_t initial_volume;	/* initial volume */
 	uint8_t zombie_direction;	/* sweep direction (zombie mode stock)*/
 	uint8_t initial_rate;		/* initial envelope rate */
-} ENVELOPEDECAY;
+} DMG_ENVELOPEDECAY;
 typedef struct {
 	uint8_t rate;			/* sweep rate */
 	uint8_t direction;	/* sweep direction */
 	uint8_t timer;		/* sweep timer */
 	uint8_t shifter;		/* sweep shifter */
 	uint32_t wl;			/* wave length */
-} SWEEP;
+} DMG_SWEEP;
 typedef struct {
 	LENGTHCOUNTER lc;
-	ENVELOPEDECAY ed;
-	SWEEP sw;
+	DMG_ENVELOPEDECAY ed;
+	DMG_SWEEP sw;
 	int32_t mastervolume;
 #if RELEASE_SPEED
 	uint32_t release;
@@ -95,7 +95,7 @@ typedef struct {
 
 typedef struct {
 	LENGTHCOUNTER lc;
-	ENVELOPEDECAY ed;
+	DMG_ENVELOPEDECAY ed;
 	int32_t mastervolume;
 	uint32_t cps;		/* cycles per sample */
 	uint32_t cpf;		/* cycles per frame (240/192Hz) ($4017.bit7) */
@@ -142,7 +142,7 @@ typedef struct {
     uint8_t *chmask;
 } DMGSOUND;
 
-static const uint8_t square_duty_table[4][8] = 
+static const uint8_t dmg_square_duty_table[4][8] = 
 /* （単純パターン）こうしないと、アスミッくんワールド２で満足に喋ってくれない */
 //	{ {1,0,0,0,0,0,0,0} , {1,1,0,0,0,0,0,0} , {1,1,1,1,0,0,0,0} , {1,1,1,1,1,1,0,0} };
 
@@ -151,12 +151,12 @@ static const uint8_t square_duty_table[4][8] =
 /* GBSOUND.TXTの逆 */
 //	{ {1,1,1,1,0,1,1,1} , {1,1,1,1,0,0,1,1} , {1,1,0,0,0,0,1,1} , {0,0,0,0,1,1,0,0} };
 
-static const uint8_t square_duty_avg[4] = {1,2,4,6};
+static const uint8_t dmg_square_duty_avg[4] = {1,2,4,6};
 
-static const uint8_t wavememory_volume_table[8] = { 0, 4, 2, 1, 0, 4, 2, 1 };
-static const uint8_t noise_divratio_table[8] = { 1,2,4,6,8,10,12,14 };
+static const uint8_t dmg_wavememory_volume_table[8] = { 0, 4, 2, 1, 0, 4, 2, 1 };
+static const uint8_t dmg_noise_divratio_table[8] = { 1,2,4,6,8,10,12,14 };
 
-static const uint8_t reset_table[] = 
+static const uint8_t dmg_reset_table[] = 
 {
 	0x10,0x80,0x11,0xbf,0x12,0x00,0x13,0xff,0x15,0xff,0x16,0x3f,0x17,0x00,0x18,0xff,
 	0x1a,0x00,0x1b,0xff,0x1c,0x00,0x1d,0xff,0x1f,0xff,0x20,0xff,0x21,0x00,0x22,0x00,
@@ -169,7 +169,7 @@ static const uint8_t reset_table[] =
 	0x20,0x4f,0x66,0x66,0x47,0x61,0x6f,0x29
 };
 
-static const uint32_t spd_limit_table[8] =
+static const uint32_t dmg_spd_limit_table[8] =
 {
 	0x7FF, 0x556, 0x667, 0x71D, 
 	0x788, 0x7C2, 0x7E1, 0x7F1,
@@ -185,7 +185,7 @@ static void LengthCounterStep(LENGTHCOUNTER *lc, uint8_t *key)
 	if (lc->enable && !lc->counter) *key = 1;
 }
 
-static void EnvelopeDecayStep(ENVELOPEDECAY *ed)
+static void EnvelopeDecayStep(DMG_ENVELOPEDECAY *ed)
 {
 	if (ed->rate && ++ed->timer >= ed->rate)
 	{
@@ -205,7 +205,7 @@ static void EnvelopeDecayStep(ENVELOPEDECAY *ed)
 	}
 }
 
-static uint8_t SweepStep(SWEEP *sw, uint8_t *key)
+static uint8_t SweepStep(DMG_SWEEP *sw, uint8_t *key)
 {
 	if (sw->rate && sw->shifter && ++sw->timer >= sw->rate)
 	{
@@ -217,7 +217,7 @@ static uint8_t SweepStep(SWEEP *sw, uint8_t *key)
 		else
 		{
 			sw->wl += sw->wl >> sw->shifter;
-			if (sw->wl > spd_limit_table[sw->shifter]){
+			if (sw->wl > dmg_spd_limit_table[sw->shifter]){
 				*key = 0;
 				sw->wl = 0x7FF;		//「元祖ヤンチャ丸」でのスイープ絡みの強制終了対策
 			}
@@ -228,7 +228,7 @@ static uint8_t SweepStep(SWEEP *sw, uint8_t *key)
 }
 
 //MRN : こんな感じのゾンビらしい
-static void DMGZombieMode(ENVELOPEDECAY *ed, uint32_t *value, uint8_t *key)
+static void DMGZombieMode(DMG_ENVELOPEDECAY *ed, uint32_t *value, uint8_t *key)
 {
 
 //	if(!ed->rate || !(*value & 0x07)){
@@ -281,7 +281,7 @@ static int32_t DMGSoundSquareRender(DMGSOUND *sndp, DMG_SQUARE *ch)
 	wl = (0x800 - ch->wl) << CPS_BITS;
 	ch->pt += ch->cps << SQ_RENDERS;
 
-	ch->output = ch->key ? (!ch->mute ? ch->ed.volume * square_duty_table[ch->duty][ch->st] : 0 ) : (sndp->GBAMode[0] ? 0 : 0x8);
+	ch->output = ch->key ? (!ch->mute ? ch->ed.volume * dmg_square_duty_table[ch->duty][ch->st] : 0 ) : (sndp->GBAMode[0] ? 0 : 0x8);
 	ch->output = LinearToLog((LOG_TABLE *)&log_table_12_7_30, ch->output) + ch->mastervolume;
 	ch->output = LogToLinear((LOG_TABLE *)&log_table_12_7_30, ch->output, log_table_12_7_30.log_lin_bits - log_table_12_7_30.lin_bits - 14);
 	
@@ -290,7 +290,7 @@ static int32_t DMGSoundSquareRender(DMGSOUND *sndp, DMG_SQUARE *ch)
 		ch->pt%= wl;
 		ch->st&= 0x7;
 
-		ch->output = ch->key ? (!ch->mute ? ch->ed.volume * square_duty_avg[ch->duty] : 0 ) : (sndp->GBAMode[0] ? 0 : 0x20);
+		ch->output = ch->key ? (!ch->mute ? ch->ed.volume * dmg_square_duty_avg[ch->duty] : 0 ) : (sndp->GBAMode[0] ? 0 : 0x20);
 		ch->output = LinearToLog((LOG_TABLE *)&log_table_12_7_30, ch->output) + ch->mastervolume;
 		ch->output = LogToLinear((LOG_TABLE *)&log_table_12_7_30, ch->output, log_table_12_7_30.log_lin_bits - log_table_12_7_30.lin_bits - 11);
 	}
@@ -308,7 +308,7 @@ static int32_t DMGSoundSquareRender(DMGSOUND *sndp, DMG_SQUARE *ch)
 			ch->st++;
 			ch->st &= 0x7;
 
-			ch->output = ch->key ? (!ch->mute ? ch->ed.volume * square_duty_table[ch->duty][ch->st] : 0 ) : (sndp->GBAMode[0] ? 0 : 0x8);
+			ch->output = ch->key ? (!ch->mute ? ch->ed.volume * dmg_square_duty_table[ch->duty][ch->st] : 0 ) : (sndp->GBAMode[0] ? 0 : 0x8);
 			ch->output = LinearToLog((LOG_TABLE *)&log_table_12_7_30, ch->output) + ch->mastervolume;
 			ch->output = LogToLinear((LOG_TABLE *)&log_table_12_7_30, ch->output, log_table_12_7_30.log_lin_bits - log_table_12_7_30.lin_bits - 14);
 		}
@@ -482,7 +482,7 @@ static int32_t DMGSoundNazoRender(DMGSOUND *sndp, DMG_NAZO *ch)
 	return 0;
 }
 */
-static void sndvolume(void *ctx, int32_t volume)
+static void dmg_sndvolume(void *ctx, int32_t volume)
 {
 	DMGSOUND *sndp = ctx;
 	volume = (volume << (log_table_12_7_30.log_bits - 8)) << 1;
@@ -492,7 +492,7 @@ static void sndvolume(void *ctx, int32_t volume)
 	sndp->noise.mastervolume = volume;
 }
 
-static void sndsynth(void *ctx, int32_t *p)
+static void dmg_sndsynth(void *ctx, int32_t *p)
 {
 	DMGSOUND *sndp = ctx;
 	int32_t b[2] = { 0, 0 };
@@ -542,7 +542,7 @@ static void sndsynth(void *ctx, int32_t *p)
 	p[1] += b[1] * (sndp->common.regs[0x14] & 0x07) + 1;
 }
 
-static void sndwrite(void *ctx, uint32_t a, uint32_t v)
+static void dmg_sndwrite(void *ctx, uint32_t a, uint32_t v)
 {
 	DMGSOUND *sndp = ctx;
 	uint32_t ch;
@@ -689,12 +689,12 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 //				sndp->wavememory.lc.counter = sndp->wavememory.lc.initial_counter;
 
 //			if(v & 0x8)sndp->nazo = (sndp->nazo+1)&1;
-//			if(sndp->wavememory.volume == wavememory_volume_table[(v >> 5) & 3])
+//			if(sndp->wavememory.volume == dmg_wavememory_volume_table[(v >> 5) & 3])
 //			if(sndp->common.regs[0xc] == v)
-//			if(square_duty_table[sndp->square[1].duty][sndp->square[1].st]==0)
+//			if(dmg_square_duty_table[sndp->square[1].duty][sndp->square[1].st]==0)
 /*			sndp->nazo.enable = 
-				(square_duty_table[sndp->square[0].duty][sndp->square[0].st]==0 ^
-				square_duty_table[sndp->square[1].duty][sndp->square[1].st]==0)||
+				(dmg_square_duty_table[sndp->square[0].duty][sndp->square[0].st]==0 ^
+				dmg_square_duty_table[sndp->square[1].duty][sndp->square[1].st]==0)||
 //				sndp->wavememory.tone[sndp->wavememory.st]==0 &&
 				(sndp->wavememory.volume == 6)
 				? v & 0x8 : 0;
@@ -705,8 +705,8 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 				(sndp->wavememory.volume == 6 || !sndp->wavememory.on) && 
 				sndp->noise.ed.volume == 0
 */
-//				(square_duty_table[sndp->square[0].duty][sndp->square[0].st]==0 ^
-//				square_duty_table[sndp->square[1].duty][sndp->square[1].st]==0)||
+//				(dmg_square_duty_table[sndp->square[0].duty][sndp->square[0].st]==0 ^
+//				dmg_square_duty_table[sndp->square[1].duty][sndp->square[1].st]==0)||
 
 //			){
 //				sndp->nazo.halt = v & 0x8;
@@ -721,7 +721,7 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 //			if(sndp->nazo)sndp->square[1].st=4;
 //			if(sndp->nazo)sndp->wavememory.st = 0x10;
 			sndp->wavememory.initial_volume = (v >> 5) & (sndp->GBAMode[0] ? 3 : 7);
-			sndp->wavememory.volume = wavememory_volume_table[sndp->wavememory.initial_volume];
+			sndp->wavememory.volume = dmg_wavememory_volume_table[sndp->wavememory.initial_volume];
 			break;
 		case 0xff1d:
 			sndp->wavememory.wl &= 0x700;
@@ -741,7 +741,7 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 				sndp->wavememory.key = 1 << 2;
 				sndp->wavememory.mute = 0; 
 				sndp->wavememory.lc.counter = sndp->wavememory.lc.initial_counter;
-				sndp->wavememory.volume = wavememory_volume_table[sndp->wavememory.initial_volume];
+				sndp->wavememory.volume = dmg_wavememory_volume_table[sndp->wavememory.initial_volume];
 				//sndp->wavememory.fc = 0;
 				//sndp->wavememory.on = 0x80;
 				sndp->wavememory.pt = 0;
@@ -787,7 +787,7 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 			sndp->noise.step1 = (v & 8) ? (7 + 1) : (15 + 1);
 			sndp->noise.step2 = (v & 8) ? (2 + 1) : (10 + 1);
 #endif
-			sndp->noise.divratio = noise_divratio_table[v & 7] << sndp->noise.shift;
+			sndp->noise.divratio = dmg_noise_divratio_table[v & 7] << sndp->noise.shift;
 
 			//sndp->noise.ed.volume = sndp->noise.ed.initial_volume;
 			break;
@@ -836,7 +836,7 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 	}
 }
 
-static uint32_t sndread(void *ctx, uint32_t a)
+static uint32_t dmg_sndread(void *ctx, uint32_t a)
 {
 	DMGSOUND *sndp = ctx;
 	switch (a)
@@ -931,7 +931,7 @@ static void DMGSoundNazoReset(DMG_NAZO *ch, uint32_t clock, uint32_t freq)
 }
 */
 
-static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
+static void dmg_sndreset(void *ctx, uint32_t clock, uint32_t freq)
 {
 	uint32_t p,a;
 	DMGSOUND *sndp = ctx;
@@ -941,15 +941,15 @@ static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
 	DMGSoundWaveMemoryReset(&sndp->wavememory, clock, freq);
 	DMGSoundNoiseReset(&sndp->noise, clock, freq);
 //	DMGSoundNazoReset(&sndp->nazo, clock, freq);
-	for (p = 0; reset_table[p] || reset_table[p+1]; p+=2)
-		sndwrite(sndp, 0xff00 + reset_table[p], reset_table[p+1]);
+	for (p = 0; dmg_reset_table[p] || dmg_reset_table[p+1]; p+=2)
+		dmg_sndwrite(sndp, 0xff00 + dmg_reset_table[p], dmg_reset_table[p+1]);
 //MRN : GBC・GBAでは、00 FF 00 FF…と、綺麗に初期化される
 	if	(sndp->GBAMode[0])
-		for (a = 0xff30; a <= 0xff3f; a++) sndwrite(sndp, a, (a & 1) ? 0xff : 0);
+		for (a = 0xff30; a <= 0xff3f; a++) dmg_sndwrite(sndp, a, (a & 1) ? 0xff : 0);
 	sndp->common.enablefg = 2;
 }
 
-static void sndrelease(void *ctx)
+static void dmg_sndrelease(void *ctx)
 {
 	DMGSOUND *sndp = ctx;
 	if (sndp) {
@@ -957,7 +957,7 @@ static void sndrelease(void *ctx)
 	}
 }
 
-static void setinst(void *ctx, uint32_t n, void *p, uint32_t l)
+static void dmg_setinst(void *ctx, uint32_t n, void *p, uint32_t l)
 {
     (void)ctx;
     (void)n;
@@ -974,13 +974,13 @@ KMIF_SOUND_DEVICE *DMGSoundAlloc(NEZ_PLAY *pNezPlay)
 
     sndp->chmask = pNezPlay->chmask;
 	sndp->kmif.ctx = sndp;
-	sndp->kmif.release = sndrelease;
-	sndp->kmif.reset = sndreset;
-	sndp->kmif.synth = sndsynth;
-	sndp->kmif.volume = sndvolume;
-	sndp->kmif.write = sndwrite;
-	sndp->kmif.read = sndread;
-	sndp->kmif.setinst = setinst;
+	sndp->kmif.release = dmg_sndrelease;
+	sndp->kmif.reset = dmg_sndreset;
+	sndp->kmif.synth = dmg_sndsynth;
+	sndp->kmif.volume = dmg_sndvolume;
+	sndp->kmif.write = dmg_sndwrite;
+	sndp->kmif.read = dmg_sndread;
+	sndp->kmif.setinst = dmg_setinst;
     sndp->GBAMode = &(pNezPlay->gb_config.gbamode);
 
 	return &sndp->kmif;
@@ -998,3 +998,4 @@ KMIF_SOUND_DEVICE *DMGSoundAlloc(NEZ_PLAY *pNezPlay)
 #undef LIN_BITS
 #undef LOG_BITS
 #undef LOG_LIN_BITS
+#undef KEYON_MODE
