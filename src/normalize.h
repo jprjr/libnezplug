@@ -32,4 +32,10 @@
 #define XMEMCPY(d,s,n)    memcpy(d,s,n)
 #define XMEMSET(d,c,n)    memset(d,c,n)
 
+#ifdef DO_AMALGATION
+#define PROTECTED static
+#else
+#define PROTECTED
+#endif
+
 #endif /* NORMALIZE_H__ */

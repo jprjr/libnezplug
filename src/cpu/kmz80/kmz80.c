@@ -252,7 +252,7 @@ static void kmz80_memwrite(KMZ80_CONTEXT *context, uint32_t a, uint32_t d)
 	context->memwrite(context->user, a, d);
 }
 
-void kmz80_reset(KMZ80_CONTEXT *context) {
+PROTECTED void kmz80_reset(KMZ80_CONTEXT *context) {
 	kmz80_reset_common(context);
 	EXFLAG = EXF_ICEXIST;
 	M1CYCLE = 1;	/* MSXなら2 */

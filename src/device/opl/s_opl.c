@@ -180,7 +180,6 @@ typedef struct {
 typedef struct {
 	KMIF_SOUND_DEVICE kmif;
 	KMIF_SOUND_DEVICE *deltatpcm;
-    LOG_TABLE logtbl;
 	KMIF_OPLTABLE *opltbl;
 	OPL_CH ch[9];
 	OPL_LFO lfo[LFO_UNIT_NUM];

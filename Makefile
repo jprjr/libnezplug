@@ -1,4 +1,4 @@
-.PHONY: all clean
+.PHONY: all clean amalg
 
 CC = cc
 AR = ar
@@ -42,6 +42,9 @@ LIBNEZPLUG_SRCS = \
 LIBNEZPLUG_OBJS = $(LIBNEZPLUG_SRCS:.c=.o)
 
 all: libnezplug.a libnezplug.so
+
+amalg:
+	$(CC) $(CFLAGS) -c -o amalg.o src/amalg.c
 
 libnezplug.a: $(LIBNEZPLUG_OBJS)
 	$(AR) rcs $@ $^
