@@ -13,6 +13,7 @@
 
 #define IRQ_PATCH 2
 
+#undef SHIFT_CPS
 #define SHIFT_CPS 15
 #define ZX_BASECYCLES       (3579545)
 #define AMSTRAD_BASECYCLES  (2000000)
@@ -426,7 +427,7 @@ static const NEZ_NES_TERMINATE_HANDLER zxay_terminate_handler[] = {
 	{ 0, NULL },
 };
 
-uint32_t ZXAYLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
+PROTECTED uint32_t ZXAYLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 {
 	uint32_t ret;
 	ZXAY *THIS_;

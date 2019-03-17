@@ -260,7 +260,7 @@ static void hesad_setinst(void *ctx, uint32_t n, void *p, uint32_t l)
     (void)l;
 }
 
-KMIF_SOUND_DEVICE *HESAdPcmAlloc(NEZ_PLAY *pNezPlay)
+PROTECTED KMIF_SOUND_DEVICE *HESAdPcmAlloc(NEZ_PLAY *pNezPlay)
 {
 	HESADPCM *sndp;
 	sndp = XMALLOC(sizeof(HESADPCM));

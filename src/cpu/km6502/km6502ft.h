@@ -1,3 +1,6 @@
+#ifndef KM6502FT_H_
+#define KM6502FT_H_
+
 #if USE_FL_TABLE
 const static Ubyte fl_table[0x200] = {
 0x02,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -41,4 +44,6 @@ const static Ubyte fl_table[0x200] = {
 #else
 #define FLAG_NZ(w)	((w & N_FLAG) + (RTO8(w) ? 0 : Z_FLAG))
 #define FLAG_NZC(w)	(FLAG_NZ(w) + ((w >> 8) & C_FLAG))
+#endif
+
 #endif

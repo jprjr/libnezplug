@@ -18,7 +18,7 @@ enum {
 	OPL_TYPE_OPL2		= 0x22	/* YAMAHA YM3812 */
 };
 
-KMIF_SOUND_DEVICE *OPLSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t opl_type);
+PROTECTED KMIF_SOUND_DEVICE *OPLSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t opl_type);
 
 #ifdef __cplusplus
 }

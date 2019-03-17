@@ -42,14 +42,14 @@ static const NEZ_NES_VOLUME_HANDLER s_fme7_psg_volume_handler[] = {
 	{ 0, NULL }, 
 };
 
-static void FME7PSGSoundWrireAddr(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
+static void FME7PSGSoundWrireAddr(void *pNezPlay, uint32_t address, uint32_t value)
 {
     (void)address;
 	FME7_FME7PSGSOUND *psgs = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->psgs;
 	psgs->adr = (uint8_t)value;
 	psgs->psgp->write(psgs->psgp->ctx, 0, value);
 }
-static void FME7PSGSoundWrireData(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
+static void FME7PSGSoundWrireData(void *pNezPlay, uint32_t address, uint32_t value)
 {
     (void)address;
 	FME7_FME7PSGSOUND *psgs = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->psgs;
@@ -90,7 +90,7 @@ static const NEZ_NES_TERMINATE_HANDLER s_fme7_psg_terminate_handler[] = {
 	{ 0, NULL }, 
 };
 
-void FME7SoundInstall(NEZ_PLAY* pNezPlay)
+PROTECTED void FME7SoundInstall(NEZ_PLAY* pNezPlay)
 {
 	FME7_FME7PSGSOUND *psgs;
 	psgs = XMALLOC(sizeof(FME7_FME7PSGSOUND));

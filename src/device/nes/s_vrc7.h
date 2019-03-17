@@ -8,8 +8,10 @@
 extern "C" {
 #endif
 
-void VRC7SoundInstall(NEZ_PLAY *);
-void VRC7SetTone(NEZ_PLAY *, uint8_t *p, uint32_t type);
+PROTECTED void VRC7SoundInstall(NEZ_PLAY *);
+#if 0
+PROTECTED void VRC7SetTone(NEZ_PLAY *, uint8_t *p, uint32_t type);
+#endif
 
 #ifdef __cplusplus
 }

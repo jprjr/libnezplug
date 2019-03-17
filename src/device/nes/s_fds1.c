@@ -124,7 +124,7 @@ static const NEZ_NES_VOLUME_HANDLER s_fds1_volume_handler[] = {
 	{ 0, NULL }, 
 };
 
-static void FDS1SoundWrite(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
+static void FDS1SoundWrite(void *pNezPlay, uint32_t address, uint32_t value)
 {
 	FDS1_SOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
 	if (0x4040 <= address && address <= 0x407F)
@@ -194,7 +194,7 @@ static NES_WRITE_HANDLER s_fds1_write_handler[] =
 	{ 0,      0,      0, NULL },
 };
 
-static uint32_t FDS1SoundRead(NEZ_PLAY *pNezPlay, uint32_t address)
+static uint32_t FDS1SoundRead(void *pNezPlay, uint32_t address)
 {
 	FDS1_SOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
 	if (0x4090 <= address && address <= 0x409F)

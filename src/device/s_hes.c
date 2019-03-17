@@ -482,8 +482,7 @@ static void hes_setinst(void *ctx, uint32_t n, void *p, uint32_t l)
 
 }
 
-
-KMIF_SOUND_DEVICE *HESSoundAlloc(NEZ_PLAY *pNezPlay)
+PROTECTED KMIF_SOUND_DEVICE *HESSoundAlloc(NEZ_PLAY *pNezPlay)
 {
 	HESSOUND *sndp;
 	sndp = XMALLOC(sizeof(HESSOUND));

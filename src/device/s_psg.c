@@ -82,14 +82,14 @@ typedef struct {
     uint8_t *chmask;
 } PSGSOUND;
 
-static const int8_t env_pulse[] = 
+static const int8_t psg_env_pulse[] = 
 {
 	0x1F,+02,0x1E,+02,0x1D,+02,0x1C,+02,0x1B,+02,0x1A,+02,0x19,+02,0x18,+02,
 	0x17,+02,0x16,+02,0x15,+02,0x14,+02,0x13,+02,0x12,+02,0x11,+02,0x10,+02,
 	0x0F,+02,0x0E,+02,0x0D,+02,0x0C,+02,0x0B,+02,0x0A,+02,0x09,+02,0x08,+02,
 	0x07,+02,0x06,+02,0x05,+02,0x04,+02,0x03,+02,0x02,+02,0x01,+02,0x00,+00,
 };
-static const int8_t env_pulse_hold[] = 
+static const int8_t psg_env_pulse_hold[] = 
 {
 	0x1F,+02,0x1E,+02,0x1D,+02,0x1C,+02,0x1B,+02,0x1A,+02,0x19,+02,0x18,+02,
 	0x17,+02,0x16,+02,0x15,+02,0x14,+02,0x13,+02,0x12,+02,0x11,+02,0x10,+02,
@@ -97,14 +97,14 @@ static const int8_t env_pulse_hold[] =
 	0x07,+02,0x06,+02,0x05,+02,0x04,+02,0x03,+02,0x02,+02,0x01,+02,0x00,+02,
 	0x1F,+00,
 };
-static const int8_t env_saw[] = 
+static const int8_t psg_env_saw[] = 
 {
 	0x1F,+02,0x1E,+02,0x1D,+02,0x1C,+02,0x1B,+02,0x1A,+02,0x19,+02,0x18,+02,
 	0x17,+02,0x16,+02,0x15,+02,0x14,+02,0x13,+02,0x12,+02,0x11,+02,0x10,+02,
 	0x0F,+02,0x0E,+02,0x0D,+02,0x0C,+02,0x0B,+02,0x0A,+02,0x09,+02,0x08,+02,
 	0x07,+02,0x06,+02,0x05,+02,0x04,+02,0x03,+02,0x02,+02,0x01,+02,0x00,-62,
 };
-static const int8_t env_tri[] = 
+static const int8_t psg_env_tri[] = 
 {
 	0x1F,+02,0x1E,+02,0x1D,+02,0x1C,+02,0x1B,+02,0x1A,+02,0x19,+02,0x18,+02,
 	0x17,+02,0x16,+02,0x15,+02,0x14,+02,0x13,+02,0x12,+02,0x11,+02,0x10,+02,
@@ -115,14 +115,14 @@ static const int8_t env_tri[] =
 	0x10,+02,0x11,+02,0x12,+02,0x13,+02,0x14,+02,0x15,+02,0x16,+02,0x17,+02,
 	0x18,+02,0x19,+02,0x1A,+02,0x1B,+02,0x1C,+02,0x1D,+02,0x1E,+02,0x1F,-126,
 };
-static const int8_t env_xpulse[] = 
+static const int8_t psg_env_xpulse[] = 
 {
 	0x00,+02,0x01,+02,0x02,+02,0x03,+02,0x04,+02,0x05,+02,0x06,+02,0x07,+02,
 	0x08,+02,0x09,+02,0x0A,+02,0x0B,+02,0x0C,+02,0x0D,+02,0x0E,+02,0x0F,+02,
 	0x10,+02,0x11,+02,0x12,+02,0x13,+02,0x14,+02,0x15,+02,0x16,+02,0x17,+02,
 	0x18,+02,0x19,+02,0x1A,+02,0x1B,+02,0x1C,+02,0x1D,+02,0x1E,+02,0x1F,+00,
 };
-static const int8_t env_xpulse_hold[] = 
+static const int8_t psg_env_xpulse_hold[] = 
 {
 	0x00,+02,0x01,+02,0x02,+02,0x03,+02,0x04,+02,0x05,+02,0x06,+02,0x07,+02,
 	0x08,+02,0x09,+02,0x0A,+02,0x0B,+02,0x0C,+02,0x0D,+02,0x0E,+02,0x0F,+02,
@@ -130,7 +130,7 @@ static const int8_t env_xpulse_hold[] =
 	0x18,+02,0x19,+02,0x1A,+02,0x1B,+02,0x1C,+02,0x1D,+02,0x1E,+02,0x1F,+02,
 	0x00,+00,
 };
-static const int8_t env_xsaw[] = 
+static const int8_t psg_env_xsaw[] = 
 {
 	0x00,+02,0x01,+02,0x02,+02,0x03,+02,0x04,+02,0x05,+02,0x06,+02,0x07,+02,
 	0x08,+02,0x09,+02,0x0A,+02,0x0B,+02,0x0C,+02,0x0D,+02,0x0E,+02,0x0F,+02,
@@ -138,7 +138,7 @@ static const int8_t env_xsaw[] =
 	0x18,+02,0x19,+02,0x1A,+02,0x1B,+02,0x1C,+02,0x1D,+02,0x1E,+02,0x1F,-62,
 };
 
-static const int8_t env_xtri[] = 
+static const int8_t psg_env_xtri[] = 
 {
 	0x00,+02,0x01,+02,0x02,+02,0x03,+02,0x04,+02,0x05,+02,0x06,+02,0x07,+02,
 	0x08,+02,0x09,+02,0x0A,+02,0x0B,+02,0x0C,+02,0x0D,+02,0x0E,+02,0x0F,+02,
@@ -150,26 +150,16 @@ static const int8_t env_xtri[] =
 	0x07,+02,0x06,+02,0x05,+02,0x04,+02,0x03,+02,0x02,+02,0x01,+02,0x00,-126,
 };
 
-#if 1
-static const int8_t *(env_table[16]) =
+static const int8_t *(psg_env_table[16]) =
 {
-	env_pulse,       env_pulse,       env_pulse,       env_pulse,
-	env_xpulse_hold, env_xpulse_hold, env_xpulse_hold, env_xpulse_hold,
-	env_saw,         env_pulse,       env_tri,         env_pulse_hold,
-	env_xsaw,        env_xpulse,      env_xtri,        env_xpulse_hold,
+	psg_env_pulse,       psg_env_pulse,       psg_env_pulse,       psg_env_pulse,
+	psg_env_xpulse_hold, psg_env_xpulse_hold, psg_env_xpulse_hold, psg_env_xpulse_hold,
+	psg_env_saw,         psg_env_pulse,       psg_env_tri,         psg_env_pulse_hold,
+	psg_env_xsaw,        psg_env_xpulse,      psg_env_xtri,        psg_env_xpulse_hold,
 };
-#else
-static const int8_t *(env_table[16]) =
-{
-	env_pulse,	env_pulse,	env_pulse,	env_pulse,
-	env_xpulse,	env_xpulse,	env_xpulse,	env_xpulse,
-	env_saw,	env_pulse,	env_tri,	env_pulse_hold,
-	env_xsaw,	env_xpulse,	env_xtri,	env_xpulse_hold,
-};
-#endif
 
 
-static const uint32_t voltbl[2][32] = {
+static const uint32_t psg_voltbl[2][32] = {
 //0 : PSG_TYPE_AY_3_8910 : PSG
 #define V(a) ((((a * 5 * (1 << (LOG_BITS - 1))) / 13)+((0 * (1 << (LOG_BITS - 1))) / 3)) << 1)
   { LOG_KEYOFF, V(0x1e), V(0x1d),V(0x1c),V(0x1b), V(0x1a), V(0x19), V(0x18),
@@ -233,7 +223,7 @@ __inline static int32_t PSGSoundEnvelopeStep(PSGSOUND *sndp)
 	if (sndp->envelope.adr[0] & sndp->envelope.adrmask)
 	{
 #ifdef VOLUME_3
-		return LogToLinear((LOG_TABLE *)&log_table_12_7_30, voltbl[sndp->type][sndp->envelope.adr[0] & sndp->envelope.adrmask] + sndp->common.mastervolume, LOG_LIN_BITS - 21);
+		return LogToLinear((LOG_TABLE *)&log_table_12_7_30, psg_voltbl[sndp->type][sndp->envelope.adr[0] & sndp->envelope.adrmask] + sndp->common.mastervolume, LOG_LIN_BITS - 21);
 #else
 		return LogToLinear((LOG_TABLE *)&log_table_12_7_30, ((sndp->envelope.adrmask - (sndp->envelope.adr[0] & sndp->envelope.adrmask)) << (LOG_BITS - 2 + 1)) + sndp->common.mastervolume, LOG_LIN_BITS - 21);
 #endif
@@ -253,7 +243,7 @@ __inline static uint32_t PSGSoundSquareSub(PSGSOUND *sndp, PSG_SQUARE *chp)
 	else if (chp->regs[2] & 0xF)
 	{
 #ifdef VOLUME_3
-		volume = LogToLinear((LOG_TABLE *)&log_table_12_7_30, voltbl[sndp->type][(chp->regs[2] & 0xF)<<1] + sndp->common.mastervolume, LOG_LIN_BITS - 21);
+		volume = LogToLinear((LOG_TABLE *)&log_table_12_7_30, psg_voltbl[sndp->type][(chp->regs[2] & 0xF)<<1] + sndp->common.mastervolume, LOG_LIN_BITS - 21);
 #else
 		volume = LogToLinear((LOG_TABLE *)&log_table_12_7_30, ((0xF - (chp->regs[2] & 0xF)) << (LOG_BITS - 1 + 1)) + sndp->common.mastervolume, LOG_LIN_BITS - 21);
 #endif
@@ -346,7 +336,7 @@ static int32_t PSGSoundSquare(PSGSOUND *sndp, PSG_SQUARE *chp)
 	return out + out;
 }
 
-static void sndsynth(void *ctx, int32_t *p)
+static void psg_sndsynth(void *ctx, int32_t *p)
 {
 	PSGSOUND *sndp = ctx;
 	int32_t accum = 0;
@@ -366,14 +356,14 @@ static void sndsynth(void *ctx, int32_t *p)
 	p[1] += accum;
 }
 
-static void sndvolume(void *ctx, int32_t volume)
+static void psg_sndvolume(void *ctx, int32_t volume)
 {
 	PSGSOUND *sndp = ctx;
 	volume = (volume << (LOG_BITS - 8)) << 1;
 	sndp->common.mastervolume = volume;
 }
 
-__inline static uint32_t sndreadreg(PSGSOUND *sndp, uint32_t a)
+__inline static uint32_t psg_sndreadreg(PSGSOUND *sndp, uint32_t a)
 {
 	switch (a)
 	{
@@ -393,7 +383,7 @@ __inline static uint32_t sndreadreg(PSGSOUND *sndp, uint32_t a)
 	return 0;
 }
 
-__inline static void sndwritereg(PSGSOUND *sndp, uint32_t a, uint32_t v)
+__inline static void psg_sndwritereg(PSGSOUND *sndp, uint32_t a, uint32_t v)
 {
 	sndp->regs[a&0xf]=v;
 	switch (a)
@@ -423,21 +413,21 @@ __inline static void sndwritereg(PSGSOUND *sndp, uint32_t a, uint32_t v)
 			break;
 		case 0xD:
 			sndp->envelope.cycles = 0;
-			sndp->envelope.adr = env_table[sndp->regs[0xd] & 0xF];
+			sndp->envelope.adr = psg_env_table[sndp->regs[0xd] & 0xF];
 		case 0xB: case 0xC:
 			sndp->envelope.regs[a - 0xB] = v;
 			break;
 	}
 }
 
-static uint32_t sndread(void *ctx, uint32_t a)
+static uint32_t psg_sndread(void *ctx, uint32_t a)
 {
 	PSGSOUND *sndp = ctx;
     (void)a;
-	return sndreadreg(sndp, sndp->common.adr);
+	return psg_sndreadreg(sndp, sndp->common.adr);
 }
 
-static void sndwrite(void *ctx, uint32_t a, uint32_t v)
+static void psg_sndwrite(void *ctx, uint32_t a, uint32_t v)
 {
 	PSGSOUND *sndp = ctx;
 	switch (a & 0x3)
@@ -446,7 +436,7 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 			sndp->common.adr = v;
 			break;
 		case 1:
-			sndwritereg(sndp, sndp->common.adr, v);
+			psg_sndwritereg(sndp, sndp->common.adr, v);
 			break;
 		case 2:
 			sndp->common.daenable = v&1;
@@ -471,7 +461,7 @@ static void PSGSoundEnvelopeReset(PSG_ENVELOPE *ch, uint32_t clock, uint32_t fre
 {
 	XMEMSET(ch, 0, sizeof(PSG_ENVELOPE));
 	ch->cps = DivFix(clock * 2, 2 * 16 * freq, CPS_ENVSHIFT);
-	ch->adr = env_table[0];
+	ch->adr = psg_env_table[0];
 }
 
 static void MSXSoundDaReset(MSX_DA *ch, uint32_t clock, uint32_t freq)
@@ -480,7 +470,7 @@ static void MSXSoundDaReset(MSX_DA *ch, uint32_t clock, uint32_t freq)
 
 }
 
-static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
+static void psg_sndreset(void *ctx, uint32_t clock, uint32_t freq)
 {
 	PSGSOUND *sndp = ctx;
 	static const uint8_t initdata[] = { 0,0,0,0,0,0, 0, 0x38, 0x0,0x0,0x0, 0,0,0 };
@@ -502,12 +492,12 @@ static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
 	}
 	for (i = 0; i < sizeof(initdata); i++)
 	{
-		sndwrite(sndp, 0, i);			/* address */
-		sndwrite(sndp, 1, initdata[i]);	/* data */
+		psg_sndwrite(sndp, 0, i);			/* address */
+		psg_sndwrite(sndp, 1, initdata[i]);	/* data */
 	}
 }
 
-static void sndrelease(void *ctx)
+static void psg_sndrelease(void *ctx)
 {
 	PSGSOUND *sndp = ctx;
 	if (sndp) {
@@ -515,7 +505,7 @@ static void sndrelease(void *ctx)
 	}
 }
 
-static void setinst(void *ctx, uint32_t n, void *p, uint32_t l)
+static void psg_setinst(void *ctx, uint32_t n, void *p, uint32_t l)
 {
     (void)ctx;
     (void)n;
@@ -523,7 +513,7 @@ static void setinst(void *ctx, uint32_t n, void *p, uint32_t l)
     (void)l;
 }
 
-KMIF_SOUND_DEVICE *PSGSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t psg_type)
+PROTECTED KMIF_SOUND_DEVICE *PSGSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t psg_type)
 {
 	PSGSOUND *sndp;
 	sndp = XMALLOC(sizeof(PSGSOUND));
@@ -533,13 +523,13 @@ KMIF_SOUND_DEVICE *PSGSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t psg_type)
     sndp->chmask = pNezPlay->chmask;
 	sndp->type = psg_type;
 	sndp->kmif.ctx = sndp;
-	sndp->kmif.release = sndrelease;
-	sndp->kmif.reset = sndreset;
-	sndp->kmif.synth = sndsynth;
-	sndp->kmif.volume = sndvolume;
-	sndp->kmif.write = sndwrite;
-	sndp->kmif.read = sndread;
-	sndp->kmif.setinst = setinst;
+	sndp->kmif.release = psg_sndrelease;
+	sndp->kmif.reset = psg_sndreset;
+	sndp->kmif.synth = psg_sndsynth;
+	sndp->kmif.volume = psg_sndvolume;
+	sndp->kmif.write = psg_sndwrite;
+	sndp->kmif.read = psg_sndread;
+	sndp->kmif.setinst = psg_setinst;
 
 	return &sndp->kmif;
 }
@@ -556,3 +546,4 @@ KMIF_SOUND_DEVICE *PSGSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t psg_type)
 #undef NOISE_RENDERS
 #undef VOLUME_3
 #undef PSG_VOL
+#undef SSR

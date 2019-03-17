@@ -14,12 +14,19 @@
 /* -------------------- */
 /*  km6502 HuC6280 I/F  */
 /* -------------------- */
+#undef USE_DIRECT_ZEROPAGE
+#undef USE_CALLBACK
+#undef USE_INLINEMMC
+#undef USE_USERPOINTER
+
 #define USE_DIRECT_ZEROPAGE 0
 #define USE_CALLBACK 1
 #define USE_INLINEMMC 0
 #define USE_USERPOINTER 1
+
 #define External __inline static
 #include "../cpu/kmz80/kmevent.h"
+#include "../cpu/km6502/km6280w.h"
 #include "../cpu/km6502/km6280m.h"
 
 #define SHIFT_CPS 15
@@ -668,7 +675,7 @@ static const NEZ_NES_TERMINATE_HANDLER heshes_hes_terminate_handler[] = {
 	{ 0, NULL },
 };
 
-uint32_t HESLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
+PROTECTED uint32_t HESLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 {
 	uint32_t ret;
 	HESHES *THIS_;
@@ -698,3 +705,4 @@ uint32_t HESLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 #undef HES_BASECYCLES
 #undef HES_TIMERCYCLES
 
+#include "../cpu/km6502/km6280u.h"

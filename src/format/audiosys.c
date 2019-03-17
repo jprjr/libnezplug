@@ -8,7 +8,7 @@
 
 #define SHIFT_BITS 8
 
-void NESAudioFilterSet(NEZ_PLAY *pNezPlay, uint32_t filter)
+PROTECTED void NESAudioFilterSet(NEZ_PLAY *pNezPlay, uint32_t filter)
 {
 	pNezPlay->naf_type = filter;
 	pNezPlay->naf_prev[0] = 0x8000;
@@ -17,7 +17,7 @@ void NESAudioFilterSet(NEZ_PLAY *pNezPlay, uint32_t filter)
 	pNezPlay->output2[1] = 0x7fffffff;
 }
 
-void NESAudioRender(NEZ_PLAY *pNezPlay, int16_t *bufp, uint32_t buflen)
+PROTECTED void NESAudioRender(NEZ_PLAY *pNezPlay, int16_t *bufp, uint32_t buflen)
 {
 	uint32_t maxch = NESAudioChannelGet(pNezPlay);
 	while (buflen--)
@@ -111,7 +111,7 @@ void NESAudioRender(NEZ_PLAY *pNezPlay, int16_t *bufp, uint32_t buflen)
 	}
 }
 
-void NESVolume(NEZ_PLAY *pNezPlay, uint32_t volume)
+PROTECTED void NESVolume(NEZ_PLAY *pNezPlay, uint32_t volume)
 {
 	NEZ_NES_VOLUME_HANDLER *ph;
 	for (ph = pNezPlay->nvh; ph; ph = ph->next) ph->Proc(pNezPlay, volume);
@@ -139,14 +139,15 @@ static void NESAudioHandlerInstallOne(NEZ_PLAY *pNezPlay, const NEZ_NES_AUDIO_HA
 		pNezPlay->nah = nh;
 	}
 }
-void NESAudioHandlerInstall(NEZ_PLAY *pNezPlay, const NEZ_NES_AUDIO_HANDLER * ph)
+
+PROTECTED void NESAudioHandlerInstall(NEZ_PLAY *pNezPlay, const NEZ_NES_AUDIO_HANDLER * ph)
 {
 	for (;(ph->fMode&2)?(!!ph->Proc2):(!!ph->Proc);ph++) {
 		NESAudioHandlerInstallOne(pNezPlay, ph);
 	}
 }
 
-void NESAudioHandlerTerminate(NEZ_PLAY *pNezPlay)
+PROTECTED void NESAudioHandlerTerminate(NEZ_PLAY *pNezPlay)
 {
 	NEZ_NES_AUDIO_HANDLER *p = pNezPlay->nah, *next;
 	while (p) {
@@ -156,7 +157,7 @@ void NESAudioHandlerTerminate(NEZ_PLAY *pNezPlay)
 	}
 }
 
-void NESVolumeHandlerInstall(NEZ_PLAY *pNezPlay, const NEZ_NES_VOLUME_HANDLER * ph)
+PROTECTED void NESVolumeHandlerInstall(NEZ_PLAY *pNezPlay, const NEZ_NES_VOLUME_HANDLER * ph)
 {
 	NEZ_NES_VOLUME_HANDLER *nh;
 
@@ -171,7 +172,7 @@ void NESVolumeHandlerInstall(NEZ_PLAY *pNezPlay, const NEZ_NES_VOLUME_HANDLER * 
 	}
 }
 
-void NESVolumeHandlerTerminate(NEZ_PLAY *pNezPlay)
+PROTECTED void NESVolumeHandlerTerminate(NEZ_PLAY *pNezPlay)
 {
 	NEZ_NES_VOLUME_HANDLER *p = pNezPlay->nvh, *next;
 	while (p) {
@@ -181,13 +182,13 @@ void NESVolumeHandlerTerminate(NEZ_PLAY *pNezPlay)
 	}
 }
 
-void NESAudioHandlerInitialize(NEZ_PLAY *pNezPlay)
+PROTECTED void NESAudioHandlerInitialize(NEZ_PLAY *pNezPlay)
 {
 	pNezPlay->nah = 0;
 	pNezPlay->nvh = 0;
 }
 
-void NESAudioFrequencySet(NEZ_PLAY *pNezPlay, uint32_t freq)
+PROTECTED void NESAudioFrequencySet(NEZ_PLAY *pNezPlay, uint32_t freq)
 {
 	pNezPlay->frequency = freq;
 	pNezPlay->filter = freq/3000;
@@ -195,17 +196,18 @@ void NESAudioFrequencySet(NEZ_PLAY *pNezPlay, uint32_t freq)
 
 	pNezPlay->lowlevel = 33 - pNezPlay->lowpass_filter_level;
 }
-uint32_t NESAudioFrequencyGet(NEZ_PLAY *pNezPlay)
+
+PROTECTED uint32_t NESAudioFrequencyGet(NEZ_PLAY *pNezPlay)
 {
 	return pNezPlay->frequency;
 }
 
-void NESAudioChannelSet(NEZ_PLAY *pNezPlay, uint32_t ch)
+PROTECTED void NESAudioChannelSet(NEZ_PLAY *pNezPlay, uint32_t ch)
 {
 	pNezPlay->channel = ch;
 }
 
-uint32_t NESAudioChannelGet(NEZ_PLAY *pNezPlay)
+PROTECTED uint32_t NESAudioChannelGet(NEZ_PLAY *pNezPlay)
 {
 	return pNezPlay->channel;
 }

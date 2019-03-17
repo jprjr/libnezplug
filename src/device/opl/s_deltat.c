@@ -322,7 +322,7 @@ static void deltat_setinst(void *ctx, uint32_t n, void *p, uint32_t l)
 
 }
 
-KMIF_SOUND_DEVICE *YMDELTATPCMSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t ymdeltatpcm_type , uint8_t *pcmbuf)
+PROTECTED KMIF_SOUND_DEVICE *YMDELTATPCMSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t ymdeltatpcm_type , uint8_t *pcmbuf)
 {
 	uint32_t ram_size;
 	YMDELTATPCMSOUND *sndp;

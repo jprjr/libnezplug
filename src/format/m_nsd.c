@@ -8,10 +8,12 @@
 #include "../common/divfix.h"
 #include "../common/util.h"
 
-uint32_t NSDPlayerGetCycles(void)
+#if 0
+PROTECTED uint32_t NSDPlayerGetCycles(void)
 {
 	return 0;
 }
+#endif
 
 #define SHIFT_CPS 16
 #define NES_BASECYCLES (21477270)
@@ -216,7 +218,7 @@ static const NEZ_NES_TERMINATE_HANDLER nsdplay_terminate_handler[] = {
 	{ 0, NULL },
 };
 
-uint32_t NSDPlayerInstall(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
+PROTECTED uint32_t NSDPlayerInstall(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 {
     (void)uSize;
 	NSDSEQ *nsdplayer = pNezPlay->nsdp;
@@ -241,7 +243,7 @@ uint32_t NSDPlayerInstall(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	return NEZ_NESERR_NOERROR;
 }
 
-uint32_t NSDLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
+PROTECTED uint32_t NSDLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 {
 	NSFNSF *nsf;
 	uint32_t ret;

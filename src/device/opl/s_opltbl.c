@@ -623,7 +623,7 @@ static void OplTableCalc(KMIF_OPLTABLE *tbl)
 	tbl->ar_tablelog[0] = AR_MAX;
 }
 
-KMIF_OPLTABLE *OplTableAddRef()
+PROTECTED KMIF_OPLTABLE *OplTableAddRef()
 {
 	++opl_tables_mutex;
 	while (opl_tables_mutex != 1)

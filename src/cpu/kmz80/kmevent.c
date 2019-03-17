@@ -86,11 +86,14 @@ static void kmevent_iteminsert(KMEVENT *kme, KMEVENT_ITEM_ID curid)
 	kmevent_itemlist(kme, curid, baseid);
 }
 
+#if 0
+/* it looks like this is never called ? */
 PROTECTED void kmevent_free(KMEVENT *kme, KMEVENT_ITEM_ID curid)
 {
 	kmevent_itemunlist(kme, curid);
 	kme->item[curid].sysflag = 0;
 }
+#endif
 
 PROTECTED void kmevent_settimer(KMEVENT *kme, KMEVENT_ITEM_ID curid, uint32_t time)
 {

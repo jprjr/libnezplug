@@ -65,7 +65,7 @@ typedef struct {
 } SNGSOUND;
 
 #define V(a) (((a * (1 << LOG_BITS)) / 3) << 1)
-static const uint32_t voltbl[16] = {
+static const uint32_t sng_voltbl[16] = {
 	V(0x0), V(0x1), V(0x2),V(0x3),V(0x4), V(0x5), V(0x6),V(0x7),
 	V(0x8), V(0x9), V(0xA),V(0xB),V(0xC), V(0xD), V(0xE),LOG_KEYOFF
 };
@@ -145,7 +145,7 @@ static void SNGSoundNoiseReset(SNG_NOISE *ch)
 }
 
 
-static void sndsynth(void *ctx, int32_t *p)
+static void sng_sndsynth(void *ctx, int32_t *p)
 {
 	SNGSOUND *sndp = (SNGSOUND*)ctx;
 	uint32_t ch;
@@ -163,21 +163,21 @@ static void sndsynth(void *ctx, int32_t *p)
 	if (sndp->common.ggs & 0x08) p[1] += accum;
 }
 
-static void sndvolume(void *ctx, int32_t volume)
+static void sng_sndvolume(void *ctx, int32_t volume)
 {
 	SNGSOUND *sndp = (SNGSOUND*)ctx;
 	volume = (volume << (LOG_BITS - 8)) << 1;
 	sndp->common.mastervolume = volume;
 }
 
-static uint32_t sndread(void *ctx, uint32_t a)
+static uint32_t sng_sndread(void *ctx, uint32_t a)
 {
     (void)ctx;
     (void)a;
 	return 0;
 }
 
-static void sndwrite(void *ctx, uint32_t a, uint32_t v)
+static void sng_sndwrite(void *ctx, uint32_t a, uint32_t v)
 {
 	SNGSOUND *sndp = (SNGSOUND*)ctx;
 	if ((a & 1) && sndp->type  == SNG_TYPE_GAMEGEAR)
@@ -215,7 +215,7 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 				break;
 			case 0x90:	case 0xB0:	case 0xD0:
 				ch = (v & 0x60) >> 5;
-				sndp->square[ch].vol = voltbl[v & 0xF];
+				sndp->square[ch].vol = sng_voltbl[v & 0xF];
 				break;
 			case 0xE0:
 				//手持ちのSN76489ANが、ここに書いたらリセットしてたので
@@ -231,14 +231,14 @@ static void sndwrite(void *ctx, uint32_t a, uint32_t v)
 					sndp->noise.spd = 1 << (4 + sndp->noise.mode + CPS_SHIFT);
 				break;
 			case 0xF0:
-				sndp->noise.vol = voltbl[v & 0xF];
+				sndp->noise.vol = sng_voltbl[v & 0xF];
 				break;
 		}
 	}
 
 }
 
-static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
+static void sng_sndreset(void *ctx, uint32_t clock, uint32_t freq)
 {
 	SNGSOUND *sndp = (SNGSOUND*)ctx;
 	XMEMSET(&sndp->common, 0, sizeof(sndp->common));
@@ -250,20 +250,20 @@ static void sndreset(void *ctx, uint32_t clock, uint32_t freq)
 	SNGSoundSquareReset(&sndp->square[1]);
 	SNGSoundSquareReset(&sndp->square[2]);
 	SNGSoundNoiseReset(&sndp->noise);
-	sndwrite(sndp, 0, 0xE0);
-	sndwrite(sndp, 0, 0x9F);
-	sndwrite(sndp, 0, 0xBF);
-	sndwrite(sndp, 0, 0xDF);
-	sndwrite(sndp, 0, 0xFF);
-	sndwrite(sndp, 0, 0x80);
-	sndwrite(sndp, 0, 0x00);
-	sndwrite(sndp, 0, 0xA0);
-	sndwrite(sndp, 0, 0x00);
-	sndwrite(sndp, 0, 0xC0);
-	sndwrite(sndp, 0, 0x00);
+	sng_sndwrite(sndp, 0, 0xE0);
+	sng_sndwrite(sndp, 0, 0x9F);
+	sng_sndwrite(sndp, 0, 0xBF);
+	sng_sndwrite(sndp, 0, 0xDF);
+	sng_sndwrite(sndp, 0, 0xFF);
+	sng_sndwrite(sndp, 0, 0x80);
+	sng_sndwrite(sndp, 0, 0x00);
+	sng_sndwrite(sndp, 0, 0xA0);
+	sng_sndwrite(sndp, 0, 0x00);
+	sng_sndwrite(sndp, 0, 0xC0);
+	sng_sndwrite(sndp, 0, 0x00);
 }
 
-static void sndrelease(void *ctx)
+static void sng_sndrelease(void *ctx)
 {
 	SNGSOUND *sndp = (SNGSOUND*)ctx;
 	if (sndp) {
@@ -271,7 +271,7 @@ static void sndrelease(void *ctx)
 	}
 }
 
-static void setinst(void *ctx, uint32_t n, void *p, uint32_t l)
+static void sng_setinst(void *ctx, uint32_t n, void *p, uint32_t l)
 {
     (void)ctx;
     (void)n;
@@ -279,7 +279,7 @@ static void setinst(void *ctx, uint32_t n, void *p, uint32_t l)
     (void)l;
 }
 
-KMIF_SOUND_DEVICE *SNGSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t sng_type)
+PROTECTED KMIF_SOUND_DEVICE *SNGSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t sng_type)
 {
 	SNGSOUND *sndp;
 	sndp = XMALLOC(sizeof(SNGSOUND));
@@ -289,13 +289,13 @@ KMIF_SOUND_DEVICE *SNGSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t sng_type)
     sndp->chmask = pNezPlay->chmask;
 	sndp->type = sng_type;
 	sndp->kmif.ctx = sndp;
-	sndp->kmif.release = sndrelease;
-	sndp->kmif.reset = sndreset;
-	sndp->kmif.synth = sndsynth;
-	sndp->kmif.volume = sndvolume;
-	sndp->kmif.write = sndwrite;
-	sndp->kmif.read = sndread;
-	sndp->kmif.setinst = setinst;
+	sndp->kmif.release = sng_sndrelease;
+	sndp->kmif.reset = sng_sndreset;
+	sndp->kmif.synth = sng_sndsynth;
+	sndp->kmif.volume = sng_sndvolume;
+	sndp->kmif.write = sng_sndwrite;
+	sndp->kmif.read = sng_sndread;
+	sndp->kmif.setinst = sng_setinst;
 
 	return &sndp->kmif;
 }

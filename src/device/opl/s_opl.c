@@ -1368,7 +1368,7 @@ static void opl_sndrelease(void *ctx)
 	}
 }
 
-KMIF_SOUND_DEVICE *OPLSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t opl_type)
+PROTECTED KMIF_SOUND_DEVICE *OPLSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t opl_type)
 {
 	OPLSOUND *sndp;
 	sndp = XMALLOC(sizeof(OPLSOUND));

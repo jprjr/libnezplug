@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-KMIF_SOUND_DEVICE *DMGSoundAlloc(NEZ_PLAY *pNezPlay);
+PROTECTED KMIF_SOUND_DEVICE *DMGSoundAlloc(NEZ_PLAY *pNezPlay);
 
 #ifdef __cplusplus
 }

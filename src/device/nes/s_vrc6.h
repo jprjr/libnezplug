@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-void VRC6SoundInstall(NEZ_PLAY *);
+PROTECTED void VRC6SoundInstall(NEZ_PLAY *);
 
 #ifdef __cplusplus
 }

@@ -112,7 +112,7 @@ static const NEZ_NES_VOLUME_HANDLER s_fds2_volume_handler[] = {
 	{ 0, NULL }, 
 };
 
-static void FDS2SoundWrite(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
+static void FDS2SoundWrite(void *pNezPlay, uint32_t address, uint32_t value)
 {
 	FDS2_SOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
 	if (0x4040 <= address && address <= 0x407F)
@@ -145,12 +145,12 @@ static void FDS2SoundWrite(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 						dat = value & 0x7f;
 					else
 						dat = ((int32_t)(value & 0x7f)) - 0x80;
-					switch (pNezPlay->nes_config.fds_debug_option1)
+					switch (((NEZ_PLAY *)pNezPlay)->nes_config.fds_debug_option1)
 					{
 						default:
-						case 1: pop->ofs1 = dat << pNezPlay->nes_config.fds_debug_option2; break;
-						case 2: pop->ofs2 = dat >> pNezPlay->nes_config.fds_debug_option2; break;
-						case 3: pop->ofs3 = dat << pNezPlay->nes_config.fds_debug_option2; break;
+						case 1: pop->ofs1 = dat << ((NEZ_PLAY *)pNezPlay)->nes_config.fds_debug_option2; break;
+						case 2: pop->ofs2 = dat >> ((NEZ_PLAY *)pNezPlay)->nes_config.fds_debug_option2; break;
+						case 3: pop->ofs3 = dat << ((NEZ_PLAY *)pNezPlay)->nes_config.fds_debug_option2; break;
 					}
 				}
 				break;
@@ -195,7 +195,7 @@ static NES_WRITE_HANDLER s_fds2_write_handler[] =
 	{ 0,      0,      0, NULL },
 };
 
-static uint32_t FDS2SoundRead(NEZ_PLAY *pNezPlay, uint32_t address)
+static uint32_t FDS2SoundRead(void *pNezPlay, uint32_t address)
 {
 	FDS2_SOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
 	if (0x4090 <= address && address <= 0x409F)

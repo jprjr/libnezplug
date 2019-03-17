@@ -248,7 +248,7 @@ static const uint8_t wave_delta_table[8] = {
 	64,256 - (4 << FM_DEPTH),256 - (2 << FM_DEPTH),256 - (1 << FM_DEPTH),
 };
 
-static void FDS3SoundWrite(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
+static void FDS3SoundWrite(void *pNezPlay, uint32_t address, uint32_t value)
 {
 	FDS3_SOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
 	if (0x4040 <= address && address <= 0x407F)
@@ -347,7 +347,7 @@ static NES_WRITE_HANDLER s_fds3_write_handler[] =
 	{ 0,      0,      0, NULL },
 };
 
-static uint32_t FDS3SoundRead(NEZ_PLAY *pNezPlay, uint32_t address)
+static uint32_t FDS3SoundRead(void *pNezPlay, uint32_t address)
 {
 	FDS3_SOUND *fdssound = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->fdssound;
 	if (0x4040 <= address && address <= 0x407f)

@@ -173,11 +173,11 @@ static const NEZ_NES_VOLUME_HANDLER s_vrc6_volume_handler[] = {
 	{ 0, NULL }, 
 };
 
-static void VRC6SoundWrite9000(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
+static void VRC6SoundWrite9000(void *pNezPlay, uint32_t address, uint32_t value)
 {
 	//FILE *f;
 	if(address >=0x9000 && address <= 0x9002){//なして9010・9030書いたときもここ通ってんだべ？
-		VRC6SOUND *vrc6s = ((NSFNSF*)pNezPlay->nsf)->vrc6s;
+		VRC6SOUND *vrc6s = ((NSFNSF*)((NEZ_PLAY *)pNezPlay)->nsf)->vrc6s;
 		vrc6s->square[0].regs[address & 3] = (uint8_t)value;
 		vrc6s->square[0].update |= 1 << (address & 3); 
 	}
@@ -185,15 +185,15 @@ static void VRC6SoundWrite9000(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t va
 	//fprintf(f,"%04X: %02X\r\n",address, value);
 	//fclose(f);
 }
-static void VRC6SoundWriteA000(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
+static void VRC6SoundWriteA000(void *pNezPlay, uint32_t address, uint32_t value)
 {
-	VRC6SOUND *vrc6s = ((NSFNSF*)pNezPlay->nsf)->vrc6s;
+	VRC6SOUND *vrc6s = ((NSFNSF*)((NEZ_PLAY *)pNezPlay)->nsf)->vrc6s;
 	vrc6s->square[1].regs[address & 3] = (uint8_t)value;
 	vrc6s->square[1].update |= 1 << (address & 3); 
 }
-static void VRC6SoundWriteB000(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
+static void VRC6SoundWriteB000(void *pNezPlay, uint32_t address, uint32_t value)
 {
-	VRC6SOUND *vrc6s = ((NSFNSF*)pNezPlay->nsf)->vrc6s;
+	VRC6SOUND *vrc6s = ((NSFNSF*)((NEZ_PLAY *)pNezPlay)->nsf)->vrc6s;
 	vrc6s->saw.regs[address & 3] = (uint8_t)value;
 	vrc6s->saw.update |= 1 << (address & 3); 
 }
@@ -243,7 +243,7 @@ static const NEZ_NES_TERMINATE_HANDLER s_vrc6_terminate_handler[] = {
 	{ 0, NULL }, 
 };
 
-void VRC6SoundInstall(NEZ_PLAY *pNezPlay)
+PROTECTED void VRC6SoundInstall(NEZ_PLAY *pNezPlay)
 {
 	VRC6SOUND *vrc6s;
 	vrc6s = XMALLOC(sizeof(VRC6SOUND));

@@ -5,9 +5,9 @@
 extern "C" {
 #endif
 
-void MMC5MutiplierInstall(NEZ_PLAY*);
-void MMC5SoundInstall(NEZ_PLAY *);
-void MMC5ExtendRamInstall(NEZ_PLAY*);
+PROTECTED void MMC5MutiplierInstall(NEZ_PLAY*);
+PROTECTED void MMC5SoundInstall(NEZ_PLAY *);
+PROTECTED void MMC5ExtendRamInstall(NEZ_PLAY*);
 
 #ifdef __cplusplus
 }

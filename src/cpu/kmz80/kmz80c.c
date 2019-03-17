@@ -44,7 +44,7 @@ static uint32_t kmz80_fetch_im0(KMZ80_CONTEXT *context) {
 	return RTO8(op);
 }
 
-void kmz80_reset_common(KMZ80_CONTEXT *context) {
+PROTECTED void kmz80_reset_common(KMZ80_CONTEXT *context) {
 	B = C = D = E = F = H = L = A = F = IXH = IXL = IYH = IYL = 0;
 	R = R7 = I = IFF1 = IFF2 = IMODE = NMIREQ = INTREQ = HALTED = STATE = FDMG = 0;
 	M1CYCLE = 0;

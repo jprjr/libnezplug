@@ -1,5 +1,5 @@
-#ifndef M_NSF_H__
-#define M_NSF_H__
+#ifndef M_NSF_H_
+#define M_NSF_H_
 
 #include <nezplug/nezplug.h>
 #include "../normalize.h"
@@ -60,9 +60,9 @@ typedef struct NSFNSF_TAG {
 } NSFNSF;
 
 /* NSF player */
-uint32_t NSFLoad(NEZ_PLAY*, uint8_t *pData, uint32_t uSize);
-uint8_t *NSFGetHeader(NEZ_PLAY*);
-uint32_t NSFDeviceInitialize(NEZ_PLAY*);
+PROTECTED uint32_t NSFLoad(NEZ_PLAY*, uint8_t *pData, uint32_t uSize);
+PROTECTED uint8_t *NSFGetHeader(NEZ_PLAY*);
+PROTECTED uint32_t NSFDeviceInitialize(NEZ_PLAY*);
 
 #ifdef __cplusplus
 }

@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-void kmz80_reset_common(KMZ80_CONTEXT *context);
+PROTECTED void kmz80_reset_common(KMZ80_CONTEXT *context);
 
 enum {
 	ST_LOCKINT = (1 << 0),

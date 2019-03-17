@@ -965,7 +965,7 @@ static void dmg_setinst(void *ctx, uint32_t n, void *p, uint32_t l)
     (void)l;
 }
 
-KMIF_SOUND_DEVICE *DMGSoundAlloc(NEZ_PLAY *pNezPlay)
+PROTECTED KMIF_SOUND_DEVICE *DMGSoundAlloc(NEZ_PLAY *pNezPlay)
 {
 	DMGSOUND *sndp;
 	sndp = XMALLOC(sizeof(DMGSOUND));

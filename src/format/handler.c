@@ -5,7 +5,7 @@
 /*  Reset Handler  */
 /* --------------- */
 
-void NESReset(NEZ_PLAY *pNezPlay)
+PROTECTED void NESReset(NEZ_PLAY *pNezPlay)
 {
 	NEZ_NES_RESET_HANDLER *ph;
 	uint32_t prio;
@@ -13,6 +13,7 @@ void NESReset(NEZ_PLAY *pNezPlay)
 	for (prio = 0; prio < 0x10; prio++)
 		for (ph = pNezPlay->nrh[prio]; ph; ph = ph->next) ph->Proc(pNezPlay);
 }
+
 static void InstallPriorityResetHandler(NEZ_NES_RESET_HANDLER **nrh, const NEZ_NES_RESET_HANDLER *ph)
 {
 	NEZ_NES_RESET_HANDLER *nh;
@@ -36,10 +37,12 @@ static void InstallPriorityResetHandler(NEZ_NES_RESET_HANDLER **nrh, const NEZ_N
 		nrh[prio] = nh;
 	}
 }
-void NESResetHandlerInstall(NEZ_NES_RESET_HANDLER** nrh, const NEZ_NES_RESET_HANDLER *ph)
+
+PROTECTED void NESResetHandlerInstall(NEZ_NES_RESET_HANDLER** nrh, const NEZ_NES_RESET_HANDLER *ph)
 {
 	for (; ph->Proc; ph++) InstallPriorityResetHandler(nrh, ph);
 }
+
 static void NESResetHandlerInitialize(NEZ_NES_RESET_HANDLER **nrh)
 {
 	uint32_t prio;
@@ -68,14 +71,15 @@ static void NESResetHandlerTerminate(NEZ_NES_RESET_HANDLER **nrh)
 /* ------------------- */
 /*  Terminate Handler  */
 /* ------------------- */
-void NESTerminate(NEZ_PLAY *pNezPlay)
+PROTECTED void NESTerminate(NEZ_PLAY *pNezPlay)
 {
 	NEZ_NES_TERMINATE_HANDLER *ph;
 	if (!pNezPlay) return;
 	for (ph = pNezPlay->nth; ph; ph = ph->next) ph->Proc(pNezPlay);
 	NESHandlerTerminate(((NEZ_PLAY*)pNezPlay)->nrh, ((NEZ_PLAY*)pNezPlay)->nth);
 }
-void NESTerminateHandlerInstall(NEZ_NES_TERMINATE_HANDLER **nth, const NEZ_NES_TERMINATE_HANDLER *ph)
+
+PROTECTED void NESTerminateHandlerInstall(NEZ_NES_TERMINATE_HANDLER **nth, const NEZ_NES_TERMINATE_HANDLER *ph)
 {
 	/* Add to head of list*/
 	NEZ_NES_TERMINATE_HANDLER *nh;
@@ -84,6 +88,7 @@ void NESTerminateHandlerInstall(NEZ_NES_TERMINATE_HANDLER **nth, const NEZ_NES_T
 	nh->next = *nth;
 	*nth = nh;
 }
+
 static void NESTerminateHandlerInitialize(NEZ_NES_TERMINATE_HANDLER **nth)
 {
 	*nth = 0;
@@ -99,13 +104,13 @@ static void NESTerminateHandlerTerminate(NEZ_NES_TERMINATE_HANDLER **nth)
 	}
 }
 
-void NESHandlerInitialize(NEZ_NES_RESET_HANDLER** nrh, NEZ_NES_TERMINATE_HANDLER* nth)
+PROTECTED void NESHandlerInitialize(NEZ_NES_RESET_HANDLER** nrh, NEZ_NES_TERMINATE_HANDLER* nth)
 {
 	NESResetHandlerInitialize(nrh);
 	NESTerminateHandlerInitialize(&nth);
 }
 
-void NESHandlerTerminate(NEZ_NES_RESET_HANDLER** nrh, NEZ_NES_TERMINATE_HANDLER* nth)
+PROTECTED void NESHandlerTerminate(NEZ_NES_RESET_HANDLER** nrh, NEZ_NES_TERMINATE_HANDLER* nth)
 {
 	NESResetHandlerTerminate(nrh);
 	NESTerminateHandlerTerminate(&nth);

@@ -9,7 +9,9 @@ extern "C" {
 #endif
 
 PROTECTED void FDSSoundInstall(NEZ_PLAY*);
+#if 0
 PROTECTED void FDSSelect(NEZ_PLAY*, unsigned type);
+#endif
 
 #ifdef __cplusplus
 }

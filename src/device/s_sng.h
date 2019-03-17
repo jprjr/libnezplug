@@ -14,7 +14,7 @@ enum {
 	SNG_TYPE_GAMEGEAR	/* SEGA custom VDP (Stereo)    */
 };
 
-KMIF_SOUND_DEVICE *SNGSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t sng_type);
+PROTECTED KMIF_SOUND_DEVICE *SNGSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t sng_type);
 
 #ifdef __cplusplus
 }

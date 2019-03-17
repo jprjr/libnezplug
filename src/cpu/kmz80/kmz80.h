@@ -109,7 +109,9 @@ struct KMZ80_CONTEXT_TAG {
 };
 
 PROTECTED void kmz80_reset(KMZ80_CONTEXT *context);
+#if 0
 PROTECTED void kmr800_reset(KMZ80_CONTEXT *context);
+#endif
 PROTECTED void kmdmg_reset(KMZ80_CONTEXT *context);
 PROTECTED uint32_t kmz80_exec(KMZ80_CONTEXT *context, uint32_t cycle);
 

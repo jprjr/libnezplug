@@ -1095,7 +1095,7 @@ static const NEZ_NES_TERMINATE_HANDLER gbrdmg_terminate_handler[] = {
 	{ 0, NULL },
 };
 
-uint32_t GBRLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
+PROTECTED uint32_t GBRLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 {
 	uint32_t ret;
 	GBRDMG *THIS_;
@@ -1115,3 +1115,9 @@ uint32_t GBRLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	NESTerminateHandlerInstall(&pNezPlay->nth, gbrdmg_terminate_handler);
 	return ret;
 }
+
+#undef SHIFT_CPS
+#undef DMG_BASECYCLES
+#undef TEKKA_PATCH_ENABLE
+#undef MARIO2_PATCH_ENABLE
+#undef GBS2GB_EMULATION

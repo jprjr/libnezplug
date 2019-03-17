@@ -26,7 +26,7 @@ typedef struct
 	uint32_t pm_table2[1 << PMTBL_BITS];
 } KMIF_OPLTABLE;
 
-KMIF_OPLTABLE *OplTableAddRef(void);
+PROTECTED KMIF_OPLTABLE *OplTableAddRef(void);
 
 #ifdef __cplusplus
 }

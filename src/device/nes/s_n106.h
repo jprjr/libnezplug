@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-void N106SoundInstall(NEZ_PLAY *);
+PROTECTED void N106SoundInstall(NEZ_PLAY *);
 
 #ifdef __cplusplus
 }

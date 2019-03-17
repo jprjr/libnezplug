@@ -18,7 +18,8 @@ typedef struct {
 	KMIF_SOUND_DEVICE *kmif;
 } OPLLSOUND_INTF;
 
-void OPLLSetTone(NEZ_PLAY *pNezPlay, uint8_t *p, uint32_t type)
+#if 0
+PROTECTED void OPLLSetTone(NEZ_PLAY *pNezPlay, uint8_t *p, uint32_t type)
 {
 	OPLLSOUND_INTF *sndp = ((NSFNSF*)(pNezPlay)->nsf)->sndp;
 	if ((GetDwordLE(p) & 0xf0ffffff) == GetDwordLEM("ILL0"))
@@ -27,8 +28,10 @@ void OPLLSetTone(NEZ_PLAY *pNezPlay, uint8_t *p, uint32_t type)
 		XMEMCPY(sndp->usertone[type], p, 8 * 15);
 	sndp->usertone_enable[type] = 1;
 }
+#endif
 
-void VRC7SetTone(NEZ_PLAY *pNezPlay, uint8_t *p, uint32_t type)
+#if 0
+PROTECTED void VRC7SetTone(NEZ_PLAY *pNezPlay, uint8_t *p, uint32_t type)
 {
 	OPLLSOUND_INTF *sndp = ((NSFNSF*)(pNezPlay)->nsf)->sndp;
 	switch (type)
@@ -48,6 +51,7 @@ void VRC7SetTone(NEZ_PLAY *pNezPlay, uint8_t *p, uint32_t type)
 			break;
 	}
 }
+#endif
 
 static int32_t OPLLSoundRender(NEZ_PLAY *pNezPlay)
 {
@@ -102,14 +106,14 @@ static const NEZ_NES_TERMINATE_HANDLER s_opll_terminate_handler[] = {
 	{ 0, NULL }, 
 };
 
-static void OPLLSoundWriteAddr(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
+static void OPLLSoundWriteAddr(void *pNezPlay, uint32_t address, uint32_t value)
 {
     (void)address;
 	OPLLSOUND_INTF *sndp = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->sndp;
 	sndp->kmif->write(sndp->kmif->ctx, 0, value);
 }
 
-static void OPLLSoundWriteData(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
+static void OPLLSoundWriteData(void *pNezPlay, uint32_t address, uint32_t value)
 {
     (void)address;
 	OPLLSOUND_INTF *sndp = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->sndp;
@@ -124,7 +128,7 @@ static NES_WRITE_HANDLER s_vrc7_write_handler[] =
 };
 
 
-void VRC7SoundInstall(NEZ_PLAY *pNezPlay)
+PROTECTED void VRC7SoundInstall(NEZ_PLAY *pNezPlay)
 {
 	OPLLSOUND_INTF *sndp;
 	sndp = XMALLOC(sizeof(OPLLSOUND_INTF));

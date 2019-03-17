@@ -9,8 +9,8 @@ extern "C" {
 #endif
 
 #if USE_USERPOINTER
-typedef Uword (Callback *ReadHandler)(NEZ_PLAY *user, Uword adr);
-typedef void (Callback *WriteHandler)(NEZ_PLAY *user, Uword adr, Uword value);
+typedef Uword (Callback *ReadHandler)(void *user, Uword adr);
+typedef void (Callback *WriteHandler)(void *user, Uword adr, Uword value);
 #else
 typedef Uword (Callback *ReadHandler)(Uword adr);
 typedef void (Callback *WriteHandler)(Uword adr, Uword value);
@@ -65,6 +65,9 @@ enum K6502_IRQ {
 	K6502_INT	= 16
 };
 
+#ifndef External
+#define External __inline static
+#endif
 External void K6502_Exec(struct K6502_Context *pc);
 
 #if !USE_CALLBACK

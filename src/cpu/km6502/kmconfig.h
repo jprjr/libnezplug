@@ -77,9 +77,7 @@ typedef uint8_t Ubyte;			/* unsigned 8bit integer for table */
 #endif
 
 #define Callback FastCall
-#ifndef External
-#define External extern
-#endif
+
 #ifndef USE_DIRECT_ZEROPAGE
 #define USE_DIRECT_ZEROPAGE 0
 #endif

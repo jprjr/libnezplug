@@ -689,7 +689,7 @@ static const NEZ_NES_TERMINATE_HANDLER sgcseq_terminate_handler[] = {
 	{ 0, NULL },
 };
 
-uint32_t SGCLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
+PROTECTED uint32_t SGCLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 {
 	uint32_t ret;
 	SGCSEQ *THIS_;

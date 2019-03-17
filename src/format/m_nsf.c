@@ -27,55 +27,55 @@
 #define EXTSOUND_J86	(1 << 6)	/* JALECO-86 */
 
 /* RAM area */
-static uint32_t ReadRam(NEZ_PLAY *pNezPlay, uint32_t A)
+static uint32_t ReadRam(void *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->ram[A & 0x07FF];
 }
-static void WriteRam(NEZ_PLAY *pNezPlay, uint32_t A, uint32_t V)
+static void WriteRam(void *pNezPlay, uint32_t A, uint32_t V)
 {
 	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->ram[A & 0x07FF] = (uint8_t)V;
 }
 
 /* SRAM area */
-static uint32_t ReadStaticArea(NEZ_PLAY *pNezPlay, uint32_t A)
+static uint32_t ReadStaticArea(void *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->static_area[A - 0x6000];
 }
-static void WriteStaticArea(NEZ_PLAY *pNezPlay, uint32_t A, uint32_t V)
+static void WriteStaticArea(void *pNezPlay, uint32_t A, uint32_t V)
 {
 	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->static_area[A - 0x6000] = (uint8_t)V;
 }
 
 #if !NSF_MAPPER_STATIC
-static uint32_t ReadRom8000(NEZ_PLAY *pNezPlay, uint32_t A)
+static uint32_t ReadRom8000(void *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[0][A];
 }
-static uint32_t ReadRom9000(NEZ_PLAY *pNezPlay, uint32_t A)
+static uint32_t ReadRom9000(void *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[1][A];
 }
-static uint32_t ReadRomA000(NEZ_PLAY *pNezPlay, uint32_t A)
+static uint32_t ReadRomA000(void *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[2][A];
 }
-static uint32_t ReadRomB000(NEZ_PLAY *pNezPlay, uint32_t A)
+static uint32_t ReadRomB000(void *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[3][A];
 }
-static uint32_t ReadRomC000(NEZ_PLAY *pNezPlay, uint32_t A)
+static uint32_t ReadRomC000(void *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[4][A];
 }
-static uint32_t ReadRomD000(NEZ_PLAY *pNezPlay, uint32_t A)
+static uint32_t ReadRomD000(void *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[5][A];
 }
-static uint32_t ReadRomE000(NEZ_PLAY *pNezPlay, uint32_t A)
+static uint32_t ReadRomE000(void *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[6][A];
 }
-static uint32_t ReadRomF000(NEZ_PLAY *pNezPlay, uint32_t A)
+static uint32_t ReadRomF000(void *pNezPlay, uint32_t A)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[7][A];
 }
@@ -83,42 +83,42 @@ static uint32_t ReadRomF000(NEZ_PLAY *pNezPlay, uint32_t A)
 // ROMに値を書き込むのはできないはずで不正なのだが、
 // これをしないとFDS環境のNSFが動作しないのでしょうがない…
 
-static void WriteRom8000(NEZ_PLAY *pNezPlay, uint32_t A, uint32_t V)
+static void WriteRom8000(void *pNezPlay, uint32_t A, uint32_t V)
 {
 	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[0][A] = (uint8_t)V;
 }
-static void WriteRom9000(NEZ_PLAY *pNezPlay, uint32_t A, uint32_t V)
+static void WriteRom9000(void *pNezPlay, uint32_t A, uint32_t V)
 {
 	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[1][A] = (uint8_t)V;
 }
-static void WriteRomA000(NEZ_PLAY *pNezPlay, uint32_t A, uint32_t V)
+static void WriteRomA000(void *pNezPlay, uint32_t A, uint32_t V)
 {
 	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[2][A] = (uint8_t)V;
 }
-static void WriteRomB000(NEZ_PLAY *pNezPlay, uint32_t A, uint32_t V)
+static void WriteRomB000(void *pNezPlay, uint32_t A, uint32_t V)
 {
 	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[3][A] = (uint8_t)V;
 }
-static void WriteRomC000(NEZ_PLAY *pNezPlay, uint32_t A, uint32_t V)
+static void WriteRomC000(void *pNezPlay, uint32_t A, uint32_t V)
 {
 	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[4][A] = (uint8_t)V;
 }
-static void WriteRomD000(NEZ_PLAY *pNezPlay, uint32_t A, uint32_t V)
+static void WriteRomD000(void *pNezPlay, uint32_t A, uint32_t V)
 {
 	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[5][A] = (uint8_t)V;
 }
-static void WriteRomE000(NEZ_PLAY *pNezPlay, uint32_t A, uint32_t V)
+static void WriteRomE000(void *pNezPlay, uint32_t A, uint32_t V)
 {
 	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[6][A] = (uint8_t)V;
 }
-static void WriteRomF000(NEZ_PLAY *pNezPlay, uint32_t A, uint32_t V)
+static void WriteRomF000(void *pNezPlay, uint32_t A, uint32_t V)
 {
 	((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->bank[7][A] = (uint8_t)V;
 }
 #endif
 
 /* Mapper I/O */
-static void WriteMapper(NEZ_PLAY *pNezPlay, uint32_t A, uint32_t V)
+static void WriteMapper(void *pNezPlay, uint32_t A, uint32_t V)
 {
 	uint32_t bank;
 	NSFNSF *nsf = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf);
@@ -144,7 +144,7 @@ static void WriteMapper(NEZ_PLAY *pNezPlay, uint32_t A, uint32_t V)
 		XMEMSET(&nsf->static_area[(bank - 6) << 12], 0x00, 0x1000);
 }
 
-static uint32_t Read2000(NEZ_PLAY *pNezPlay, uint32_t A)
+static uint32_t Read2000(void *pNezPlay, uint32_t A)
 {
 	NSFNSF *nsf = ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf);
 	switch(A & 0x7){
@@ -223,7 +223,7 @@ static NES_WRITE_HANDLER nsf_mapper_write_handler2[] = {
 	{ 0     ,0     ,0, NULL },
 };
 
-uint8_t *NSFGetHeader(NEZ_PLAY *pNezPlay)
+PROTECTED uint8_t *NSFGetHeader(NEZ_PLAY *pNezPlay)
 {
 	return ((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->head;
 }
@@ -301,7 +301,7 @@ static uint32_t NSFMapperInitialize(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t
 	return NEZ_NESERR_NOERROR;
 }
 
-uint32_t NSFDeviceInitialize(NEZ_PLAY *pNezPlay)
+PROTECTED uint32_t NSFDeviceInitialize(NEZ_PLAY *pNezPlay)
 {
 	NSFNSF *nsf = (NSFNSF*)pNezPlay->nsf;
 	NESResetHandlerInstall(pNezPlay->nrh, nsf_mapper_reset_handler);
@@ -427,7 +427,7 @@ First ROM Bank(F000-FFFF or 7000-7FFF): %02XH"
     return NEZ_NESERR_NOERROR;
 }
 
-uint32_t NSFLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
+PROTECTED uint32_t NSFLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 {
 	uint32_t ret;
 	NSFNSF *THIS_ = (NSFNSF *)XMALLOC(sizeof(NSFNSF));

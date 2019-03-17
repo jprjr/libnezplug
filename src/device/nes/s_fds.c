@@ -22,8 +22,10 @@ PROTECTED void FDSSoundInstall(NEZ_PLAY *pNezPlay)
 	}
 }
 
+#if 0
 PROTECTED void FDSSelect(NEZ_PLAY *pNezPlay, unsigned type)
 {
 	if ((NSFNSF*)pNezPlay->nsf)
 		((NSFNSF*)pNezPlay->nsf)->fds_type = type;
 }
+#endif

@@ -696,9 +696,9 @@ static const NEZ_NES_VOLUME_HANDLER s_apu_volume_handler[] = {
 	{ 0, NULL }, 
 };
 
-static void APUSoundWrite(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
+static void APUSoundWrite(void *pNezPlay, uint32_t address, uint32_t value)
 {
-	APUSOUND *apu = ((NSFNSF*)pNezPlay->nsf)->apu;
+	APUSOUND *apu = ((NSFNSF*)((NEZ_PLAY *)pNezPlay)->nsf)->apu;
 	if (0x4000 <= address && address <= 0x4017)
 	{
 		apu->regs[address - 0x4000] = (uint8_t)value;
@@ -714,7 +714,7 @@ static void APUSoundWrite(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 					apu->square[ch].lc.clock_disable = (uint8_t)(value & 0x20);
 					apu->square[ch].ed.looping_enable = (uint8_t)(value & 0x20);
 					//クソ互換機のへんてこDuty比にするのを、ここでやる。
-					if(pNezPlay->nes_config.nes2A03type==2){
+					if(((NEZ_PLAY *)pNezPlay)->nes_config.nes2A03type==2){
 						apu->square[ch].duty = ((value >> 6) & 3)|4;
 					}else{
 						apu->square[ch].duty = (value >> 6) & 3;
@@ -807,7 +807,7 @@ static void APUSoundWrite(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
 				break;
 			case 0x400e:
 				//初代2A03では、ノイズ15段階＆短周期無しなので、それをレジスタいじりで再現。
-				if(pNezPlay->nes_config.nes2A03type==0){
+				if(((NEZ_PLAY *)pNezPlay)->nes_config.nes2A03type==0){
 					apu->noise.wl = apu_wavelength_converter_table[(value & 0x0f)==0xf ? (0xe) : (value & 0x0f)];
 					apu->noise.rngshort = 0;
 				}else{
@@ -927,9 +927,9 @@ static NES_WRITE_HANDLER s_apu_write_handler[] =
 	{ 0,      0,      0, NULL },
 };
 
-static uint32_t APUSoundRead(NEZ_PLAY *pNezPlay, uint32_t address)
+static uint32_t APUSoundRead(void *pNezPlay, uint32_t address)
 {
-	APUSOUND *apu = ((NSFNSF*)pNezPlay->nsf)->apu;
+	APUSOUND *apu = ((NSFNSF*)((NEZ_PLAY *)pNezPlay)->nsf)->apu;
 	if (0x4015 == address)
 	{
 		int key = 0;
@@ -939,9 +939,9 @@ static uint32_t APUSoundRead(NEZ_PLAY *pNezPlay, uint32_t address)
 		if (apu->noise.key && apu->noise.lc.counter) key |= 8;
 		if (apu->dpcm.length) key |= 16;
 		key |= apu->dpcm.irq_report;
-		key |= ((NSFNSF*)pNezPlay->nsf)->vsyncirq_fg;
+		key |= ((NSFNSF*)((NEZ_PLAY *)pNezPlay)->nsf)->vsyncirq_fg;
 		apu->dpcm.irq_report = 0;
-		((NSFNSF*)pNezPlay->nsf)->vsyncirq_fg = 0;
+		((NSFNSF*)((NEZ_PLAY *)pNezPlay)->nsf)->vsyncirq_fg = 0;
 		return key;
 	}
 	if (0x4000 <= address && address <= 0x4017)

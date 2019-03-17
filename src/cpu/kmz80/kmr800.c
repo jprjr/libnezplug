@@ -330,6 +330,7 @@ static const uint8_t kmr800_ct[0x510] = {
 	0,	/* 0x50F  不成立 */
 };
 
+#if 0
 static uint32_t kmr800_memread(KMZ80_CONTEXT *context, uint32_t a)
 {
 	CYCLEMEM;
@@ -340,7 +341,9 @@ static uint32_t kmr800_memread(KMZ80_CONTEXT *context, uint32_t a)
 	}
 	return context->memread(context->user, a);
 }
+#endif
 
+#if 0
 static void kmr800_memwrite(KMZ80_CONTEXT *context, uint32_t a, uint32_t d)
 {
 	CYCLEMEM;
@@ -351,7 +354,9 @@ static void kmr800_memwrite(KMZ80_CONTEXT *context, uint32_t a, uint32_t d)
 	}
 	context->memwrite(context->user, a, d);
 }
+#endif
 
+#if 0
 PROTECTED void kmr800_reset(KMZ80_CONTEXT *context) {
 	kmz80_reset_common(context);
 	EXFLAG = EXF_ICEXIST;
@@ -365,4 +370,5 @@ PROTECTED void kmr800_reset(KMZ80_CONTEXT *context) {
 	SYSMEMREAD = kmr800_memread;
 	SYSMEMWRITE = kmr800_memwrite;
 }
+#endif
 

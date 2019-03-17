@@ -1,5 +1,3 @@
-#if BUILD_HUC6280
-
 /*
 
  HuC6280 clock cycle table
@@ -8,7 +6,10 @@
  BRK(#$00)  +7 by interrupt
 
 */
-const static Ubyte cl_table[256] = {
+
+#if BUILD_HUC6280 && !defined(KM6502CT_H_HUC6280)
+#define KM6502_CT_H_HUC6280
+const static Ubyte km6280_cl_table[256] = {
 /* L 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F     H */
 	 1, 7, 3, 4, 6, 4, 6, 7, 3, 2, 2,-0, 7, 5, 7, 6, /* 0 */
 	 2, 7, 7, 4, 6, 4, 6, 7, 2, 5, 2,-0, 7, 5, 7, 6, /* 1 */
@@ -27,7 +28,7 @@ const static Ubyte cl_table[256] = {
 	 2, 7,-0,17, 4, 4, 6, 7, 2, 2, 2,-0, 5, 5, 7, 6, /* E */
 	 2, 7, 7,17, 2, 4, 6, 7, 2, 5, 3,-0,-0, 5, 7, 6, /* F */
 };
-#elif BUILD_M65C02
+#endif
 
 /*
 
@@ -38,7 +39,9 @@ const static Ubyte cl_table[256] = {
  BRK(#$00)  +7 by interrupt
 
 */
-const static Ubyte cl_table[256] = {
+#if BUILD_M65C02 && !defined(KM6502CT_H_M65C02)
+#define KM6502_CT_H_M65C02
+const static Ubyte km65c02_cl_table[256] = {
 /* L 0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F     H */
 	 0, 6,-0,-0,-0, 3, 5,-0, 3, 2, 2,-0,-0, 4, 6,-0, /* 0 */
 	 2,+5,-0,-0,-0, 4, 6,-0, 2,+4, 2,-0,-0,+4, 7,-0, /* 1 */
@@ -57,8 +60,7 @@ const static Ubyte cl_table[256] = {
 	 2, 6,-0,-0, 3, 3, 5,-0, 2, 2, 2,-0, 4, 4, 6,-0, /* E */
 	 2,+5,-0,-0,-0, 4, 6,-0, 2,+4,-0,-0,-0,+4, 7,-0, /* F */
 };
-
-#else
+#endif
 
 /*
 
@@ -69,7 +71,9 @@ const static Ubyte cl_table[256] = {
  BRK(#$00)  +7 by interrupt
 
 */
-const static Ubyte cl_table[256] = {
+#ifndef KM6502CT_H_
+#define KM6502CT_H_
+const static Ubyte km6502_cl_table[256] = {
 /* L 0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F      H */
 	 0 , 6 ,(2),(8),(3), 3 , 5 ,(5), 3 , 2 , 2 ,(2),(4), 4 , 6 ,(6), /* 0 */
 	 2 ,+5 ,(2),(8),(4), 4 , 6 ,(6), 2 ,+4 ,(2),(7),(5),+4 , 7 ,(7), /* 1 */
@@ -88,4 +92,12 @@ const static Ubyte cl_table[256] = {
 	 2 , 6 ,(2),(8), 3 , 3 , 5 ,(5), 2 , 2 , 2 ,(2), 4 , 4 , 6 ,(6), /* E */
 	 2 ,+5 ,(2),(8),(4), 4 , 6 ,(6), 2 ,+4 ,(2),(7),(5),+4 , 7 ,(7), /* F */
 };
+#endif
+
+#if BUILD_HUC6280
+#define cl_table km6280_cl_table
+#elif BUILD_M65C02
+#define cl_table km65c02_cl_table
+#else
+#define cl_table km6502_cl_table
 #endif

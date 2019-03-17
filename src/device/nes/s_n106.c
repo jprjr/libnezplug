@@ -257,18 +257,18 @@ static const NEZ_NES_VOLUME_HANDLER s_n106_volume_handler[] = {
 	{ 0, NULL }, 
 };
 
-static void N106SoundWriteAddr(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
+static void N106SoundWriteAddr(void *pNezPlay, uint32_t address, uint32_t value)
 {
     (void)address;
-	N106SOUND *n106s = ((NSFNSF*)pNezPlay->nsf)->n106s;
+	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY *)pNezPlay)->nsf)->n106s;
 	n106s->address     = (uint8_t)(value & 0x7f);
 	n106s->addressauto = (value & 0x80) ? 1 : 0;
 }
 
-static void N106SoundWriteData(NEZ_PLAY *pNezPlay, uint32_t address, uint32_t value)
+static void N106SoundWriteData(void *pNezPlay, uint32_t address, uint32_t value)
 {
     (void)address;
-	N106SOUND *n106s = ((NSFNSF*)pNezPlay->nsf)->n106s;
+	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY *)pNezPlay)->nsf)->n106s;
 	n106s->data[n106s->address] = (uint8_t)value;
 	n106s->tone[n106s->address * 2]     = LinearToLog((LOG_TABLE *)&log_table_12_8_30,((int32_t)(value & 0xf) << 2) - 0x20);
 	n106s->tone[n106s->address * 2 + 1] = LinearToLog((LOG_TABLE *)&log_table_12_8_30,((int32_t)(value >>  4) << 2) - 0x20);
@@ -342,10 +342,10 @@ static NES_WRITE_HANDLER s_n106_write_handler[] =
 	{ 0,              0,              0, NULL },
 };
 
-static uint32_t N106SoundReadData(NEZ_PLAY *pNezPlay, uint32_t address)
+static uint32_t N106SoundReadData(void *pNezPlay, uint32_t address)
 {
     (void)address;
-	N106SOUND *n106s = ((NSFNSF*)pNezPlay->nsf)->n106s;
+	N106SOUND *n106s = ((NSFNSF*)((NEZ_PLAY *)pNezPlay)->nsf)->n106s;
 	uint32_t ret = n106s->data[n106s->address];
 	if (n106s->addressauto)
 	{
@@ -404,7 +404,7 @@ static const NEZ_NES_TERMINATE_HANDLER s_n106_terminate_handler[] = {
 	{ 0, NULL }, 
 };
 
-void N106SoundInstall(NEZ_PLAY *pNezPlay)
+PROTECTED void N106SoundInstall(NEZ_PLAY *pNezPlay)
 {
 	N106SOUND *n106s;
 	n106s = XMALLOC(sizeof(N106SOUND));
