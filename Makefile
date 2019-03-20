@@ -2,7 +2,7 @@
 
 CC = cc
 AR = ar
-CFLAGS = -g0 -O2 -Wall -Wextra -Werror -Isrc/include $(CFLAGS_EXTRA)
+CFLAGS = -g0 -Os -Wall -Wextra -Werror -Isrc/include $(CFLAGS_EXTRA)
 
 LIBNEZPLUG_SRCS = src/amalg.c
 
@@ -14,7 +14,7 @@ libnezplug.a: $(LIBNEZPLUG_OBJS)
 	$(AR) rcs $@ $^
 
 libnezplug.so: $(LIBNEZPLUG_OBJS)
-	$(CC) -shared -o $@ $^
+	$(CC) -s -shared -o $@ $^
 
 clean:
 	rm -f libnezplug.a
