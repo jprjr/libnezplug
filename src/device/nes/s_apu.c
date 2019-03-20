@@ -30,8 +30,7 @@
 #define SQ_VOL_BIT 10
 #define TR_VOL ((1<<9)*4)
 #define NOISE_VOL ((1<<8)*4)
-#define DPCM_VOL ((1<<6)*4)
-#define DPCM_VOL_DOWN 455
+#define DPCM_VOL ((1<<6)*5)
 
 
 #define AMPTML_BITS 14
@@ -491,7 +490,7 @@ static int32_t NESAPUSoundTriangleRender(NESAPU_TRIANGLE *ch)
 	count++;
 
 	outputbuf = outputbuf / count;
-	return outputbuf * ch->dpcmout / DPCM_VOL_DOWN;
+	return outputbuf;
 
 }
 
@@ -550,7 +549,7 @@ static int32_t NESAPUSoundNoiseRender(NEZ_PLAY *pNezPlay, NESAPU_NOISE *ch)
 	if (ch->mute) return 0;
 
 	outputbuf = outputbuf / count;
-	return outputbuf * ch->dpcmout / DPCM_VOL_DOWN;
+	return outputbuf;
 }
 
 __inline static void NESAPUSoundDpcmRead(NEZ_PLAY *pNezPlay, NESAPU_DPCM *ch)
@@ -637,33 +636,34 @@ static int32_t NESAPUSoundDpcmRender(NEZ_PLAY *pNezPlay)
 	outputbuf += ch->output;
 	count++;
 	outputbuf /= count;
-	if (pNezPlay->nes_config.realdac) {
-		((APUSOUND*)((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->apu)->triangle.dpcmout = 
-		((APUSOUND*)((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->apu)->noise.dpcmout = 
-			DPCM_VOL_DOWN - (outputbuf / DPCM_VOL);
-	}else{
-		((APUSOUND*)((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->apu)->triangle.dpcmout = 
-		((APUSOUND*)((NSFNSF*)((NEZ_PLAY*)pNezPlay)->nsf)->apu)->noise.dpcmout = 
-			DPCM_VOL_DOWN;
-	}
 	return	outputbuf;
 #undef ch
 #undef DPCM_OUT
 }
 
+#define DAC_SQ_DOWN (1<<12)
+#define DAC_SQ_BIT 32
+#define DAC_TND_DOWN (1<<12)
+#define DAC_TND_BIT 46
 
 static int32_t APUSoundRender(NEZ_PLAY *pNezPlay)
 {
 	APUSOUND *apu = ((NSFNSF*)pNezPlay->nsf)->apu;
-	int32_t accum = 0 , sqout = 0 , tndout = 0;
+	int32_t accum = 0 , sqout = 0, tndout = 0;
 	sqout += NESAPUSoundSquareRender(&apu->square[0]) * pNezPlay->chmask[NEZ_DEV_2A03_SQ1];
 	sqout += NESAPUSoundSquareRender(&apu->square[1]) * pNezPlay->chmask[NEZ_DEV_2A03_SQ2];
 	sqout >>= 1;
+    if (pNezPlay->nes_config.realdac) {
+		sqout = sqout * (DAC_SQ_DOWN - (abs(sqout) / DAC_SQ_BIT)) / DAC_SQ_DOWN;
+    }
 	accum += sqout * apu->square[0].mastervolume / 20/*20kΩ*/;
 	tndout += NESAPUSoundDpcmRender(pNezPlay) * pNezPlay->chmask[NEZ_DEV_2A03_DPCM];
 	tndout += NESAPUSoundTriangleRender(&apu->triangle) * pNezPlay->chmask[NEZ_DEV_2A03_TR];
 	tndout += NESAPUSoundNoiseRender(pNezPlay,&apu->noise) * pNezPlay->chmask[NEZ_DEV_2A03_NOISE];
 	tndout >>= 1;
+    if (pNezPlay->nes_config.realdac) {
+		tndout = tndout * (DAC_TND_DOWN - (abs(tndout) / DAC_TND_BIT)) / DAC_TND_DOWN;
+    }
 	accum += tndout * apu->triangle.mastervolume / 12/*12kΩ*/;
 	//accum = apu->amptbl[tndout >> (26 - AMPTML_BITS)];
 	accum -= 0x60000;
