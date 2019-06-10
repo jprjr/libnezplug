@@ -183,18 +183,21 @@ EXTREADWRITE(C)
 EXTREADWRITE(D)
 EXTREADWRITE(E)
 EXTREADWRITE(F)
+
 static const READHANDLER ExtRdTbl[0x10] = {
 	ExtRd0,ExtRd1,ExtRd2,ExtRd3,
 	ExtRd4,ExtRd5,ExtRd6,ExtRd7,
 	ExtRd8,ExtRd9,ExtRdA,ExtRdB,
 	ExtRdC,ExtRdD,ExtRdE,ExtRdF,
 };
+
 static const WRITEHANDLER ExtWrTbl[0x10] = {
 	ExtWr0,ExtWr1,ExtWr2,ExtWr3,
 	ExtWr4,ExtWr5,ExtWr6,ExtWr7,
 	ExtWr8,ExtWr9,ExtWrA,ExtWrB,
 	ExtWrC,ExtWrD,ExtWrE,ExtWrF,
 };
+
 static uint32_t NullRead(void *pNezPlay, uint32_t A)
 {
     (void)pNezPlay;
@@ -335,7 +338,7 @@ static int32_t Execute6502(NEZ_PLAY *pNezPlay)
 	return 0;
 }
 
-static const NEZ_NES_AUDIO_HANDLER nsf6502_audio_handler[] = {
+static NEZ_NES_AUDIO_HANDLER nsf6502_audio_handler[] = {
 	{ 0, Execute6502, NULL, NULL },
 	{ 0, 0, NULL, NULL },
 };
@@ -407,7 +410,7 @@ static void NSF6502Reset(NEZ_PLAY *pNezPlay)
 	NSF6502PlaySetup(pNezPlay);
 }
 
-static const NEZ_NES_RESET_HANDLER nsf6502_reset_handler[] = {
+static NEZ_NES_RESET_HANDLER nsf6502_reset_handler[] = {
 	{ NES_RESET_SYS_LAST, NSF6502Reset, NULL },
 	{ 0,                  0, NULL },
 };

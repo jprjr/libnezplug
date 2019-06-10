@@ -196,6 +196,7 @@ static NES_READ_HANDLER nsf_mapper_read_handler[] = {
 #endif
 	{ 0     ,0     ,0, NULL },
 };
+
 static NES_WRITE_HANDLER nsf_mapper_write_handler[] = {
 	{ 0x0000,0x0FFF,WriteRam, NULL },
 	{ 0x1000,0x1FFF,WriteRam, NULL },
@@ -218,6 +219,7 @@ static NES_WRITE_HANDLER nsf_mapper_write_handler_fds[] = {
 	{ 0xF000,0xFFFF,WriteRomF000, NULL },
 	{ 0     ,0     ,0, NULL },
 };
+
 static NES_WRITE_HANDLER nsf_mapper_write_handler2[] = {
 	{ 0x5FF6,0x5FFF,WriteMapper, NULL },
 	{ 0     ,0     ,0, NULL },
@@ -255,7 +257,7 @@ static void ResetBank(NEZ_PLAY *pNezPlay)
 	}
 }
 
-static const NEZ_NES_RESET_HANDLER nsf_mapper_reset_handler[] = {
+static NEZ_NES_RESET_HANDLER nsf_mapper_reset_handler[] = {
 	{ NES_RESET_SYS_FIRST, ResetBank, NULL },
 	{ 0,                   0, NULL },
 };
@@ -275,7 +277,7 @@ static void Terminate(NEZ_PLAY *pNezPlay)
 	}
 }
 
-static const NEZ_NES_TERMINATE_HANDLER nsf_mapper_terminate_handler[] = {
+static NEZ_NES_TERMINATE_HANDLER nsf_mapper_terminate_handler[] = {
 	{ Terminate, NULL },
     { 0, NULL },
 };

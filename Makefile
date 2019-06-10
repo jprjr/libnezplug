@@ -2,7 +2,7 @@
 
 CC = cc
 AR = ar
-CFLAGS = -g0 -Os -Wall -Wextra -Werror -Isrc/include $(CFLAGS_EXTRA)
+CFLAGS = -g0 -Os -Wthread-safety -Wall -Wextra -Werror -Isrc/include $(CFLAGS_EXTRA)
 
 LIBNEZPLUG_SRCS = src/amalg.c
 
