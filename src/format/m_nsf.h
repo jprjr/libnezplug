@@ -57,10 +57,16 @@ typedef struct NSFNSF_TAG {
 	uint8_t counter2002;		/* 暫定 */
 	int32_t dpcmirq_ct;
 	uint8_t vsyncirq_fg;	/* $4015の6bit目を立たせるやつ */
+    NES_READ_HANDLER nsf_mapper_read_handler[14];
+    NES_WRITE_HANDLER nsf_mapper_write_handler[5];
+    NES_WRITE_HANDLER nsf_mapper_write_handler_fds[13];
+    NES_WRITE_HANDLER nsf_mapper_write_handler2[2];
+    NEZ_NES_RESET_HANDLER nsf_mapper_reset_handler[2];
+    NEZ_NES_TERMINATE_HANDLER nsf_mapper_terminate_handler[2];
 } NSFNSF;
 
 /* NSF player */
-PROTECTED uint32_t NSFLoad(NEZ_PLAY*, uint8_t *pData, uint32_t uSize);
+PROTECTED uint32_t NSFLoad(NEZ_PLAY*, const uint8_t *pData, uint32_t uSize);
 PROTECTED uint8_t *NSFGetHeader(NEZ_PLAY*);
 PROTECTED uint32_t NSFDeviceInitialize(NEZ_PLAY*);
 

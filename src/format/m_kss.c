@@ -442,7 +442,7 @@ static void kss_terminate(KSSSEQ *THIS_)
 	XFREE(THIS_);
 }
 
-static uint32_t kss_load(NEZ_PLAY *pNezPlay, KSSSEQ *THIS_, uint8_t *pData, uint32_t uSize)
+static uint32_t kss_load(NEZ_PLAY *pNezPlay, KSSSEQ *THIS_, const uint8_t *pData, uint32_t uSize)
 {
 	uint32_t i, headersize;
 	XMEMSET(THIS_, 0, sizeof(KSSSEQ));
@@ -722,7 +722,7 @@ static const NEZ_NES_TERMINATE_HANDLER kssseq_terminate_handler[] = {
 	{ 0, NULL },
 };
 
-PROTECTED uint32_t KSSLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
+PROTECTED uint32_t KSSLoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uSize)
 {
 	uint32_t ret;
 	KSSSEQ *THIS_;

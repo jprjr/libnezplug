@@ -222,7 +222,7 @@ static void NES6502Reset(NEZ_PLAY *pNezPlay)
 }
 
 
-static void InstallPageReadHandler(NEZ_PLAY *pNezPlay, NES_READ_HANDLER *ph)
+static void InstallPageReadHandler(NEZ_PLAY *pNezPlay, const NES_READ_HANDLER *ph)
 {
 	NSFNSF *nsf = (NSFNSF*)pNezPlay->nsf;
 	uint32_t page = (ph->min >> 12) & 0xF;
@@ -230,11 +230,16 @@ static void InstallPageReadHandler(NEZ_PLAY *pNezPlay, NES_READ_HANDLER *ph)
 		NES6502ReadHandlerSet(pNezPlay, page, ExtRdTbl[page]);
 	else
 		NES6502ReadHandlerSet(pNezPlay, page, ph->Proc);
+
+    NES_READ_HANDLER *nph;
+    nph = XMALLOC(sizeof(NES_READ_HANDLER));
+    XMEMCPY(nph,ph,sizeof(NES_READ_HANDLER));
+
 	/* Add to head of list*/
-	ph->next = nsf->nprh[page];
-	nsf->nprh[page] = ph;
+	nph->next = nsf->nprh[page];
+	nsf->nprh[page] = nph;
 }
-static void InstallPageWriteHandler(NEZ_PLAY *pNezPlay, NES_WRITE_HANDLER *ph)
+static void InstallPageWriteHandler(NEZ_PLAY *pNezPlay, const NES_WRITE_HANDLER *ph)
 {
 	NSFNSF *nsf = (NSFNSF*)pNezPlay->nsf;
 	uint32_t page = (ph->min >> 12) & 0xF;
@@ -242,17 +247,22 @@ static void InstallPageWriteHandler(NEZ_PLAY *pNezPlay, NES_WRITE_HANDLER *ph)
 		NES6502WriteHandlerSet(pNezPlay, page, ExtWrTbl[page]);
 	else
 		NES6502WriteHandlerSet(pNezPlay, page, ph->Proc);
+
+    NES_WRITE_HANDLER *nph;
+    nph = XMALLOC(sizeof(NES_WRITE_HANDLER));
+    XMEMCPY(nph,ph,sizeof(NES_WRITE_HANDLER));
+
 	/* Add to head of list*/
-	ph->next = nsf->npwh[page];
-	nsf->npwh[page] = ph;
+	nph->next = nsf->npwh[page];
+	nsf->npwh[page] = nph;
 }
 
-PROTECTED void NESReadHandlerInstall(NEZ_PLAY *pNezPlay, NES_READ_HANDLER *ph)
+PROTECTED void NESReadHandlerInstall(NEZ_PLAY *pNezPlay, const NES_READ_HANDLER *ph)
 {
 	for (; ph->Proc; ph++) InstallPageReadHandler(pNezPlay, ph);
 }
 
-PROTECTED void NESWriteHandlerInstall(NEZ_PLAY *pNezPlay, NES_WRITE_HANDLER *ph)
+PROTECTED void NESWriteHandlerInstall(NEZ_PLAY *pNezPlay, const NES_WRITE_HANDLER *ph)
 {
 	for (; ph->Proc; ph++) InstallPageWriteHandler(pNezPlay, ph);
 }
@@ -260,13 +270,29 @@ PROTECTED void NESWriteHandlerInstall(NEZ_PLAY *pNezPlay, NES_WRITE_HANDLER *ph)
 PROTECTED void NESMemoryHandlerInitialize(NEZ_PLAY *pNezPlay)
 {
 	NSFNSF *nsf = (NSFNSF*)pNezPlay->nsf;
+    NES_WRITE_HANDLER *cwh;
+    NES_READ_HANDLER *crh;
 	uint32_t i;
 	for (i = 0; i < 0x10;  i++)
 	{
 		NES6502ReadHandlerSet(pNezPlay, i, NullRead);
 		NES6502WriteHandlerSet(pNezPlay, i, NullWrite);
-		nsf->nprh[i] = 0;
-		nsf->npwh[i] = 0;
+
+        while(nsf->nprh[i]) {
+            crh = nsf->nprh[i];
+            nsf->nprh[i] = nsf->nprh[i]->next;
+            free(crh);
+        }
+
+        while(nsf->npwh[i]) {
+            cwh = nsf->npwh[i];
+            nsf->npwh[i] = nsf->npwh[i]->next;
+            free(cwh);
+        }
+
+		nsf->nprh[i] = NULL;
+		nsf->npwh[i] = NULL;
+
 	}
 }
 
@@ -338,7 +364,7 @@ static int32_t Execute6502(NEZ_PLAY *pNezPlay)
 	return 0;
 }
 
-static NEZ_NES_AUDIO_HANDLER nsf6502_audio_handler[] = {
+static const NEZ_NES_AUDIO_HANDLER nsf6502_audio_handler[] = {
 	{ 0, Execute6502, NULL, NULL },
 	{ 0, 0, NULL, NULL },
 };
@@ -410,7 +436,7 @@ static void NSF6502Reset(NEZ_PLAY *pNezPlay)
 	NSF6502PlaySetup(pNezPlay);
 }
 
-static NEZ_NES_RESET_HANDLER nsf6502_reset_handler[] = {
+static const NEZ_NES_RESET_HANDLER nsf6502_reset_handler[] = {
 	{ NES_RESET_SYS_LAST, NSF6502Reset, NULL },
 	{ 0,                  0, NULL },
 };
@@ -423,7 +449,7 @@ static uint32_t ReadNosefartRom(void *pNezPlay, uint32_t A)
 }
 
 
-static NES_READ_HANDLER nsf6502_read_handler[] = {
+static const NES_READ_HANDLER nsf6502_read_handler[] = {
 	{ 0x4100,0x410F,ReadNosefartRom, NULL },
 	{ 0     ,0     ,0, NULL },
 };

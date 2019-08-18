@@ -218,7 +218,7 @@ static const NEZ_NES_TERMINATE_HANDLER nsdplay_terminate_handler[] = {
 	{ 0, NULL },
 };
 
-PROTECTED uint32_t NSDPlayerInstall(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
+PROTECTED uint32_t NSDPlayerInstall(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uSize)
 {
     (void)uSize;
 	NSDSEQ *nsdplayer = pNezPlay->nsdp;
@@ -243,7 +243,7 @@ PROTECTED uint32_t NSDPlayerInstall(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t
 	return NEZ_NESERR_NOERROR;
 }
 
-PROTECTED uint32_t NSDLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
+PROTECTED uint32_t NSDLoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uSize)
 {
 	NSFNSF *nsf;
 	uint32_t ret;
@@ -281,7 +281,7 @@ PROTECTED uint32_t NSDLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	SONGINFO_SetChannel(pNezPlay->song, 1);
 	if (GetDwordLE(pData + 0x28))
 	{
-		uint8_t *src = pData + GetDwordLE(pData + 0x28);
+		const uint8_t *src = pData + GetDwordLE(pData + 0x28);
 		uint8_t *des;
 		nsf->banksw = 1;				/* bank sw on */
 		nsf->banknum = *src++;

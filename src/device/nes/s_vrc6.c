@@ -198,7 +198,7 @@ static void VRC6SoundWriteB000(void *pNezPlay, uint32_t address, uint32_t value)
 	vrc6s->saw.update |= 1 << (address & 3); 
 }
 
-static NES_WRITE_HANDLER s_vrc6_write_handler[] =
+static const NES_WRITE_HANDLER s_vrc6_write_handler[] =
 {
 	{ 0x9000, 0x9002, VRC6SoundWrite9000, NULL },
 	{ 0xA000, 0xA002, VRC6SoundWriteA000, NULL },

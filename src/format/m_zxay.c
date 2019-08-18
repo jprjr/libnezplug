@@ -337,7 +337,7 @@ static void terminate(ZXAY *THIS_)
 	XFREE(THIS_);
 }
 
-static uint32_t load(NEZ_PLAY *pNezPlay, ZXAY *THIS_, uint8_t *pData, uint32_t uSize)
+static uint32_t load(NEZ_PLAY *pNezPlay, ZXAY *THIS_, const uint8_t *pData, uint32_t uSize)
 {
 	XMEMSET(THIS_, 0, sizeof(ZXAY));
 	THIS_->sndp = THIS_->amstrad_sndp = 0;
@@ -427,7 +427,7 @@ static const NEZ_NES_TERMINATE_HANDLER zxay_terminate_handler[] = {
 	{ 0, NULL },
 };
 
-PROTECTED uint32_t ZXAYLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
+PROTECTED uint32_t ZXAYLoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uSize)
 {
 	uint32_t ret;
 	ZXAY *THIS_;

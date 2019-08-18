@@ -120,7 +120,7 @@ static void OPLLSoundWriteData(void *pNezPlay, uint32_t address, uint32_t value)
 	sndp->kmif->write(sndp->kmif->ctx, 1, value);
 }
 
-static NES_WRITE_HANDLER s_vrc7_write_handler[] =
+static const NES_WRITE_HANDLER s_vrc7_write_handler[] =
 {
 	{ 0x9010, 0x9010, OPLLSoundWriteAddr, NULL },
 	{ 0x9030, 0x9030, OPLLSoundWriteData, NULL },

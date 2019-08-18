@@ -189,7 +189,7 @@ static void FDS2SoundWrite(void *pNezPlay, uint32_t address, uint32_t value)
 	}
 }
 
-static NES_WRITE_HANDLER s_fds2_write_handler[] =
+static const NES_WRITE_HANDLER s_fds2_write_handler[] =
 {
 	{ 0x4040, 0x408F, FDS2SoundWrite, NULL },
 	{ 0,      0,      0, NULL },
@@ -205,7 +205,7 @@ static uint32_t FDS2SoundRead(void *pNezPlay, uint32_t address)
 	return 0;
 }
 
-static NES_READ_HANDLER s_fds2_read_handler[] =
+static const NES_READ_HANDLER s_fds2_read_handler[] =
 {
 	{ 0x4090, 0x409F, FDS2SoundRead, NULL },
 	{ 0,      0,      0, NULL },

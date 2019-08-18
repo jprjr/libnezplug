@@ -68,12 +68,12 @@ static void mmc5exram_write(void *pNezPlay, uint32_t address, uint32_t value)
 	((MMC5SOUND*)((NSFNSF*)((NEZ_PLAY *)pNezPlay)->nsf)->mmc5)->mmc5exram[address & 0x03FF] = (uint8_t)value;
 }
 
-static NES_READ_HANDLER mmc5exram_read_handler[] =
+static const NES_READ_HANDLER mmc5exram_read_handler[] =
 {
 	{ 0x5C00, 0x5FEF, mmc5exram_read, NULL },
 	{ 0,      0,      0, NULL },
 };
-static NES_WRITE_HANDLER mmc5exram_write_handler[] =
+static const NES_WRITE_HANDLER mmc5exram_write_handler[] =
 {
 	{ 0x5C00, 0x5FEF, mmc5exram_write, NULL },
 	{ 0,      0,      0, NULL },
@@ -109,12 +109,12 @@ static void mmc5mul_write(void *pNezPlay, uint32_t address, uint32_t value)
 	mmc5->mmc5multiplier[address] = (uint8_t)value;
 }
 
-static NES_READ_HANDLER mmc5mul_read_handler[] =
+static const NES_READ_HANDLER mmc5mul_read_handler[] =
 {
 	{ 0x5205, 0x5206, mmc5mul_read, NULL },
 	{ 0,      0,      0, NULL },
 };
-static NES_WRITE_HANDLER mmc5mul_write_handler[] =
+static const NES_WRITE_HANDLER mmc5mul_write_handler[] =
 {
 	{ 0x5205, 0x5206, mmc5mul_write, NULL },
 	{ 0,      0,      0, NULL },
@@ -340,7 +340,7 @@ static void MMC5SoundWrite(void *pNezPlay, uint32_t address, uint32_t value)
 	}
 }
 
-static NES_WRITE_HANDLER s_mmc5_write_handler[] =
+static const NES_WRITE_HANDLER s_mmc5_write_handler[] =
 {
 	{ 0x5000, 0x5015, MMC5SoundWrite, NULL },
 	{ 0,      0,      0, NULL },

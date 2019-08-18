@@ -500,7 +500,7 @@ static uint32_t hes_alloc_physical_address(HESHES *THIS_, uint32_t a, uint32_t l
 	return 1;
 }
 
-static void hes_copy_physical_address(HESHES *THIS_, uint32_t a, uint32_t l, uint8_t *p)
+static void hes_copy_physical_address(HESHES *THIS_, uint32_t a, uint32_t l, const uint8_t *p)
 {
 	uint8_t page = (uint8_t)(a >> 13);
 	uint32_t w;
@@ -522,7 +522,7 @@ static void hes_copy_physical_address(HESHES *THIS_, uint32_t a, uint32_t l, uin
 }
 
 
-static uint32_t hes_load(NEZ_PLAY *pNezPlay, HESHES *THIS_, uint8_t *pData, uint32_t uSize)
+static uint32_t hes_load(NEZ_PLAY *pNezPlay, HESHES *THIS_, const uint8_t *pData, uint32_t uSize)
 {
 	uint32_t i, p;
 	XMEMSET(THIS_, 0, sizeof(HESHES));
@@ -675,7 +675,7 @@ static const NEZ_NES_TERMINATE_HANDLER heshes_hes_terminate_handler[] = {
 	{ 0, NULL },
 };
 
-PROTECTED uint32_t HESLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
+PROTECTED uint32_t HESLoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uSize)
 {
 	uint32_t ret;
 	HESHES *THIS_;

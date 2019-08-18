@@ -162,7 +162,7 @@ uint32_t NEZGetFrequency(NEZ_PLAY *pNezPlay)
 	return NESAudioFrequencyGet(pNezPlay);
 }
 
-uint32_t NEZLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
+uint32_t NEZLoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uSize)
 {
 	uint32_t ret = NEZ_NESERR_NOERROR;
 

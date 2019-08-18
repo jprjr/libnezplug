@@ -435,7 +435,7 @@ static void sgc_terminate(SGCSEQ *THIS_)
 }
 
 
-static uint32_t sgc_load(NEZ_PLAY *pNezPlay, SGCSEQ *THIS_, uint8_t *pData, uint32_t uSize)
+static uint32_t sgc_load(NEZ_PLAY *pNezPlay, SGCSEQ *THIS_, const uint8_t *pData, uint32_t uSize)
 {
 	uint32_t i, headersize;
     uint8_t titlebuffer[0x21];
@@ -689,7 +689,7 @@ static const NEZ_NES_TERMINATE_HANDLER sgcseq_terminate_handler[] = {
 	{ 0, NULL },
 };
 
-PROTECTED uint32_t SGCLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
+PROTECTED uint32_t SGCLoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uSize)
 {
 	uint32_t ret;
 	SGCSEQ *THIS_;

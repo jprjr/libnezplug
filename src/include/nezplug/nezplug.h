@@ -204,7 +204,7 @@ struct NEZ_PLAY_ {
 NEZ_PLAY* NEZNew();
 void NEZDelete(NEZ_PLAY*);
 
-uint32_t NEZLoad(NEZ_PLAY*, uint8_t*, uint32_t);
+uint32_t NEZLoad(NEZ_PLAY*, const uint8_t *, uint32_t);
 void NEZSetSongNo(NEZ_PLAY*, uint32_t uSongNo);
 void NEZSetFrequency(NEZ_PLAY*, uint32_t freq);
 void NEZSetChannel(NEZ_PLAY*, uint32_t ch);

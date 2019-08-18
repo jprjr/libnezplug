@@ -335,7 +335,7 @@ $7f 4-6：使用チャンネル数（$7Fのみ。ほかのchでは意味なし�
 	}
 }
 
-static NES_WRITE_HANDLER s_n106_write_handler[] =
+static const NES_WRITE_HANDLER s_n106_write_handler[] =
 {
 	{ N106SOUND_DATA, N106SOUND_DATA, N106SoundWriteData, NULL },
 	{ N106SOUND_ADDR, N106SOUND_ADDR, N106SoundWriteAddr, NULL },
@@ -354,7 +354,7 @@ static uint32_t N106SoundReadData(void *pNezPlay, uint32_t address)
 	return ret;
 }
 
-static NES_READ_HANDLER s_n106_read_handler[] =
+static const NES_READ_HANDLER s_n106_read_handler[] =
 {
 	{ N106SOUND_DATA, N106SOUND_DATA, N106SoundReadData, NULL },
 	{ 0,              0,              0, NULL },

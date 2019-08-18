@@ -56,7 +56,7 @@ static void FME7PSGSoundWrireData(void *pNezPlay, uint32_t address, uint32_t val
 	psgs->psgp->write(psgs->psgp->ctx, 1, value);
 }
 
-static NES_WRITE_HANDLER s_fme7_write_handler[] =
+static const NES_WRITE_HANDLER s_fme7_write_handler[] =
 {
 	{ 0xC000, 0xC000, FME7PSGSoundWrireAddr, NULL },
 	{ 0xE000, 0xE000, FME7PSGSoundWrireData, NULL },

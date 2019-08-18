@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-PROTECTED uint32_t HESLoad(NEZ_PLAY *, uint8_t *pData, uint32_t uSize);
+PROTECTED uint32_t HESLoad(NEZ_PLAY *, const uint8_t *pData, uint32_t uSize);
 
 #ifdef __cplusplus
 }

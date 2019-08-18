@@ -26,8 +26,8 @@ typedef struct NES_WRITE_HANDLER_TAG {
 } NES_WRITE_HANDLER;
 
 PROTECTED void NESMemoryHandlerInitialize(NEZ_PLAY *);
-PROTECTED void NESReadHandlerInstall(NEZ_PLAY *, NES_READ_HANDLER *ph);
-PROTECTED void NESWriteHandlerInstall(NEZ_PLAY *, NES_WRITE_HANDLER *ph);
+PROTECTED void NESReadHandlerInstall(NEZ_PLAY *, const NES_READ_HANDLER *ph);
+PROTECTED void NESWriteHandlerInstall(NEZ_PLAY *, const NES_WRITE_HANDLER *ph);
 
 PROTECTED uint32_t NSF6502Install(NEZ_PLAY*);
 #if 0

@@ -169,7 +169,7 @@ static uint32_t Read2000(void *pNezPlay, uint32_t A)
 }
 
 
-static NES_READ_HANDLER nsf_mapper_read_handler[] = {
+static const NES_READ_HANDLER nsf_mapper_read_handler[] = {
 	{ 0x0000,0x0FFF,ReadRam, NULL },
 	{ 0x1000,0x1FFF,ReadRam, NULL },
 	{ 0x2000,0x2007,Read2000, NULL },
@@ -197,14 +197,14 @@ static NES_READ_HANDLER nsf_mapper_read_handler[] = {
 	{ 0     ,0     ,0, NULL },
 };
 
-static NES_WRITE_HANDLER nsf_mapper_write_handler[] = {
+static const NES_WRITE_HANDLER nsf_mapper_write_handler[] = {
 	{ 0x0000,0x0FFF,WriteRam, NULL },
 	{ 0x1000,0x1FFF,WriteRam, NULL },
 	{ 0x6000,0x6FFF,WriteStaticArea, NULL },
 	{ 0x7000,0x7FFF,WriteStaticArea, NULL },
 	{ 0     ,0     ,0, NULL },
 };
-static NES_WRITE_HANDLER nsf_mapper_write_handler_fds[] = {
+static const NES_WRITE_HANDLER nsf_mapper_write_handler_fds[] = {
 	{ 0x0000,0x0FFF,WriteRam, NULL },
 	{ 0x1000,0x1FFF,WriteRam, NULL },
 	{ 0x6000,0x6FFF,WriteStaticArea, NULL },
@@ -220,7 +220,7 @@ static NES_WRITE_HANDLER nsf_mapper_write_handler_fds[] = {
 	{ 0     ,0     ,0, NULL },
 };
 
-static NES_WRITE_HANDLER nsf_mapper_write_handler2[] = {
+static const NES_WRITE_HANDLER nsf_mapper_write_handler2[] = {
 	{ 0x5FF6,0x5FFF,WriteMapper, NULL },
 	{ 0     ,0     ,0, NULL },
 };
@@ -257,7 +257,7 @@ static void ResetBank(NEZ_PLAY *pNezPlay)
 	}
 }
 
-static NEZ_NES_RESET_HANDLER nsf_mapper_reset_handler[] = {
+static const NEZ_NES_RESET_HANDLER nsf_mapper_reset_handler[] = {
 	{ NES_RESET_SYS_FIRST, ResetBank, NULL },
 	{ 0,                   0, NULL },
 };
@@ -277,15 +277,15 @@ static void Terminate(NEZ_PLAY *pNezPlay)
 	}
 }
 
-static NEZ_NES_TERMINATE_HANDLER nsf_mapper_terminate_handler[] = {
+static const NEZ_NES_TERMINATE_HANDLER nsf_mapper_terminate_handler[] = {
 	{ Terminate, NULL },
     { 0, NULL },
 };
 
-static uint32_t NSFMapperInitialize(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
+static uint32_t NSFMapperInitialize(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uSize)
 {
 	uint32_t size = uSize;
-	uint8_t *data = pData;
+	const uint8_t *data = pData;
 	NSFNSF *nsf = (NSFNSF*)pNezPlay->nsf;
 
 	size += GetWordLE(nsf->head + 8) & 0x0FFF;
@@ -306,17 +306,17 @@ static uint32_t NSFMapperInitialize(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t
 PROTECTED uint32_t NSFDeviceInitialize(NEZ_PLAY *pNezPlay)
 {
 	NSFNSF *nsf = (NSFNSF*)pNezPlay->nsf;
-	NESResetHandlerInstall(pNezPlay->nrh, nsf_mapper_reset_handler);
-	NESTerminateHandlerInstall(&pNezPlay->nth, nsf_mapper_terminate_handler);
-	NESReadHandlerInstall(pNezPlay, nsf_mapper_read_handler);
+	NESResetHandlerInstall(pNezPlay->nrh, nsf->nsf_mapper_reset_handler);
+	NESTerminateHandlerInstall(&pNezPlay->nth, nsf->nsf_mapper_terminate_handler);
+	NESReadHandlerInstall(pNezPlay, nsf->nsf_mapper_read_handler);
 	//FDSのみをサポートしている場合のみ8000-DFFFも書き込み可能-
 	if(pNezPlay->song->extdevice == 4){
-		NESWriteHandlerInstall(pNezPlay, nsf_mapper_write_handler_fds);
+		NESWriteHandlerInstall(pNezPlay, nsf->nsf_mapper_write_handler_fds);
 	}else{
-		NESWriteHandlerInstall(pNezPlay, nsf_mapper_write_handler);
+		NESWriteHandlerInstall(pNezPlay, nsf->nsf_mapper_write_handler);
 	}
 
-	if (nsf->banksw) NESWriteHandlerInstall(pNezPlay, nsf_mapper_write_handler2);
+	if (nsf->banksw) NESWriteHandlerInstall(pNezPlay, nsf->nsf_mapper_write_handler2);
 
 	XMEMSET(nsf->ram, 0, 0x0800);
 	XMEMSET(nsf->static_area, 0, sizeof(nsf->static_area));
@@ -343,7 +343,7 @@ PROTECTED uint32_t NSFDeviceInitialize(NEZ_PLAY *pNezPlay)
 }
 
 
-static int32_t NSFMapperSetInfo(NEZ_PLAY *pNezPlay, uint8_t *pData)
+static int32_t NSFMapperSetInfo(NEZ_PLAY *pNezPlay, const uint8_t *pData)
 {
     uint8_t titlebuffer[0x21];
     uint8_t artistbuffer[0x21];
@@ -429,7 +429,7 @@ First ROM Bank(F000-FFFF or 7000-7FFF): %02XH"
     return NEZ_NESERR_NOERROR;
 }
 
-PROTECTED uint32_t NSFLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
+PROTECTED uint32_t NSFLoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uSize)
 {
 	uint32_t ret;
 	NSFNSF *THIS_ = (NSFNSF *)XMALLOC(sizeof(NSFNSF));
@@ -437,6 +437,14 @@ PROTECTED uint32_t NSFLoad(NEZ_PLAY *pNezPlay, uint8_t *pData, uint32_t uSize)
 	XMEMSET(THIS_, 0, sizeof(NSFNSF));
 	THIS_->fds_type = 2;
 	pNezPlay->nsf = THIS_;
+
+    XMEMCPY(THIS_->nsf_mapper_read_handler,nsf_mapper_read_handler,sizeof(nsf_mapper_read_handler));
+    XMEMCPY(THIS_->nsf_mapper_write_handler,nsf_mapper_write_handler,sizeof(nsf_mapper_write_handler));
+    XMEMCPY(THIS_->nsf_mapper_write_handler_fds,nsf_mapper_write_handler_fds,sizeof(nsf_mapper_write_handler_fds));
+    XMEMCPY(THIS_->nsf_mapper_write_handler2,nsf_mapper_write_handler2,sizeof(nsf_mapper_write_handler2));
+    XMEMCPY(THIS_->nsf_mapper_reset_handler,nsf_mapper_reset_handler,sizeof(nsf_mapper_reset_handler));
+    XMEMCPY(THIS_->nsf_mapper_terminate_handler,nsf_mapper_terminate_handler,sizeof(nsf_mapper_terminate_handler));
+
 	NESMemoryHandlerInitialize(pNezPlay);
 	ret = NSFMapperSetInfo(pNezPlay, pData);
     if (ret) return ret;
