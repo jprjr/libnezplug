@@ -662,7 +662,7 @@ static int32_t APUSoundRender(NEZ_PLAY *pNezPlay)
 	tndout += NESAPUSoundNoiseRender(pNezPlay,&apu->noise) * pNezPlay->chmask[NEZ_DEV_2A03_NOISE];
 	tndout >>= 1;
     if (pNezPlay->nes_config.realdac) {
-		tndout = tndout * (DAC_TND_DOWN - (abs(tndout) / DAC_TND_BIT)) / DAC_TND_DOWN;
+		tndout = tndout * (DAC_TND_DOWN - (abs(tndout) / DAC_TND_BIT)) / DAC_TND_DOWN;
     }
 	accum += tndout * apu->triangle.mastervolume / 12/*12kΩ*/;
 	//accum = apu->amptbl[tndout >> (26 - AMPTML_BITS)];
