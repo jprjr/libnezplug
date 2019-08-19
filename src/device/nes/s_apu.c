@@ -1,7 +1,7 @@
 #ifndef S_APU_C__
 #define S_APU_C__
 
-#include <nezplug/nezplug.h>
+#include "../../include/nezplug/nezplug.h"
 #include "../../format/audiosys.h"
 #include "../../normalize.h"
 #include "../kmsnddev.h"

@@ -1,4 +1,4 @@
-#include <nezplug/nezplug.h>
+#include "../include/nezplug/nezplug.h"
 #include "handler.h"
 #include "audiosys.h"
 #include "songinfo.h"

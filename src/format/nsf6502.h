@@ -1,7 +1,7 @@
 #ifndef NSF6502_H__
 #define NSF6502_H__
 
-#include <nezplug/nezplug.h>
+#include "../include/nezplug/nezplug.h"
 #include "handler.h"
 
 #ifdef __cplusplus

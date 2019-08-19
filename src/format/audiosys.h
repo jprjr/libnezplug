@@ -1,7 +1,7 @@
 #ifndef AUDIOSYS_H__
 #define AUDIOSYS_H__
 
-#include <nezplug/nezplug.h>
+#include "../include/nezplug/nezplug.h"
 
 #ifdef __cplusplus
 extern "C" {

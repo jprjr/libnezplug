@@ -1,7 +1,7 @@
 #ifndef S_DMG_H__
 #define S_DMG_H__
 
-#include <nezplug/nezplug.h>
+#include "../include/nezplug/nezplug.h"
 #include "kmsnddev.h"
 
 #ifdef __cplusplus

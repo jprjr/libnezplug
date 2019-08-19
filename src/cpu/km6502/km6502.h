@@ -1,7 +1,7 @@
 #ifndef KM6502_H_
 #define KM6502_H_
 
-#include <nezplug/nezplug.h>
+#include "../../include/nezplug/nezplug.h"
 #include "kmconfig.h"
 
 #ifdef __cplusplus

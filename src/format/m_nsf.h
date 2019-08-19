@@ -1,7 +1,7 @@
 #ifndef M_NSF_H_
 #define M_NSF_H_
 
-#include <nezplug/nezplug.h>
+#include "../include/nezplug/nezplug.h"
 #include "../normalize.h"
 #include "nsf6502.h"
 #include "../device/kmsnddev.h"

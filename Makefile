@@ -20,3 +20,7 @@ clean:
 	rm -f libnezplug.a
 	rm -f libnezplug.so
 	rm -f $(LIBNEZPLUG_OBJS)
+
+amalg:
+	mkdir -p dist
+	perl aux/amalgate.pl src/amalg.c > dist/nezplug.c

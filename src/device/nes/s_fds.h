@@ -1,7 +1,7 @@
 #ifndef S_FDS_H__
 #define S_FDS_H__
 
-#include <nezplug/nezplug.h>
+#include "../../include/nezplug/nezplug.h"
 #include "../../normalize.h"
 
 #ifdef __cplusplus

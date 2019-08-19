@@ -1,7 +1,7 @@
 #ifndef SONGINFO_H__
 #define SONGINFO_H__
 
-#include <nezplug/nezplug.h>
+#include "../include/nezplug/nezplug.h"
 
 #ifdef __cplusplus
 extern "C" {

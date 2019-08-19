@@ -13,7 +13,7 @@
 */
 
 #include "../kmsnddev.h"
-#include "../common/divfix.h"
+#include "../../common/divfix.h"
 #include "../nes/logtable.h"
 #include "s_opltbl.h"
 #include "s_opl.h"
