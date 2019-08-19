@@ -8,11 +8,11 @@ extern "C" {
 #endif
 
 #if USE_USERPOINTER
-typedef Uword (Callback *ReadHandler)(void *user, Uword adr);
-typedef void (Callback *WriteHandler)(void *user, Uword adr, Uword value);
+typedef Uword (Callback *KM65C02_ReadHandler)(void *user, Uword adr);
+typedef void (Callback  *KM65C02_WriteHandler)(void *user, Uword adr, Uword value);
 #else
-typedef Uword (Callback *ReadHandler)(Uword adr);
-typedef void (Callback *WriteHandler)(Uword adr, Uword value);
+typedef Uword (Callback *KM65C02_ReadHandler)(Uword adr);
+typedef void (Callback  *KM65C02_WriteHandler)(Uword adr, Uword value);
 #endif
 
 struct K65C02_Context {
@@ -32,11 +32,11 @@ struct K65C02_Context {
 #if USE_CALLBACK
 	/* pointer to callback functions */
 #if USE_INLINEMMC
-	ReadHandler ReadByte[1 << (16 - USE_INLINEMMC)];
-	WriteHandler WriteByte[1 << (16 - USE_INLINEMMC)];
+	KM65C02_ReadHandler ReadByte[1 << (16 - USE_INLINEMMC)];
+	KM65C02_WriteHandler WriteByte[1 << (16 - USE_INLINEMMC)];
 #else
-	ReadHandler ReadByte;
-	WriteHandler WriteByte;
+	KM65C02_ReadHandler ReadByte;
+	KM65C02_WriteHandler WriteByte;
 #endif
 #endif
 

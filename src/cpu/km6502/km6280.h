@@ -8,11 +8,11 @@ extern "C" {
 #endif
 
 #if USE_USERPOINTER
-typedef Uword (Callback *ReadHandler)(void *user, Uword adr);
-typedef void (Callback *WriteHandler)(void *user, Uword adr, Uword value);
+typedef Uword (Callback *KM6280_ReadHandler)(void *user, Uword adr);
+typedef void (Callback  *KM6280_WriteHandler)(void *user, Uword adr, Uword value);
 #else
-typedef Uword (Callback *ReadHandler)(Uword adr);
-typedef void (Callback *WriteHandler)(Uword adr, Uword value);
+typedef Uword (Callback *KM6280_ReadHandler)(Uword adr);
+typedef void (Callback  *KM6280_WriteHandler)(Uword adr, Uword value);
 #endif
 
 struct K6280_Context {
@@ -34,15 +34,15 @@ struct K6280_Context {
 #if USE_CALLBACK
 	/* pointer to callback functions */
 #if USE_INLINEMMC
-	ReadHandler ReadByte[1 << (16 - USE_INLINEMMC)];
-	WriteHandler WriteByte[1 << (16 - USE_INLINEMMC)];
+	KM6280_ReadHandler ReadByte[1 << (16 - USE_INLINEMMC)];
+	KM6280_WriteHandler WriteByte[1 << (16 - USE_INLINEMMC)];
 #else
-	ReadHandler ReadByte;
-	WriteHandler WriteByte;
+	KM6280_ReadHandler ReadByte;
+	KM6280_WriteHandler WriteByte;
 #endif
-	ReadHandler ReadMPR;
-	WriteHandler WriteMPR;
-	WriteHandler Write6270;
+	KM6280_ReadHandler ReadMPR;
+	KM6280_WriteHandler WriteMPR;
+	KM6280_WriteHandler Write6270;
 #endif
 
 #if USE_DIRECT_ZEROPAGE
