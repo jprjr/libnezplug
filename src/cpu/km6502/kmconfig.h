@@ -33,9 +33,6 @@
 #if defined(_MSC_VER)
 typedef uint32_t Uword;				/* (0-0xFFFF) */
 typedef uint8_t Ubyte;			/* unsigned 8bit integer for table */
-#ifndef Inline
-#define Inline __inline
-#endif
 #define CCall __cdecl
 #define FastCall __fastcall
 #define RTO16(w) ((Uword)((w) & 0xFFFF))	/* Round to 16bit integer */
@@ -43,9 +40,6 @@ typedef uint8_t Ubyte;			/* unsigned 8bit integer for table */
 #elif defined(__BORLANDC__)
 typedef uint32_t Uword;				/* (0-0xFFFF) */
 typedef uint8_t Ubyte;			/* unsigned 8bit integer for table */
-#ifndef Inline
-#define Inline __inline
-#endif
 #define CCall __cdecl
 #define FastCall
 #define RTO16(w) ((Uword)((w) & 0xFFFF))	/* Round to 16bit integer */
@@ -53,9 +47,6 @@ typedef uint8_t Ubyte;			/* unsigned 8bit integer for table */
 #elif defined(__GNUC__)
 typedef uint32_t Uword;				/* (0-0xFFFF) */
 typedef uint8_t Ubyte;			/* unsigned 8bit integer for table */
-#ifndef Inline
-#define Inline __inline__
-#endif
 #define CCall
 #define FastCall /* __attribute__((regparm(2))) */
 #define RTO16(w) ((Uword)((w) & 0xFFFF))	/* Round to 16bit integer */
@@ -63,9 +54,6 @@ typedef uint8_t Ubyte;			/* unsigned 8bit integer for table */
 #else
 typedef uint32_t Uword;				/* (0-0xFFFF) */
 typedef uint8_t Ubyte;			/* unsigned 8bit integer for table */
-#ifndef Inline
-#define Inline
-#endif
 #ifndef CCall
 #define CCall
 #endif

@@ -43,7 +43,7 @@
 #define OPt_ OP__
 #endif
 
-static void Inline K_OPEXEC(__CONTEXT)
+static Inline void K_OPEXEC(__CONTEXT)
 {
 	Uword opcode = __THIS__.lastcode = K_READNP(__THISP_ KAI_IMM(__THISP));
 	KI_ADDCLOCK(__THISP_ cl_table[opcode]);

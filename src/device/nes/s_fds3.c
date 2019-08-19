@@ -301,7 +301,7 @@ static void FDS3SoundWrite(void *pNezPlay, uint32_t address, uint32_t value)
 				if (value & 0x80){
 					pop->wg.phase = 0;
 //					pop->wg.wavptr = 0;
-				}
+				} /* fall-through */
 			case 7:
 				pop->pg.freq &= 0x000000FF;
 				pop->pg.freq |= (value & 0x0F) << 8;

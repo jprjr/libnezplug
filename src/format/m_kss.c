@@ -87,9 +87,9 @@ struct  KSSSEQ_TAG {
 	} bankmode;
 	enum
 	{
-		SYNTHMODE_SMS,
-		SYNTHMODE_MSX,
-		SYNTHMODE_MSXSTEREO
+		KSS_SYNTHMODE_SMS,
+		KSS_SYNTHMODE_MSX,
+		KSS_SYNTHMODE_MSXSTEREO
 	} synthmode;
 	uint8_t sccenable;
 	uint8_t rammode;
@@ -124,11 +124,11 @@ __inline static void kss_synth(KSSSEQ *THIS_, int32_t *d)
 	{
 		default:
 			NEVER_REACH
-		case SYNTHMODE_SMS:
+		case KSS_SYNTHMODE_SMS:
 			THIS_->sndp[SND_SNG]->synth(THIS_->sndp[SND_SNG]->ctx, d);
 			if (THIS_->sndp[SND_FMUNIT]) THIS_->sndp[SND_FMUNIT]->synth(THIS_->sndp[SND_FMUNIT]->ctx, d);
 			break;
-		case SYNTHMODE_MSX:
+		case KSS_SYNTHMODE_MSX:
 			{
 				int32_t b[2];
 				b[0] = 0;
@@ -141,7 +141,7 @@ __inline static void kss_synth(KSSSEQ *THIS_, int32_t *d)
 				if (THIS_->sndp[SND_MSXAUDIO]) THIS_->sndp[SND_MSXAUDIO]->synth(THIS_->sndp[SND_MSXAUDIO]->ctx, d);
 			}
 			break;
-		case SYNTHMODE_MSXSTEREO:
+		case KSS_SYNTHMODE_MSXSTEREO:
 			{
 				int32_t b[3];
 				b[0] = b[1] = b[2] = 0;
@@ -164,12 +164,12 @@ __inline static void kss_volume(KSSSEQ *THIS_, uint32_t v)
 	{
 		default:
 			NEVER_REACH
-		case SYNTHMODE_SMS:
+		case KSS_SYNTHMODE_SMS:
 			THIS_->sndp[SND_SNG]->volume(THIS_->sndp[SND_SNG]->ctx, v + (THIS_->vola[SND_SNG] << 4) - SND_VOLUME);
 			if (THIS_->sndp[SND_FMUNIT]) THIS_->sndp[SND_FMUNIT]->volume(THIS_->sndp[SND_FMUNIT]->ctx, v + (THIS_->vola[SND_FMUNIT] << 4) - SND_VOLUME);
 			break;
-		case SYNTHMODE_MSX:
-		case SYNTHMODE_MSXSTEREO:
+		case KSS_SYNTHMODE_MSX:
+		case KSS_SYNTHMODE_MSXSTEREO:
 			THIS_->sndp[SND_PSG]->volume(THIS_->sndp[SND_PSG]->ctx, v + (THIS_->vola[SND_PSG] << 4) - SND_VOLUME);
 			THIS_->sndp[SND_SCC]->volume(THIS_->sndp[SND_SCC]->ctx, v + (THIS_->vola[SND_SCC] << 4) - SND_VOLUME);
 			if (THIS_->sndp[SND_MSXMUSIC]) THIS_->sndp[SND_MSXMUSIC]->volume(THIS_->sndp[SND_MSXMUSIC]->ctx, v + (THIS_->vola[SND_MSXMUSIC] << 4) - SND_VOLUME);
@@ -577,7 +577,7 @@ Extra Device : %s%s%s%s%s"
 	THIS_->majutushimode = 0;
 	if (THIS_->extdevice & EXTDEVICE_SNG)
 	{
-		THIS_->synthmode = SYNTHMODE_SMS;
+		THIS_->synthmode = KSS_SYNTHMODE_SMS;
 		if (THIS_->extdevice & EXTDEVICE_GGSTEREO)
 		{
 			THIS_->sndp[SND_SNG] = SNGSoundAlloc(pNezPlay,SNG_TYPE_GAMEGEAR);
@@ -611,19 +611,19 @@ Extra Device : %s%s%s%s%s"
 			if (THIS_->extdevice & EXTDEVICE_MSXAUDIO)
 			{
 				SONGINFO_SetChannel(pNezPlay->song, 2);
-				THIS_->synthmode = SYNTHMODE_MSXSTEREO;
+				THIS_->synthmode = KSS_SYNTHMODE_MSXSTEREO;
 			}
 			else
 			{
 				SONGINFO_SetChannel(pNezPlay->song, 1);
-				THIS_->synthmode = SYNTHMODE_MSX;
+				THIS_->synthmode = KSS_SYNTHMODE_MSX;
 				THIS_->majutushimode = 1;
 			}
 		}
 		else
 		{
 			SONGINFO_SetChannel(pNezPlay->song, 1);
-			THIS_->synthmode = SYNTHMODE_MSX;
+			THIS_->synthmode = KSS_SYNTHMODE_MSX;
 		}
 		if(pNezPlay->kss_config.msx_psg_type){
 			THIS_->sndp[SND_PSG] = PSGSoundAlloc(pNezPlay,PSG_TYPE_YM2149);

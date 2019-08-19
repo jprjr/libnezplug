@@ -38,10 +38,10 @@
 #define SND_VOLUME 0x800
 
 enum{
-	SYNTHMODE_SMS,
-	SYNTHMODE_GG,
-	SYNTHMODE_CV,
-	SYNTHMODE_MAX
+	SGC_SYNTHMODE_SMS,
+	SGC_SYNTHMODE_GG,
+	SGC_SYNTHMODE_CV,
+	SGC_SYNTHMODE_MAX
 };
 
 static const char *sgc_system_name[]={
@@ -118,12 +118,12 @@ __inline static void sgc_synth(SGCSEQ *THIS_, int32_t *d)
 	{
 		default:
 			NEVER_REACH
-		case SYNTHMODE_SMS:
+		case SGC_SYNTHMODE_SMS:
 			THIS_->sndp[SND_SNG]->synth(THIS_->sndp[SND_SNG]->ctx, d);
 			THIS_->sndp[SND_FMUNIT]->synth(THIS_->sndp[SND_FMUNIT]->ctx, d);
 			break;
-		case SYNTHMODE_GG:
-		case SYNTHMODE_CV:
+		case SGC_SYNTHMODE_GG:
+		case SGC_SYNTHMODE_CV:
 			THIS_->sndp[SND_SNG]->synth(THIS_->sndp[SND_SNG]->ctx, d);
 			break;
 	}
@@ -136,12 +136,12 @@ __inline static void sgc_volume(SGCSEQ *THIS_, uint32_t v)
 	{
 		default:
 			NEVER_REACH
-		case SYNTHMODE_SMS:
+		case SGC_SYNTHMODE_SMS:
 			THIS_->sndp[SND_SNG]->volume(THIS_->sndp[SND_SNG]->ctx, v + (THIS_->vola[SND_SNG] << 4) - SND_VOLUME);
 			THIS_->sndp[SND_FMUNIT]->volume(THIS_->sndp[SND_FMUNIT]->ctx, v + (THIS_->vola[SND_FMUNIT] << 4) - SND_VOLUME);
 			break;
-		case SYNTHMODE_GG:
-		case SYNTHMODE_CV:
+		case SGC_SYNTHMODE_GG:
+		case SGC_SYNTHMODE_CV:
 			THIS_->sndp[SND_SNG]->volume(THIS_->sndp[SND_SNG]->ctx, v + (THIS_->vola[SND_SNG] << 4) - SND_VOLUME);
 			break;
 	}
@@ -182,7 +182,7 @@ static uint32_t sgc_read_event(void *ctx, uint32_t a)
 	{
 		return THIS_->bios[a];
 	}
-	else if(a>=0xfffc && THIS_->systype <= SYNTHMODE_GG)
+	else if(a>=0xfffc && THIS_->systype <= SGC_SYNTHMODE_GG)
 	{
 		return THIS_->mappernum[a&0x3];
 	}
@@ -198,7 +198,7 @@ static void sgc_write_event(void *ctx, uint32_t a, uint32_t v)
 {
 	SGCSEQ *THIS_ = ctx;
 	uint32_t page = a >> 13;
-	if (a >= 0xfffd && THIS_->systype <= SYNTHMODE_GG)
+	if (a >= 0xfffd && THIS_->systype <= SGC_SYNTHMODE_GG)
 	{
 		uint8_t b = (a & 0x3);
 		THIS_->mappernum[b] = v;
@@ -209,7 +209,7 @@ static void sgc_write_event(void *ctx, uint32_t a, uint32_t v)
 		THIS_->writemap[b*2-1] = 0;
 
 	}
-	else if (a == 0xfffc && THIS_->systype <= SYNTHMODE_GG)
+	else if (a == 0xfffc && THIS_->systype <= SGC_SYNTHMODE_GG)
 	{
 		if(v&0x8){
 			//RAM
@@ -296,8 +296,8 @@ static void sgc_reset(NEZ_PLAY *pNezPlay)
 	XMEMSET(THIS_->ram, 0, sizeof(THIS_->ram));
 	XMEMSET(THIS_->bios, 0, sizeof(THIS_->bios));
 	switch(THIS_->systype){
-	case SYNTHMODE_SMS:
-	case SYNTHMODE_GG:
+	case SGC_SYNTHMODE_SMS:
+	case SGC_SYNTHMODE_GG:
 		//0400-3FFF : ROM
 		THIS_->readmap [0] = THIS_->data + THIS_->mappernum[1] * 0x4000;
 		THIS_->writemap[0] = 0;
@@ -326,7 +326,7 @@ static void sgc_reset(NEZ_PLAY *pNezPlay)
 			THIS_->bios[i*8+2]=THIS_->rstaddr[i-1]>>8;
 		}
 		break;
-	case SYNTHMODE_CV:
+	case SGC_SYNTHMODE_CV:
 		//0000-1FFF : BIOS
 		THIS_->readmap [0] = THIS_->bios;
 		THIS_->writemap[0] = 0;
@@ -370,13 +370,13 @@ static void sgc_reset(NEZ_PLAY *pNezPlay)
 	THIS_->ctx.memread = sgc_read_event;
 	THIS_->ctx.memwrite = sgc_write_event;
 	switch(THIS_->systype){
-	case SYNTHMODE_SMS:
-	case SYNTHMODE_GG:
+	case SGC_SYNTHMODE_SMS:
+	case SGC_SYNTHMODE_GG:
 		THIS_->ctx.ioread = sgc_ioread_eventSMS;
 		THIS_->ctx.iowrite = sgc_iowrite_eventSMS;
 		THIS_->ctx.regs8[REGID_M1CYCLE] = 1;
 		break;
-	case SYNTHMODE_CV:
+	case SGC_SYNTHMODE_CV:
 		THIS_->ctx.ioread = sgc_ioread_eventCV;
 		THIS_->ctx.iowrite = sgc_iowrite_eventCV;
 		THIS_->ctx.regs8[REGID_M1CYCLE] = 1;
@@ -460,7 +460,7 @@ static uint32_t sgc_load(NEZ_PLAY *pNezPlay, SGCSEQ *THIS_, const uint8_t *pData
 		THIS_->firstse = pData[0x26];
 		THIS_->lastse = pData[0x27];
 		THIS_->systype = pData[0x28];
-		if(THIS_->systype>=SYNTHMODE_MAX)return NEZ_NESERR_PARAMETER;
+		if(THIS_->systype>=SGC_SYNTHMODE_MAX)return NEZ_NESERR_PARAMETER;
 		if(THIS_->firstse < THIS_->maxsong
 		|| THIS_->firstse > THIS_->lastse
 		|| THIS_->firstse == 0){
@@ -561,7 +561,7 @@ RAM Bank      (8000-BFFF): %d\r\n\
     XMEMCPY(pNezPlay->songinfodata.copyright,copyrightbuffer,strlen((const char *)copyrightbuffer)+1);
 
 	switch(THIS_->systype){
-	case SYNTHMODE_SMS:
+	case SGC_SYNTHMODE_SMS:
 		THIS_->sndp[SND_SNG] = SNGSoundAlloc(pNezPlay,SNG_TYPE_SEGAMKIII);
 		THIS_->sndp[SND_FMUNIT] = OPLSoundAlloc(pNezPlay,OPL_TYPE_SMSFMUNIT);
 		if (!THIS_->sndp[SND_FMUNIT]) return NEZ_NESERR_SHORTOFMEMORY;
@@ -582,7 +582,7 @@ RAM Bank      (8000-BFFF): %d\r\n\
 		XMEMCPY(THIS_->data + THIS_->loadaddr, pData + headersize, THIS_->datasize);
 
 		break;
-	case SYNTHMODE_GG:
+	case SGC_SYNTHMODE_GG:
 		THIS_->sndp[SND_SNG] = SNGSoundAlloc(pNezPlay,SNG_TYPE_GAMEGEAR);
 		SONGINFO_SetChannel(pNezPlay->song, 2);
 		THIS_->datasize = uSize - headersize;
@@ -601,7 +601,7 @@ RAM Bank      (8000-BFFF): %d\r\n\
 		XMEMCPY(THIS_->data + THIS_->loadaddr, pData + headersize, THIS_->datasize);
 
 		break;
-	case SYNTHMODE_CV:
+	case SGC_SYNTHMODE_CV:
 		THIS_->sndp[SND_SNG] = SNGSoundAlloc(pNezPlay,SNG_TYPE_SN76489AN);
 		SONGINFO_SetChannel(pNezPlay->song, 1);
 		THIS_->banknum = 4;

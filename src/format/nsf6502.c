@@ -1,4 +1,5 @@
 #include "../include/nezplug/nezplug.h"
+#include "../normalize.h"
 #include "handler.h"
 #include "audiosys.h"
 #include "nsf6502.h"
@@ -17,7 +18,9 @@
 #define USE_CALLBACK	1
 #define USE_INLINEMMC	12
 #define USE_USERPOINTER	1
-#define External __inline static
+#ifndef External
+#define External static Inline
+#endif
 
 #define SPEED_NTSC 16639
 #define SPEED_PAL 19997

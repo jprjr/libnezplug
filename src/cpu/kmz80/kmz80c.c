@@ -45,8 +45,32 @@ static uint32_t kmz80_fetch_im0(KMZ80_CONTEXT *context) {
 }
 
 PROTECTED void kmz80_reset_common(KMZ80_CONTEXT *context) {
-	B = C = D = E = F = H = L = A = F = IXH = IXL = IYH = IYL = 0;
-	R = R7 = I = IFF1 = IFF2 = IMODE = NMIREQ = INTREQ = HALTED = STATE = FDMG = 0;
+	B = 0;
+    C = 0;
+    D = 0;
+    E = 0;
+    F = 0;
+    H = 0;
+    L = 0;
+    A = 0;
+    F = 0;
+    IXH = 0;
+    IXL = 0;
+    IYH = 0;
+    IYL = 0;
+
+	R = 0;
+    R7 = 0;
+    I = 0;
+    IFF1 = 0;
+    IFF2 = 0;
+    IMODE = 0;
+    NMIREQ = 0;
+    INTREQ = 0;
+    HALTED = 0;
+    STATE = 0;
+    FDMG = 0;
+
 	M1CYCLE = 0;
 	MEMCYCLE = 3;
 	IOCYCLE = 4;
@@ -478,11 +502,11 @@ PROTECTED uint32_t kmz80_exec(KMZ80_CONTEXT *context, uint32_t cycles)
 							TFL += CF;
 						}
 					}
-					F = TFL + (FLAGTBL(TOP) & (SF | ZF | XF | YF | PF)) & (0xff - HF);
+					F = (TFL + (FLAGTBL(TOP) & (SF | ZF | XF | YF | PF))) & (0xff - HF);
 					break;
 				case OP_CPL:
 					TOP ^= 0xff;
-					F = TFL = (F & (SF | ZF | PF | CF)) + (FLAGTBL(TOP) & (XF | HF | YF | NF)) | HF;
+					F = TFL = ((F & (SF | ZF | PF | CF)) + (FLAGTBL(TOP) & (XF | HF | YF | NF))) | HF;
 					break;
 				case OP_NEG:
 					TFL = CF;
@@ -1115,7 +1139,7 @@ PROTECTED uint32_t kmz80_exec(KMZ80_CONTEXT *context, uint32_t cycles)
 					}
 					break;
 				case 4:	/* VECTOR INT for special */
-					IFF2 = IFF1 = 0;
+					IFF2 = IFF1 = 0; /* fall-through */
 				case 5:	/* VECTOR CALL for special */
 					if(INTREQ & INTMASK & 0x5){
 						//---+ [changes_rough.txt]
@@ -1154,7 +1178,7 @@ PROTECTED uint32_t kmz80_exec(KMZ80_CONTEXT *context, uint32_t cycles)
 							MEMWRITE(RTO16(SP + 1), 0x9F);
 						}
 						//---+
-					}
+					} /* fall-through */
 				case 6:	/* VECTOR JP for special */
 					{
 						uint32_t i;

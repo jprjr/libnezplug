@@ -297,6 +297,7 @@ static void gbr_write_E000(GBRDMG *THIS_, uint32_t a, uint32_t v)
 				{
 					uint32_t nextcount;
 					double cnt;
+                    nextcount = 0;
 					kmevent_gettimer(&THIS_->kme, THIS_->timer, &nextcount);
 					cnt = ((double)nextcount) / (1 << gbr_timer_clock_table[THIS_->gb_TMC & 3]);
 					THIS_->gb_TMC = (uint8_t)v;

@@ -1145,9 +1145,10 @@ __inline static void opllwritereg(OPLSOUND *sndp, uint32_t a, uint32_t v)
 			NEVER_REACH
 		case 0:
 			sndp->regs[OPLL_INST_WORK + (a & 7)] = v;
-			for(b=(sndp->regs[0xe]&0x20)?5:8;b>=0;b--){
+			for(b=(sndp->regs[0xe]&0x20)?5:8;;b--){
 				if(!(sndp->regs[0x30+b]&0xf0))
 					opllsetchtone(sndp, &sndp->ch[b], 0);
+                if(b==0) break;
 			}
 			break;
 		case 1:

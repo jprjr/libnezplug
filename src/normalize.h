@@ -6,9 +6,9 @@
 #if defined(_MSC_VER)
 #define NEVER_REACH __assume(0);
 #elif defined(__GNUC__)
-#define __inline        __attribute__((always_inline)) inline
+#define Inline        __attribute__((always_inline)) inline
 #else
-#define __inline
+#define Inline
 #endif
 
 #ifndef NEVER_REACH

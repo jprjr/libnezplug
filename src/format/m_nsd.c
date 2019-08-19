@@ -89,7 +89,7 @@ static __inline uint32_t NSDPlayStep(NEZ_PLAY *pNezPlay)
 				NES6502Write(pNezPlay, 0x5FF0 + (c & 0x0F), *nsdplayer->current++);
 				break;
 			default:
-				if ((0x00 <= c && c <= 0x15) || (0x40 <= c && c <= 0x8F))
+				if ((c <= 0x15) || (0x40 <= c && c <= 0x8F))
 				{
 					/* APU FDS */
 					NES6502Write(pNezPlay, 0x4000 + c, *nsdplayer->current++);

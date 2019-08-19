@@ -240,8 +240,8 @@ typedef struct {
 #define OPTABLENOP4 OPTABLENOP,OPTABLENOP,OPTABLENOP,OPTABLENOP
 #define OPTABLENOP16 OPTABLENOP4,OPTABLENOP4,OPTABLENOP4,OPTABLENOP4
 
-#define RTO8(d) (d & 0xff)
-#define RTO16(d) (d & 0xffff)
+#define RTO8(d) ((d) & 0xff)
+#define RTO16(d) ((d) & 0xffff)
 
 #define BC (C + (B << 8))
 #define B (context->regs8[REGID_B])

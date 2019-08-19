@@ -78,9 +78,7 @@ static int32_t FDS1SoundRender(NEZ_PLAY *pNezPlay)
 		if (vol)
 		{
 			vol += pop->sweep;
-			if (vol < 0)
-				vol = 0;
-			else if (vol > 0x3f)
+			if (vol > 0x3f)
 				vol = 0x3f;
 		}
 		pop->envout = LinearToLog((LOG_TABLE *)&log_table_12_8_30,vol);

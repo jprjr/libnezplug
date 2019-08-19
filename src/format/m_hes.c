@@ -1,4 +1,5 @@
 #include "../include/nezplug/nezplug.h"
+#include "../normalize.h"
 #include "handler.h"
 #include "audiosys.h"
 #include "songinfo.h"
@@ -24,7 +25,9 @@
 #define USE_INLINEMMC 0
 #define USE_USERPOINTER 1
 
-#define External __inline static
+#ifndef External
+#define External static Inline
+#endif
 #include "../cpu/kmz80/kmevent.h"
 #include "../cpu/km6502/km6280w.h"
 #include "../cpu/km6502/km6280m.h"
@@ -262,10 +265,10 @@ static uint32_t hes_read_io(HESHES *THIS_, uint32_t a)
 				case 0x0e://デバッグ用
 				case 0x0f://デバッグ用
 					return THIS_->hespcm->read(THIS_->hespcm->ctx, a & 0xf);
-			}
+			} /* fall-through */
 		default:
-		case 1:	/* VCE */
-		case 4:	/* PAD */
+		case 1:	/* VCE */ /* fall-through */
+		case 4:	/* PAD */ /* fall-through */
 			return 0xff;
 	}
 }

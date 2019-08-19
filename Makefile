@@ -1,8 +1,8 @@
-.PHONY: all clean amalg
+.PHONY: all clean amalg decode-all
 
 CC = cc
 AR = ar
-CFLAGS = -g -Os -Wthread-safety -Wall -Wextra -Werror -Isrc/include $(CFLAGS_EXTRA)
+CFLAGS = -g0 -Os -Wall -Wextra -Werror -Isrc/include $(CFLAGS_EXTRA)
 
 LIBNEZPLUG_SRCS = src/amalg.c
 
@@ -15,6 +15,9 @@ libnezplug.a: $(LIBNEZPLUG_OBJS)
 
 libnezplug.so: $(LIBNEZPLUG_OBJS)
 	$(CC) -shared -o $@ $^
+
+decode-all: aux/decode-all.o libnezplug.a
+	$(CC) -o $@ $^
 
 clean:
 	rm -f libnezplug.a

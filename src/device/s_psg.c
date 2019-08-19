@@ -414,6 +414,7 @@ __inline static void psg_sndwritereg(PSGSOUND *sndp, uint32_t a, uint32_t v)
 		case 0xD:
 			sndp->envelope.cycles = 0;
 			sndp->envelope.adr = psg_env_table[sndp->regs[0xd] & 0xF];
+            /* fall-through */
 		case 0xB: case 0xC:
 			sndp->envelope.regs[a - 0xB] = v;
 			break;
