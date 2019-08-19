@@ -4,3 +4,4 @@
 *.so
 *.dylib
 aux/make-tables
+/dist

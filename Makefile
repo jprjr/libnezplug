@@ -24,3 +24,5 @@ clean:
 amalg:
 	mkdir -p dist
 	perl aux/amalgate.pl src/amalg.c > dist/nezplug.c
+	cp src/include/nezplug/nezplug.h dist/nezplug.h
+	cp src/include/nezplug/pstdint.h dist/pstdint.h
