@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
             return 1;
         }
         snprintf(filename,size,"%s.track_%02d.pcm",argv[1],i);
-        fprintf(stderr,"Decoding track #%d to %s\n",i,filename);
+        fprintf(stderr,"Decoding track #%d/%d to %s\n",i,NEZGetSongMax(player),filename);
         out = fopen(filename,"wb");
         if(out == NULL) {
             fprintf(stderr,"Error opening output file %s: %s\n",
