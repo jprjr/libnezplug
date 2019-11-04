@@ -34,21 +34,46 @@ static uint8_t *slurp(char *filename, uint32_t *size) {
 
 int main(int argc, char *argv[]) {
     NEZ_PLAY *player;
-    FILE *out;
+    /* FILE *out; */
     uint8_t *data;
     uint32_t size;
-    unsigned int i;
+    uint8_t *m3uData;
+    uint32_t m3uSize;
+    /* unsigned int i; */
+    char *p;
     char *filename;
     int16_t *buffer;
-    uint32_t samples;
+    /* uint32_t samples; */
 
     if(argc < 2) {
         fprintf(stderr,"Usage: decode-all /path/to/file\n");
         fprintf(stderr,"  decodes all tracks to PCM\n");
         return 1;
     }
+
+    filename = NULL;
+    m3uData = NULL;
+    m3uSize = 0;
+
     data = slurp(argv[1],&size);
     if(data == NULL) return 1;
+
+    p = strrchr(argv[1],'.');
+    if(p) {
+        *p = 0;
+        m3uSize = snprintf(NULL,0,"%s.m3u",argv[1]);
+        filename = (char *)malloc(m3uSize + 1);
+        if(filename == NULL) {
+            free(data);
+            return 1;
+        }
+        snprintf(filename,m3uSize+1,"%s.m3u",argv[1]);
+        fprintf(stderr,"Trying to load %s\n",filename);
+        m3uData = slurp(filename, &m3uSize);
+        if(m3uData == NULL) m3uSize = 0;
+        free(filename); filename = NULL;
+    }
+
     player = NEZNew();
     if(player == NULL) {
         free(data);
@@ -60,6 +85,18 @@ int main(int argc, char *argv[]) {
         free(data);
         return 1;
     }
+    free(data);
+
+    if(m3uData) {
+        NEZLoadM3U(player,m3uData,m3uSize);
+        /*
+        fprintf(stderr,"Total tracks: %u\n",player->tracks->total);
+        if(player->tracks->title) fprintf(stderr,"title: %s\n",player->tracks->title);
+        if(player->tracks->artist) fprintf(stderr,"artist: %s\n",player->tracks->artist);
+        if(player->tracks->copyright) fprintf(stderr,"copyright: %s\n",player->tracks->copyright);
+        if(player->tracks->dumper) fprintf(stderr,"dumper: %s\n",player->tracks->dumper);
+        */
+    }
 
     NEZSetFrequency(player,48000);
     NEZSetChannel(player,2);
@@ -70,6 +107,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+#if 0
     filename = NULL;
     for(i=NEZGetSongStart(player);i<=NEZGetSongMax(player);i++) {
         size = snprintf(NULL,0,"%s.track_%02d.pcm",argv[1],i) + 1;
@@ -112,12 +150,12 @@ int main(int argc, char *argv[]) {
         fclose(out);
 
     }
+#endif
 
 
     NEZDelete(player);
     free(filename);
     free(buffer);
-    free(data);
     return 0;
 }
 

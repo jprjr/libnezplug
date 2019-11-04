@@ -10,5 +10,6 @@
 #include "format/nezplug.c"
 #include "format/m_zxay.c"
 #include "format/songinfo.c"
+#include "format/trackinfo.c"
 #include "format/m_nsf.c"
 

@@ -91,6 +91,8 @@ typedef enum{//順番を変えたら恐ろしいことになる
 #include "pstdint.h"
 
 typedef struct NEZ_SONG_INFO_ NEZ_SONG_INFO;
+typedef struct NEZ_TRACK_INFO_ NEZ_TRACK_INFO;
+typedef struct NEZ_TRACKS_ NEZ_TRACKS;
 typedef struct NEZ_NES_AUDIO_HANDLER_ NEZ_NES_AUDIO_HANDLER;
 typedef struct NEZ_NES_VOLUME_HANDLER_  NEZ_NES_VOLUME_HANDLER;
 typedef struct NEZ_NES_RESET_HANDLER_ NEZ_NES_RESET_HANDLER;
@@ -114,6 +116,25 @@ struct NEZ_SONG_INFO_
 	uint32_t playaddress;
 	uint32_t channel;
 	uint32_t initlimit;
+};
+
+struct NEZ_TRACK_INFO_ {
+    uint32_t songno;
+    int32_t fade_ms;
+    int32_t length_ms;
+    int32_t intro_ms;
+    int32_t loop_ms;
+    int32_t loops;
+    char *title;
+};
+
+struct NEZ_TRACKS_ {
+    uint32_t total;
+    char *title;
+    char *artist;
+    char *copyright; /* aka the date */
+    char *dumper;
+    NEZ_TRACK_INFO *info;
 };
 
 struct NEZ_NES_AUDIO_HANDLER_ {
@@ -141,6 +162,7 @@ struct NEZ_NES_TERMINATE_HANDLER_ {
 
 struct NEZ_PLAY_ {
 	NEZ_SONG_INFO *song;
+    NEZ_TRACKS *tracks;
 	uint32_t volume;
 	uint32_t frequency;
 	uint32_t channel;
@@ -205,6 +227,7 @@ NEZ_PLAY* NEZNew();
 void NEZDelete(NEZ_PLAY*);
 
 uint32_t NEZLoad(NEZ_PLAY*, const uint8_t *, uint32_t);
+uint32_t NEZLoadM3U(NEZ_PLAY*, const uint8_t *, uint32_t);
 void NEZSetSongNo(NEZ_PLAY*, uint32_t uSongNo);
 void NEZSetFrequency(NEZ_PLAY*, uint32_t freq);
 void NEZSetChannel(NEZ_PLAY*, uint32_t ch);

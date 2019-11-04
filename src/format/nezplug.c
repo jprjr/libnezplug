@@ -3,6 +3,7 @@
 #include "handler.h"
 #include "audiosys.h"
 #include "songinfo.h"
+#include "trackinfo.h"
 
 #include "../device/kmsnddev.h"
 #include "m_hes.h"
@@ -21,11 +22,19 @@ NEZ_PLAY* NEZNew()
 	if (pNezPlay != NULL) {
 		XMEMSET(pNezPlay, 0, sizeof(NEZ_PLAY));
         XMEMSET(pNezPlay->chmask,1,0x80);
+
 		pNezPlay->song = SONGINFO_New();
 		if (!pNezPlay->song) {
 			XFREE(pNezPlay);
-			return 0;
+			return NULL;
 		}
+
+        pNezPlay->tracks = TRACKS_New();
+        if(!pNezPlay->tracks) {
+            SONGINFO_Delete(pNezPlay->song);
+            XFREE(pNezPlay);
+            return NULL;
+        }
 
         pNezPlay->lowpass_filter_level = 8;
 
@@ -66,6 +75,7 @@ void NEZDelete(NEZ_PLAY *pNezPlay)
 		NESAudioHandlerTerminate(pNezPlay);
 		NESVolumeHandlerTerminate(pNezPlay);
 		SONGINFO_Delete(pNezPlay->song);
+        TRACKS_Delete(pNezPlay->tracks);
         if(pNezPlay->songinfodata.title != NULL) XFREE(pNezPlay->songinfodata.title);
         if(pNezPlay->songinfodata.artist != NULL) XFREE(pNezPlay->songinfodata.artist);
         if(pNezPlay->songinfodata.copyright != NULL) XFREE(pNezPlay->songinfodata.copyright);
@@ -258,6 +268,14 @@ uint32_t NEZLoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uSize)
 	}
 	NESTerminate(pNezPlay);
 	return ret;
+}
+
+uint32_t NEZLoadM3U(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uSize) {
+	if (!pNezPlay || !pData) {
+		return NEZ_NESERR_PARAMETER;
+    }
+ 
+    return TRACKS_LoadM3U(pNezPlay->tracks,pData,uSize);
 }
 
 void NEZMuteChannel(NEZ_PLAY *pNezPlay, int32_t chan)
