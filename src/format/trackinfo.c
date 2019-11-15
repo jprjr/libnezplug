@@ -317,7 +317,7 @@ static void tracks_process_line(NEZ_TRACKS *tracks, const char *data, uint32_t l
             d = p; break;
         }
     }
-    buf[i] = 0;
+    buf[i++] = 0;
 
     fprintf(stderr,"song title, i = %d\n",i);
 
@@ -464,21 +464,13 @@ PROTECTED uint8_t TRACKS_LoadM3U(NEZ_TRACKS *tracks, const uint8_t *uData, uint3
 
     printf("Track count: %d\n",tracks->total);
     for(i=0;i<tracks->total;i++) {
-        printf("Track %02d: \n"
-        "\ttitle: %s\n"
-        "\tlength: %d\n"
-        "\tintro_length: %d\n"
-        "\tloop_length: %d\n"
-        "\tplay_length: %d\n"
-        "\tfade_length: %d\n",
-            i,
-            tracks->info[i].title,
-            tracks->info[i].length_ms,
-            tracks->info[i].intro_ms,
-            tracks->info[i].loop_ms,
-            tracks->info[i].length_ms,
-            tracks->info[i].fade_ms
-            );
+        printf("Track %02d: \n",i);
+        printf("\ttitle: %s\n", tracks->info[i].title);
+        printf("\tlength: %d\n", tracks->info[i].length_ms);
+        printf("\tintro_length: %d\n", tracks->info[i].intro_ms);
+        printf("\tloop_length: %d\n", tracks->info[i].loop_ms);
+        printf("\tplay_length: %d\n", tracks->info[i].length_ms);
+        printf("\tfade_length: %d\n", tracks->info[i].fade_ms);
     }
 
     return 1;

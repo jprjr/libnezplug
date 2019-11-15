@@ -1,6 +1,7 @@
 #ifndef TRACKINFO_H
 #define TRACKINFO_H
 
+#include "../normalize.h"
 #include "../include/nezplug/nezplug.h"
 
 #ifdef __cplusplus
