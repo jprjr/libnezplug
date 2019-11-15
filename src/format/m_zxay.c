@@ -463,3 +463,8 @@ PROTECTED uint32_t ZXAYLoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t u
 	NESTerminateHandlerInstall(&pNezPlay->nth, zxay_terminate_handler);
 	return ret;
 }
+
+#undef IRQ_PATCH
+#undef SHIFT_CPS
+#undef ZX_BASECYCLES
+#undef AMSTRAD_BASECYCLES

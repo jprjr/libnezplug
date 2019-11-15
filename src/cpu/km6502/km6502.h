@@ -66,7 +66,7 @@ enum K6502_IRQ {
 };
 
 #ifndef External
-#define External static Inline
+#define External extern
 #endif
 External void K6502_Exec(struct K6502_Context *pc);
 

@@ -1,7 +1,7 @@
 #ifndef LOGTABLE_C
 #define LOGTABLE_C
 
-#include "../../normalize.h"
+#include "../normalize.h"
 #include "logtable.h"
 
 PROTECTED uint32_t LinearToLog(LOG_TABLE *tbl,int32_t l)

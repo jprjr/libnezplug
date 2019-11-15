@@ -11,8 +11,11 @@ make-tables.o: make-tables.c
 logtable.o: logtable.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-make-tables: make-tables.o logtable.o
-	$(CC) $(LDFLAGS) -o $@ $^
+opltable.o: opltable.c
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+make-tables: make-tables.o logtable.o opltable.o
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 clean:
 	rm -f make-tables.o logtable.o make-tables

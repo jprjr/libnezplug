@@ -26,8 +26,9 @@
 #define USE_USERPOINTER 1
 
 #ifndef External
-#define External static Inline
+#define External extern
 #endif
+
 #include "../cpu/kmz80/kmevent.h"
 #include "../cpu/km6502/km6280w.h"
 #include "../cpu/km6502/km6280m.h"

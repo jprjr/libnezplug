@@ -163,3 +163,4 @@ PROTECTED void kmevent_process(KMEVENT *kme, uint32_t cycles)
 		nextcount = kme->item[kme->item[0].next].count;
 	}
 }
+

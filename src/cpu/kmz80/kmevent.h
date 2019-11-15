@@ -1,16 +1,12 @@
+#ifndef KMEVENT_H_
+#define KMEVENT_H_
+
 /*
   KMxxx event timer header
   by Mamiya
 */
 
-#ifndef KMEVENT_H_
-#define KMEVENT_H_
-
 #include "kmtypes.h"
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define KMEVENT_ITEM_MAX 31 /* MAX 255 */
 
 typedef struct KMEVENT_TAG KMEVENT;
@@ -30,6 +26,10 @@ struct KMEVENT_TAG {
 	/* メンバ直接アクセス禁止 */
 	KMEVENT_ITEM item[KMEVENT_ITEM_MAX + 1];
 };
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 PROTECTED void kmevent_init(KMEVENT *kme);
 PROTECTED KMEVENT_ITEM_ID kmevent_alloc(KMEVENT *kme);

@@ -1,9 +1,10 @@
+#ifndef KMZ80I_H_
+#define KMZ80I_H_
+
 /*
   KMZ80 internal header
   by Mamiya
 */
-#ifndef KMZ80I_H_
-#define KMZ80I_H_
 
 #include "kmz80.h"
 

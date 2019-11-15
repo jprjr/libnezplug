@@ -1,6 +1,7 @@
 #ifndef HANDLER_H__
 #define HANDLER_H__
 
+#include "../normalize.h"
 #include "../include/nezplug/nezplug.h"
 
 #ifdef __cplusplus

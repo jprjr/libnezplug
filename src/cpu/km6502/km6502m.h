@@ -45,30 +45,30 @@
 
 #if USE_CALLBACK
 #if USE_INLINEMMC
-static Inline Uword K_READ(__CONTEXT_ Uword adr)
+static Uword Inline K_READ(__CONTEXT_ Uword adr)
 {
 	return __THIS__.ReadByte[adr >> USE_INLINEMMC](__THIS_USER_ adr);
 }
-static Inline void K_WRITE(__CONTEXT_ Uword adr, Uword value)
+static void Inline K_WRITE(__CONTEXT_ Uword adr, Uword value)
 {
 	__THIS__.WriteByte[adr >> USE_INLINEMMC](__THIS_USER_ adr, value);
 }
 #else
-static Inline Uword K_READ(__CONTEXT_ Uword adr)
+static Uword Inline K_READ(__CONTEXT_ Uword adr)
 {
 	return __THIS__.ReadByte(__THIS_USER_ adr);
 }
-static Inline void K_WRITE(__CONTEXT_ Uword adr, Uword value)
+static void Inline K_WRITE(__CONTEXT_ Uword adr, Uword value)
 {
 	__THIS__.WriteByte(__THIS_USER_ adr, value);
 }
 #endif
 #else
-static Inline Uword K_READ(__CONTEXT_ Uword adr)
+static Uword Inline K_READ(__CONTEXT_ Uword adr)
 {
 	return K6502_ReadByte(__THIS_USER_ adr);
 }
-static Inline void K_WRITE(__CONTEXT_ Uword adr, Uword value)
+static void Inline K_WRITE(__CONTEXT_ Uword adr, Uword value)
 {
 	K6502_WriteByte(__THIS_USER_ adr, value);
 }
@@ -82,11 +82,11 @@ static Inline void K_WRITE(__CONTEXT_ Uword adr, Uword value)
 #define K_READZP K_READ
 #define K_WRITEZP K_WRITE
 #else
-static Inline Uword K_READZP(__CONTEXT_ Uword adr)
+static Uword Inline K_READZP(__CONTEXT_ Uword adr)
 {
 	return __THIS__.zeropage[adr];
 }
-static Inline void K_WRITEZP(__CONTEXT_ Uword adr, Uword value)
+static void Inline K_WRITEZP(__CONTEXT_ Uword adr, Uword value)
 {
 	__THIS__.zeropage[adr] = value;
 }

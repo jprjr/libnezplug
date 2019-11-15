@@ -1,10 +1,3 @@
-#include "kmz80/kmz80t.c"
-#include "kmz80/kmz80c.c"
-#include "kmz80/kmdmg.c"
-#include "kmz80/kmevent.c"
-#include "kmz80/kmr800.c"
-#include "kmz80/kmz80.c"
-
 #undef A
 #undef AF
 #undef AUTOIRQCLEAR

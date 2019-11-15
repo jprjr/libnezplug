@@ -1,6 +1,3 @@
-#ifndef S_APU_C__
-#define S_APU_C__
-
 #include "../../include/nezplug/nezplug.h"
 #include "../../format/audiosys.h"
 #include "../../normalize.h"
@@ -275,7 +272,7 @@ __inline static void ApuEnvelopeDecayStep(APU_ENVELOPEDECAY *ed)
 		ed->timer--;
 }
 
-__inline void ApuSweepStep(APU_SWEEP *sw, uint32_t *wl)
+__inline static void ApuSweepStep(APU_SWEEP *sw, uint32_t *wl)
 {
 	if (sw->active && sw->shifter && --sw->timer > 7)
 	{
@@ -1091,4 +1088,3 @@ PROTECTED void APUSoundInstall(NEZ_PLAY *pNezPlay)
 #undef AMPTML_MAX
 #undef VOL_SHIFT
 
-#endif

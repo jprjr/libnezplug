@@ -19,7 +19,7 @@
 #define USE_INLINEMMC	12
 #define USE_USERPOINTER	1
 #ifndef External
-#define External static Inline
+#define External extern
 #endif
 
 #define SPEED_NTSC 16639

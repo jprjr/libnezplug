@@ -1,7 +1,7 @@
 #ifndef LOGTABLE_H_
 #define LOGTABLE_H_
 
-#include "../../normalize.h"
+#include "../normalize.h"
 
 typedef struct LOG_TABLE_ LOG_TABLE;
 struct LOG_TABLE_ {

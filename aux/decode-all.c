@@ -34,16 +34,17 @@ static uint8_t *slurp(char *filename, uint32_t *size) {
 
 int main(int argc, char *argv[]) {
     NEZ_PLAY *player;
-    /* FILE *out; */
+    FILE *out;
     uint8_t *data;
     uint32_t size;
     uint8_t *m3uData;
     uint32_t m3uSize;
-    /* unsigned int i; */
+    unsigned int i;
     char *p;
     char *filename;
     int16_t *buffer;
-    /* uint32_t samples; */
+    uint32_t samples;
+    const int channels = 2;
 
     if(argc < 2) {
         fprintf(stderr,"Usage: decode-all /path/to/file\n");
@@ -52,6 +53,7 @@ int main(int argc, char *argv[]) {
     }
 
     filename = NULL;
+    buffer = NULL;
     m3uData = NULL;
     m3uSize = 0;
 
@@ -99,22 +101,15 @@ int main(int argc, char *argv[]) {
     }
 
     NEZSetFrequency(player,48000);
-    NEZSetChannel(player,2);
-    buffer = (int16_t *)malloc(sizeof(int16_t) * NEZGetChannel(player) * 4096);
-    if(buffer == NULL) {
-        NEZDelete(player);
-        free(data);
-        return 1;
-    }
+    NEZSetChannel(player,channels);
 
-#if 0
     filename = NULL;
     for(i=NEZGetSongStart(player);i<=NEZGetSongMax(player);i++) {
         size = snprintf(NULL,0,"%s.track_%02d.pcm",argv[1],i) + 1;
         filename = realloc(filename,size);
         if(filename == NULL) {
             NEZDelete(player);
-            free(buffer);
+            if(buffer != NULL) free(buffer);
             free(data);
             return 1;
         }
@@ -126,19 +121,29 @@ int main(int argc, char *argv[]) {
               filename,
               strerror(errno));
             NEZDelete(player);
-            free(buffer);
+            if(buffer != NULL) free(buffer);
             free(data);
             return 1;
         }
         NEZSetSongNo(player,i);
         NEZReset(player);
 
+        if(buffer == NULL) {
+          fprintf(stderr,"mallocing buffer for %d samples, %d channels\n",channels * 4096, channels);
+          buffer = (int16_t *)malloc(sizeof(int16_t) * channels * 4096);
+          if(buffer == NULL) {
+              NEZDelete(player);
+              free(data);
+              return 1;
+          }
+        }
+
         /* convert 2 minutes of audio */
         samples = 0;
         while(samples < 48000 * 120) {
             NEZRender(player,buffer,4096);
-            if(fwrite(buffer,1,4096 * sizeof(int16_t) * 2,out) !=
-                4096 * sizeof(int16_t) * 2) {
+            if(fwrite(buffer,1,4096 * sizeof(int16_t) * channels,out) !=
+                4096 * sizeof(int16_t) * channels) {
                 fprintf(stderr,"Error writing data\n");
                 NEZDelete(player);
                 free(buffer);
@@ -150,7 +155,6 @@ int main(int argc, char *argv[]) {
         fclose(out);
 
     }
-#endif
 
 
     NEZDelete(player);

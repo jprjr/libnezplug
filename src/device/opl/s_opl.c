@@ -14,12 +14,11 @@
 
 #include "../kmsnddev.h"
 #include "../../common/divfix.h"
-#include "../nes/logtable.h"
-#include "s_opltbl.h"
+#include "../logtable.h"
+#include "../../logtable/log_table.h"
+#include "../../opltable/opl_table.h"
 #include "s_opl.h"
 #include "s_deltat.h"
-#include "../../logtable/log_table.h"
-#include "../../logtable/log_table_12_7_30.c"
 #include "../../common/util.h"
 
 #define PG_SHIFT 13 /* fix */
@@ -121,7 +120,7 @@ typedef struct {
 	uint32_t *amin;
 #endif
 	uint32_t tl_ofs;
-	uint32_t *sintable;
+	const uint32_t *sintable;
 
 	uint8_t modcar;	/* 1:m 0:c */
 	uint8_t fb;
@@ -175,20 +174,20 @@ typedef struct {
 	uint32_t sps;	/* step per sample */
 	uint32_t adr;
 	uint32_t adrmask;
-	uint32_t *table;
+	const uint32_t *table;
 } OPL_LFO;
 
 typedef struct {
 	KMIF_SOUND_DEVICE kmif;
 	KMIF_SOUND_DEVICE *deltatpcm;
-	KMIF_OPLTABLE *opltbl;
+	const opl_table_t *opltbl;
 	OPL_CH ch[9];
 	OPL_LFO lfo[LFO_UNIT_NUM];
 	struct OPLSOUND_COMMON_TAG {
 		uint32_t cpsp;
 		uint32_t cnt;
-		uint32_t *ar_table;
-		uint32_t *tll2logtbl;
+		const uint32_t *ar_table;
+		const uint32_t *tll2logtbl;
 #if TESTING_OPTIMIZE_AME
 		uint32_t amzero;
 #endif
@@ -1363,7 +1362,6 @@ static void opl_sndrelease(void *ctx)
 {
     OPLSOUND *sndp = (OPLSOUND *)ctx;
 	if (sndp) {
-		if (sndp->opltbl) sndp->opltbl->release(sndp->opltbl->ctx);
 		if (sndp->deltatpcm) sndp->deltatpcm->release(sndp->deltatpcm->ctx);
 		XFREE(sndp);
 	}
@@ -1412,12 +1410,7 @@ PROTECTED KMIF_SOUND_DEVICE *OPLSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t opl_type
 				break;
 		}												  //opl_romtone[1]を使う必要全然なし
 	}
-	sndp->opltbl = OplTableAddRef();
-	if (!sndp->opltbl)
-	{
-		opl_sndrelease(sndp);
-		return 0;
-	}
+	sndp->opltbl = &opl_table_i;
 	return &sndp->kmif;
 }
 
@@ -1448,3 +1441,4 @@ PROTECTED KMIF_SOUND_DEVICE *OPLSoundAlloc(NEZ_PLAY *pNezPlay, uint32_t opl_type
 #undef LOG_KEYOFF
 #undef TESTING_OPTIMIZE_AME
 #undef USE_FBBUF
+#include "../../opltable/opl_tableu.h"

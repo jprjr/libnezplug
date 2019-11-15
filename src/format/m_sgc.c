@@ -354,7 +354,9 @@ static void sgc_reset(NEZ_PLAY *pNezPlay)
 			static FILE *fp = NULL;
 			fp = fopen(pNezPlay->sgc_config.coleco_bios_path, "rb");
 			if (fp){
-				fread(THIS_->bios,0x01,0x2000,fp);
+				if(fread(THIS_->bios,0x01,0x2000,fp) <= 0) {
+                    XMEMSET(THIS_->bios,0,0x2000);
+                }
 				fclose(fp);
 			}
 		}

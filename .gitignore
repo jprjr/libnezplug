@@ -3,5 +3,10 @@
 *.dll
 *.so
 *.dylib
+*.pcm
 aux/make-tables
 /dist
+/decode-all
+/decode-all-amalg
+/benchmark
+/benchmark-amalg

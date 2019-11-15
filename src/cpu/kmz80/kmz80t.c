@@ -3,9 +3,9 @@
   by Mamiya
 */
 
-#include "kmz80i.h"
+#include "kmz80t.h"
 
-static const OPT_ITEM kmz80_ot_xx[0x100] = {
+PROTECTED_VAR const OPT_ITEM kmz80_ot_xx[0x100] = {
 /* Z80 00-3F  00?????? */
 /*     INC r  00rrr100 */
 /*     DEC r  00rrr101 */
@@ -301,7 +301,7 @@ static const OPT_ITEM kmz80_ot_xx[0x100] = {
 	OPTABLE(0,		0,		0,		OP_RST),
 };
 
-static const uint8_t kmz80_ot_cbxx[0x20] = {
+PROTECTED_VAR const uint8_t kmz80_ot_cbxx[0x20] = {
 	OP_RLC, OP_RRC, OP_RL,  OP_RR,  OP_SLA, OP_SRA, OP_SLL, OP_SRL,
 	OP_BIT, OP_BIT, OP_BIT, OP_BIT, OP_BIT, OP_BIT, OP_BIT, OP_BIT,
 	OP_RES, OP_RES, OP_RES, OP_RES, OP_RES, OP_RES, OP_RES, OP_RES,

@@ -1,9 +1,7 @@
-#ifndef S_OPLTBL_H__
-#define S_OPLTBL_H__
+#ifndef OPLTABLE_H__
+#define OPLTABLE_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <stdint.h>
 
 #define SINTBL_BITS 10
 #define AMTBL_BITS 8
@@ -12,10 +10,9 @@ extern "C" {
 #define ARTBL_BITS 7
 #define ARTBL_SHIFT 20
 #define TLLTBL_BITS 8
-typedef struct
-{
-	void *ctx;
-	void (*release)(void *ctx);
+
+typedef struct OPL_TABLE_ OPL_TABLE;
+struct OPL_TABLE_ {
 	uint32_t sin_table[4][1 << SINTBL_BITS];
 	uint32_t tll2log_table[1 << TLLTBL_BITS];
 	uint32_t ar_tablelog[1 << ARTBL_BITS];
@@ -24,12 +21,18 @@ typedef struct
 	uint32_t ar_tablepow[1 << ARTBL_BITS];
 	uint32_t am_table2[1 << AMTBL_BITS];
 	uint32_t pm_table2[1 << PMTBL_BITS];
-} KMIF_OPLTABLE;
+};
 
-PROTECTED KMIF_OPLTABLE *OplTableAddRef(void);
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+void OplTableInitialize(OPL_TABLE *tbl);
 
 #ifdef __cplusplus
 }
 #endif
+
 
 #endif /* S_OPLTBL_H__ */

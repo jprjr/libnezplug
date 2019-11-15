@@ -319,7 +319,7 @@ static void tracks_process_line(NEZ_TRACKS *tracks, const char *data, uint32_t l
     }
     buf[i++] = 0;
 
-    fprintf(stderr,"song title, i = %d\n",i);
+    /* fprintf(stderr,"song title, i = %d\n",i); */
 
     tracks->info[tracks->total - 1].title = XMALLOC(i);
     if(tracks->info[tracks->total - 1].title == NULL) return;
@@ -440,7 +440,7 @@ PROTECTED uint8_t TRACKS_LoadM3U(NEZ_TRACKS *tracks, const uint8_t *uData, uint3
     const char *d = data;
     const char *p = d;
     uint8_t offset = 0;
-    uint32_t i = 0;
+    /* uint32_t i = 0; */
 
     do {
         p = memchr(d,'\n',length - (d - data));
@@ -462,6 +462,7 @@ PROTECTED uint8_t TRACKS_LoadM3U(NEZ_TRACKS *tracks, const uint8_t *uData, uint3
         line++;
     } while(p - data < length);
 
+/*
     printf("Track count: %d\n",tracks->total);
     for(i=0;i<tracks->total;i++) {
         printf("Track %02d: \n",i);
@@ -472,6 +473,7 @@ PROTECTED uint8_t TRACKS_LoadM3U(NEZ_TRACKS *tracks, const uint8_t *uData, uint3
         printf("\tplay_length: %d\n", tracks->info[i].length_ms);
         printf("\tfade_length: %d\n", tracks->info[i].fade_ms);
     }
+    */
 
     return 1;
 }

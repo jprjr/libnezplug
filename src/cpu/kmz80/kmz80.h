@@ -1,10 +1,10 @@
+#ifndef KMZ80_H_
+#define KMZ80_H_
+
 /*
   KMZ80 common header
   by Mamiya
 */
-
-#ifndef KMZ80_H_
-#define KMZ80_H_
 
 #include "kmtypes.h"
 #include "kmevent.h"

@@ -1,10 +1,9 @@
 #include "kmsnddev.h"
 #include "../common/divfix.h"
-#include "nes/logtable.h"
+#include "logtable.h"
 #include "s_dmg.h"
 
 #include "../logtable/log_table.h"
-#include "../logtable/log_table_12_7_30.c"
 
 #define CPS_BITS 11
 #define CPFWM_BITS 4

@@ -4,6 +4,7 @@
 */
 
 #include "kmz80i.h"
+#include "kmz80t.h"
 
 static const OPT_ITEM kmz80_ot_edxx[0x100] = {
 /* ED 00-0F  0000???? */	OPTABLENOP16,

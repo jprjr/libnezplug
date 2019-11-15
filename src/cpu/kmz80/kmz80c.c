@@ -1,6 +1,3 @@
-#ifndef KMZ80C_C__
-#define KMZ80C_C__
-
 /*
   KMZ80 common(Z80/R800/DMG-CPU/HD64180)
   by Mamiya
@@ -1255,4 +1252,3 @@ PROTECTED uint32_t kmz80_exec(KMZ80_CONTEXT *context, uint32_t cycles)
 #undef M_DECODE
 
 
-#endif

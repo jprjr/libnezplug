@@ -5,12 +5,11 @@
 #include "../kmsnddev.h"
 #include "../../format/audiosys.h"
 #include "../../format/nsf6502.h"
-#include "logtable.h"
+#include "../logtable.h"
 #include "../../format/m_nsf.h"
 #include "s_fds.h"
 #include "../../common/divfix.h"
 #include "../../logtable/log_table.h"
-#include "../../logtable/log_table_12_8_30.c"
 
 #define FDS_DYNAMIC_BIAS 1
 

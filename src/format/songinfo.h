@@ -1,6 +1,7 @@
 #ifndef SONGINFO_H__
 #define SONGINFO_H__
 
+#include "../normalize.h"
 #include "../include/nezplug/nezplug.h"
 
 #ifdef __cplusplus

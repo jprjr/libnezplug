@@ -3,12 +3,11 @@
 #include "../../format/audiosys.h"
 #include "../../format/handler.h"
 #include "../../format/nsf6502.h"
-#include "logtable.h"
+#include "../logtable.h"
 #include "../../format/m_nsf.h"
 #include "s_vrc6.h"
 #include "../../common/divfix.h"
 #include "../../logtable/log_table.h"
-#include "../../logtable/log_table_12_8_30.c"
 
 #define NES_BASECYCLES (21477270)
 #define CPS_SHIFT 16

@@ -1,5 +1,4 @@
-#include "../../normalize.h"
-#include "s_opltbl.h"
+#include "opltable.h"
 
 // https://docs.google.com/Doc?docid=0Aeywjj51RsmGZGQ4a3FuOWZfMTNjcWprZjRncA&hl=en&pli=1 から取ってきた。
 // よくこんなことできるなぁ・・・
@@ -548,31 +547,10 @@ static uint32_t exptable_base[] = {
 #define AR_OFF (128 << ARTBL_SHIFT)
 #define AR_MAX (127 << ARTBL_SHIFT)
 
-
-static volatile uint32_t opl_tables_mutex = 0;
-static uint32_t opl_tables_refcount = 0;
-static KMIF_OPLTABLE *opl_tables = 0;
-
-static void OplTableRelease(void *ctx)
-{
-	++opl_tables_mutex;
-	while (opl_tables_mutex != 1)
-	{
-		XSLEEP(0);
-	}
-	opl_tables_refcount--;
-	if (!opl_tables_refcount)
-	{
-		XFREE(ctx);
-		opl_tables = 0;
-	}
-	--opl_tables_mutex;
-}
-
 #define dB2(x) ((x)*2)
 
 
-static void OplTableCalc(KMIF_OPLTABLE *tbl)
+void OplTableInitialize(OPL_TABLE *tbl)
 {
 	uint32_t u, u2, i;
 
@@ -623,38 +601,3 @@ static void OplTableCalc(KMIF_OPLTABLE *tbl)
 	tbl->ar_tablelog[0] = AR_MAX;
 }
 
-PROTECTED KMIF_OPLTABLE *OplTableAddRef()
-{
-	++opl_tables_mutex;
-	while (opl_tables_mutex != 1)
-	{
-		XSLEEP(0);
-	}
-	if (!opl_tables_refcount)
-	{
-		opl_tables = XMALLOC(sizeof(KMIF_OPLTABLE));
-		if (opl_tables)
-		{
-			opl_tables->ctx = opl_tables;
-			opl_tables->release = OplTableRelease;
-			OplTableCalc(opl_tables);
-		}
-	}
-	if (opl_tables) opl_tables_refcount++;
-	--opl_tables_mutex;
-	return opl_tables;
-}
-
-#undef AM_DEPTH1
-#undef AM_DEPTH2
-#undef PM_DEPTH1
-#undef PM_DEPTH2
-#undef LIN_BITS
-#undef LOG_BITS
-#undef LOG_LIN_BITS
-#undef LOG_KEYOFF
-#undef TLL_POW
-#undef DB0375_TO_LOG
-#undef AR_OFF
-#undef AR_MAX
-#undef dB2

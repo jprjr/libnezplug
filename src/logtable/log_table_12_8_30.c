@@ -1,7 +1,9 @@
 #ifndef LOG_TABLE_12_8_30_C
 #define LOG_TABLE_12_8_30_C
 
-static const log_table_12_8_30_t log_table_12_8_30_i = {
+#include "../normalize.h"
+#include "log_table.h"
+PROTECTED_VAR const log_table_12_8_30_t log_table_12_8_30_i = {
   .lineartbl = {
     122880,
     65536,
@@ -4361,7 +4363,7 @@ static const log_table_12_8_30_t log_table_12_8_30_i = {
   }
 };
 
-static const LOG_TABLE log_table_12_8_30 = {
+PROTECTED_VAR const LOG_TABLE log_table_12_8_30 = {
   .log_bits = 12,
   .lin_bits = 8,
   .log_lin_bits = 30,

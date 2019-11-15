@@ -1,10 +1,9 @@
 #include "kmsnddev.h"
 #include "../common/divfix.h"
-#include "nes/logtable.h"
+#include "logtable.h"
 #include "s_psg.h"
 
 #include "../logtable/log_table.h"
-#include "../logtable/log_table_12_7_30.c"
 
 #define DCFIX 0/*8*/
 #define ANAEX 0

@@ -3,16 +3,20 @@
 
 #include "include/nezplug/pstdint.h"
 
-#if defined(_MSC_VER)
-#define NEVER_REACH __assume(0);
-#elif defined(__GNUC__)
+#ifndef Inline
+#ifdef __GNUC__
 #define Inline        __attribute__((always_inline)) inline
 #else
 #define Inline
 #endif
+#endif
 
 #ifndef NEVER_REACH
+#ifdef _MSC_VER
+#define NEVER_REACH __assume(0);
+#else
 #define NEVER_REACH
+#endif
 #endif
 
 #include <stdlib.h>
@@ -32,10 +36,13 @@
 #define XMEMCPY(d,s,n)    memcpy(d,s,n)
 #define XMEMSET(d,c,n)    memset(d,c,n)
 
-#ifdef DO_AMALGATION
-#define PROTECTED static
-#else
-#define PROTECTED
+#ifndef PROTECTED
+#define PROTECTED extern
 #endif
+
+#ifndef PROTECTED_VAR
+#define PROTECTED_VAR
+#endif
+
 
 #endif /* NORMALIZE_H__ */

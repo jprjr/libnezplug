@@ -1,9 +1,8 @@
 #include "../kmsnddev.h"
 #include "../../common/divfix.h"
-#include "../nes/logtable.h"
+#include "../logtable.h"
 #include "s_deltat.h"
 #include "../../logtable/log_table.h"
-#include "../../logtable/log_table_12_7_30.c"
 
 #define CPS_SHIFT 16
 #define PHASE_SHIFT 16 /* 16(fix) */
