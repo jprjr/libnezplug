@@ -181,7 +181,7 @@ static int32_t parse_timestamp(const char *buf) {
         b++;
     }
     r += c;
-    return r * 1000;
+    return r;
 }
 
 static int32_t parse_tracknum(const char *buf) {
@@ -237,7 +237,7 @@ static const char *find_comma(const char *data, uint32_t length) {
     return p;
 }
 
-static void tracks_process_line(NEZ_TRACKS *tracks, const char *data, uint32_t length) {
+static uint8_t tracks_process_line(NEZ_TRACKS *tracks, const char *data, uint32_t length) {
     uint32_t i = 0;
     int32_t temp = 0;
     const char *p = data;
@@ -247,11 +247,11 @@ static void tracks_process_line(NEZ_TRACKS *tracks, const char *data, uint32_t l
 
     if(*p == '#') {
         parse_comment(tracks,d,length);
-        return;
+        return 0;
     }
 
     if(length == 0) {
-        return;
+        return 0;
     }
 
     /* filename::gbs */
@@ -269,7 +269,7 @@ static void tracks_process_line(NEZ_TRACKS *tracks, const char *data, uint32_t l
     buf[i] = 0;
 
     if(p - data == length) {
-        return;
+        return 0;
     }
     d = p+1;
 
@@ -289,23 +289,23 @@ static void tracks_process_line(NEZ_TRACKS *tracks, const char *data, uint32_t l
     buf[i] = 0;
 
     temp = parse_tracknum(buf);
-    if(temp == -1) return;
+    if(temp == -1) return 0;
 
     /* this is the bare minimum needed to add a trackinfo */
     tracks->total++;
     tracks->info = XREALLOC(tracks->info, sizeof(NEZ_TRACK_INFO) * tracks->total);
-    if(tracks->info == NULL) return;
+    if(tracks->info == NULL) return 0;
 
     tracks->info[tracks->total - 1].songno = (uint32_t)temp;
     tracks->info[tracks->total - 1].title = NULL;
-    tracks->info[tracks->total - 1].fade_ms = -1;
-    tracks->info[tracks->total - 1].length_ms = -1;
-    tracks->info[tracks->total - 1].intro_ms = -1;
-    tracks->info[tracks->total - 1].loop_ms = -1;
+    tracks->info[tracks->total - 1].length = -1;
+    tracks->info[tracks->total - 1].fade = -1;
+    tracks->info[tracks->total - 1].intro = -1;
+    tracks->info[tracks->total - 1].loop = -1;
     tracks->info[tracks->total - 1].loops = -1;
 
     if(p - data == length) {
-        return;
+        return 1;
     }
     d = p+1;
 
@@ -324,13 +324,11 @@ static void tracks_process_line(NEZ_TRACKS *tracks, const char *data, uint32_t l
     }
     buf[i++] = 0;
 
-    /* fprintf(stderr,"song title, i = %d\n",i); */
-
     tracks->info[tracks->total - 1].title = XMALLOC(i);
-    if(tracks->info[tracks->total - 1].title == NULL) return;
+    if(tracks->info[tracks->total - 1].title == NULL) return 1;
     XMEMCPY(tracks->info[tracks->total - 1].title,buf,i);
     if(p - data == length) {
-        return;
+        return 1;
     }
     d = p+1;
 
@@ -349,10 +347,10 @@ static void tracks_process_line(NEZ_TRACKS *tracks, const char *data, uint32_t l
     }
     buf[i] = 0;
     temp = parse_timestamp(buf);
-    tracks->info[tracks->total - 1].length_ms = temp;
+    tracks->info[tracks->total - 1].length = temp;
 
     if(p - data == length) {
-        return;
+        return 1;
     }
     d = p+1;
 
@@ -372,26 +370,26 @@ static void tracks_process_line(NEZ_TRACKS *tracks, const char *data, uint32_t l
     buf[i] = 0;
 
     if(buf[0] == '-') {
-        tracks->info[tracks->total - 1].loop_ms =
-          tracks->info[tracks->total - 1].length_ms;
+        tracks->info[tracks->total - 1].loop =
+          tracks->info[tracks->total - 1].length;
     }
     else {
         temp = parse_timestamp(buf);
         if(temp != -1) {
             if(buf[i-1] == '-') {
-                tracks->info[tracks->total - 1].intro_ms = temp;
-                tracks->info[tracks->total - 1].loop_ms = tracks->info[tracks->total - 1].length_ms - tracks->info[tracks->total - 1].length_ms;
+                tracks->info[tracks->total - 1].intro = temp;
+                tracks->info[tracks->total - 1].loop = tracks->info[tracks->total - 1].length - tracks->info[tracks->total - 1].length;
             }
             else {
-                tracks->info[tracks->total - 1].loop_ms = temp;
-                tracks->info[tracks->total - 1].intro_ms = tracks->info[tracks->total - 1].length_ms - tracks->info[tracks->total - 1].loop_ms;
+                tracks->info[tracks->total - 1].loop = temp;
+                tracks->info[tracks->total - 1].intro = tracks->info[tracks->total - 1].length - tracks->info[tracks->total - 1].loop;
 
             }
         }
     }
 
     if(p - data == length) {
-        return;
+        return 1;
     }
     d = p+1;
 
@@ -410,9 +408,9 @@ static void tracks_process_line(NEZ_TRACKS *tracks, const char *data, uint32_t l
     }
     buf[i] = 0;
     temp = parse_timestamp(buf);
-    tracks->info[tracks->total - 1].fade_ms = temp;
+    tracks->info[tracks->total - 1].fade = temp;
     if(p - data == length) {
-        return;
+        return 1;
     }
     d = p+1;
 
@@ -430,10 +428,9 @@ static void tracks_process_line(NEZ_TRACKS *tracks, const char *data, uint32_t l
         }
     }
     buf[i] = 0;
-    if(p - data == length) {
-        return;
-    }
-    d = p+1;
+    temp = parse_tracknum(buf);
+    tracks->info[tracks->total - 1].loops = temp;
+    return 1;
 
 }
 
@@ -461,24 +458,38 @@ PROTECTED uint8_t TRACKS_LoadM3U(NEZ_TRACKS *tracks, const uint8_t *uData, uint3
             }
         }
 
-        tracks_process_line(tracks,d,p - d - offset);
+        if(tracks_process_line(tracks,d,p - d - offset)) {
+            /* new trackinfo line added, post-process */
+            if(tracks->info[tracks->total - 1].loops == -1) {
+              tracks->info[tracks->total - 1].loops = 2;
+            }
+
+            if(tracks->info[tracks->total - 1].length == -1) {
+              if(tracks->info[tracks->total - 1].loop != -1) {
+                tracks->info[tracks->total - 1].total =
+                  (tracks->info[tracks->total - 1].loop *
+                  tracks->info[tracks->total - 1].loops) +
+                  (tracks->info[tracks->total - 1].intro == -1 ?
+                    0 : tracks->info[tracks->total - 1].intro) +
+                  (tracks->info[tracks->total - 1].fade == -1 ?
+                    0 : tracks->info[tracks->total - 1].fade);
+              }
+            }
+            else {
+              tracks->info[tracks->total - 1].total =
+                tracks->info[tracks->total - 1].length +
+                (tracks->info[tracks->total - 1].fade == -1 ?
+                  0 : tracks->info[tracks->total - 1].fade);
+            }
+
+            if(tracks->info[tracks->total - 1].fade == -1) {
+              tracks->info[tracks->total - 1].fade = 8;
+            }
+        }
         p++;
         d = p;
         line++;
     } while(p - data < length);
-
-/*
-    printf("Track count: %d\n",tracks->total);
-    for(i=0;i<tracks->total;i++) {
-        printf("Track %02d: \n",i);
-        printf("\ttitle: %s\n", tracks->info[i].title);
-        printf("\tlength: %d\n", tracks->info[i].length_ms);
-        printf("\tintro_length: %d\n", tracks->info[i].intro_ms);
-        printf("\tloop_length: %d\n", tracks->info[i].loop_ms);
-        printf("\tplay_length: %d\n", tracks->info[i].length_ms);
-        printf("\tfade_length: %d\n", tracks->info[i].fade_ms);
-    }
-    */
 
     return 1;
 }

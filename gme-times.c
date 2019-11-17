@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
     gme_info_t *info = NULL;
     char *p = NULL;
     uint32_t m3uSize = 0;
-    uint32_t i = 0;
+    int32_t i = 0;
 
     if(argc < 2) {
         return 1;

@@ -120,11 +120,12 @@ struct NEZ_SONG_INFO_
 
 struct NEZ_TRACK_INFO_ {
     uint32_t songno;
-    int32_t fade_ms;
-    int32_t length_ms;
-    int32_t intro_ms;
-    int32_t loop_ms;
+    int32_t length;
+    int32_t fade;
+    int32_t intro;
+    int32_t loop;
     int32_t loops;
+    int32_t total; /* either length + fade or intro + (loop * loops) + fade */
     char *title;
 };
 

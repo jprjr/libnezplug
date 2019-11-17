@@ -91,13 +91,28 @@ int main(int argc, char *argv[]) {
 
     if(m3uData) {
         NEZLoadM3U(player,m3uData,m3uSize);
-        /*
         fprintf(stderr,"Total tracks: %u\n",player->tracks->total);
         if(player->tracks->title) fprintf(stderr,"title: %s\n",player->tracks->title);
         if(player->tracks->artist) fprintf(stderr,"artist: %s\n",player->tracks->artist);
         if(player->tracks->copyright) fprintf(stderr,"copyright: %s\n",player->tracks->copyright);
         if(player->tracks->dumper) fprintf(stderr,"dumper: %s\n",player->tracks->dumper);
-        */
+        for(i=0;i<player->tracks->total;i++) {
+            fprintf(stderr,"Track %02d: \n"
+            "\ttitle: %s\n"
+            "\tlength: %d\n"
+            "\tintro: %d\n"
+            "\tloop: %d\n"
+            "\ttotal: %d\n"
+            "\tfade: %d\n",
+              i,
+              player->tracks->info[i].title,
+              player->tracks->info[i].length,
+              player->tracks->info[i].intro,
+              player->tracks->info[i].loop,
+              player->tracks->info[i].total,
+              player->tracks->info[i].fade);
+
+        }
     }
 
     NEZSetFrequency(player,48000);
