@@ -5,7 +5,8 @@
 
 #include "kmz80i.h"
 
-static const OPT_ITEM kmr800_ot_edxx[0x100] = {
+#if 0
+PROTECTED_VAR const OPT_ITEM kmr800_ot_edxx[0x100] = {
 /* ED 00-0F  0000???? */	OPTABLENOP16,
 /* ED 10-1F  0001???? */	OPTABLENOP16,
 /* ED 20-2F  0010???? */	OPTABLENOP16,
@@ -193,6 +194,7 @@ static const OPT_ITEM kmr800_ot_edxx[0x100] = {
 	OPTABLE(0, 0, 0, OP_PATCH),
 	OPTABLE(0, 0, 0, OP_NOP),
 };
+#endif
 
 #if 0
 add (hl)	+0cycle
@@ -221,7 +223,8 @@ DI		+1cycle
 IM?		+1cycle
 #endif
 
-static const uint8_t kmr800_ct[0x510] = {
+#if 0
+PROTECTED_VAR const uint8_t kmr800_ct[0x510] = {
 /* Z80 追加クロック */ 
 /* XX       0 1 2 3 4 5 6 7  8 9 A B C D E F */
 /* 0 */		0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,
@@ -329,6 +332,7 @@ static const uint8_t kmr800_ct[0x510] = {
 	0,	/* 0x50E OTIMR OTDMR  */
 	0,	/* 0x50F  不成立 */
 };
+#endif
 
 #if 0
 static uint32_t kmr800_memread(KMZ80_CONTEXT *context, uint32_t a)

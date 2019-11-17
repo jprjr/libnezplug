@@ -1,4 +1,4 @@
-static Inline void KI_ADDCLOCK(__CONTEXT_ Uword cycle)
+static Unused void KI_ADDCLOCK(__CONTEXT_ Uword cycle)
 {
 #if BUILD_HUC6280
 	if (__THIS__.lowClockMode)
@@ -15,50 +15,50 @@ static Inline void KI_ADDCLOCK(__CONTEXT_ Uword cycle)
 	__THIS__.clock += cycle;
 #endif
 }
-static Inline Uword KI_READWORD(__CONTEXT_ Uword adr)
+static Unused Inline Uword KI_READWORD(__CONTEXT_ Uword adr)
 {
 	Uword ret = K_READNP(__THISP_ adr);
 	return ret + (K_READNP(__THISP_ (Uword)(RTO16(adr + 1))) << 8);
 }
-static Inline Uword KI_READWORDZP(__CONTEXT_ Uword adr)
+static Unused Inline Uword KI_READWORDZP(__CONTEXT_ Uword adr)
 {
 	Uword ret = K_READZP(__THISP_ (Uword)(BASE_OF_ZERO + adr));
 	return ret + (K_READZP(__THISP_ (Uword)(BASE_OF_ZERO + RTO8(adr + 1))) << 8);
 }
 
-static Inline Uword KAI_IMM(__CONTEXT)
+static Unused Inline Uword KAI_IMM(__CONTEXT)
 {
 	Uword ret = __THIS__.PC;
 	__THIS__.PC = RTO16(__THIS__.PC + 1);
 	return ret;
 }
-static Inline Uword KAI_IMM16(__CONTEXT)
+static Unused Inline Uword KAI_IMM16(__CONTEXT)
 {
 	Uword ret = __THIS__.PC;
 	__THIS__.PC = RTO16(__THIS__.PC + 2);
 	return ret;
 }
-static Inline Uword KAI_ABS(__CONTEXT)
+static Unused Inline Uword KAI_ABS(__CONTEXT)
 {
 	return KI_READWORD(__THISP_ KAI_IMM16(__THISP));
 }
-static Inline Uword KAI_ABSX(__CONTEXT)
+static Unused Inline Uword KAI_ABSX(__CONTEXT)
 {
 	return RTO16(KAI_ABS(__THISP) + __THIS__.X);
 }
-static Inline Uword KAI_ABSY(__CONTEXT)
+static Unused Inline Uword KAI_ABSY(__CONTEXT)
 {
 	return RTO16(KAI_ABS(__THISP) + __THIS__.Y);
 }
-static Inline Uword KAI_ZP(__CONTEXT)
+static Unused Inline Uword KAI_ZP(__CONTEXT)
 {
 	return K_READNP(__THISP_ KAI_IMM(__THISP));
 }
-static Inline Uword KAI_ZPX(__CONTEXT)
+static Unused Inline Uword KAI_ZPX(__CONTEXT)
 {
 	return RTO8(KAI_ZP(__THISP) + __THIS__.X);
 }
-static Inline Uword KAI_INDY(__CONTEXT)
+static Unused Inline Uword KAI_INDY(__CONTEXT)
 {
 	return RTO16(KI_READWORDZP(__THISP_ KAI_ZP(__THISP)) + __THIS__.Y);
 }
@@ -114,7 +114,7 @@ static Uword MasubCall KA_IND(__CONTEXT)
 	return KI_READWORDZP(__THISP_ KAI_ZP(__THISP));
 }
 #else
-static Inline Uword KI_READWORDBUG(__CONTEXT_ Uword adr)
+static Unused Inline Uword KI_READWORDBUG(__CONTEXT_ Uword adr)
 {
 	Uword ret = K_READNP(__THISP_ adr);
 	return ret + (K_READNP(__THISP_ (Uword)((adr & 0xFF00) + RTO8(adr + 1))) << 8);
@@ -186,19 +186,19 @@ static void OpsubCall KM_ALUADDER_D(__CONTEXT_ Uword src)
 	 KI_ADDCLOCK(__THISP_ 1);
 }
 
-static Inline void KMI_ADC(__CONTEXT_ Uword src)
+static Unused void KMI_ADC(__CONTEXT_ Uword src)
 {
 	KM_ALUADDER(__THISP_ src);
 }
-static Inline void KMI_ADC_D(__CONTEXT_ Uword src)
+static Unused void KMI_ADC_D(__CONTEXT_ Uword src)
 {
 	KM_ALUADDER_D(__THISP_ src);
 }
-static Inline void KMI_SBC(__CONTEXT_ Uword src)
+static Unused void KMI_SBC(__CONTEXT_ Uword src)
 {
 	KM_ALUADDER(__THISP_ src ^ 0xFF);
 }
-static Inline void KMI_SBC_D(__CONTEXT_ Uword src)
+static Unused void KMI_SBC_D(__CONTEXT_ Uword src)
 {
 	KM_ALUADDER_D(__THISP_ RTO8((src ^ 0xFF) + (0x100 - 0x66)));
 }
@@ -345,13 +345,13 @@ static Uword OpsubCall KM_TRB(__CONTEXT_ Uword mem)
 }
 #endif
 #if BUILD_HUC6280
-static Inline Uword KMI_PRET(__CONTEXT)
+static Unused Inline Uword KMI_PRET(__CONTEXT)
 {
 	Uword saveA = __THIS__.A;
 	__THIS__.A = K_READZP(__THISP_ (Uword)(BASE_OF_ZERO + __THIS__.X));
 	return saveA;
 }
-static Inline void KMI_POSTT(__CONTEXT_ Uword saveA)
+static Unused void KMI_POSTT(__CONTEXT_ Uword saveA)
 {
 	K_WRITEZP(__THISP_ (Uword)(BASE_OF_ZERO + __THIS__.X), __THIS__.A);
 	__THIS__.A = saveA;

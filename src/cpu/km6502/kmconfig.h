@@ -74,24 +74,24 @@ typedef uint8_t Ubyte;			/* unsigned 8bit integer for table */
 
 #if !BUILD_FOR_SIZE && !BUILD_FOR_SPEED
 #define USE_FL_TABLE	1				/* Use table(512bytes) for flag */
-#define OpsubCall CCall					/* OP code sub */
-#define MasubCall CCall					/* addressing sub */
+#define OpsubCall CCall Unused					/* OP code sub */
+#define MasubCall CCall Unused					/* addressing sub */
 #endif
 
 /* auto setting */
 
 #if BUILD_FOR_SIZE
 #define USE_FL_TABLE 1
-#define OpsubCall FastCall
-#define MasubCall FastCall
-#define OpcodeCall Inline
+#define OpsubCall FastCall Unused
+#define MasubCall FastCall Unused
+#define OpcodeCall Unused Inline
 #elif BUILD_FOR_SPEED
 #define USE_FL_TABLE 1
-#define OpsubCall Inline
-#define MasubCall FastCall
-#define OpcodeCall Inline
+#define OpsubCall Unused Inline
+#define MasubCall Unused FastCall
+#define OpcodeCall Unused Inline
 #else
-#define OpcodeCall Inline
+#define OpcodeCall Unused Inline
 #endif
 
 #endif	/* KMCONFIG_H_ */

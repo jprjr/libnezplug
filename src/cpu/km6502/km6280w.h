@@ -320,6 +320,10 @@
 #define T_Opco12 km6280_T_Opco12
 #define T_Opco15 km6280_T_Opco15
 #define T_Opco19 km6280_T_Opco19
+#define T_Opco21 km6280_T_Opco21
+#define T_Opco25 km6280_T_Opco25
+#define T_Opco29 km6280_T_Opco29
+#define T_Opco2D km6280_T_Opco2D
 #define T_Opco1D km6280_T_Opco1D
 #define T_Opco31 km6280_T_Opco31
 #define T_Opco32 km6280_T_Opco32

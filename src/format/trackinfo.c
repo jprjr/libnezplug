@@ -125,7 +125,9 @@ save_tag:
                 }
                 break;
                 case 2: {
-                    if(tracks->artist != NULL) break; /* @artist is lower-precedent to @composer */
+                    if(tracks->artist != NULL) XFREE(buf);
+                    buf = NULL;
+                    break; /* @artist is lower-precedent to @composer */
                 }
                 break;
                 case 3: {
@@ -143,6 +145,9 @@ save_tag:
                     tracks->dumper = buf;
                 }
                 break;
+                default: {
+                    XFREE(buf);
+                }
             }
         }
     }

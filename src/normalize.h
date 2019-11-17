@@ -6,8 +6,10 @@
 #ifndef Inline
 #ifdef __GNUC__
 #define Inline        __attribute__((always_inline)) inline
+#define Unused        __attribute__((unused))
 #else
 #define Inline
+#define Unused
 #endif
 #endif
 

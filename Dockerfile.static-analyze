@@ -1,0 +1,18 @@
+FROM debian:10
+
+RUN apt-get update && \
+    apt-get install -y curl gpg && \
+    echo "deb http://apt.llvm.org/buster/ llvm-toolchain-buster-9 main" >> /etc/apt/sources.list.d/llvm.list && \
+    echo "deb-src http://apt.llvm.org/buster/ llvm-toolchain-buster-9 main" >> /etc/apt/sources.list.d/llvm.list && \
+    curl -SsL https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
+    apt-get update && \
+    apt-get install -y \
+      clang-9 \
+      clang-tools-9 \
+      libfindbin-libs-perl \
+      make
+
+COPY . /src/nezplug
+WORKDIR /src/nezplug
+RUN make clean && scan-build-9 --use-cc clang-9 make CC=clang libnezplug.so
+RUN make clean && make dist/nezplug.c && scan-build-9 --use-cc clang-9 make CC=clang dist/nezplug.o
