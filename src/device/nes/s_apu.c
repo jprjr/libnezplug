@@ -217,6 +217,13 @@ static const uint32_t apu_dpcm_freq_table[16] =
 	106,  85,  72,  54,
 };
 
+#ifdef NO_STDLIB
+static Inline uint32_t abs_int32(int32_t v) {
+    int32_t const mask = v >> ((sizeof(int32_t) * CHAR_BIT) - 1);
+    return (uint32_t)(v + mask) ^ mask;
+}
+#endif
+
 __inline static void ApuLengthCounterStep(APU_LENGTHCOUNTER *lc)
 {
 	if (lc->counter && !lc->clock_disable) lc->counter--;

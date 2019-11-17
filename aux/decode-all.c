@@ -97,7 +97,7 @@ int main(int argc, char *argv[]) {
         if(NEZGetGameCopyright(player)) fprintf(stderr,"copyright: %s\n",NEZGetGameCopyright(player));
         if(NEZGetGameDetail(player)) fprintf(stderr,"detail: %s\n",NEZGetGameDetail(player));
         if(player->tracks->dumper) fprintf(stderr,"dumper: %s\n",player->tracks->dumper);
-        for(i=0;i<player->tracks->total;i++) {
+        for(i=NEZGetSongStart(player);i<=NEZGetSongMax(player);i++) {
             fprintf(stderr,"Track %02d: \n"
             "\ttitle: %s\n"
             "\tlength: %d\n"
@@ -106,12 +106,12 @@ int main(int argc, char *argv[]) {
             "\ttotal: %d\n"
             "\tfade: %d\n",
               i,
-              player->tracks->info[i].title,
-              player->tracks->info[i].length,
-              player->tracks->info[i].intro,
-              player->tracks->info[i].loop,
-              player->tracks->info[i].total,
-              player->tracks->info[i].fade);
+              NEZGetTrackTitle(player,i),
+              player->tracks->info[i-1].length,
+              player->tracks->info[i-1].intro,
+              player->tracks->info[i-1].loop,
+              player->tracks->info[i-1].total,
+              player->tracks->info[i-1].fade);
 
         }
     }

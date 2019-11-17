@@ -131,6 +131,8 @@ struct NEZ_TRACK_INFO_ {
 
 struct NEZ_TRACKS_ {
     uint32_t total;
+    uint32_t loaded;
+    uint32_t current;
     char *title;
     char *artist;
     char *copyright; /* aka the date */
@@ -250,10 +252,11 @@ void NEZUnmuteChannel(NEZ_PLAY *, int32_t chan);
 
 void NEZGBAMode(NEZ_PLAY *, uint8_t m);
 
-char *NEZGetGameTitle(NEZ_PLAY *pNezPlay);
-char *NEZGetGameArtist(NEZ_PLAY *pNezPlay);
-char *NEZGetGameCopyright(NEZ_PLAY *pNezPlay);
-char *NEZGetGameDetail(NEZ_PLAY *pNezPlay);
+const char *NEZGetGameTitle(NEZ_PLAY *pNezPlay);
+const char *NEZGetGameArtist(NEZ_PLAY *pNezPlay);
+const char *NEZGetGameCopyright(NEZ_PLAY *pNezPlay);
+const char *NEZGetGameDetail(NEZ_PLAY *pNezPlay);
+const char *NEZGetTrackTitle(NEZ_PLAY *pNezPlay, uint32_t track);
 
 #ifdef __cplusplus
 }

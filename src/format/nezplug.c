@@ -29,13 +29,6 @@ NEZ_PLAY* NEZNew()
 			return NULL;
 		}
 
-        pNezPlay->tracks = TRACKS_New();
-        if(!pNezPlay->tracks) {
-            SONGINFO_Delete(pNezPlay->song);
-            XFREE(pNezPlay);
-            return NULL;
-        }
-
         pNezPlay->lowpass_filter_level = 8;
 
 	    NESAudioFrequencySet(pNezPlay, 48000);
@@ -87,6 +80,13 @@ void NEZDelete(NEZ_PLAY *pNezPlay)
 void NEZSetSongNo(NEZ_PLAY *pNezPlay, uint32_t uSongNo)
 {
 	if (pNezPlay == 0) return;
+    if (uSongNo < 0) uSongNo = 1;
+    if (uSongNo > NEZGetSongMax(pNezPlay)) uSongNo = NEZGetSongMax(pNezPlay);
+
+    if (pNezPlay->tracks && pNezPlay->tracks->loaded) {
+        pNezPlay->tracks->current = uSongNo;
+        uSongNo = pNezPlay->tracks->info[uSongNo - 1].songno + 1;
+    }
 	SONGINFO_SetSongNo(pNezPlay->song, uSongNo);
 }
 
@@ -146,7 +146,9 @@ void NEZRender(NEZ_PLAY *pNezPlay, void *bufp, uint32_t buflen)
 uint32_t NEZGetSongNo(NEZ_PLAY *pNezPlay)
 {
 	if (pNezPlay == 0) return 0;
-	return SONGINFO_GetSongNo(pNezPlay->song);
+    return pNezPlay->tracks->current ?
+      pNezPlay->tracks->current :
+      SONGINFO_GetSongNo(pNezPlay->song);
 }
 
 uint32_t NEZGetSongStart(NEZ_PLAY *pNezPlay)
@@ -158,6 +160,7 @@ uint32_t NEZGetSongStart(NEZ_PLAY *pNezPlay)
 uint32_t NEZGetSongMax(NEZ_PLAY *pNezPlay)
 {
 	if (pNezPlay == 0) return 0;
+    if (pNezPlay->tracks && pNezPlay->tracks->loaded) return pNezPlay->tracks->loaded;
 	return SONGINFO_GetMaxSongNo(pNezPlay->song);
 }
 
@@ -264,6 +267,13 @@ uint32_t NEZLoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uSize)
 			ret = NEZ_NESERR_FORMAT;
 			break;
 		}
+
+        pNezPlay->tracks = TRACKS_New(NEZGetSongMax(pNezPlay));
+        if(!pNezPlay->tracks) {
+            ret = NEZ_NESERR_SHORTOFMEMORY;
+            break;
+        }
+
 		return NEZ_NESERR_NOERROR;
 	}
 	NESTerminate(pNezPlay);
@@ -271,11 +281,11 @@ uint32_t NEZLoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uSize)
 }
 
 uint32_t NEZLoadM3U(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uSize) {
-	if (!pNezPlay || !pData) {
+	if (!pNezPlay || !pData || !uSize) {
 		return NEZ_NESERR_PARAMETER;
     }
 
-    return TRACKS_LoadM3U(pNezPlay->tracks,pData,uSize);
+    return TRACKS_LoadM3U(pNezPlay,pData,uSize);
 }
 
 void NEZMuteChannel(NEZ_PLAY *pNezPlay, int32_t chan)
@@ -300,22 +310,30 @@ void NEZGBAMode(NEZ_PLAY *pNezPlay, uint8_t m) {
     pNezPlay->gb_config.gbamode = m;
 }
 
-char *NEZGetGameTitle(NEZ_PLAY *pNezPlay) {
-    if(pNezPlay->tracks->title) return pNezPlay->tracks->title;
-    return pNezPlay->songinfodata.title;
+const char *NEZGetGameTitle(NEZ_PLAY *pNezPlay) {
+    if(pNezPlay->tracks->title) return (const char *)pNezPlay->tracks->title;
+    return (const char *)pNezPlay->songinfodata.title;
 }
 
-char *NEZGetGameArtist(NEZ_PLAY *pNezPlay) {
-    if(pNezPlay->tracks->artist) return pNezPlay->tracks->artist;
-    return pNezPlay->songinfodata.artist;
+const char *NEZGetGameArtist(NEZ_PLAY *pNezPlay) {
+    if(pNezPlay->tracks->artist) return (const char *)pNezPlay->tracks->artist;
+    return (const char *)pNezPlay->songinfodata.artist;
 }
 
-char *NEZGetGameCopyright(NEZ_PLAY *pNezPlay) {
-    if(pNezPlay->tracks->copyright) return pNezPlay->tracks->copyright;
-    return pNezPlay->songinfodata.copyright;
+const char *NEZGetGameCopyright(NEZ_PLAY *pNezPlay) {
+    if(pNezPlay->tracks->copyright) return (const char *)pNezPlay->tracks->copyright;
+    return (const char *)pNezPlay->songinfodata.copyright;
 }
 
-char *NEZGetGameDetail(NEZ_PLAY *pNezPlay) {
-    return pNezPlay->songinfodata.detail;
+const char *NEZGetGameDetail(NEZ_PLAY *pNezPlay) {
+    return (const char *)pNezPlay->songinfodata.detail;
+}
+
+const char *NEZGetTrackTitle(NEZ_PLAY *pNezPlay, uint32_t track) {
+    if(track < 1) track = 1;
+    if(track > NEZGetSongMax(pNezPlay)) track = NEZGetSongMax(pNezPlay);
+    if(pNezPlay->tracks && pNezPlay->tracks->loaded)
+        return (const char *)pNezPlay->tracks->info[track - 1].title;
+    return NULL;
 }
 
