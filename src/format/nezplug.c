@@ -274,7 +274,7 @@ uint32_t NEZLoadM3U(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uSize) {
 	if (!pNezPlay || !pData) {
 		return NEZ_NESERR_PARAMETER;
     }
- 
+
     return TRACKS_LoadM3U(pNezPlay->tracks,pData,uSize);
 }
 
@@ -301,14 +301,17 @@ void NEZGBAMode(NEZ_PLAY *pNezPlay, uint8_t m) {
 }
 
 char *NEZGetGameTitle(NEZ_PLAY *pNezPlay) {
+    if(pNezPlay->tracks->title) return pNezPlay->tracks->title;
     return pNezPlay->songinfodata.title;
 }
 
 char *NEZGetGameArtist(NEZ_PLAY *pNezPlay) {
+    if(pNezPlay->tracks->artist) return pNezPlay->tracks->artist;
     return pNezPlay->songinfodata.artist;
 }
 
 char *NEZGetGameCopyright(NEZ_PLAY *pNezPlay) {
+    if(pNezPlay->tracks->copyright) return pNezPlay->tracks->copyright;
     return pNezPlay->songinfodata.copyright;
 }
 

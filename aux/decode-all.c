@@ -92,9 +92,10 @@ int main(int argc, char *argv[]) {
     if(m3uData) {
         NEZLoadM3U(player,m3uData,m3uSize);
         fprintf(stderr,"Total tracks: %u\n",player->tracks->total);
-        if(player->tracks->title) fprintf(stderr,"title: %s\n",player->tracks->title);
-        if(player->tracks->artist) fprintf(stderr,"artist: %s\n",player->tracks->artist);
-        if(player->tracks->copyright) fprintf(stderr,"copyright: %s\n",player->tracks->copyright);
+        if(NEZGetGameTitle(player)) fprintf(stderr,"title: %s\n",NEZGetGameTitle(player));
+        if(NEZGetGameArtist(player)) fprintf(stderr,"artist: %s\n",NEZGetGameArtist(player));
+        if(NEZGetGameCopyright(player)) fprintf(stderr,"copyright: %s\n",NEZGetGameCopyright(player));
+        if(NEZGetGameDetail(player)) fprintf(stderr,"detail: %s\n",NEZGetGameDetail(player));
         if(player->tracks->dumper) fprintf(stderr,"dumper: %s\n",player->tracks->dumper);
         for(i=0;i<player->tracks->total;i++) {
             fprintf(stderr,"Track %02d: \n"
