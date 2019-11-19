@@ -80,7 +80,7 @@ void NEZDelete(NEZ_PLAY *pNezPlay)
 void NEZSetSongNo(NEZ_PLAY *pNezPlay, uint32_t uSongNo)
 {
 	if (pNezPlay == 0) return;
-    if (uSongNo < 0) uSongNo = 1;
+    if (uSongNo == 0) uSongNo = 1;
     if (uSongNo > NEZGetSongMax(pNezPlay)) uSongNo = NEZGetSongMax(pNezPlay);
 
     if (pNezPlay->tracks && pNezPlay->tracks->loaded) {
