@@ -6,8 +6,11 @@
 #include "../../format/nsf6502.h"
 #include "../../format/m_nsf.h"
 #include "s_apu.h"
+
+#ifndef NO_STDLIB
 #include <time.h>
 #include <math.h>
+#endif
 
 #include "../../common/divfix.h"
 
@@ -658,7 +661,11 @@ static int32_t APUSoundRender(NEZ_PLAY *pNezPlay)
 	sqout += NESAPUSoundSquareRender(&apu->square[1]) * pNezPlay->chmask[NEZ_DEV_2A03_SQ2];
 	sqout >>= 1;
     if (pNezPlay->nes_config.realdac) {
+#ifdef NO_STDLIB
+		sqout = sqout * (DAC_SQ_DOWN - (abs_int32(sqout) / DAC_SQ_BIT)) / DAC_SQ_DOWN;
+#else
 		sqout = sqout * (DAC_SQ_DOWN - (abs(sqout) / DAC_SQ_BIT)) / DAC_SQ_DOWN;
+#endif
     }
 	accum += sqout * apu->square[0].mastervolume / 20/*20kΩ*/;
 	tndout += NESAPUSoundDpcmRender(pNezPlay) * pNezPlay->chmask[NEZ_DEV_2A03_DPCM];
@@ -666,7 +673,11 @@ static int32_t APUSoundRender(NEZ_PLAY *pNezPlay)
 	tndout += NESAPUSoundNoiseRender(pNezPlay,&apu->noise) * pNezPlay->chmask[NEZ_DEV_2A03_NOISE];
 	tndout >>= 1;
     if (pNezPlay->nes_config.realdac) {
+#ifdef NO_STDLIB
+		tndout = tndout * (DAC_TND_DOWN - (abs_int32(tndout) / DAC_TND_BIT)) / DAC_TND_DOWN;
+#else
 		tndout = tndout * (DAC_TND_DOWN - (abs(tndout) / DAC_TND_BIT)) / DAC_TND_DOWN;
+#endif
     }
 	accum += tndout * apu->triangle.mastervolume / 12/*12kΩ*/;
 	//accum = apu->amptbl[tndout >> (26 - AMPTML_BITS)];
@@ -989,12 +1000,16 @@ static void NESAPUSoundNoiseReset(NEZ_PLAY *pNezPlay, NESAPU_NOISE *ch)
 	ch->cps = DivFix(NES_BASECYCLES, GetNTSCPAL(pNezPlay) * NESAudioFrequencyGet(pNezPlay), CPS_BITS);
 
 	//ノイズ音のランダム初期化
+#ifndef NO_STDLIB
 	if(pNezPlay->nes_config.noise_random_reset){
 		srand(time(NULL) + clock());
 		ch->rng = rand() + (rand()<<16);
 	}else{
+#endif
 		ch->rng = 0x8000;
+#ifndef NO_STDLIB
 	}
+#endif
 	ch->rngcount = 0;
 }
 
