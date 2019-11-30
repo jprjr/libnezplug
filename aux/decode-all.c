@@ -4,7 +4,21 @@
 #include <stdlib.h>
 #include "../src/include/nezplug/nezplug.h"
 
+#if 0
+static int16_t fade(int16_t m, uint32_t n, uint32_t d);
+#endif
+
 static uint8_t *slurp(char *filename, uint32_t *size);
+
+#if 0
+static int16_t fade(int16_t m, uint32_t n, uint32_t d) {
+    double t = (double) n / d;
+    t = 1.0f - t;
+    t *= t;
+    t *= (double)m;
+    return (int16_t)t;
+}
+#endif
 
 static uint8_t *slurp(char *filename, uint32_t *size) {
     uint8_t *buf;
@@ -91,30 +105,30 @@ int main(int argc, char *argv[]) {
 
     if(m3uData) {
         NEZLoadM3U(player,m3uData,m3uSize);
-        fprintf(stderr,"Total tracks: %u\n",player->tracks->total);
-        if(NEZGetGameTitle(player)) fprintf(stderr,"title: %s\n",NEZGetGameTitle(player));
-        if(NEZGetGameArtist(player)) fprintf(stderr,"artist: %s\n",NEZGetGameArtist(player));
-        if(NEZGetGameCopyright(player)) fprintf(stderr,"copyright: %s\n",NEZGetGameCopyright(player));
-        if(NEZGetGameDetail(player)) fprintf(stderr,"detail: %s\n",NEZGetGameDetail(player));
-        if(player->tracks->dumper) fprintf(stderr,"dumper: %s\n",player->tracks->dumper);
-        for(i=NEZGetSongStart(player);i<=NEZGetSongMax(player);i++) {
-            fprintf(stderr,"Track %02d: \n"
-            "\ttitle: %s\n"
-            "\tlength: %d\n"
-            "\tintro: %d\n"
-            "\tloop: %d\n"
-            "\ttotal: %d\n"
-            "\tfade: %d\n",
-              i,
-              NEZGetTrackTitle(player,i),
-              player->tracks->info[i-1].length,
-              player->tracks->info[i-1].intro,
-              player->tracks->info[i-1].loop,
-              player->tracks->info[i-1].total,
-              player->tracks->info[i-1].fade);
-
-        }
     }
+    fprintf(stderr,"Total tracks: %u\n",player->tracks->total);
+    if(NEZGetGameTitle(player)) fprintf(stderr,"title: %s\n",NEZGetGameTitle(player));
+    if(NEZGetGameArtist(player)) fprintf(stderr,"artist: %s\n",NEZGetGameArtist(player));
+    if(NEZGetGameCopyright(player)) fprintf(stderr,"copyright: %s\n",NEZGetGameCopyright(player));
+    if(NEZGetGameDetail(player)) fprintf(stderr,"detail: %s\n",NEZGetGameDetail(player));
+    if(player->tracks->dumper) fprintf(stderr,"dumper: %s\n",player->tracks->dumper);
+    for(i=NEZGetSongStart(player);i<=NEZGetSongMax(player);i++) {
+        fprintf(stderr,"Track %02d: \n"
+        "\ttitle: %s\n"
+        "\tlength: %u\n"
+        "\tintro: %u\n"
+        "\tloop: %d\n"
+        "\tfade: %u\n"
+        "\tloops: %u\n",
+          i,
+          NEZGetTrackTitle(player,i),
+          NEZGetTrackLength(player,i),
+          NEZGetTrackIntro(player,i),
+          NEZGetTrackLoop(player,i),
+          NEZGetTrackFade(player,i),
+          NEZGetTrackLoops(player,i));
+
+     }
 
     NEZSetFrequency(player,48000);
     NEZSetChannel(player,channels);

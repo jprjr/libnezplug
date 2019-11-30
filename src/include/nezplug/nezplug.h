@@ -216,6 +216,9 @@ struct NEZ_PLAY_ {
     int32_t output2[2];
     int32_t filter;
     int32_t lowlevel;
+    uint32_t default_fade;
+    uint32_t default_length;
+    uint32_t default_loops;
 	void *nsf;
 	void *gbrdmg;
 	void *heshes;
@@ -233,6 +236,9 @@ uint32_t NEZLoad(NEZ_PLAY*, const uint8_t *, uint32_t);
 uint32_t NEZLoadM3U(NEZ_PLAY*, const uint8_t *, uint32_t);
 void NEZSetSongNo(NEZ_PLAY*, uint32_t uSongNo);
 void NEZSetFrequency(NEZ_PLAY*, uint32_t freq);
+void NEZSetFade(NEZ_PLAY*, uint32_t fade);
+void NEZSetLength(NEZ_PLAY*, uint32_t length);
+void NEZSetLoops(NEZ_PLAY*, uint32_t loops);
 void NEZSetChannel(NEZ_PLAY*, uint32_t ch);
 void NEZReset(NEZ_PLAY*);
 void NEZSetFilter(NEZ_PLAY *, uint32_t filter);
@@ -256,7 +262,13 @@ const char *NEZGetGameTitle(NEZ_PLAY *pNezPlay);
 const char *NEZGetGameArtist(NEZ_PLAY *pNezPlay);
 const char *NEZGetGameCopyright(NEZ_PLAY *pNezPlay);
 const char *NEZGetGameDetail(NEZ_PLAY *pNezPlay);
+
 const char *NEZGetTrackTitle(NEZ_PLAY *pNezPlay, uint32_t track);
+uint32_t NEZGetTrackFade(NEZ_PLAY *pNezPlay, uint32_t track);
+uint32_t NEZGetTrackIntro(NEZ_PLAY *pNezPlay, uint32_t track);
+int32_t NEZGetTrackLoop(NEZ_PLAY *pNezPlay, uint32_t track);
+uint32_t NEZGetTrackLength(NEZ_PLAY *pNezPlay, uint32_t track);
+uint32_t NEZGetTrackLoops(NEZ_PLAY *pNezPlay, uint32_t track);
 
 #ifdef __cplusplus
 }

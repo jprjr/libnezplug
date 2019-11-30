@@ -177,10 +177,30 @@ save_tag:
 
 }
 
+static uint32_t parse_mil(const char *buf) {
+    uint32_t r = 0;
+    uint32_t t = 0;
+    uint32_t m = 100;
+    while(*buf && m) {
+        if(*buf >= 48 && *buf <= 57) {
+            t = *buf - 48;
+        } else {
+            break;
+        }
+
+        r += t * m;
+        m /= 10;
+        buf++;
+    }
+    return r;
+}
+
+
 static int32_t parse_timestamp(const char *buf) {
     int32_t r = 0;
     int32_t t = 0;
     int32_t c = 0;
+    uint32_t m = 0;
     const char *b = buf;
 
     if(strlen(b) == 0) return -1;
@@ -196,12 +216,18 @@ static int32_t parse_timestamp(const char *buf) {
             r += c;
             c = 0;
         }
+        else if(*b == '.') {
+            m = parse_mil(b+1);
+            break;
+        }
         else {
             break;
         }
         b++;
     }
     r += c;
+    r *= 1000;
+    r += m;
     return r;
 }
 
@@ -483,35 +509,9 @@ PROTECTED uint8_t TRACKS_LoadM3U(NEZ_PLAY *player, const uint8_t *uData, uint32_
         }
 
         if(tracks_process_line(player,d,p - d - offset)) {
-            /* new trackinfo line added, post-process */
-            if(tracks->info[tracks->loaded].loops == -1) {
-              tracks->info[tracks->loaded].loops = 2;
-            }
-
-            if(tracks->info[tracks->loaded].length == -1) {
-              if(tracks->info[tracks->loaded].loop != -1) {
-                tracks->info[tracks->loaded].total =
-                  (tracks->info[tracks->loaded].loop *
-                  tracks->info[tracks->loaded].loops) +
-                  (tracks->info[tracks->loaded].intro == -1 ?
-                    0 : tracks->info[tracks->loaded].intro) +
-                  (tracks->info[tracks->loaded].fade == -1 ?
-                    0 : tracks->info[tracks->loaded].fade);
-              }
-            }
-            else {
-              tracks->info[tracks->loaded].total =
-                tracks->info[tracks->loaded].length +
-                (tracks->info[tracks->loaded].fade == -1 ?
-                  0 : tracks->info[tracks->loaded].fade);
-            }
-
-            if(tracks->info[tracks->loaded].fade == -1) {
-              tracks->info[tracks->loaded].fade = 8;
-            }
-
             tracks->loaded++;
         }
+
         p++;
         d = p;
         line++;

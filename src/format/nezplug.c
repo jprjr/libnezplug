@@ -15,6 +15,13 @@
 #include "m_sgc.h"
 #include "../common/util.h"
 
+static Inline uint32_t fix_track(NEZ_PLAY *pNezPlay, uint32_t track)
+{
+    if(track < 1) track = 1;
+    if(track > NEZGetSongMax(pNezPlay)) track = NEZGetSongMax(pNezPlay);
+    return track;
+}
+
 NEZ_PLAY* NEZNew()
 {
 	NEZ_PLAY *pNezPlay = (NEZ_PLAY*)XMALLOC(sizeof(NEZ_PLAY));
@@ -30,6 +37,9 @@ NEZ_PLAY* NEZNew()
 		}
 
         pNezPlay->lowpass_filter_level = 8;
+        pNezPlay->default_fade = 8000;
+        pNezPlay->default_length = 180000;
+        pNezPlay->default_loops = 2;
 
 	    NESAudioFrequencySet(pNezPlay, 48000);
 	    NESAudioChannelSet(pNezPlay, 1);
@@ -90,6 +100,23 @@ void NEZSetSongNo(NEZ_PLAY *pNezPlay, uint32_t uSongNo)
 	SONGINFO_SetSongNo(pNezPlay->song, uSongNo);
 }
 
+void NEZSetFade(NEZ_PLAY *pNezPlay, uint32_t fade)
+{
+	if (pNezPlay == 0) return;
+    pNezPlay->default_fade = fade;
+}
+
+void NEZSetLoops(NEZ_PLAY *pNezPlay, uint32_t loops)
+{
+	if (pNezPlay == 0) return;
+    pNezPlay->default_loops = loops;
+}
+
+void NEZSetLength(NEZ_PLAY *pNezPlay, uint32_t length)
+{
+	if (pNezPlay == 0) return;
+    pNezPlay->default_length = length;
+}
 
 void NEZSetFrequency(NEZ_PLAY *pNezPlay, uint32_t freq)
 {
@@ -330,10 +357,64 @@ const char *NEZGetGameDetail(NEZ_PLAY *pNezPlay) {
 }
 
 const char *NEZGetTrackTitle(NEZ_PLAY *pNezPlay, uint32_t track) {
-    if(track < 1) track = 1;
-    if(track > NEZGetSongMax(pNezPlay)) track = NEZGetSongMax(pNezPlay);
-    if(pNezPlay->tracks && pNezPlay->tracks->loaded)
+    track = fix_track(pNezPlay,track);
+    if(pNezPlay->tracks && pNezPlay->tracks->loaded) {
         return (const char *)pNezPlay->tracks->info[track - 1].title;
+    }
     return NULL;
 }
 
+uint32_t NEZGetTrackFade(NEZ_PLAY *pNezPlay, uint32_t track) {
+    track = fix_track(pNezPlay,track);
+    if(pNezPlay->tracks && pNezPlay->tracks->loaded) {
+        if (pNezPlay->tracks->info[track - 1].fade != -1) {
+          return (uint32_t)pNezPlay->tracks->info[track - 1].fade;
+        }
+    }
+    return pNezPlay->default_fade;
+}
+
+uint32_t NEZGetTrackIntro(NEZ_PLAY *pNezPlay, uint32_t track) {
+    track = fix_track(pNezPlay,track);
+    if(pNezPlay->tracks && pNezPlay->tracks->loaded) {
+        if (pNezPlay->tracks->info[track - 1].intro != -1) {
+          return (uint32_t)pNezPlay->tracks->info[track - 1].intro;
+        }
+    }
+    return 0;
+}
+
+int32_t NEZGetTrackLoop(NEZ_PLAY *pNezPlay, uint32_t track) {
+    track = fix_track(pNezPlay,track);
+    if(pNezPlay->tracks && pNezPlay->tracks->loaded) {
+        return pNezPlay->tracks->info[track - 1].loops;
+    }
+    return -1;
+}
+
+uint32_t NEZGetTrackLoops(NEZ_PLAY *pNezPlay, uint32_t track) {
+    track = fix_track(pNezPlay,track);
+    if(pNezPlay->tracks && pNezPlay->tracks->loaded) {
+        if (pNezPlay->tracks->info[track - 1].loops != -1) {
+          return (uint32_t)pNezPlay->tracks->info[track - 1].loops;
+        }
+    }
+    return pNezPlay->default_loops;
+}
+
+uint32_t NEZGetTrackLength(NEZ_PLAY *pNezPlay, uint32_t track) {
+    uint32_t ret;
+    track = fix_track(pNezPlay,track);
+    if(pNezPlay->tracks && pNezPlay->tracks->loaded) {
+        if (pNezPlay->tracks->info[track - 1].length != -1) {
+          return (uint32_t)pNezPlay->tracks->info[track - 1].length;
+        }
+        else if(pNezPlay->tracks->info[track - 1].loop != -1) {
+            ret = NEZGetTrackIntro(pNezPlay,track);
+            ret += pNezPlay->tracks->info[track - 1].loop *
+              NEZGetTrackLoops(pNezPlay,track);
+            return ret;
+        }
+    }
+    return pNezPlay->default_length;
+}
