@@ -88,15 +88,15 @@ if(@ARGV < 1) {
 }
 
 my $output = '';
-# $output .= "#define PROTECTED static\n";
-# $output .= "#define PROTECTED_VAR static\n\n";
-# $output .= "#ifdef __GNUC__\n";
-# $output .= "#define Inline __attribute__((always_inline)) inline\n";
-# $output .= "#else\n";
-# $output .= "#define Inline\n";
-# $output .= "#endif\n\n";
-# 
-# $output .= "#define External static Inline\n\n";
+$output .= "#define PROTECTED static\n";
+$output .= "#define PROTECTED_VAR static\n\n";
+$output .= "#ifdef __GNUC__\n";
+$output .= "#define Inline __attribute__((always_inline)) inline\n";
+$output .= "#else\n";
+$output .= "#define Inline\n";
+$output .= "#endif\n\n";
+
+$output .= "#define External static Inline\n\n";
 
 foreach my $file (@ARGV) {
     @stack = ();

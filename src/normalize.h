@@ -6,9 +6,15 @@
 #ifndef Inline
 #ifdef __GNUC__
 #define Inline        __attribute__((always_inline)) inline
-#define Unused        __attribute__((unused))
 #else
 #define Inline
+#endif
+#endif
+
+#ifndef Unused
+#ifdef __GNUC__
+#define Unused        __attribute__((unused))
+#else
 #define Unused
 #endif
 #endif

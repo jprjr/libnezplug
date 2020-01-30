@@ -2,7 +2,7 @@
 
 CC = cc
 AR = ar
-CFLAGS = -fPIC -g -Wall -Wextra -Werror -Isrc/include $(CFLAGS_EXTRA)
+CFLAGS = -fPIC -O2 -Wall -Wextra -Werror -Isrc/include $(CFLAGS_EXTRA)
 
 LIBNEZPLUG_SRCS =  \
   src/cpu/kmz80/kmdmg.c \

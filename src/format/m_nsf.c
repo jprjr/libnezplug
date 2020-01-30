@@ -13,6 +13,7 @@
 #include "../device/nes/s_fds.h"
 #include "../device/nes/s_n106.h"
 #include "../device/nes/s_fme7.h"
+#include "trackinfo.h"
 #include <stdio.h>
 
 #define NSF_MAPPER_STATIC 0
@@ -343,22 +344,22 @@ PROTECTED uint32_t NSFDeviceInitialize(NEZ_PLAY *pNezPlay)
 }
 
 
-static int32_t NSFMapperSetInfo(NEZ_PLAY *pNezPlay, const uint8_t *pData)
+static int32_t NSFMapperSetInfo(NEZ_PLAY *pNezPlay)
 {
     uint8_t titlebuffer[0x21];
     uint8_t artistbuffer[0x21];
     uint8_t copyrightbuffer[0x21];
+    uint8_t *head = ((NSFNSF*)pNezPlay->nsf)->head;
 
-	XMEMCPY(((NSFNSF*)pNezPlay->nsf)->head, pData, 0x80);
-	SONGINFO_SetStartSongNo(pNezPlay->song, pData[0x07]);
-	SONGINFO_SetMaxSongNo(pNezPlay->song, pData[0x06]);
-	SONGINFO_SetExtendDevice(pNezPlay->song, pData[0x7B]);
-	SONGINFO_SetInitAddress(pNezPlay->song, GetWordLE(pData + 0x0A));
-	SONGINFO_SetPlayAddress(pNezPlay->song, GetWordLE(pData + 0x0C));
+	SONGINFO_SetStartSongNo(pNezPlay->song, head[0x07]);
+	SONGINFO_SetMaxSongNo(pNezPlay->song, head[0x06]);
+	SONGINFO_SetExtendDevice(pNezPlay->song, head[0x7B]);
+	SONGINFO_SetInitAddress(pNezPlay->song, GetWordLE(head + 0x0A));
+	SONGINFO_SetPlayAddress(pNezPlay->song, GetWordLE(head + 0x0C));
 	SONGINFO_SetChannel(pNezPlay->song, 1);
 
 	XMEMSET(titlebuffer, 0, 0x21);
-	XMEMCPY(titlebuffer, pData + 0x000e, 0x20);
+	XMEMCPY(titlebuffer, head + 0x000e, 0x20);
     if(pNezPlay->songinfodata.title != NULL) {
         XFREE(pNezPlay->songinfodata.title);
     }
@@ -369,7 +370,7 @@ static int32_t NSFMapperSetInfo(NEZ_PLAY *pNezPlay, const uint8_t *pData)
     XMEMCPY(pNezPlay->songinfodata.title,titlebuffer,strlen((const char *)titlebuffer)+1);
 
 	XMEMSET(artistbuffer, 0, 0x21);
-	XMEMCPY(artistbuffer, pData + 0x002e, 0x20);
+	XMEMCPY(artistbuffer, head + 0x002e, 0x20);
     if(pNezPlay->songinfodata.artist != NULL) {
         XFREE(pNezPlay->songinfodata.artist);
     }
@@ -380,7 +381,7 @@ static int32_t NSFMapperSetInfo(NEZ_PLAY *pNezPlay, const uint8_t *pData)
     XMEMCPY(pNezPlay->songinfodata.artist,artistbuffer,strlen((const char *)artistbuffer)+1);
 
 	XMEMSET(copyrightbuffer, 0, 0x21);
-	XMEMCPY(copyrightbuffer, pData + 0x004e, 0x20);
+	XMEMCPY(copyrightbuffer, head + 0x004e, 0x20);
     if(pNezPlay->songinfodata.copyright != NULL) {
         XFREE(pNezPlay->songinfodata.copyright);
     }
@@ -411,19 +412,19 @@ First ROM Bank(C000-CFFF)             : %02XH\r\n\
 First ROM Bank(D000-DFFF)             : %02XH\r\n\
 First ROM Bank(E000-EFFF or 6000-6FFF): %02XH\r\n\
 First ROM Bank(F000-FFFF or 7000-7FFF): %02XH"
-		,pData[0x06],pData[0x07],GetWordLE(pData + 0x08),GetWordLE(pData + 0x0A),GetWordLE(pData + 0x0C)
-		,pData[0x7A]&0x02 ? "NTSC + PAL" : pData[0x7A]&0x01 ? "PAL" : "NTSC"
-		,GetWordLE(pData + 0x6E),GetWordLE(pData + 0x6E) ? 1000000.0/GetWordLE(pData + 0x6E) : 0
-		,GetWordLE(pData + 0x78),GetWordLE(pData + 0x78) ? 1000000.0/GetWordLE(pData + 0x78) : 0
-		,pData[0x7B]&0x01 ? "VRC6 " : ""
-		,pData[0x7B]&0x02 ? "VRC7 " : ""
-		,pData[0x7B]&0x04 ? "2C33 " : ""
-		,pData[0x7B]&0x08 ? "MMC5 " : ""
-		,pData[0x7B]&0x10 ? "Namco1xx " : ""
-		,pData[0x7B]&0x20 ? "Sunsoft5B " : ""
-		,pData[0x7B] ? "" : "None"
-		,pData[0x70]|pData[0x71]|pData[0x72]|pData[0x73]|pData[0x74]|pData[0x75]|pData[0x76]|pData[0x77] ? 1 : 0
-		,pData[0x70],pData[0x71],pData[0x72],pData[0x73],pData[0x74],pData[0x75],pData[0x76],pData[0x77]
+		,head[0x06],head[0x07],GetWordLE(head + 0x08),GetWordLE(head + 0x0A),GetWordLE(head + 0x0C)
+		,head[0x7A]&0x02 ? "NTSC + PAL" : head[0x7A]&0x01 ? "PAL" : "NTSC"
+		,GetWordLE(head + 0x6E),GetWordLE(head + 0x6E) ? 1000000.0/GetWordLE(head + 0x6E) : 0
+		,GetWordLE(head + 0x78),GetWordLE(head + 0x78) ? 1000000.0/GetWordLE(head + 0x78) : 0
+		,head[0x7B]&0x01 ? "VRC6 " : ""
+		,head[0x7B]&0x02 ? "VRC7 " : ""
+		,head[0x7B]&0x04 ? "2C33 " : ""
+		,head[0x7B]&0x08 ? "MMC5 " : ""
+		,head[0x7B]&0x10 ? "Namco1xx " : ""
+		,head[0x7B]&0x20 ? "Sunsoft5B " : ""
+		,head[0x7B] ? "" : "None"
+		,head[0x70]|head[0x71]|head[0x72]|head[0x73]|head[0x74]|head[0x75]|head[0x76]|head[0x77] ? 1 : 0
+		,head[0x70],head[0x71],head[0x72],head[0x73],head[0x74],head[0x75],head[0x76],head[0x77]
 	);
 
     return NEZ_NESERR_NOERROR;
@@ -444,9 +445,10 @@ PROTECTED uint32_t NSFLoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uS
     XMEMCPY(THIS_->nsf_mapper_write_handler2,nsf_mapper_write_handler2,sizeof(nsf_mapper_write_handler2));
     XMEMCPY(THIS_->nsf_mapper_reset_handler,nsf_mapper_reset_handler,sizeof(nsf_mapper_reset_handler));
     XMEMCPY(THIS_->nsf_mapper_terminate_handler,nsf_mapper_terminate_handler,sizeof(nsf_mapper_terminate_handler));
+    XMEMCPY(((NSFNSF*)pNezPlay->nsf)->head,pData,0x80);
 
 	NESMemoryHandlerInitialize(pNezPlay);
-	ret = NSFMapperSetInfo(pNezPlay, pData);
+	ret = NSFMapperSetInfo(pNezPlay);
     if (ret) return ret;
 	ret = NSF6502Install(pNezPlay);
 	if (ret) return ret;
@@ -455,6 +457,286 @@ PROTECTED uint32_t NSFLoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uS
 	ret = NSFDeviceInitialize(pNezPlay);
 	if (ret) return ret;
 	SONGINFO_SetSongNo(pNezPlay->song, SONGINFO_GetStartSongNo(pNezPlay->song));
+	return NEZ_NESERR_NOERROR;
+}
+
+static NEZ_TRACK_INFO *NSFFindTrack(NEZ_PLAY *pNezPlay, const uint8_t songNo) {
+    uint32_t i = 0;
+    while(i < pNezPlay->tracks->loaded) {
+        if(pNezPlay->tracks->info[i].songno == (uint32_t)-1)
+           return &(pNezPlay->tracks->info[i]);
+        if(pNezPlay->tracks->info[i].songno == (uint32_t)songNo)
+           return &(pNezPlay->tracks->info[i]);
+        i++;
+    }
+    return &(pNezPlay->tracks->info[i]);
+}
+
+PROTECTED uint32_t NSFELoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uSize) {
+    uint32_t ret;
+    char chunkId[5];
+    uint32_t chunkSize;
+    const uint8_t *romData;
+    uint32_t romSize;
+    int32_t iSize;
+    uint8_t infoFlag;
+
+    const uint8_t *plst;
+    const uint8_t *time;
+    const uint8_t *fade;
+    const uint8_t *tlbl;
+    const uint8_t *auth;
+
+    uint32_t plstSize;
+    uint32_t timeSize;
+    uint32_t fadeSize;
+    uint32_t tlblSize;
+    uint32_t authSize;
+
+    NEZ_TRACK_INFO *trackInfo;
+
+	NSFNSF *THIS_ = (NSFNSF *)XMALLOC(sizeof(NSFNSF));
+	if (!THIS_) return NEZ_NESERR_SHORTOFMEMORY;
+	XMEMSET(THIS_, 0, sizeof(NSFNSF));
+	THIS_->fds_type = 2;
+	pNezPlay->nsf = THIS_;
+
+    XMEMCPY(THIS_->nsf_mapper_read_handler,nsf_mapper_read_handler,sizeof(nsf_mapper_read_handler));
+    XMEMCPY(THIS_->nsf_mapper_write_handler,nsf_mapper_write_handler,sizeof(nsf_mapper_write_handler));
+    XMEMCPY(THIS_->nsf_mapper_write_handler_fds,nsf_mapper_write_handler_fds,sizeof(nsf_mapper_write_handler_fds));
+    XMEMCPY(THIS_->nsf_mapper_write_handler2,nsf_mapper_write_handler2,sizeof(nsf_mapper_write_handler2));
+    XMEMCPY(THIS_->nsf_mapper_reset_handler,nsf_mapper_reset_handler,sizeof(nsf_mapper_reset_handler));
+    XMEMCPY(THIS_->nsf_mapper_terminate_handler,nsf_mapper_terminate_handler,sizeof(nsf_mapper_terminate_handler));
+
+    pData += 4;
+    uSize -= 4;
+    chunkId[4] = 0;
+    ret = NEZ_NESERR_NOERROR;
+    romData = NULL;
+    infoFlag = 0;
+
+    plst = NULL;
+    time = NULL;
+    fade = NULL;
+    tlbl = NULL;
+    auth = NULL;
+    plstSize = 0;
+    timeSize = 0;
+    fadeSize = 0;
+    tlblSize = 0;
+    authSize = 0;
+    
+    trackInfo = NULL;
+
+    ((NSFNSF*)pNezPlay->nsf)->head[0x00] = 'N';
+    ((NSFNSF*)pNezPlay->nsf)->head[0x01] = 'E';
+    ((NSFNSF*)pNezPlay->nsf)->head[0x02] = 'S';
+    ((NSFNSF*)pNezPlay->nsf)->head[0x03] = 'M';
+    ((NSFNSF*)pNezPlay->nsf)->head[0x04] = 0x1A;
+    ((NSFNSF*)pNezPlay->nsf)->head[0x05] = 0x01;
+    ((NSFNSF*)pNezPlay->nsf)->head[0x07] = 0x01;
+    SetDwordLE( &((NSFNSF*)pNezPlay->nsf)->head[0x6E],16639);
+    SetDwordLE( &((NSFNSF*)pNezPlay->nsf)->head[0x78],19997);
+
+    while(uSize) {
+        chunkSize = GetDwordLE(pData);
+        XMEMCPY(chunkId,&pData[0x04],4);
+
+        uSize -= 8;
+        pData += 8;
+
+        if(GetDwordLEM(chunkId) == GetDwordLEM("INFO")) {
+            infoFlag = 1;
+            XMEMCPY(&((NSFNSF*)pNezPlay->nsf)->head[0x08],&pData[0x00],0x06);
+            XMEMCPY(&((NSFNSF*)pNezPlay->nsf)->head[0x7A],&pData[0x06],0x02);
+            XMEMCPY(&((NSFNSF*)pNezPlay->nsf)->head[0x06],&pData[0x08],0x01);
+            if(chunkSize > 9) {
+                ((NSFNSF*)pNezPlay->nsf)->head[0x07] = pData[0x09] + 1;
+            }
+        }
+        else if(GetDwordLEM(chunkId) == GetDwordLEM("BANK")) {
+            if(chunkSize >= 8) {
+                XMEMCPY(&((NSFNSF*)pNezPlay->nsf)->head[0x70],&pData[0x00],0x08);
+            }
+        }
+        else if(GetDwordLEM(chunkId) == GetDwordLEM("RATE")) {
+            XMEMCPY(&((NSFNSF*)pNezPlay->nsf)->head[0x6E],&pData[0x00],0x02);
+            if(chunkSize >= 4) XMEMCPY(&((NSFNSF*)pNezPlay->nsf)->head[0x78],&pData[0x02],0x02);
+        }
+        else if(GetDwordLEM(chunkId) == GetDwordLEM("DATA")) {
+            romData = pData;
+            romSize = chunkSize;
+        }
+        else if(GetDwordLEM(chunkId) == GetDwordLEM("NEND")) {
+            break;
+        }
+        else if((uint8_t)chunkId[0] >= 65 && (uint8_t)chunkId[0] <=90) {
+            return NEZ_NESERR_FORMAT;
+        }
+        else if(GetDwordLEM(chunkId) == GetDwordLEM("plst")) {
+            plst = pData;
+            plstSize = chunkSize;
+        }
+        else if(GetDwordLEM(chunkId) == GetDwordLEM("time")) {
+            time = pData;
+            timeSize = chunkSize;
+        }
+        else if(GetDwordLEM(chunkId) == GetDwordLEM("fade")) {
+            fade = pData;
+            fadeSize = chunkSize;
+        }
+        else if(GetDwordLEM(chunkId) == GetDwordLEM("tlbl")) {
+            tlbl = pData;
+            tlblSize = chunkSize;
+        }
+        else if(GetDwordLEM(chunkId) == GetDwordLEM("auth")) {
+            auth = pData;
+            authSize = chunkSize;
+        }
+
+
+        if(chunkSize > uSize) break;
+        uSize -= chunkSize;
+        pData += chunkSize;
+    }
+    if(infoFlag == 0 || romData == NULL) return NEZ_NESERR_FORMAT;
+
+	NESMemoryHandlerInitialize(pNezPlay);
+	ret = NSFMapperSetInfo(pNezPlay);
+    if (ret) return ret;
+	ret = NSF6502Install(pNezPlay);
+	if (ret) return ret;
+	ret = NSFMapperInitialize(pNezPlay, romData, romSize);
+	if (ret) return ret;
+	ret = NSFDeviceInitialize(pNezPlay);
+	if (ret) return ret;
+	SONGINFO_SetSongNo(pNezPlay->song, SONGINFO_GetStartSongNo(pNezPlay->song));
+    pNezPlay->tracks = TRACKS_New((uint32_t) ((NSFNSF*)pNezPlay->nsf)->head[0x06]);
+
+    while(authSize > 0) {
+        romData = auth;
+        while(*romData && romData - auth < authSize) {
+            romData++;
+        }
+        if(romData - auth < authSize && *romData == 0) {
+            uSize = strlen((const char *)auth);
+            if(uSize) {
+                if(pNezPlay->tracks->title == NULL) {
+                    pNezPlay->tracks->title = XMALLOC(uSize+1);
+                    if(pNezPlay->tracks->title == NULL) return NEZ_NESERR_SHORTOFMEMORY;
+                    XMEMCPY(pNezPlay->tracks->title,auth,uSize);
+                    pNezPlay->tracks->title[uSize] = 0;
+                } else if(pNezPlay->tracks->artist == NULL) {
+                    pNezPlay->tracks->artist = XMALLOC(uSize+1);
+                    if(pNezPlay->tracks->artist == NULL) return NEZ_NESERR_SHORTOFMEMORY;
+                    XMEMCPY(pNezPlay->tracks->artist,auth,uSize);
+                    pNezPlay->tracks->artist[uSize] = 0;
+                } else if(pNezPlay->tracks->copyright == NULL) {
+                    pNezPlay->tracks->copyright = XMALLOC(uSize+1);
+                    if(pNezPlay->tracks->copyright == NULL) return NEZ_NESERR_SHORTOFMEMORY;
+                    XMEMCPY(pNezPlay->tracks->copyright,auth,uSize);
+                    pNezPlay->tracks->copyright[uSize] = 0;
+                } else if(pNezPlay->tracks->dumper == NULL) {
+                    pNezPlay->tracks->dumper = XMALLOC(uSize+1);
+                    if(pNezPlay->tracks->dumper == NULL) return NEZ_NESERR_SHORTOFMEMORY;
+                    XMEMCPY(pNezPlay->tracks->dumper,auth,uSize);
+                    pNezPlay->tracks->dumper[uSize] = 0;
+                } else {
+                    goto authdone;
+                }
+            }
+        }
+        else {
+            goto authdone;
+        }
+        authSize -= (uSize + 1);
+        auth += (uSize + 1);
+    }
+    authdone:
+
+    while(plstSize > 0) {
+        pNezPlay->tracks->info[pNezPlay->tracks->loaded++].songno = plst[0];
+        plst++;
+        plstSize--;
+    }
+
+    infoFlag = 0;
+    while(tlblSize > 0) {
+        romData = tlbl;
+        while(*romData && romData - tlbl < tlblSize) {
+            romData++;
+        }
+        if(romData - tlbl < tlblSize && *romData == 0) {
+            uSize = strlen((const char *)tlbl);
+            if(uSize) {
+                trackInfo = NSFFindTrack(pNezPlay,infoFlag);
+                trackInfo->title = XMALLOC(uSize+1);
+                if(trackInfo->title == NULL) return NEZ_NESERR_SHORTOFMEMORY;
+                XMEMCPY(trackInfo->title,tlbl,uSize);
+                trackInfo->title[uSize] = 0;
+                if(trackInfo->songno == (uint32_t)-1) {
+                    trackInfo->songno = (uint32_t)infoFlag;
+                    pNezPlay->tracks->loaded++;
+                }
+            }
+        }
+        else {
+            goto tlbldone;
+        }
+        if(uSize + 1 > tlblSize) goto tlbldone;
+        tlblSize -= (uSize + 1);
+        tlbl += (uSize + 1);
+        infoFlag++;
+    }
+    tlbldone:
+
+    infoFlag = 0;
+    while(timeSize > 0) {
+        iSize = (int32_t)GetDwordLE(time);
+        trackInfo = NSFFindTrack(pNezPlay,infoFlag);
+        if(trackInfo->songno == (uint32_t)-1) {
+            trackInfo->songno = (uint32_t)infoFlag;
+            pNezPlay->tracks->loaded++;
+        }
+        if(iSize >= 0) {
+            trackInfo->length = iSize;
+        }
+
+        if(timeSize < 4) goto timedone;
+        timeSize -= 4;
+        time += 4;
+        infoFlag++;
+    }
+    timedone:
+
+    infoFlag = 0;
+    while(fadeSize > 0) {
+        iSize = (int32_t)GetDwordLE(fade);
+        trackInfo = NSFFindTrack(pNezPlay,infoFlag);
+        if(trackInfo->songno == (uint32_t)-1) {
+            trackInfo->songno = (uint32_t)infoFlag;
+            pNezPlay->tracks->loaded++;
+        }
+        if(iSize >= 0) {
+            trackInfo->fade = iSize;
+        }
+
+        if(fadeSize < 4) goto fadedone;
+        fadeSize -= 4;
+        fade += 4;
+        infoFlag++;
+    }
+    fadedone:
+
+    /* check that every song has a corresponding "track" */
+    for(infoFlag=0;infoFlag<((NSFNSF*)pNezPlay->nsf)->head[0x06];infoFlag++) {
+        trackInfo = NSFFindTrack(pNezPlay,infoFlag);
+        if(trackInfo->songno == (uint32_t)-1) {
+            trackInfo->songno = (uint32_t)infoFlag;
+            pNezPlay->tracks->loaded++;
+        }
+    }
+
 	return NEZ_NESERR_NOERROR;
 }
 

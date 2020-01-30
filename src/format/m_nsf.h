@@ -67,6 +67,7 @@ typedef struct NSFNSF_TAG {
 
 /* NSF player */
 PROTECTED uint32_t NSFLoad(NEZ_PLAY*, const uint8_t *pData, uint32_t uSize);
+PROTECTED uint32_t NSFELoad(NEZ_PLAY*, const uint8_t *pData, uint32_t uSize);
 PROTECTED uint8_t *NSFGetHeader(NEZ_PLAY*);
 PROTECTED uint32_t NSFDeviceInitialize(NEZ_PLAY*);
 

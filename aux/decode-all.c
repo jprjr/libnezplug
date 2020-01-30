@@ -168,9 +168,8 @@ int main(int argc, char *argv[]) {
           }
         }
 
-        /* convert 2 minutes of audio */
         samples = 0;
-        while(samples < 48000 * 120) {
+        while(samples < 48 * (NEZGetTrackLength(player,i))) {
             NEZRender(player,buffer,4096);
             if(fwrite(buffer,1,4096 * sizeof(int16_t) * channels,out) !=
                 4096 * sizeof(int16_t) * channels) {

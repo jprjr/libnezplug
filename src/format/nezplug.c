@@ -208,6 +208,7 @@ uint32_t NEZLoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uSize)
 	uint32_t ret = NEZ_NESERR_NOERROR;
 
 	pNezPlay->songinfodata.detail[0]=0;
+    pNezPlay->tracks = NULL;
 
 	while (1)
 	{
@@ -218,6 +219,7 @@ uint32_t NEZLoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uSize)
 		NESTerminate(pNezPlay);
 		NESHandlerInitialize(pNezPlay->nrh, pNezPlay->nth);
 		NESAudioHandlerInitialize(pNezPlay);
+
 		if (uSize < 8)
 		{
 			ret = NEZ_NESERR_FORMAT;
@@ -253,6 +255,11 @@ uint32_t NEZLoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uSize)
 			ret = NSFLoad(pNezPlay, pData, uSize);
 			if (ret) break;
 		}
+        else if (GetDwordLE(pData + 0) == GetDwordLEM("NSFE")) {
+            /* NSFe */
+            ret = NSFELoad(pNezPlay, pData, uSize);
+            if (ret) break;
+        }
 		else if (GetDwordLE(pData + 0) == GetDwordLEM("ZXAY") && GetDwordLE(pData + 4) == GetDwordLEM("EMUL"))
 		{
 			/* ZXAY */
@@ -295,7 +302,8 @@ uint32_t NEZLoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t uSize)
 			break;
 		}
 
-        pNezPlay->tracks = TRACKS_New(NEZGetSongMax(pNezPlay));
+        /* NSFELoad can create the tracks object */
+        if(!pNezPlay->tracks) pNezPlay->tracks = TRACKS_New(NEZGetSongMax(pNezPlay));
         if(!pNezPlay->tracks) {
             ret = NEZ_NESERR_SHORTOFMEMORY;
             break;
