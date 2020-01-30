@@ -1,4 +1,4 @@
-.PHONY: all clean dist
+.PHONY: all clean dist debug
 
 CC = cc
 AR = ar
@@ -52,10 +52,18 @@ LIBNEZPLUG_OBJS = $(LIBNEZPLUG_SRCS:.c=.o)
 
 all: libnezplug.a libnezplug.so
 
-libnezplug.a: $(LIBNEZPLUG_OBJS)
+debug: libnezplug-debug.a libnezplug-debug.so
+
+libnezplug-debug.a: $(LIBNEZPLUG_OBJS)
 	$(AR) rcs $@ $^
 
-libnezplug.so: $(LIBNEZPLUG_OBJS)
+libnezplug-debug.so: $(LIBNEZPLUG_OBJS)
+	$(CC) -shared -o $@ $^
+
+libnezplug.a: dist/nezplug.o
+	$(AR) rcs $@ $^
+
+libnezplug.so: dist/nezplug.o
 	$(CC) -shared -o $@ $^
 
 decode-all: aux/decode-all.o libnezplug.a
@@ -79,6 +87,8 @@ dist/nezplug.c: $(LIBNEZPLUG_SRCS)
 clean:
 	rm -f libnezplug.a
 	rm -f libnezplug.so
+	rm -f libnezplug-debug.a
+	rm -f libnezplug-debug.so
 	rm -f $(LIBNEZPLUG_OBJS)
 	rm -rf dist
 	rm -f aux/decode-all.o
