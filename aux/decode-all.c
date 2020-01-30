@@ -112,7 +112,7 @@ int main(int argc, char *argv[]) {
     if(NEZGetGameCopyright(player)) fprintf(stderr,"copyright: %s\n",NEZGetGameCopyright(player));
     if(NEZGetGameDetail(player)) fprintf(stderr,"detail: %s\n",NEZGetGameDetail(player));
     if(player->tracks->dumper) fprintf(stderr,"dumper: %s\n",player->tracks->dumper);
-    for(i=NEZGetSongStart(player);i<=NEZGetSongMax(player);i++) {
+    for(i=NEZGetSongStart(player);i<=NEZGetSongMaxAbsolute(player);i++) {
         fprintf(stderr,"Track %02d: \n"
         "\ttitle: %s\n"
         "\tlength: %u\n"

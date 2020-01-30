@@ -510,6 +510,7 @@ PROTECTED uint8_t TRACKS_LoadM3U(NEZ_PLAY *player, const uint8_t *uData, uint32_
 
         if(tracks_process_line(player,d,p - d - offset)) {
             tracks->loaded++;
+	        SONGINFO_SetMaxSongNo(player->song, tracks->loaded);
         }
 
         p++;

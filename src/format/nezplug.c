@@ -18,7 +18,7 @@
 static Inline uint32_t fix_track(NEZ_PLAY *pNezPlay, uint32_t track)
 {
     if(track < 1) track = 1;
-    if(track > NEZGetSongMax(pNezPlay)) track = NEZGetSongMax(pNezPlay);
+    if(track > NEZGetSongMaxAbsolute(pNezPlay)) track = NEZGetSongMaxAbsolute(pNezPlay);
     return track;
 }
 
@@ -91,7 +91,7 @@ void NEZSetSongNo(NEZ_PLAY *pNezPlay, uint32_t uSongNo)
 {
 	if (pNezPlay == 0) return;
     if (uSongNo == 0) uSongNo = 1;
-    if (uSongNo > NEZGetSongMax(pNezPlay)) uSongNo = NEZGetSongMax(pNezPlay);
+    if (uSongNo > NEZGetSongMaxAbsolute(pNezPlay)) uSongNo = NEZGetSongMaxAbsolute(pNezPlay);
 
     if (pNezPlay->tracks && pNezPlay->tracks->loaded) {
         pNezPlay->tracks->current = uSongNo;
@@ -187,7 +187,15 @@ uint32_t NEZGetSongStart(NEZ_PLAY *pNezPlay)
 uint32_t NEZGetSongMax(NEZ_PLAY *pNezPlay)
 {
 	if (pNezPlay == 0) return 0;
-    if (pNezPlay->tracks && pNezPlay->tracks->loaded) return pNezPlay->tracks->loaded;
+	return SONGINFO_GetMaxSongNo(pNezPlay->song);
+}
+
+/* NSFE and M3U can set the MaxSongNo < the actual MaxSongNo - returns the
+ * actual amount of tracks */
+uint32_t NEZGetSongMaxAbsolute(NEZ_PLAY *pNezPlay)
+{
+	if (pNezPlay == 0) return 0;
+    if (pNezPlay->tracks && pNezPlay->tracks->total) return pNezPlay->tracks->total;
 	return SONGINFO_GetMaxSongNo(pNezPlay->song);
 }
 

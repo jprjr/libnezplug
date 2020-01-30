@@ -9,27 +9,27 @@ RUN make clean
 FROM gcc:6
 COPY --from=0 /src/nezplug /src/nezplug
 WORKDIR /src/nezplug
-RUN make dist/nezplug.o && make libnezplug.so
+RUN make debug && make dist/nezplug.o && make libnezplug.so
 RUN ls -lh dist libnezplug.so
 
 
 FROM gcc:7
 COPY --from=0 /src/nezplug /src/nezplug
 WORKDIR /src/nezplug
-RUN make dist/nezplug.o && make libnezplug.so
+RUN make debug && make dist/nezplug.o && make libnezplug.so
 RUN ls -lh dist libnezplug.so
 
 
 FROM gcc:8
 COPY --from=0 /src/nezplug /src/nezplug
 WORKDIR /src/nezplug
-RUN make dist/nezplug.o && make libnezplug.so
+RUN make debug && make dist/nezplug.o && make libnezplug.so
 RUN ls -lh dist libnezplug.so
 
 FROM gcc:9
 COPY --from=0 /src/nezplug /src/nezplug
 WORKDIR /src/nezplug
-RUN make dist/nezplug.o && make libnezplug.so
+RUN make debug && make dist/nezplug.o && make libnezplug.so
 RUN ls -lh dist libnezplug.so
 
 FROM debian:10
@@ -54,10 +54,10 @@ RUN echo "deb http://apt.llvm.org/buster/ llvm-toolchain-buster-8 main" > /etc/a
       make
 COPY --from=0 /src/nezplug /src/nezplug
 WORKDIR /src/nezplug
-RUN make CC=clang-8 dist/nezplug.o && make CC=clang-8 libnezplug.so
+RUN make CC=clang-8 debug && make CC=clang-8 dist/nezplug.o && make CC=clang-8 libnezplug.so
 RUN ls -lh dist libnezplug.so
-RUN make clean && make CC=clang-9 dist/nezplug.o && make CC=clang-9 libnezplug.so
+RUN make clean && make CC=clang-9 debug && make CC=clang-9 dist/nezplug.o && make CC=clang-9 libnezplug.so
 RUN ls -lh dist libnezplug.so
-RUN make clean && make CC=clang dist/nezplug.o && make CC=clang libnezplug.so
+RUN make clean && make CC=clang debug make CC=clang dist/nezplug.o && make CC=clang libnezplug.so
 RUN ls -lh dist libnezplug.so
-RUN make clean && scan-build --use-cc clang make CC=clang libnezplug.so
+RUN make clean && scan-build --use-cc clang make CC=clang debug

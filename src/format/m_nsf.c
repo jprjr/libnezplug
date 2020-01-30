@@ -513,6 +513,7 @@ PROTECTED uint32_t NSFELoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t u
     chunkId[4] = 0;
     ret = NEZ_NESERR_NOERROR;
     romData = NULL;
+    romSize = 0;
     infoFlag = 0;
 
     plst = NULL;
@@ -654,10 +655,13 @@ PROTECTED uint32_t NSFELoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t u
     }
     authdone:
 
-    while(plstSize > 0) {
-        pNezPlay->tracks->info[pNezPlay->tracks->loaded++].songno = plst[0];
-        plst++;
-        plstSize--;
+    if(plstSize > 0) {
+        while(plstSize > 0) {
+            pNezPlay->tracks->info[pNezPlay->tracks->loaded++].songno = plst[0];
+            plst++;
+            plstSize--;
+	        SONGINFO_SetMaxSongNo(pNezPlay->song, pNezPlay->tracks->loaded);
+        }
     }
 
     infoFlag = 0;

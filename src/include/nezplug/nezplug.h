@@ -250,6 +250,7 @@ void NEZRender(NEZ_PLAY*, void *bufp, uint32_t buflen);
 uint32_t NEZGetSongNo(NEZ_PLAY*);
 uint32_t NEZGetSongStart(NEZ_PLAY*);
 uint32_t NEZGetSongMax(NEZ_PLAY*);
+uint32_t NEZGetSongMaxAbsolute(NEZ_PLAY *);
 uint32_t NEZGetChannel(NEZ_PLAY*);
 uint32_t NEZGetFrequency(NEZ_PLAY*);
 
