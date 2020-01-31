@@ -1,7 +1,7 @@
 #ifndef MULDIV_H_
 #define MULDIV_H_
 
-#include "../include/nezplug/pstdint.h"
+#include "../include/nezplug/nezint.h"
 
 #ifdef _WIN32
 extern int __stdcall MulDiv(int nNumber,int nNumerator,int nDenominator);

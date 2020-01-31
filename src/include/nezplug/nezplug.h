@@ -1,5 +1,9 @@
 #ifndef NEZPLUG_H__
 #define NEZPLUG_H__
+
+#include "nezint.h"
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -86,9 +90,6 @@ typedef enum{//順番を変えたら恐ろしいことになる
 
 	NEZ_DEV_MAX,
 } NEZ_CHANNEL_ID;
-
-/* ensure int32_t etc exist */
-#include "pstdint.h"
 
 typedef struct NEZ_SONG_INFO_ NEZ_SONG_INFO;
 typedef struct NEZ_TRACK_INFO_ NEZ_TRACK_INFO;

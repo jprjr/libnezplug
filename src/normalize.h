@@ -1,7 +1,7 @@
 #ifndef NORMALIZE_H__
 #define NORMALIZE_H__
 
-#include "include/nezplug/pstdint.h"
+#include "include/nezplug/nezint.h"
 
 #ifndef Inline
 #ifdef __GNUC__

@@ -9,7 +9,11 @@ my @stack;
 
 sub slurpfile {
     my $filename = shift;
-    open(my $fh, '<', $filename) or die "File $filename: $!";
+    my $parent = shift;
+    if(!defined($parent)) {
+        $parent = '';
+    }
+    open(my $fh, '<', $filename) or die "File $parent failed to include $filename: $!";
     my @lines = <$fh>;
     close($fh);
     return @lines;
@@ -78,7 +82,7 @@ sub processline {
     my ($newfile) = ( $line =~ /^#include\s+"([^"]+)"/);
     $newfile = File::Spec->catfile($dir,$newfile);
 
-    my @lines = slurpfile($newfile);
+    my @lines = slurpfile($newfile,$filename);
     return processfile($newfile,$filename.'[' . $linenum . ']',@lines);
 }
 
@@ -100,7 +104,7 @@ $output .= "#define External static Inline\n\n";
 
 foreach my $file (@ARGV) {
     @stack = ();
-    my @lines = slurpfile($file);
+    my @lines = slurpfile($file,'');
     $output .= processfile($file,undef,@lines);
 }
 

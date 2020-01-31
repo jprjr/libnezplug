@@ -1,5 +1,6 @@
 #include <string.h>
 #include "trackinfo.h"
+#include "songinfo.h"
 #include "../normalize.h"
 
 #include <stdio.h>

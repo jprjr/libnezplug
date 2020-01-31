@@ -95,4 +95,3 @@ clean:
 
 dist: dist/nezplug.c
 	cp src/include/nezplug/nezplug.h dist/nezplug.h
-	cp src/include/nezplug/pstdint.h dist/pstdint.h
