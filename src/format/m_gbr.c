@@ -10,6 +10,7 @@
 
 #include "../cpu/kmz80/kmz80.h"
 #include <stdio.h>
+#include <string.h>
 #define SHIFT_CPS 15
 
 #define DMG_BASECYCLES (4096 * 1024)

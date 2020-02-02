@@ -1,3 +1,12 @@
+FROM ubuntu:18.04
+
+RUN apt-get update && apt-get install -y \
+     mingw-w64 make
+
+COPY . /src/nezplug
+WORKDIR /src/nezplug
+RUN make -j$(nproc) CC=i686-w64-mingw32-gcc AR=i686-w64-mingw32-ar debug
+
 FROM alpine:latest
 
 RUN apk add make

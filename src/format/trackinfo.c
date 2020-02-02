@@ -69,7 +69,7 @@ PROTECTED void TRACKS_Delete(NEZ_TRACKS *tracks) {
 static const char *
 skip_white(const char *data, uint32_t length) {
     const char *p = data;
-    while(p - data < length) {
+    while((size_t)(p - data) < length) {
         switch(*p) {
             case ' ': /* fallthrough */
             case '\t': p++; break;/* fallthrough */
@@ -88,7 +88,7 @@ static void parse_comment(NEZ_TRACKS *tracks, const char *data, uint32_t length)
     (void)length;
     char *buf = NULL;
 
-    if( p + 1 - data >= length ) return;
+    if( (size_t)(p + 1 - data) >= length ) return;
     p = skip_white(++p,length - 1);
     if(p == NULL) return;
 
@@ -276,7 +276,7 @@ static int32_t parse_tracknum(const char *buf, uint8_t *hex) {
 
 static const char *find_comma(const char *data, uint32_t length) {
     const char *p = data;
-    while(p - data < length) {
+    while((size_t)(p - data) < length) {
         if(*p == '\\') {
             p+=2;
             continue;
@@ -319,7 +319,7 @@ static uint8_t tracks_process_line(NEZ_PLAY *player, const char *data, uint32_t 
     }
     buf[i] = 0;
 
-    if(p - data == length) {
+    if((size_t)(p - data) == length) {
         return 0;
     }
     d = p+1;
@@ -356,7 +356,7 @@ static uint8_t tracks_process_line(NEZ_PLAY *player, const char *data, uint32_t 
     tracks->info[tracks->loaded].loop = -1;
     tracks->info[tracks->loaded].loops = -1;
 
-    if(p - data == length) {
+    if((size_t)(p - data) == length) {
         return 1;
     }
     d = p+1;
@@ -379,7 +379,7 @@ static uint8_t tracks_process_line(NEZ_PLAY *player, const char *data, uint32_t 
     tracks->info[tracks->loaded].title = XMALLOC(i);
     if(tracks->info[tracks->loaded].title == NULL) return 1;
     XMEMCPY(tracks->info[tracks->loaded].title,buf,i);
-    if(p - data == length) {
+    if((size_t)(p - data) == length) {
         return 1;
     }
     d = p+1;
@@ -401,7 +401,7 @@ static uint8_t tracks_process_line(NEZ_PLAY *player, const char *data, uint32_t 
     temp = parse_timestamp(buf);
     tracks->info[tracks->loaded].length = temp;
 
-    if(p - data == length) {
+    if((size_t)(p - data) == length) {
         return 1;
     }
     d = p+1;
@@ -440,7 +440,7 @@ static uint8_t tracks_process_line(NEZ_PLAY *player, const char *data, uint32_t 
         }
     }
 
-    if(p - data == length) {
+    if((size_t)(p - data) == length) {
         return 1;
     }
     d = p+1;
@@ -461,7 +461,7 @@ static uint8_t tracks_process_line(NEZ_PLAY *player, const char *data, uint32_t 
     buf[i] = 0;
     temp = parse_timestamp(buf);
     tracks->info[tracks->loaded].fade = temp;
-    if(p - data == length) {
+    if((size_t)(p - data) == length) {
         return 1;
     }
     d = p+1;
@@ -517,7 +517,7 @@ PROTECTED uint8_t TRACKS_LoadM3U(NEZ_PLAY *player, const uint8_t *uData, uint32_
         p++;
         d = p;
         line++;
-    } while(p - data < length);
+    } while((size_t)(p - data) < length);
 
     return 1;
 }

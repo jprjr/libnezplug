@@ -15,6 +15,7 @@
 #include "../device/nes/s_fme7.h"
 #include "trackinfo.h"
 #include <stdio.h>
+#include <string.h>
 
 #define NSF_MAPPER_STATIC 0
 #include "m_nsf.h"
@@ -616,10 +617,10 @@ PROTECTED uint32_t NSFELoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t u
 
     while(authSize > 0) {
         romData = auth;
-        while(*romData && romData - auth < authSize) {
+        while(*romData && (size_t)(romData - auth) < authSize) {
             romData++;
         }
-        if(romData - auth < authSize && *romData == 0) {
+        if((size_t)(romData - auth) < authSize && *romData == 0) {
             uSize = strlen((const char *)auth);
             if(uSize) {
                 if(pNezPlay->tracks->title == NULL) {
@@ -667,10 +668,10 @@ PROTECTED uint32_t NSFELoad(NEZ_PLAY *pNezPlay, const uint8_t *pData, uint32_t u
     infoFlag = 0;
     while(tlblSize > 0) {
         romData = tlbl;
-        while(*romData && romData - tlbl < tlblSize) {
+        while(*romData && (size_t)(romData - tlbl) < tlblSize) {
             romData++;
         }
-        if(romData - tlbl < tlblSize && *romData == 0) {
+        if((size_t)(romData - tlbl) < tlblSize && *romData == 0) {
             uSize = strlen((const char *)tlbl);
             if(uSize) {
                 trackInfo = NSFFindTrack(pNezPlay,infoFlag);

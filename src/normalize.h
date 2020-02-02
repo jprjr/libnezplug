@@ -30,14 +30,6 @@
 #include <stdlib.h>
 #include <memory.h>
 
-#if defined(_WIN32) || defined(WIN32)
-#include <windows.h>
-#define XSLEEP(t)         _sleep(t)
-#else
-#include <unistd.h>
-#define XSLEEP(t)         sleep(t)
-#endif
-
 #define XMALLOC(s)        malloc(s)
 #define XREALLOC(p,s)     realloc(p,s)
 #define XFREE(p)          free(p)

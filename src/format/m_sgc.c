@@ -13,6 +13,7 @@
 #include "../common/util.h"
 
 #include <stdio.h>
+#include <string.h>
 
 #define SHIFT_CPS 15
 #define BASECYCLES       (3579545)
