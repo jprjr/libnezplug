@@ -14,5 +14,5 @@ RUN apt-get update && \
 
 COPY . /src/nezplug
 WORKDIR /src/nezplug
-RUN make clean && scan-build-9 --use-cc clang-9 make CC=clang libnezplug.so
+RUN make clean && scan-build-9 --use-cc clang-9 make CC=clang libnezplug-debug.so
 RUN make clean && make dist/nezplug.c && scan-build-9 --use-cc clang-9 make CC=clang dist/nezplug.o

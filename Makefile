@@ -4,6 +4,23 @@ CC = cc
 AR = ar
 CFLAGS = -fPIC -O2 -Wall -Wextra -Werror -Isrc/include $(CFLAGS_EXTRA)
 
+STATIC_PREFIX=lib
+DYNLIB_PREFIX=lib
+STATIC_EXT=.a
+DYNLIB_EXT=.so
+EXE_EXT=
+
+NEZPLUG_A = $(STATIC_PREFIX)nezplug$(STATIC_EXT)
+NEZPLUG_SO = $(DYNLIB_PREFIX)nezplug$(DYNLIB_EXT)
+
+NEZPLUG_DEBUG_A = $(STATIC_PREFIX)nezplug-debug$(STATIC_EXT)
+NEZPLUG_DEBUG_SO = $(DYNLIB_PREFIX)nezplug-debug$(DYNLIB_EXT)
+
+DESTDIR=
+PREFIX=/usr/local
+LIBDIR=$(DESTDIR)$(PREFIX)/lib
+INCDIR=$(DESTDIR)$(PREFIX)/include/nezplug
+
 LIBNEZPLUG_SRCS =  \
   src/cpu/kmz80/kmdmg.c \
   src/cpu/kmz80/kmevent.c \
@@ -50,29 +67,29 @@ LIBNEZPLUG_SRCS =  \
 
 LIBNEZPLUG_OBJS = $(LIBNEZPLUG_SRCS:.c=.o)
 
-all: libnezplug.a libnezplug.so
+all: $(NEZPLUG_A) $(NEZPLUG_SO)
 
-debug: libnezplug-debug.a libnezplug-debug.so
+debug: $(NEZPLUG_DEBUG_A) $(NEZPLUG_DEBUG_SO)
 
-libnezplug-debug.a: $(LIBNEZPLUG_OBJS)
+$(NEZPLUG_DEBUG_A): $(LIBNEZPLUG_OBJS)
 	$(AR) rcs $@ $^
 
-libnezplug-debug.so: $(LIBNEZPLUG_OBJS)
+$(NEZPLUG_DEBUG_SO): $(LIBNEZPLUG_OBJS)
 	$(CC) -shared -o $@ $^
 
-libnezplug.a: dist/nezplug.o
+$(NEZPLUG_A): dist/nezplug.o
 	$(AR) rcs $@ $^
 
-libnezplug.so: dist/nezplug.o
+$(NEZPLUG_SO): dist/nezplug.o
 	$(CC) -shared -o $@ $^
 
-decode-all: aux/decode-all.o libnezplug.a
+decode-all: aux/decode-all.o $(NEZPLUG_A)
 	$(CC) -o $@ $^ -lm
 
 decode-all-amalg: aux/decode-all.o dist/nezplug.o
 	$(CC) -o $@ $^ -lm
 
-benchmark: aux/benchmark.o libnezplug.a
+benchmark: aux/benchmark.o $(NEZPLUG_A)
 	$(CC) -s -o $@ $^ -lm
 
 benchmark-amalg: aux/benchmark.o dist/nezplug.o
@@ -85,13 +102,21 @@ dist/nezplug.c: $(LIBNEZPLUG_SRCS)
 	perl aux/amalgate.pl $(LIBNEZPLUG_SRCS) > dist/nezplug.c
 
 clean:
-	rm -f libnezplug.a
-	rm -f libnezplug.so
-	rm -f libnezplug-debug.a
-	rm -f libnezplug-debug.so
+	rm -f $(NEZPLUG_A)
+	rm -f $(NEZPLUG_SO)
+	rm -f $(NEZPLUG_DEBUG_A)
+	rm -f $(NEZPLUG_DEBUG_SO)
 	rm -f $(LIBNEZPLUG_OBJS)
 	rm -rf dist
 	rm -f aux/decode-all.o
 
 dist: dist/nezplug.c
 	cp src/include/nezplug/nezplug.h dist/nezplug.h
+
+install: $(NEZPLUG_A) $(NEZPLUG_SO)
+	install -d $(LIBDIR)/
+	install -m 644 $(NEZPLUG_A) $(LIBDIR)/$(NEZPLUG_A)
+	install -m 755 $(NEZPLUG_SO) $(LIBDIR)/$(NEZPLUG_SO)
+	install -d $(INCDIR)/
+	install -m 644 src/include/nezplug/nezplug.h $(INCDIR)/
+	install -m 644 src/include/nezplug/nezint.h $(INCDIR)/
