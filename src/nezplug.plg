@@ -7,7 +7,7 @@
 </h3>
 <h3>ｺﾏﾝﾄﾞ ﾗｲﾝ</h3>
 Creating command line "rc.exe /l 0x409 /fo"..¥Release¥in_nez/nezplug.res" /i "ui¥nezplug" /d "NDEBUG" "C:¥My Projects¥CPP Folder¥My Project¥nezplug¥src¥ui¥nezplug¥nezplug.rc"" 
-一時ﾌｧｲﾙ "R:¥Temp¥RSPC144.tmp" を作成し、次の内容を記録します
+一時ﾌｧｲﾙ "R:¥Temp¥RSP3029.tmp" を作成し、次の内容を記録します
 [
 /nologo /MD /W3 /GX /O2 /I "format" /I "device" /I "cpu" /I "." /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_USRDLL" /D "_MBCS" /FR"..¥Release¥in_nez/" /Fo"..¥Release¥in_nez/" /GF /c 
 "C:¥My Projects¥CPP Folder¥My Project¥nezplug¥src¥ui¥winamp¥con_nez.c"
@@ -22,8 +22,8 @@ Creating command line "rc.exe /l 0x409 /fo"..¥Release¥in_nez/nezplug.res" /i "
 "C:¥My Projects¥CPP Folder¥My Project¥nezplug¥src¥common¥win32¥csowin32.c"
 "C:¥My Projects¥CPP Folder¥My Project¥nezplug¥src¥common¥win32¥win32dll.c"
 ]
-Creating command line "cl.exe @R:¥Temp¥RSPC144.tmp" 
-一時ﾌｧｲﾙ "R:¥Temp¥RSPC145.tmp" を作成し、次の内容を記録します
+Creating command line "cl.exe @R:¥Temp¥RSP3029.tmp" 
+一時ﾌｧｲﾙ "R:¥Temp¥RSP302A.tmp" を作成し、次の内容を記録します
 [
 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ..¥Release¥nezplug.lib /nologo /subsystem:windows /dll /incremental:no /pdb:"..¥Release¥in_nez/in_nez.pdb" /machine:IX86 /def:"ui¥winamp¥in_nez.def" /out:"..¥Release¥in_nez/in_nez.dll" /implib:"..¥Release¥in_nez/in_nez.lib" /pdbtype:sept 
 "¥My Projects¥CPP Folder¥My Project¥nezplug¥Release¥in_nez¥con_nez.obj"
@@ -39,7 +39,7 @@ kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32
 "¥My Projects¥CPP Folder¥My Project¥nezplug¥Release¥in_nez¥win32dll.obj"
 "¥My Projects¥CPP Folder¥My Project¥nezplug¥Release¥in_nez¥nezplug.res"
 ]
-ｺﾏﾝﾄﾞ ﾗｲﾝ "link.exe @R:¥Temp¥RSPC145.tmp" の作成中
+ｺﾏﾝﾄﾞ ﾗｲﾝ "link.exe @R:¥Temp¥RSP302A.tmp" の作成中
 <h3>ｱｳﾄﾌﾟｯﾄ ｳｨﾝﾄﾞｳ</h3>
 ﾘｿｰｽをｺﾝﾊﾟｲﾙ中...
 ｺﾝﾊﾟｲﾙ中...
@@ -58,12 +58,12 @@ win32dll.c
 ﾘﾝｸ中...
    ﾗｲﾌﾞﾗﾘ ..¥Release¥in_nez/in_nez.lib とｵﾌﾞｼﾞｪｸﾄ ..¥Release¥in_nez/in_nez.exp を作成中
 LINK : warning LNK4098: defaultlib "LIBCMT" は他のﾗｲﾌﾞﾗﾘの使用と競合しています; /NODEFAULTLIB:library を使用してください
-一時ﾌｧｲﾙ "R:¥Temp¥RSPC86A.bat" を作成し、次の内容を記録します
+一時ﾌｧｲﾙ "R:¥Temp¥RSP3684.bat" を作成し、次の内容を記録します
 [
 @echo off
 copy "C:¥My Projects¥CPP Folder¥My Project¥nezplug¥Release¥in_nez¥in_nez.dll" "C:¥Program Files (x86)¥Winamp¥Plugins¥"
 ]
-ｺﾏﾝﾄﾞ ﾗｲﾝ "R:¥Temp¥RSPC86A.bat" の作成中
+ｺﾏﾝﾄﾞ ﾗｲﾝ "R:¥Temp¥RSP3684.bat" の作成中
 
         1 個のファイルをコピーしました。
 
@@ -75,22 +75,22 @@ in_nez.dll - ｴﾗｰ 0、警告 1
 --------------------構成: kb_nez - Win32 Release--------------------
 </h3>
 <h3>ｺﾏﾝﾄﾞ ﾗｲﾝ</h3>
-一時ﾌｧｲﾙ "R:¥Temp¥RSPC994.tmp" を作成し、次の内容を記録します
+一時ﾌｧｲﾙ "R:¥Temp¥RSP36D3.tmp" を作成し、次の内容を記録します
 [
 /nologo /MD /W3 /GX /O2 /I "format" /I "device" /I "cpu" /I "." /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_USRDLL" /D "_MBCS" /FR"..¥Release¥kb_nez/" /Fo"..¥Release¥kb_nez/" /GF /c 
 "C:¥My Projects¥CPP Folder¥My Project¥nezplug¥src¥ui¥kmp¥kmp_com.c"
 "C:¥My Projects¥CPP Folder¥My Project¥nezplug¥src¥ui¥kmp¥kpinez.c"
 "C:¥My Projects¥CPP Folder¥My Project¥nezplug¥src¥common¥win32¥win32dll.c"
 ]
-Creating command line "cl.exe @R:¥Temp¥RSPC994.tmp" 
-一時ﾌｧｲﾙ "R:¥Temp¥RSPC995.tmp" を作成し、次の内容を記録します
+Creating command line "cl.exe @R:¥Temp¥RSP36D3.tmp" 
+一時ﾌｧｲﾙ "R:¥Temp¥RSP36D4.tmp" を作成し、次の内容を記録します
 [
 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ..¥Release¥nezplug.lib /nologo /subsystem:windows /dll /incremental:no /pdb:"..¥Release¥kb_nez/kb_nez.pdb" /machine:IX86 /def:"ui¥kmp¥kmp_com.def" /out:"..¥Release¥kb_nez¥kb_nez.kpi" /implib:"..¥Release¥kb_nez/kb_nez.lib" /pdbtype:sept /opt:ref /opt:icf 
 "¥My Projects¥CPP Folder¥My Project¥nezplug¥Release¥kb_nez¥kmp_com.obj"
 "¥My Projects¥CPP Folder¥My Project¥nezplug¥Release¥kb_nez¥kpinez.obj"
 "¥My Projects¥CPP Folder¥My Project¥nezplug¥Release¥kb_nez¥win32dll.obj"
 ]
-ｺﾏﾝﾄﾞ ﾗｲﾝ "link.exe @R:¥Temp¥RSPC995.tmp" の作成中
+ｺﾏﾝﾄﾞ ﾗｲﾝ "link.exe @R:¥Temp¥RSP36D4.tmp" の作成中
 <h3>ｱｳﾄﾌﾟｯﾄ ｳｨﾝﾄﾞｳ</h3>
 ｺﾝﾊﾟｲﾙ中...
 kmp_com.c
@@ -100,12 +100,12 @@ win32dll.c
 ﾘﾝｸ中...
    ﾗｲﾌﾞﾗﾘ ..¥Release¥kb_nez/kb_nez.lib とｵﾌﾞｼﾞｪｸﾄ ..¥Release¥kb_nez/kb_nez.exp を作成中
 LINK : warning LNK4098: defaultlib "LIBCMT" は他のﾗｲﾌﾞﾗﾘの使用と競合しています; /NODEFAULTLIB:library を使用してください
-一時ﾌｧｲﾙ "R:¥Temp¥RSPCACF.bat" を作成し、次の内容を記録します
+一時ﾌｧｲﾙ "R:¥Temp¥RSP37EE.bat" を作成し、次の内容を記録します
 [
 @echo off
 @rem 環境に合わせて！ copy "¥My Projects¥CPP Folder¥My Project¥nezplug¥Release¥kb_nez¥kb_nez.kpi" "C:¥Program Files¥_¥kbmed241¥Plugins¥OffGao¥"
 ]
-ｺﾏﾝﾄﾞ ﾗｲﾝ "R:¥Temp¥RSPCACF.bat" の作成中
+ｺﾏﾝﾄﾞ ﾗｲﾝ "R:¥Temp¥RSP37EE.bat" の作成中
 
 
 
@@ -117,7 +117,7 @@ kb_nez.kpi - ｴﾗｰ 0、警告 1
 </h3>
 <h3>ｺﾏﾝﾄﾞ ﾗｲﾝ</h3>
 Creating command line "rc.exe /l 0x409 /fo"..¥Release¥npnez/nezplug.res" /i "ui¥nezplug" /d "NDEBUG" "C:¥My Projects¥CPP Folder¥My Project¥nezplug¥src¥ui¥nezplug¥nezplug.rc"" 
-一時ﾌｧｲﾙ "R:¥Temp¥RSPCC27.tmp" を作成し、次の内容を記録します
+一時ﾌｧｲﾙ "R:¥Temp¥RSP382E.tmp" を作成し、次の内容を記録します
 [
 /nologo /MD /W3 /GX /O2 /I "format" /I "device" /I "cpu" /I "." /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_USRDLL" /D "_MBCS" /FR"..¥Release¥npnez/" /Fo"..¥Release¥npnez/" /GF /c 
 "C:¥My Projects¥CPP Folder¥My Project¥nezplug¥src¥ui¥hsp¥hspnez.c"
@@ -134,8 +134,8 @@ Creating command line "rc.exe /l 0x409 /fo"..¥Release¥npnez/nezplug.res" /i "u
 "C:¥My Projects¥CPP Folder¥My Project¥nezplug¥src¥snddrv¥win32¥snddrvds.c"
 "C:¥My Projects¥CPP Folder¥My Project¥nezplug¥src¥snddrv¥win32¥snddrvwo.c"
 ]
-Creating command line "cl.exe @R:¥Temp¥RSPCC27.tmp" 
-一時ﾌｧｲﾙ "R:¥Temp¥RSPCC28.tmp" を作成し、次の内容を記録します
+Creating command line "cl.exe @R:¥Temp¥RSP382E.tmp" 
+一時ﾌｧｲﾙ "R:¥Temp¥RSP382F.tmp" を作成し、次の内容を記録します
 [
 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib ..¥Release¥nezplug.lib /nologo /subsystem:windows /dll /incremental:no /pdb:"..¥Release¥npnez/npnez.pdb" /machine:IX86 /def:"ui¥hsp¥npnez.def" /out:"..¥Release¥npnez/npnez.dll" /implib:"..¥Release¥npnez/npnez.lib" /pdbtype:sept 
 "¥My Projects¥CPP Folder¥My Project¥nezplug¥Release¥npnez¥hspnez.obj"
@@ -153,7 +153,7 @@ kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32
 "¥My Projects¥CPP Folder¥My Project¥nezplug¥Release¥npnez¥snddrvwo.obj"
 "¥My Projects¥CPP Folder¥My Project¥nezplug¥Release¥npnez¥nezplug.res"
 ]
-ｺﾏﾝﾄﾞ ﾗｲﾝ "link.exe @R:¥Temp¥RSPCC28.tmp" の作成中
+ｺﾏﾝﾄﾞ ﾗｲﾝ "link.exe @R:¥Temp¥RSP382F.tmp" の作成中
 <h3>ｱｳﾄﾌﾟｯﾄ ｳｨﾝﾄﾞｳ</h3>
 ﾘｿｰｽをｺﾝﾊﾟｲﾙ中...
 ｺﾝﾊﾟｲﾙ中...
@@ -174,12 +174,12 @@ snddrvwo.c
 ﾘﾝｸ中...
    ﾗｲﾌﾞﾗﾘ ..¥Release¥npnez/npnez.lib とｵﾌﾞｼﾞｪｸﾄ ..¥Release¥npnez/npnez.exp を作成中
 LINK : warning LNK4098: defaultlib "LIBCMT" は他のﾗｲﾌﾞﾗﾘの使用と競合しています; /NODEFAULTLIB:library を使用してください
-一時ﾌｧｲﾙ "R:¥Temp¥RSPD3DA.bat" を作成し、次の内容を記録します
+一時ﾌｧｲﾙ "R:¥Temp¥RSP3EB8.bat" を作成し、次の内容を記録します
 [
 @echo off
 @rem 環境に合わせて！ copy "¥My Projects¥CPP Folder¥My Project¥nezplug¥Release¥npnez¥npnez.dll" "C:¥2¥lnsf03¥"
 ]
-ｺﾏﾝﾄﾞ ﾗｲﾝ "R:¥Temp¥RSPD3DA.bat" の作成中
+ｺﾏﾝﾄﾞ ﾗｲﾝ "R:¥Temp¥RSP3EB8.bat" の作成中
 
 
 
