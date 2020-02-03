@@ -26,6 +26,7 @@ typedef struct {
 	unsigned blocklen;
 	unsigned isplaying;
 	unsigned ispause;
+	unsigned isbuffering;// マルチコア対策。セマフォ…と言うのかな？
 	WAVEHDR *pawh;
 } SOUNDDEVICE_WO;
 
@@ -59,10 +60,18 @@ static void Write(SOUNDDEVICE_WO *psdwo)
 #define SD ((SOUNDDEVICE_WO *)(psd->lpSystemData))
 static void Term(struct SOUNDDEVICE_TAG *psd)
 {
+	unsigned i;
 	SD->isplaying = 0;
+
+	while(SD->isbuffering)Sleep(10);// マルチコア対策
+
 	if (SD->hwo)
 	{
 		waveOutReset(SD->hwo);
+		for (i = 0; i < SD->blocknum; i++)
+		{
+			waveOutUnprepareHeader(SD->hwo, &SD->pawh[i], sizeof(WAVEHDR));
+		}
 		waveOutClose(SD->hwo);
 	}
 	if (SD->pawh) free(SD->pawh);
@@ -108,13 +117,17 @@ static void Pause(struct SOUNDDEVICE_TAG *psd, unsigned isPause)
 #define SD ((SOUNDDEVICE_WO *)(dwInstance))
 static void CALLBACK WaveOutProc(HWAVEOUT hwo, UINT uMsg, DWORD dwInstance, DWORD dwParam1, DWORD dwParam2)
 {
+	SD->isbuffering++;
 	if (uMsg == MM_WOM_DONE)
 	{
-		WAVEHDR *pwh = (WAVEHDR *)dwParam1;
-		waveOutUnprepareHeader(SD->hwo, pwh, sizeof(WAVEHDR));
-		pwh->dwFlags = 0;
-		if (SD->isplaying) Write(SD);
+		if (SD->isplaying){//Write(SD);だけに囲んでいたのを全部囲んだらフリーズが直った！？
+			WAVEHDR *pwh = (WAVEHDR *)dwParam1;
+			waveOutUnprepareHeader(SD->hwo, pwh, sizeof(WAVEHDR));
+			pwh->dwFlags = 0;
+			Write(SD);
+		}
 	}
+	SD->isbuffering--;
 }
 
 #undef SD
@@ -162,6 +175,7 @@ SOUNDDEVICE *CreateSoundDeviceMMS(SOUNDDEVICEINITDATA *psdid)
 		if (waveOutOpen(&SD->hwo, WAVE_MAPPER, &wfex, (DWORD)(LPVOID)WaveOutProc, (DWORD)(LPVOID)SD, CALLBACK_FUNCTION) != MMSYSERR_NOERROR) break;
 
 		SD->isplaying = 1;
+		SD->isbuffering = 0;
 
 		Pause(&SD->sd, 2 + 4);
 

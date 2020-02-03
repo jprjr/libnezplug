@@ -9,9 +9,11 @@
 #include "hspsdk/hspdll.h"
 /* Project headers */
 #include "common/nsfsdk/nsfsdk.h"
-#include "common/zlib/nez.h"
+#include "zlib/nez.h"
 #include "snddrv/snddrv.h"
 #include "ui/version.h"
+#include "nezplug.h"
+#include "ui/nezplug/Dialog.h"
 
 static struct HSPXXX_T
 {
@@ -19,7 +21,7 @@ static struct HSPXXX_T
 	HNSF hnsf;
 	SOUNDDEVICE *psd;
 	SOUNDDEVICEPDI pdi;
-} hspxxx = { -1, NULL, NULL };
+} hspxxx = { -1, NULL, NULL};
 
 BOOL WINAPI HSPNEZVersion(int p1, int p2, int p3, int p4)
 {
@@ -63,6 +65,115 @@ BOOL WINAPI HSPNSFPlay(BMSCR *p1, int p2, int p3, int p4)
 	NSFSDK_SetChannel(hspxxx.hnsf, sdid.ch);
 	NSFSDK_Reset(hspxxx.hnsf);
 	hspxxx.psd = CreateSoundDevice(&sdid);
+	return 0;
+}
+
+BOOL WINAPI HSPNSFPlayDX(BMSCR *p1, int p2, int p3, int p4)
+{
+	SOUNDDEVICEINITDATA sdid;
+	HSPNSFStop(0,0,0,0);
+	if (!hspxxx.hnsf) return -1;
+	sdid.freq = 44100;
+	sdid.ch = 2;
+	sdid.bit = 16;
+	sdid.lpargs = 0;
+	sdid.Write = HSPNSFWriteProc;
+	sdid.Term = HSPNSFTermProc;
+	if (p1) hspxxx.pdi.hwnd = p1->hwnd;
+	sdid.ppdi = &hspxxx.pdi;
+	if (hspxxx.songno > 0) NSFSDK_SetSongNo(hspxxx.hnsf, hspxxx.songno);
+	NSFSDK_SetFrequency(hspxxx.hnsf, sdid.freq);
+	NSFSDK_SetChannel(hspxxx.hnsf, sdid.ch);
+	NSFSDK_Reset(hspxxx.hnsf);
+	hspxxx.psd = CreateSoundDeviceDX(&sdid);
+	return 0;
+}
+
+BOOL WINAPI HSPNSFPlayEx(BMSCR *p1, int p2, int p3, int p4)
+{
+	SOUNDDEVICEINITDATA sdid;
+	HSPNSFStop(0,0,0,0);
+	if (!hspxxx.hnsf) return -1;
+	sdid.freq = p2 ? p2 : 44100 ;
+	sdid.ch = p3 ? p3 : 2 ;
+	sdid.bit = p4 ? p4 : 16 ;
+	sdid.lpargs = 0;
+	sdid.Write = HSPNSFWriteProc;
+	sdid.Term = HSPNSFTermProc;
+	if (p1) hspxxx.pdi.hwnd = p1->hwnd;
+	sdid.ppdi = &hspxxx.pdi;
+	if (hspxxx.songno > 0) NSFSDK_SetSongNo(hspxxx.hnsf, hspxxx.songno);
+	NSFSDK_SetFrequency(hspxxx.hnsf, sdid.freq);
+	NSFSDK_SetChannel(hspxxx.hnsf, sdid.ch);
+	NSFSDK_Reset(hspxxx.hnsf);
+	hspxxx.psd = CreateSoundDevice(&sdid);
+	return 0;
+}
+
+BOOL WINAPI HSPNSFPlayDXEx(BMSCR *p1, int p2, int p3, int p4)
+{
+	SOUNDDEVICEINITDATA sdid;
+	HSPNSFStop(0,0,0,0);
+	if (!hspxxx.hnsf) return -1;
+	sdid.freq = p2 ? p2 : 44100 ;
+	sdid.ch = p3 ? p3 : 2 ;
+	sdid.bit = p4 ? p4 : 16 ;
+	sdid.lpargs = 0;
+	sdid.Write = HSPNSFWriteProc;
+	sdid.Term = HSPNSFTermProc;
+	if (p1) hspxxx.pdi.hwnd = p1->hwnd;
+	sdid.ppdi = &hspxxx.pdi;
+	if (hspxxx.songno > 0) NSFSDK_SetSongNo(hspxxx.hnsf, hspxxx.songno);
+	NSFSDK_SetFrequency(hspxxx.hnsf, sdid.freq);
+	NSFSDK_SetChannel(hspxxx.hnsf, sdid.ch);
+	NSFSDK_Reset(hspxxx.hnsf);
+	hspxxx.psd = CreateSoundDeviceDX(&sdid);
+	return 0;
+}
+
+BOOL WINAPI HSPNSFPlayIni(BMSCR *p1, char *p2, int p3, int p4)
+{
+	SOUNDDEVICEINITDATA sdid;
+	HSPNSFStop(0,0,0,0);
+	if (!hspxxx.hnsf) return -1;
+	sdid.ch = 2;
+	sdid.bit = 16 ;
+	sdid.lpargs = 0;
+	sdid.Write = HSPNSFWriteProc;
+	sdid.Term = HSPNSFTermProc;
+	if (p1) hspxxx.pdi.hwnd = p1->hwnd;
+	sdid.ppdi = &hspxxx.pdi;
+	if (hspxxx.songno > 0) NSFSDK_SetSongNo(hspxxx.hnsf, hspxxx.songno);
+	if(!p2)NSFSDK_LoadSetting(hspxxx.hnsf, "nezplug.ini");
+	  else NSFSDK_LoadSetting(hspxxx.hnsf, p2);
+	sdid.freq = NSFSDK_GetFrequency(hspxxx.hnsf);
+//	sdid.ch = NSFSDK_GetChannel(hspxxx.hnsf);
+	NSFSDK_SetChannel(hspxxx.hnsf, sdid.ch);
+	NSFSDK_Reset(hspxxx.hnsf);
+	hspxxx.psd = CreateSoundDevice(&sdid);
+	return 0;
+}
+
+BOOL WINAPI HSPNSFPlayIniDX(BMSCR *p1, char *p2, int p3, int p4)
+{
+	SOUNDDEVICEINITDATA sdid;
+	HSPNSFStop(0,0,0,0);
+	if (!hspxxx.hnsf) return -1;
+	sdid.ch = 2;
+	sdid.bit = 16 ;
+	sdid.lpargs = 0;
+	sdid.Write = HSPNSFWriteProc;
+	sdid.Term = HSPNSFTermProc;
+	if (p1) hspxxx.pdi.hwnd = p1->hwnd;
+	sdid.ppdi = &hspxxx.pdi;
+	if (hspxxx.songno > 0) NSFSDK_SetSongNo(hspxxx.hnsf, hspxxx.songno);
+	if(!p2)NSFSDK_LoadSetting(hspxxx.hnsf, "nezplug.ini");
+	  else NSFSDK_LoadSetting(hspxxx.hnsf, p2);
+	sdid.freq = NSFSDK_GetFrequency(hspxxx.hnsf);
+//	sdid.ch = NSFSDK_GetChannel(hspxxx.hnsf);
+	NSFSDK_SetChannel(hspxxx.hnsf, sdid.ch);
+	NSFSDK_Reset(hspxxx.hnsf);
+	hspxxx.psd = CreateSoundDeviceDX(&sdid);
 	return 0;
 }
 
@@ -127,8 +238,66 @@ BOOL WINAPI HSPNSFVolume(int p1, int p2, int p3, int p4)
 	NSFSDK_Volume(hspxxx.hnsf, p1);
 	return 0;
 }
+
 BOOL WINAPI HSPNSFClean(BMSCR *p1, int p2, int p3, int p4)
 {
 	HSPNSFClose(0,0,0,0);
 	return 0;
 }
+
+BOOL WINAPI HSPNSFGetSongStart(int p1, int p2, int p3, int p4)
+{
+	return 0-NSFSDK_GetSongStart(hspxxx.hnsf);
+}
+
+BOOL WINAPI HSPNSFGetSongMax(int p1, int p2, int p3, int p4)
+{
+	return 0-NSFSDK_GetSongMax(hspxxx.hnsf);
+}
+
+BOOL WINAPI HSPNSFGetChannel(int p1, int p2, int p3, int p4)
+{
+	return 0-NSFSDK_GetChannel(hspxxx.hnsf);
+}
+
+BOOL WINAPI HSPNSFGetFileInfo(char *p1, char *p2, char *p3, char *p4)
+{
+	char *pb1,*pb2,*pb3,*pb4;
+	NSFSDK_GetFileInfo(&pb1,&pb2,&pb3,&pb4);
+	if(p1) if(pb1) XMEMCPY(p1, pb1,33);
+	if(p2) if(pb2)  XMEMCPY(p2, pb2,33);
+	if(p3) if(pb3)  XMEMCPY(p3, pb3,33);
+	if(p4) if(pb4)  XMEMCPY(p4, pb4,1024);
+	return 0;
+}
+
+BOOL WINAPI HSPNSFOpenFileInfoDlg(BMSCR *p1, int p2, int p3, int p4)
+{
+	NSFSDK_OpenFileInfoDlg(GetDLLInstance(), p1->hwnd);
+	return 0;
+}
+
+BOOL WINAPI HSPNSFOpenMemViewDlg(BMSCR *p1, int p2, int p3, int p4)
+{
+	NSFSDK_OpenMemViewDlg(GetDLLInstance(), p1->hwnd);
+	return 0;
+}
+
+BOOL WINAPI HSPNSFOpenChMaskDlg(BMSCR *p1, int p2, int p3, int p4)
+{
+	NSFSDK_OpenChMaskDlg(GetDLLInstance(), p1->hwnd);
+	return 0;
+}
+
+BOOL WINAPI HSPNSFOpenIOViewDlg(BMSCR *p1, int p2, int p3, int p4)
+{
+	NSFSDK_OpenIOViewDlg(GetDLLInstance(), p1->hwnd);
+	return 0;
+}
+
+BOOL WINAPI HSPNSFOpenDumpDlg(BMSCR *p1, int p2, int p3, int p4)
+{
+	NSFSDK_OpenDumpDlg(GetDLLInstance(), p1->hwnd);
+	return 0;
+}
+

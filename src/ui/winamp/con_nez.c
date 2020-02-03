@@ -22,6 +22,7 @@ extern "C" {
 #include "minisdk/wafe.h"
 #define WM_WA_UNKNOWN (WM_USER + 1)
 #define WM_WA_MPEG_EOF (WM_USER + 2)
+#define IPC_GET_REPEAT 251
 #ifdef __cplusplus
 }
 #endif
@@ -345,7 +346,9 @@ static LRESULT CALLBACK CallWndProc(int nCode, WPARAM wParam, LPARAM lParam)
 						{
 							cur_song += (LOWORD(pmsg->wParam) == WINAMP_JUMP10FWD) ? 10: 1;
 							if (cur_song > num_songs) cur_song = num_songs;
-							PostMessage(subclasswinamp.hwndWA, WM_COMMAND, WINAMP_BUTTON2, 0);
+							//リピート有効時にボタンを押すと、2回再生アクションが行われる謎対策
+							if (!SendMessage(subclasswinamp.hwndWA, WM_WA_IPC, 0, IPC_GET_REPEAT))
+								PostMessage(subclasswinamp.hwndWA, WM_COMMAND, WINAMP_BUTTON2, 0);
 						}
 						break;
 					case WINAMP_JUMP10BACK:
@@ -354,7 +357,9 @@ static LRESULT CALLBACK CallWndProc(int nCode, WPARAM wParam, LPARAM lParam)
 						{
 							cur_song -= (LOWORD(pmsg->wParam) == WINAMP_JUMP10BACK) ? 10 : 1;
 							if (cur_song < 1) cur_song = 1;
-							PostMessage(subclasswinamp.hwndWA, WM_COMMAND, WINAMP_BUTTON2, 0);
+							//リピート有効時にボタンを押すと、2回再生アクションが行われる謎対策
+							if (!SendMessage(subclasswinamp.hwndWA, WM_WA_IPC, 0, IPC_GET_REPEAT))
+								PostMessage(subclasswinamp.hwndWA, WM_COMMAND, WINAMP_BUTTON2, 0);
 						}
 						break;
 				}
@@ -363,6 +368,7 @@ static LRESULT CALLBACK CallWndProc(int nCode, WPARAM wParam, LPARAM lParam)
 	}
 	return CallNextHookEx(subclasswinamp.hhookCALLWNDPROC, nCode, wParam, lParam);
 }
+
 static LRESULT CALLBACK GetMsgProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
 	if (nCode == HC_ACTION)
@@ -420,7 +426,8 @@ static LRESULT CALLBACK GetMsgProc(int nCode, WPARAM wParam, LPARAM lParam)
 				break;
 		}
 	}
-	return CallNextHookEx(subclasswinamp.hhookGETMESSAGE, nCode, wParam, lParam);}
+	return CallNextHookEx(subclasswinamp.hhookGETMESSAGE, nCode, wParam, lParam);
+}
 
 static LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 {

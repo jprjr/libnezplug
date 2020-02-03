@@ -50,7 +50,7 @@ static SetWordLE(unsigned char *p, unsigned v)
 	p[1] = (v >>  8) & 255;
 }
 
-static void nsf2wav(char *ipath, char *opath, unsigned freq, unsigned time, unsigned songno)
+static void nsf2wav(char *ipath, char *opath, unsigned freq, unsigned time, unsigned songno, unsigned filter)
 {
 	FILE *ifp = NULL, *ofp = NULL;
 	unsigned char *nsfbuf = NULL;
@@ -65,7 +65,7 @@ static void nsf2wav(char *ipath, char *opath, unsigned freq, unsigned time, unsi
 		unsigned char wavhead[0x32];
 		signed short outbuf[2 * LEN_OUTBUF];
 		if (freq == 0) freq = 44100;
-		if (time == 0) time = 30;
+		if (time == 0) time = 300;
 		remain = freq * time;
 		size = 0;
 		len = strlen(ipath);
@@ -120,6 +120,7 @@ static void nsf2wav(char *ipath, char *opath, unsigned freq, unsigned time, unsi
 		NSFSDK_SetSongNo(hnsf, songno);
 		NSFSDK_SetFrequency(hnsf, freq);
 		NSFSDK_SetChannel(hnsf, NSFSDK_GetChannel(hnsf));
+		NSFSDK_SetNosefartFilter(hnsf, filter);
 
 #if 0
 		ofp = fopen(pathbuf, "rb");
@@ -176,7 +177,7 @@ static void nsf2wav(char *ipath, char *opath, unsigned freq, unsigned time, unsi
 
 int main(int argc, char **argv)
 {
-	unsigned count = 0, freq = 0, time = 0, songno = 0;
+	unsigned count = 0, freq = 0, time = 0, songno = 0, filter = 0;
 	char *opath = NULL;
 	int i;
 	for (i = 1; i < argc; i++)
@@ -225,7 +226,18 @@ int main(int argc, char **argv)
 			opath = p;
 			continue;
 		}
-		nsf2wav(argv[i], opath, freq, time, songno);
+		if (strncmp(argv[i],"-i",2) == 0)
+		{
+			char *p = argv[i] + 2;
+			if (*p == '¥0')
+			{
+				if (argv[i + 1] == NULL) break;
+				p = argv[++i];
+			}
+			filter = atoi(p);
+			continue;
+		}
+		nsf2wav(argv[i], opath, freq, time, songno, filter);
 		count++;
 		opath = NULL;
 		break;

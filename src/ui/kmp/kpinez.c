@@ -1,20 +1,19 @@
+#include <stdlib.h>
 #include "common/win32/win32l.h"
 #undef NOUSER
 #include <windows.h>
-#include <stdlib.h>
-#include "common/nsfsdk/nsfsdk.h"
-#include "common/zlib/nez.h"
+#include "../../nezplug.h"
 #include "kmp_com.h"
 #include "../version.h"
 
 struct KMP_CTX_TAG
 {
-	HNSF hnsf;
+	NEZ_PLAY* hnsf;
 	unsigned srate;
 	unsigned nch;
 	unsigned bits;
 	unsigned filter;
-	unsigned fdstype;
+//	unsigned fdstype;
 };
 
 static const char *sectionname = "NEZplug";
@@ -25,6 +24,18 @@ static UINT GetPrivateProfileIntEx(LPCTSTR lpAppName, LPCTSTR lpKeyName, INT nDe
 	UINT ret;
 	TCHAR szBuffer[32];
 	ret = GetPrivateProfileInt(lpAppName, lpKeyName, nDefault, lpFileName);
+	wsprintf(szBuffer, "%d", ret);
+	WritePrivateProfileString(lpAppName, lpKeyName, szBuffer, lpFileName);
+	return ret;
+}
+
+static UINT GetPrivateProfileIntEx2(LPCTSTR lpAppName, LPCTSTR lpKeyName, INT nDefault, LPCTSTR lpFileName, UINT nMin, UINT nMax)
+{
+	UINT ret;
+	TCHAR szBuffer[32];
+	ret = GetPrivateProfileInt(lpAppName, lpKeyName, nDefault, lpFileName);
+	if(ret < nMin) ret = nMin;
+	if(ret > nMax) ret = nMax;
 	wsprintf(szBuffer, "%d", ret);
 	WritePrivateProfileString(lpAppName, lpKeyName, szBuffer, lpFileName);
 	return ret;
@@ -68,58 +79,52 @@ static void Setup(KMP_CTX *pctx)
 	if (pctx->srate == 0) pctx->srate = GetPrivateProfileIntEx(sectionname, "SampleRate", 44100, iniFilePath);
 
 	pctx->filter = GetPrivateProfileIntEx(sectionname, "FilterType", 0, iniFilePath);
-	pctx->fdstype = GetPrivateProfileIntEx(sectionname, "NSFFdsType", 2, iniFilePath);
+//	pctx->fdstype = GetPrivateProfileIntEx(sectionname, "NSFFdsType", 2, iniFilePath);
 }
 
 void Close(KMP_CTX *pctx)
 {
 	if (pctx->hnsf)
 	{
-		NSFSDK_Terminate(pctx->hnsf);
+		NEZDelete(pctx->hnsf);
 	}
-	free(pctx);
+	XFREE(pctx);
 }
+
+unsigned NEZ_extract(char *lpszSrcFile, void **ppbuf);
+//void FDSSelect(NEZ_PLAY *ctx, unsigned type);
 
 KMP_CTX *Open(const char *file, unsigned size, unsigned srate, unsigned nch)
 {
 	KMP_CTX *pctx = 0;
 	do
 	{
-		pctx = malloc(sizeof(KMP_CTX));
+		pctx = XMALLOC(sizeof(KMP_CTX));
 		if (!pctx) break;
 
 		pctx->srate = srate;
 		pctx->nch = nch;
 		Setup(pctx);
 
+		pctx->hnsf = NEZNew();
+		if (!pctx->hnsf) break;
+		if (!size)
 		{
-			/* 暫定的設定 */
-			extern void FDSSelect(unsigned type);
-			FDSSelect(pctx->fdstype);
-		}
-		if (size)
-		{
-			pctx->hnsf = NSFSDK_Load((void *)file, size);
-			break;
+			unsigned char *buf;
+			unsigned int buf_size;
+			buf_size = NEZ_extract((char *)file, &buf);
+			NEZLoad(pctx->hnsf, (unsigned char*)buf, buf_size);
+			XFREE(buf);
 		}
 		else
 		{
-			void *fbuf;
-			unsigned fsize;
-			fsize = NEZ_extract((char *)file, &fbuf);
-			if (fsize)
-			{
-				pctx->hnsf = NSFSDK_Load(fbuf, fsize);
-				free(fbuf);
-			}
+			NEZLoad(pctx->hnsf, (unsigned char*)file, size);
 		}
-		if (!pctx->hnsf) break;
-		pctx->nch = NSFSDK_GetChannel(pctx->hnsf);
-		/* 古いバージョンとの互換性のためモノラルが前提となっています。 */
-		/* そのためステレオ再生するためには明示的に指定する必要があります。 */
-		NSFSDK_SetChannel(pctx->hnsf, pctx->nch);
-		NSFSDK_SetFrequency(pctx->hnsf, pctx->srate);
-		NSFSDK_SetNosefartFilter(pctx->hnsf, pctx->filter);
+//		FDSSelect(pctx->hnsf, pctx->fdstype);
+		NEZSetFrequency(pctx->hnsf, pctx->srate);
+		NEZSetChannel(pctx->hnsf, pctx->nch);
+		NEZSetFilter(pctx->hnsf, pctx->filter);
+		NEZReset(pctx->hnsf);
 		return pctx;
 	} while (0);
 	if (pctx) Close(pctx);
@@ -128,20 +133,20 @@ KMP_CTX *Open(const char *file, unsigned size, unsigned srate, unsigned nch)
 
 unsigned Write(KMP_CTX *pctx, void *buf, unsigned smp)
 {
-	NSFSDK_Render(pctx->hnsf, buf, smp >> pctx->nch);
+	NEZRender(pctx->hnsf, buf, smp >> pctx->nch);
 	return smp;
 }
 
 unsigned WriteSkip(KMP_CTX *pctx, unsigned smp)
 {
-	NSFSDK_Render(pctx->hnsf, 0, smp >> pctx->nch);
+	NEZRender(pctx->hnsf, 0, smp >> pctx->nch);
 	return smp;
 }
 
 unsigned SetPosition(KMP_CTX *pctx, unsigned ms)
 {
-	if (ms) NSFSDK_SetSongNo(pctx->hnsf, ms / 1000);
-	NSFSDK_Reset(pctx->hnsf);
+	if (ms) NEZSetSongNo(pctx->hnsf, ms / 1000);
+	NEZReset(pctx->hnsf);
 	return 0;
 }
 
@@ -174,7 +179,7 @@ unsigned GetSamplebits(KMP_CTX *pctx)
 }
 unsigned GetLength(KMP_CTX *pctx)
 {
-	return NSFSDK_GetSongMax(pctx->hnsf) * 1000;
+	return NEZGetSongMax(pctx->hnsf) * 1000;
 }
 unsigned GetUnitSamples(KMP_CTX *pctx)
 {
@@ -190,14 +195,17 @@ void Deinit(void)
 
 const char **GetPluginInfo(void)
 {
-	static char flags[4] = { KPI_VERSION, 0, 1, 0 };
-	static const char *infos[] = {
+	static char flags[4] = { KPI_VERSION, 1, 1, 0 };
+	static char *infos[] = {
 		flags,
 		KPI_NAME,
 		" - ",
-		".nez",".nsf",".gbr",".gbs",".hes",".ay",".cpc",".nsz",
+		".nez",".gbr",".gbs",".ay",".cpc",".nsz",
 		".nsd",
+		".nsf",
+		".hes",
 		".kss",
+		".sgc",
 		0
 	};
 	char *extp, *fntop;
@@ -208,6 +216,59 @@ const char **GetPluginInfo(void)
 	if (!extp) extp = fntop;
 	lstrcpy(extp, ".ini");
 
-	if (!GetPrivateProfileBoolEx(sectionname, "EnableKSS", TRUE, iniFilePath)) infos[3 + 9] = 0;
+	if (!GetPrivateProfileBoolEx(sectionname, "EnableNSF", TRUE, iniFilePath)) *infos[3 + 7] = 0;
+	if (!GetPrivateProfileBoolEx(sectionname, "EnableHES", TRUE, iniFilePath)) *infos[3 + 8] = 0;
+	if (!GetPrivateProfileBoolEx(sectionname, "EnableKSS", TRUE, iniFilePath)) *infos[3 + 9] = 0;
+	if (!GetPrivateProfileBoolEx(sectionname, "EnableSGC", TRUE, iniFilePath)) *infos[3 +10] = 0;
+	{
+		extern int NSF_noise_random_reset;
+		if (!GetPrivateProfileBoolEx(sectionname, "NSFNoiseRandomReset", TRUE, iniFilePath))
+			NSF_noise_random_reset = 0;
+		else
+			NSF_noise_random_reset = 1;
+	}
+	{
+		extern int NSF_2A03Type;
+		NSF_2A03Type = GetPrivateProfileIntEx2(sectionname, "2A03Type", 1, iniFilePath, 0, 3);
+	}
+	{
+		extern int Namco106_Realmode;
+		Namco106_Realmode = GetPrivateProfileIntEx2(sectionname, "Namco106RealMode", 1, iniFilePath, 0, 3);
+	}
+	{
+		extern int Namco106_Volume;
+		Namco106_Volume = GetPrivateProfileIntEx2(sectionname, "Namco106Volume", 16, iniFilePath, 0, 64);
+	}
+	{
+		extern int GBAMode;
+		if (!GetPrivateProfileBoolEx(sectionname, "GBAMode", FALSE, iniFilePath))
+			GBAMode = 0;
+		else
+			GBAMode = 1;
+	}
+	{
+		extern int FDS_RealMode;
+		FDS_RealMode = GetPrivateProfileIntEx2(sectionname, "FDSRealMode", 3, iniFilePath, 0, 3);
+	}
+	{
+		extern int LowPassFilterLevel;
+		LowPassFilterLevel = GetPrivateProfileIntEx2(sectionname, "LowPassFilterLevel", 16, iniFilePath, 0, 32);
+	}
+	{
+		extern int NESAPUVolume;
+		NESAPUVolume = GetPrivateProfileIntEx2(sectionname, "NESAPUVolume", 64, iniFilePath, 0, 255);
+	}
+	{
+		extern int NESRealDAC;
+		if (!GetPrivateProfileBoolEx(sectionname, "NESRealDAC", TRUE, iniFilePath))
+			NESRealDAC = 0;
+		else
+			NESRealDAC = 1;
+	}
+	{
+		extern char ColecoBIOSFilePath[0x200];
+		GetPrivateProfileString(sectionname, "ColecoBIOSFilePath", "", ColecoBIOSFilePath, sizeof(ColecoBIOSFilePath), iniFilePath);
+		WritePrivateProfileString(sectionname, "ColecoBIOSFilePath", ColecoBIOSFilePath, iniFilePath);
+	}
 	return infos;
 }

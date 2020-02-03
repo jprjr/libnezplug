@@ -3,7 +3,7 @@
 #include "kmp_pi.h"
 #include "kmp_com.h"
 
-int isReentrant = 0;
+int isReentrant = 1;
 static LONG mutex = 1;
 
 static HKMP WINAPI kmp_OpenSub(const void *p, unsigned size, SOUNDINFO *pInfo)
@@ -98,7 +98,7 @@ KMPMODULE* WINAPI KMP_GETMODULE(void)
 	if (!ppinfo) return 0;
 	Mod.dwPluginVersion = ppinfo[0][0];
 	Mod.dwReentrant = isReentrant = ppinfo[0][1];
-	Mod.pszDiscription = ppinfo[1];
+	Mod.pszDescription = ppinfo[1];
 	Mod.pszCopyright = ppinfo[2];
 	Mod.ppszSupportExts = ppinfo + 3;
 	if (!(ppinfo[0][2] & 1)) Mod.OpenFromBuffer = 0;

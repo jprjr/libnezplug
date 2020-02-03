@@ -1,2 +1,0 @@
-/* redirector */
-#include "../config.h"

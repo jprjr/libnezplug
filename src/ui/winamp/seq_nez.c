@@ -13,23 +13,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* Libraries headers */
-#if 0
-#include "nes/audiosys.h"
-#include "nes/handler.h"
-#include "nes/m_nsf.h"
-#include "nes/songinfo.h"
-#endif
-#include "common/nsfsdk/nsfsdk.h"
-#include "common/zlib/nez.h"
+
+#include "nezplug.h"
+//#include "common/nsfsdk/nsfsdk.h"
 
 /* Project headers */
 #include "con_nez.h"
 #include "sequencer.h"
 #include "common/win32/rc/nezplug.rh"
-#include "common/zlib/nez.h"
-typedef signed short Int16;
 
+#include "ui/nezplug/Dialog.h"
+
+typedef signed short Int16;
+unsigned NEZ_extract(char *lpszSrcFile, void **ppbuf);
 
 /* NEZ sequencer struct */
 typedef struct {
@@ -55,7 +51,7 @@ typedef struct {
 	Int16 *buf;
 	int bufp;
 
-	HNSF hnsf;
+	NEZ_PLAY *hnsf;
 
 	enum {
 		CONTROLER_OFF,
@@ -85,6 +81,8 @@ static struct {
 	int disable_gbr;
 	int disable_gbs;
 	int disable_ay;
+	int disable_sgc;
+
 	int disable_hes;
 	int realplaytime;
 	int filtertype;
@@ -99,6 +97,10 @@ typedef struct {
 
 #if FREQUENCY_LIMIT
 static KEYINT freqlist[] = {
+	{ "192000",		192000 },
+	{ "176400",		176400 },
+	{ "96000",		96000 },
+	{ "88200",		88200 },
 	{ "48000",		48000 },
 	{ "44100",		44100 },
 	{ "24000",		24000 },
@@ -117,10 +119,20 @@ static KEYINT priolist[] = {
 	{ NULL,			3 },
 };
 
+extern struct {
+	char* title;
+	char* artist;
+	char* copyright;
+	char detail[1024];
+}songinfodata;
+
+extern int (*memview_memread)(int a);
+
 
 #define PTR__ ((NEZSEQ *)(this__->work))
 static void Play(SEQUENCER *this__)
 {
+
 	PTR__->loopc = 0;
 	if (PTR__->looptime)
 		PTR__->playedtime = (PTR__->looptime - PTR__->playtime);
@@ -131,11 +143,11 @@ static void Play(SEQUENCER *this__)
 	PTR__->isplaying = 1;
 	PTR__->volume = 256;
 
-	NSFSDK_Reset(PTR__->hnsf);
-	NSFSDK_Volume(PTR__->hnsf, 0);
+	NEZReset(PTR__->hnsf);
+	NEZVolume(PTR__->hnsf, 0);
 
 	PTR__->bufp = 0;
-	NSFSDK_Render(PTR__->hnsf, PTR__->buf, PTR__->bufsize);
+	NEZRender(PTR__->hnsf, PTR__->buf, PTR__->bufsize);
 }
 
 static void Stop(SEQUENCER *this__)
@@ -148,7 +160,7 @@ static void Stop(SEQUENCER *this__)
 static void Term(SEQUENCER *this__)
 {
 	SetStateControler(0);
-	NSFSDK_Terminate(PTR__->hnsf);
+	NEZDelete(PTR__->hnsf);
 	free(PTR__->buf);
 	free(this__);
 }
@@ -171,7 +183,7 @@ static unsigned DivFix(unsigned p1, unsigned p2, unsigned fix)
 	return ret;
 }
 
-#define MAX_SAMPLERATE 48000
+#define MAX_SAMPLERATE 192000
 #define FADE_SHIFT 12
 static void Mix(SEQUENCER *this__, void *buf, int numsamp)
 {
@@ -198,7 +210,7 @@ static void Mix(SEQUENCER *this__, void *buf, int numsamp)
 				numsamp--;
 			}
 			PTR__->bufp = 0;
-			NSFSDK_Render(PTR__->hnsf, PTR__->buf, PTR__->bufsize);
+			NEZRender(PTR__->hnsf, PTR__->buf, PTR__->bufsize);
 		}
 		while (numsamp)
 		{
@@ -230,7 +242,7 @@ static void Mix(SEQUENCER *this__, void *buf, int numsamp)
 				numsamp--;
 			}
 			PTR__->bufp = 0;
-			NSFSDK_Render(PTR__->hnsf, PTR__->buf, PTR__->bufsize);
+			NEZRender(PTR__->hnsf, PTR__->buf, PTR__->bufsize);
 		}
 		while (numsamp)
 		{
@@ -303,9 +315,9 @@ static void SetPosition(SEQUENCER *this__, int time_in_ms)
 	numsamp = time_in_samp - PTR__->playedtime2;
 	PTR__->playedtime  += numsamp;
 	PTR__->playedtime2 += numsamp;
-	NSFSDK_Render(PTR__->hnsf, NULL, numsamp);
+	NEZRender(PTR__->hnsf, NULL, numsamp);
 	PTR__->bufp = 0;
-	NSFSDK_Render(PTR__->hnsf, PTR__->buf, PTR__->bufsize);
+	NEZRender(PTR__->hnsf, PTR__->buf, PTR__->bufsize);
 }
 static int GetPosition(SEQUENCER *this__)
 {
@@ -392,6 +404,77 @@ void InitNezSequencer(HINSTANCE hDllInstance)
 
 	setting.hDllInstance = hDllInstance;
 
+	{
+		extern int NESAPUVolume;
+		NESAPUVolume = GetSettingInt("NESAPUVolume", 64);
+		if (NESAPUVolume < 0) NESAPUVolume =  0;
+		if (NESAPUVolume > 255) NESAPUVolume = 255;
+		SetSettingInt("NESAPUVolume", NESAPUVolume);
+	}
+	{
+		extern int NESRealDAC;
+		NESRealDAC = GetSettingInt("NESRealDAC", 1);
+		SetSettingInt("NESRealDAC", NESRealDAC);
+	}
+	{
+		extern int NSF_noise_random_reset;
+		NSF_noise_random_reset  = GetSettingInt("NSFNoiseRandomReset", 0);
+		SetSettingInt("NSFNoiseRandomReset", NSF_noise_random_reset);
+	}
+	{
+		extern int NSF_2A03Type;
+		NSF_2A03Type  = GetSettingInt("2A03Type", 1);
+		SetSettingInt("2A03Type", NSF_2A03Type);
+	}
+	{
+		extern int Namco106_Realmode;
+		Namco106_Realmode = GetSettingInt("Namco106RealMode", 1);
+		SetSettingInt("Namco106RealMode", Namco106_Realmode);
+	}
+	{
+		extern int Namco106_Volume;
+		Namco106_Volume = GetSettingInt("Namco106Volume", 16);
+		SetSettingInt("Namco106Volume", Namco106_Volume);
+	}
+	{
+		extern int FDS_RealMode;
+		FDS_RealMode = GetSettingInt("FDSRealMode", 3);
+		SetSettingInt("FDSRealMode", FDS_RealMode);
+	}
+	{
+		extern int GBAMode;
+		GBAMode = GetSettingInt("GBAMode", 0);
+		SetSettingInt("GBAMode", GBAMode);
+	}
+	{
+		extern int MSXPSGType;
+		MSXPSGType = GetSettingInt("MSXPSGType", 1);
+		SetSettingInt("MSXPSGType", MSXPSGType);
+	}
+	{
+		extern int MSXPSGVolume;
+		MSXPSGVolume = GetSettingInt("MSXPSGVolume", 64);
+		if (MSXPSGVolume < 0) MSXPSGVolume =  0;
+		if (MSXPSGVolume > 255) MSXPSGVolume = 255;
+		SetSettingInt("MSXPSGVolume", MSXPSGVolume);
+	}
+	{
+		extern int LowPassFilterLevel;
+		LowPassFilterLevel = GetSettingInt("LowPassFilterLevel", 16);
+		if (LowPassFilterLevel <  0) LowPassFilterLevel =  0;
+		if (LowPassFilterLevel > 32) LowPassFilterLevel = 32;
+		SetSettingInt("LowPassFilterLevel", LowPassFilterLevel);
+	}
+	{
+		extern int Always_stereo;
+		Always_stereo  = GetSettingInt("AlwaysStereo", 0);
+		SetSettingInt("AlwaysStereo", Always_stereo);
+	}
+	{
+		extern char ColecoBIOSFilePath[0x200];
+		GetSettingString("ColecoBIOSFilePath", "", ColecoBIOSFilePath, sizeof(ColecoBIOSFilePath));
+		SetSettingString("ColecoBIOSFilePath", ColecoBIOSFilePath);
+	}
 #if FREQUENCY_LIMIT
 	GetSettingString("Frequency", freqlist[1].key, path, sizeof(path));
 	for (i = 0; freqlist[i].key != NULL; i++)
@@ -406,7 +489,8 @@ void InitNezSequencer(HINSTANCE hDllInstance)
 	if (freqlist[i].key != NULL) SetSettingString("Frequency", freqlist[i].key);
 #else
 	setting.frequency = GetSettingInt("Frequency", 44100);
-	if (setting.frequency < 10) setting.frequency = 44100;
+	if (setting.frequency < 8000) setting.frequency = 44100;
+	if (setting.frequency > 192000) setting.frequency = 44100;
 	SetSettingInt("Frequency", setting.frequency);
 #endif
 
@@ -447,13 +531,15 @@ void QuitNezSequencer(HINSTANCE hDllInstance)
 void AboutNezSequencer(HWND hwndParent)
 {
 	MessageBox(hwndParent, 
-		"zlib 1.1.4¥n"
-		"¥t(c) 1995-1998 Jean-loup Gailly and Mark Adler¥n¥n"
+		"zlib 1.2.3¥n"
+		"¥t(C) 1995-2005 Jean-loup Gailly and Mark Adler¥n¥n"
 		"¥t¥thttp://www.zlib.org/¥n"
 		"NEZplug¥n"
 		"¥tby Mamiya¥n"
-		"¥t¥tmailto:mamiya@users.sf.net¥n"
-		"¥t¥thttp://nezplug.sf.net/¥n"
+		"¥t¥tmailto:mamiya@usres.sourceforge.net¥n"
+		"¥t¥thttp://nezplug.sourceforge.net/¥n"
+		"¥n"
+		"(revision by RuRuRu and OffGao)¥n"
 		, PLUGIN_NAME, MB_OK);
 }
 
@@ -464,6 +550,11 @@ void ConfigNezSequencer(HWND hwndParent)
 
 int infoNezBox(char *fn, HWND hwndParent)
 {
+	//ファイル情報呼び出し
+	//instance = setting.hDllInstance;
+	//ファイルをロードしてすぐ廃棄 = ファイル情報の格納
+	if(memview_memread == NULL)Term(loadNezFile(fn));
+	NEZFileInfoDlg(setting.hDllInstance, hwndParent);
 	return 0;
 }
 
@@ -756,7 +847,7 @@ static void gettitle(char *fn, char *tmpbuf, int tmpbuflen, NEZINFO *nezinfo)
 	{
 		fp = fopen(fn, "rb");
 		if (!fp) break;
-		if (fread(fbuf, 1, 0x20, fp) != 0x20) break;
+		if (fread(fbuf, 1, 0x40, fp) != 0x40) break;
 		if (!memcmp(fbuf,"NESM",4))
 		{
 			int numsongs;
@@ -775,6 +866,25 @@ static void gettitle(char *fn, char *tmpbuf, int tmpbuflen, NEZINFO *nezinfo)
 			numsongs = ((int)fbuf[4]) & 255;
 			if (nezinfo->songno < 1 || nezinfo->songno > numsongs) nezinfo->songno = fbuf[5];
 			fseek(fp, 0x0010, SEEK_SET);
+			fread(tmpbuf, 1, 32, fp);
+			tmpbuf[32] = '¥0';
+			if (numsongs > 1) wsprintf(tmpbuf + lstrlen(tmpbuf), " (%d/%d)", nezinfo->songno, numsongs);
+		}
+		else if (!memcmp(fbuf,"SGC",3))
+		{
+			int numsongs,firstse,lastse;
+			numsongs = ((int)fbuf[0x25]) & 255;
+			firstse = fbuf[0x26];
+			lastse = fbuf[0x27];
+			if(firstse < numsongs
+			|| firstse > lastse
+			|| firstse == 0){
+				firstse = lastse = 0;
+			}
+			numsongs = numsongs + lastse - firstse + (firstse?1:0);
+			if (nezinfo->songno < 1) nezinfo->songno = GetControler();
+			if (nezinfo->songno < 1 || nezinfo->songno > numsongs) nezinfo->songno = fbuf[0x24];
+			fseek(fp, 0x0040, SEEK_SET);
 			fread(tmpbuf, 1, 32, fp);
 			tmpbuf[32] = '¥0';
 			if (numsongs > 1) wsprintf(tmpbuf + lstrlen(tmpbuf), " (%d/%d)", nezinfo->songno, numsongs);
@@ -962,7 +1072,7 @@ static char *NezSearchPath(char *fn, char *searchPath)
 {
 	static char *extlist[] =
 	{
-		".NEZ", ".NSF", ".KSS", ".GBR", ".GBS", ".HES", ".PCE", ".AY", ".CPC", ".NSZ", ".NSD", ".ZIP", 0
+		".NEZ", ".NSF", ".KSS", ".GBR", ".GBS", ".HES", ".PCE", ".AY", ".CPC", ".NSZ", ".NSD", ".ZIP", ".SGC", 0
 	};
 	int i;
 	if (IsExistFile(fn)) return fn;
@@ -994,7 +1104,7 @@ SEQUENCER *loadNezFile(char *fn)
 	int difFile = 0;
 	int nezsize;
 	void *nezbuf;
-	HNSF hnsf;
+	NEZ_PLAY *hnsf;
 
 	lstrcpy(currentfn, fn);
 
@@ -1023,7 +1133,8 @@ SEQUENCER *loadNezFile(char *fn)
 	nezsize = NEZ_extract(fn, &nezbuf);
 	if (nezsize == 0) return NULL;
 
-	hnsf = NSFSDK_Load(nezbuf, nezsize);
+	hnsf = NEZNew();
+	NEZLoad(hnsf, nezbuf, nezsize);
 	free(nezbuf);
 
 	if (!hnsf) return NULL;
@@ -1031,23 +1142,23 @@ SEQUENCER *loadNezFile(char *fn)
 	p = (NEZSEQ *)malloc(sizeof(NEZSEQ));
 	if (p == NULL)
 	{
-		NSFSDK_Terminate(hnsf);
+		NEZDelete(hnsf);
 		return NULL;
 	}
 	p->hnsf = hnsf;
 
 	p->frequency = setting.frequency;
-	p->channel = NSFSDK_GetChannel(hnsf);
+	p->channel = NEZGetChannel(p->hnsf);
 
-	NSFSDK_SetFrequency(p->hnsf, p->frequency);
-	NSFSDK_SetChannel(p->hnsf, p->channel);
+	NEZSetFrequency(p->hnsf, p->frequency);
+	NEZSetChannel(p->hnsf, p->channel);
 
 	p->bufsize = setting.frequency / 50;	/* 20 ms */
 	p->bufp = 0;
 	p->buf = (Int16 *)malloc(p->bufsize * sizeof(Int16) * 2);
 	if (p->buf == NULL)
 	{
-		NSFSDK_Terminate(p->hnsf);
+		NEZDelete(p->hnsf);
 		free(p);
 		return NULL;
 	}
@@ -1055,8 +1166,8 @@ SEQUENCER *loadNezFile(char *fn)
 	if (nezinfo.songno == 0)
 	{
 		SetStateControler(1);
-		if (difFile) EnableControler(NSFSDK_GetSongStart(p->hnsf), -1);
-		EnableControler(NSFSDK_GetSongStart(p->hnsf), NSFSDK_GetSongMax(p->hnsf));
+		if (difFile) EnableControler(NEZGetSongStart(p->hnsf), -1);
+		EnableControler(NEZGetSongStart(p->hnsf), NEZGetSongMax(p->hnsf));
 		nezinfo.songno = GetControler();
 		if (setting.hookwinamp)
 		{
@@ -1075,9 +1186,9 @@ SEQUENCER *loadNezFile(char *fn)
 		p->controler_mode = CONTROLER_OFF;
 	}
 
-	if (nezinfo.songno > 0) NSFSDK_SetSongNo(p->hnsf, nezinfo.songno);
+	if (nezinfo.songno > 0) NEZSetSongNo(p->hnsf, nezinfo.songno);
 
-	NSFSDK_SetNosefartFilter(p->hnsf, setting.filtertype);
+	NEZSetFilter(p->hnsf, setting.filtertype);
 
 	p->loopc = 0;
 	p->isplaying = 0;
@@ -1126,46 +1237,6 @@ char *StartWinamp(void)
 
 	setting.lpSection = "NEZplug";
 
-	{
-		unsigned fdstype;
-		extern FDSSelect(unsigned type);
-		fdstype = GetSettingInt("NSFFdsType", 2);
-		FDSSelect(fdstype);
-		SetSettingInt("NSFFdsType", fdstype);
-	}
-	{
-		extern unsigned char NSF_fds_debug_option1;
-		extern unsigned char NSF_fds_debug_option2;
-		NSF_fds_debug_option1 = GetSettingInt("NSFFdsDebugOption1", 0);
-		NSF_fds_debug_option2 = GetSettingInt("NSFFdsDebugOption2", 0);
-	}
-	{
-		extern int NSF_apu_volume;
-		extern int NSF_dpcm_volume;
-		NSF_apu_volume  = GetSettingInt("NSFApuVolume", 0);
-		NSF_dpcm_volume = GetSettingInt("NSFDpcmVolume", 0);
-	}
-
-#if HES_TONE_DEBUG_OPTION_ENABLE
-	{
-		extern unsigned char HES_tone_debug_option;
-		HES_tone_debug_option = GetSettingInt("HESToneOption", 0);
-	}
-#endif
-	{
-		extern unsigned char HES_noise_debug_option1;
-		extern unsigned char HES_noise_debug_option2;
-		extern int HES_noise_debug_option3;
-		extern int HES_noise_debug_option4;
-		HES_noise_debug_option1 = GetSettingInt("HESNoiseDebugOption1", 6);
-		HES_noise_debug_option2 = GetSettingInt("HESNoiseDebugOption2", 10);
-		HES_noise_debug_option3 = GetSettingInt("HESNoiseDebugOption3", 3);
-		HES_noise_debug_option4 = GetSettingInt("HESNoiseDebugOption4", 508);
-	}
-
-	setting.disable_nsfext = GetSettingInt("DisableNSFExtension", 0);
-	SetSettingInt("DisableNSFExtension", setting.disable_nsfext);
-
 	/* エミュレータの関連付け破壊防止(初心者用) */
 	setting.disable_pceext = GetSettingInt("DisablePCEExtension", 1);
 	SetSettingInt("DisablePCEExtension", setting.disable_pceext);
@@ -1189,6 +1260,9 @@ char *StartWinamp(void)
 	setting.disable_ay = GetSettingInt("DisableAYSupport", 0);
 	SetSettingInt("DisableAYSupport", setting.disable_ay);
 
+	setting.disable_sgc = GetSettingInt("DisableSGCSupport", 0);
+	SetSettingInt("DisableSGCSupport", setting.disable_sgc);
+
 	extp = extbuf;
 	if (!setting.disable_nsf && !setting.disable_nsfext)
 		extp = RegistWinampFormat(extp, "NSF;NEZ;NSZ;NSD", "NES sound files (*.nsf;*.nez;*.nsz;*.nsd)");
@@ -1208,6 +1282,8 @@ char *StartWinamp(void)
 		extp = RegistWinampFormat(extp, "HES", "HES sound file (*.hes)");
 	if (!setting.disable_ay)
 		extp = RegistWinampFormat(extp, "AY;CPC", "ZXAYEMUL sound files (*.ay;*.cpc)");
+	if (!setting.disable_sgc)
+		extp = RegistWinampFormat(extp, "SGC", "ZXAYEMUL sound files (*.sgc)");
 	*extp = '¥0';
 	return extbuf;
 }

@@ -4,7 +4,7 @@
 	---------------------------------------------------------------------------
 	generic WINAMP interface
 	---------------------------------------------------------------------------
-	$Id: in_xxx.h,v 0.7.9 2000/05/07 Mamiya Exp $
+	$Id: in_xxx.h,v 1.1 2005/10/12 02:28:30 tsato Exp $
 */
 
 #define MAX_SAMPLERATE 48000
@@ -245,6 +245,9 @@ static int play(char *fn)
 	int samplerate, maxlatency, ch;
 #endif
 	if (player_data.hEvent == NULL) return 1;
+
+	InitSequencer(mod.hDllInstance);//再生毎に設定を反映させたい
+
 	sequencer = loadFile(fn);
 	getfileinfo(NULL, NULL, (int *)&player_data.length);
 #if !N_VERSION

@@ -12,7 +12,6 @@
     曲番号は初期値に設定します。
     失敗の場合は NULL を返します。
     成功の場合はハンドルを返します。
-    現在の版では有効なハンドルは一つのみで、複数の同時再生はサポートしません。
 
     unsigned NSFSDKAPI NSFSDK_GetSongMax(HNSF hnsf, unsigned uSongNo);
     曲番号に設定可能な最大値を得ます。最小値は1です。

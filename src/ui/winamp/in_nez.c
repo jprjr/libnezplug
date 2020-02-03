@@ -9,6 +9,5 @@
 #include "sequencer.h"
 
 #include "con_nez.h"
-#include "common/cso.h"
 
 #include "in_xxx.h"

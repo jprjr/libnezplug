@@ -4,7 +4,7 @@
 	---------------------------------------------------------------------------
 	generic sequencer structure
 	---------------------------------------------------------------------------
-	$Id: sequencer.h,v 0.7.7 2000/05/07 Mamiya Exp $
+	$Id: sequencer.h,v 1.1 2005/10/12 02:28:31 tsato Exp $
 */
 
 #ifdef __cplusplus
@@ -53,3 +53,4 @@ char *StartWinamp(void);
 #ifdef __cplusplus
 }
 #endif
+

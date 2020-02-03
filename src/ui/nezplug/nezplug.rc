@@ -1,0 +1,459 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// 日本語 resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
+#ifdef _WIN32
+LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
+#pragma code_page(932)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_SONGINFO DIALOGEX 0, 0, 254, 162
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_DLGMODALFRAME
+CAPTION "File Info"
+FONT 9, "MS Gothic", 0, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "Close",IDCANCEL,204,144,46,14,NOT WS_TABSTOP
+    LTEXT           "Title",IDC_LABEL401,3,4,42,12,SS_NOTIFY | 
+                    SS_CENTERIMAGE | NOT WS_GROUP
+    EDITTEXT        IDC_TITLE,48,5,202,12,ES_NOHIDESEL | ES_READONLY | 
+                    ES_WANTRETURN | NOT WS_BORDER | NOT WS_TABSTOP | 0x200,
+                    WS_EX_STATICEDGE
+    LTEXT           "Artist",IDC_LABEL404,3,18,42,12,SS_NOTIFY | 
+                    SS_CENTERIMAGE | NOT WS_GROUP
+    EDITTEXT        IDC_ARTIST,48,19,202,12,ES_NOHIDESEL | ES_READONLY | 
+                    ES_WANTRETURN | NOT WS_BORDER | NOT WS_TABSTOP | 0x200,
+                    WS_EX_STATICEDGE
+    LTEXT           "Copyright",IDC_LABEL407,3,32,42,12,SS_NOTIFY | 
+                    SS_CENTERIMAGE | NOT WS_GROUP
+    EDITTEXT        IDC_COPYRIGHT,48,33,202,12,ES_NOHIDESEL | ES_READONLY | 
+                    ES_WANTRETURN | NOT WS_BORDER | NOT WS_TABSTOP | 0x200,
+                    WS_EX_STATICEDGE
+    EDITTEXT        IDC_DETAIL,3,50,247,90,ES_MULTILINE | ES_AUTOVSCROLL | 
+                    ES_READONLY | ES_WANTRETURN | NOT WS_BORDER | WS_VSCROLL | 
+                    NOT WS_TABSTOP,WS_EX_STATICEDGE
+    PUSHBUTTON      "Memory",IDC_MEMVIEW,51,144,46,14
+    PUSHBUTTON      "Channel",IDC_CHMASK,3,144,46,14
+    PUSHBUTTON      "Device",IDC_DEVVIEW,99,144,46,14
+    PUSHBUTTON      "Dump",IDC_DUMP,147,144,46,14
+END
+
+IDD_MEMVIEW DIALOG DISCARDABLE  0, 0, 238, 176
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Memory Viewer"
+FONT 9, "MS Gothic"
+BEGIN
+    CONTROL         "",IDC_MEMORY2,"Static",SS_SIMPLE | WS_GROUP,8,24,214,8
+    CONTROL         "",IDC_MEMORY,"Static",SS_SIMPLE | WS_GROUP,8,16,214,8
+    CONTROL         "",IDC_MEMORY4,"Static",SS_SIMPLE | WS_GROUP,8,40,214,8
+    CONTROL         "",IDC_MEMORY5,"Static",SS_SIMPLE | WS_GROUP,8,48,214,8
+    CONTROL         "",IDC_MEMORY6,"Static",SS_SIMPLE | WS_GROUP,8,56,214,8
+    CONTROL         "",IDC_MEMORY7,"Static",SS_SIMPLE | WS_GROUP,8,64,214,8
+    CONTROL         "",IDC_MEMORY8,"Static",SS_SIMPLE | WS_GROUP,8,72,214,8
+    CONTROL         "",IDC_MEMORY9,"Static",SS_SIMPLE | WS_GROUP,8,80,214,8
+    CONTROL         "",IDC_MEMORY10,"Static",SS_SIMPLE | WS_GROUP,8,88,214,8
+    CONTROL         "",IDC_MEMORY11,"Static",SS_SIMPLE | WS_GROUP,8,96,214,8
+    CONTROL         "",IDC_MEMORY12,"Static",SS_SIMPLE | WS_GROUP,8,104,214,
+                    8
+    CONTROL         "",IDC_MEMORY13,"Static",SS_SIMPLE | WS_GROUP,8,112,214,
+                    8
+    CONTROL         "",IDC_MEMORY14,"Static",SS_SIMPLE | WS_GROUP,8,120,214,
+                    8
+    CONTROL         "",IDC_MEMORY15,"Static",SS_SIMPLE | WS_GROUP,8,128,214,
+                    8
+    CONTROL         "",IDC_MEMORY16,"Static",SS_SIMPLE | WS_GROUP,8,136,214,
+                    8
+    LTEXT           "ADDR| +0 +1 +2 +3 +4 +5 +6 +7 +8 +9 +A +B +C +D +E +F",
+                    IDC_STATIC,8,6,214,8
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME,25,4,198,142
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME,4,14,219,132
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,4,4,219,142
+    GROUPBOX        "Reload Speed",IDC_STATIC,4,147,96,25
+    CONTROL         "OFF",IDC_SPEED1,"Button",BS_AUTORADIOBUTTON | 
+                    BS_PUSHLIKE | WS_GROUP | WS_TABSTOP,7,157,17,11
+    CONTROL         "1",IDC_SPEED2,"Button",BS_AUTORADIOBUTTON | BS_PUSHLIKE,
+                    25,157,17,11
+    CONTROL         "2",IDC_SPEED3,"Button",BS_AUTORADIOBUTTON | BS_PUSHLIKE,
+                    43,157,17,11
+    CONTROL         "3",IDC_SPEED4,"Button",BS_AUTORADIOBUTTON | BS_PUSHLIKE,
+                    61,157,17,11
+    CONTROL         "4",IDC_SPEED5,"Button",BS_AUTORADIOBUTTON | BS_PUSHLIKE,
+                    79,157,17,11
+    GROUPBOX        "Address",IDC_STATIC,102,147,90,25
+    PUSHBUTTON      "I/O",IDC_ADR_IO,105,157,27,11,WS_GROUP
+    PUSHBUTTON      "RAM",IDC_ADR_RAM,133,157,27,11,NOT WS_TABSTOP
+    PUSHBUTTON      "ROM",IDC_ADR_ROM,161,157,27,11,NOT WS_TABSTOP
+    PUSHBUTTON      "Close",IDCANCEL,194,157,40,15,WS_GROUP
+    SCROLLBAR       IDC_MEMSCR,223,4,11,142,SBS_TOPALIGN | SBS_VERT
+    CONTROL         "",IDC_MEMORY3,"Static",SS_SIMPLE | WS_GROUP,8,32,214,8
+END
+
+IDD_CHMASK DIALOG DISCARDABLE  0, 0, 285, 219
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Channel Mask"
+FONT 9, "MS Gothic"
+BEGIN
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDVERT,43,3,1,196
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,3,17,279,1
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,3,31,279,1
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,3,45,279,1
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,3,59,279,1
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,3,73,279,1
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,3,87,279,1
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,3,101,279,1
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,3,115,279,1
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,3,129,279,1
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,3,143,279,1
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,3,169,279,1
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,3,183,279,1
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,3,3,278,195
+    LTEXT           "2A03",IDC_STATIC,7,6,33,10,SS_CENTERIMAGE
+    LTEXT           "2C33",IDC_STATIC,7,20,33,10,SS_CENTERIMAGE
+    LTEXT           "MMC5",IDC_STATIC,7,34,33,10,SS_CENTERIMAGE
+    LTEXT           "VRC6",IDC_STATIC,7,48,33,10,SS_CENTERIMAGE
+    LTEXT           "N1xx",IDC_STATIC,7,62,33,10,SS_CENTERIMAGE
+    LTEXT           "DMG",IDC_STATIC,7,76,33,10,SS_CENTERIMAGE
+    LTEXT           "HuC6230",IDC_STATIC,7,90,33,10,SS_CENTERIMAGE
+    LTEXT           "PSG,SSG",IDC_STATIC,7,104,33,10,SS_CENTERIMAGE
+    LTEXT           "DCSG",IDC_STATIC,7,118,33,10,SS_CENTERIMAGE
+    LTEXT           "SCC",IDC_STATIC,7,132,33,10,SS_CENTERIMAGE
+    LTEXT           "OPL,VRC7",IDC_STATIC,7,146,33,10,SS_CENTERIMAGE
+    LTEXT           "MSM5205",IDC_STATIC,7,172,33,10,SS_CENTERIMAGE
+    LTEXT           "MSX-DA",IDC_STATIC,7,186,33,10,SS_CENTERIMAGE
+    CONTROL         "SQ1",IDC_2A03_SQ1,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_GROUP | WS_TABSTOP,45,5,26,11
+    CONTROL         "SQ2",IDC_2A03_SQ2,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,71,5,26,11
+    CONTROL         "TR",IDC_2A03_TR,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE,
+                    97,5,26,11
+    CONTROL         "NOISE",IDC_2A03_NOISE,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,123,5,26,11
+    CONTROL         "DPCM",IDC_2A03_DPCM,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,149,5,26,11
+    CONTROL         "FM",IDC_FDS_CH1,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | 
+                    WS_TABSTOP,45,19,26,11
+    CONTROL         "SQ1",IDC_MMC5_SQ1,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,45,33,26,11
+    CONTROL         "SQ2",IDC_MMC5_SQ2,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,71,33,26,11
+    CONTROL         "DA",IDC_MMC5_DA,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE,
+                    97,33,26,11
+    CONTROL         "SQ1",IDC_VRC6_SQ1,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,45,47,26,11
+    CONTROL         "SQ2",IDC_VRC6_SQ2,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,71,47,26,11
+    CONTROL         "SAW",IDC_VRC6_SAW,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,97,47,26,11
+    CONTROL         "WM40",IDC_N106_CH1,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,45,61,26,11
+    CONTROL         "WM48",IDC_N106_CH2,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,71,61,26,11
+    CONTROL         "WM50",IDC_N106_CH3,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,97,61,26,11
+    CONTROL         "WM58",IDC_N106_CH4,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,123,61,26,11
+    CONTROL         "WM60",IDC_N106_CH5,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,149,61,26,11
+    CONTROL         "WM68",IDC_N106_CH6,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,175,61,26,11
+    CONTROL         "WM70",IDC_N106_CH7,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,201,61,26,11
+    CONTROL         "WM78",IDC_N106_CH8,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,227,61,26,11
+    CONTROL         "SQ1",IDC_DMG_SQ1,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | 
+                    WS_TABSTOP,45,75,26,11
+    CONTROL         "SQ2",IDC_DMG_SQ2,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE,
+                    71,75,26,11
+    CONTROL         "WM",IDC_DMG_WM,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE,
+                    97,75,26,11
+    CONTROL         "NOISE",IDC_DMG_NOISE,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,123,75,26,11
+    CONTROL         "WM1",IDC_HUC6230_CH1,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,45,89,26,11
+    CONTROL         "WM2",IDC_HUC6230_CH2,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,71,89,26,11
+    CONTROL         "WM3",IDC_HUC6230_CH3,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,97,89,26,11
+    CONTROL         "WM4",IDC_HUC6230_CH4,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,123,89,26,11
+    CONTROL         "WM5",IDC_HUC6230_CH5,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,149,89,26,11
+    CONTROL         "WM6",IDC_HUC6230_CH6,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,175,89,26,11
+    CONTROL         "SQN1",IDC_AY8910_CH1,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,45,103,26,11
+    CONTROL         "SQN2",IDC_AY8910_CH2,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,71,103,26,11
+    CONTROL         "SQN3",IDC_AY8910_CH3,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,97,103,26,11
+    CONTROL         "SQ1",IDC_SN76489_SQ1,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,45,117,26,11
+    CONTROL         "SQ2",IDC_SN76489_SQ2,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,71,117,26,11
+    CONTROL         "SQ3",IDC_SN76489_SQ3,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,97,117,26,11
+    CONTROL         "NOISE",IDC_SN76489_NOISE,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,123,117,26,11
+    CONTROL         "WM1",IDC_SCC_CH1,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | 
+                    WS_TABSTOP,45,131,26,11
+    CONTROL         "WM2",IDC_SCC_CH2,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE,
+                    71,131,26,11
+    CONTROL         "WM3",IDC_SCC_CH3,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE,
+                    97,131,26,11
+    CONTROL         "WM4",IDC_SCC_CH4,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE,
+                    123,131,26,11
+    CONTROL         "WM5",IDC_SCC_CH5,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE,
+                    149,131,26,11
+    CONTROL         "FM1",IDC_YM2413_CH1,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,45,145,26,11
+    CONTROL         "FM2",IDC_YM2413_CH2,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,71,145,26,11
+    CONTROL         "FM3",IDC_YM2413_CH3,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,97,145,26,11
+    CONTROL         "FM4",IDC_YM2413_CH4,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,123,145,26,11
+    CONTROL         "FM5",IDC_YM2413_CH5,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,149,145,26,11
+    CONTROL         "FM6",IDC_YM2413_CH6,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,175,145,26,11
+    CONTROL         "FM7",IDC_YM2413_CH7,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,201,145,26,11
+    CONTROL         "FM8",IDC_YM2413_CH8,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,227,145,26,11
+    CONTROL         "FM9",IDC_YM2413_CH9,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,253,145,26,11
+    CONTROL         "4-BD",IDC_YM2413_BD,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,45,157,26,11
+    CONTROL         "0-HH",IDC_YM2413_HH,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,71,157,26,11
+    CONTROL         "3-SD",IDC_YM2413_SD,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,97,157,26,11
+    CONTROL         "2-TOM",IDC_YM2413_TOM,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,123,157,26,11
+    CONTROL         "1-TCY",IDC_YM2413_TCY,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE,149,157,26,11
+    CONTROL         "ADPCM",IDC_ADPCM_CH1,"Button",BS_AUTOCHECKBOX | 
+                    BS_PUSHLIKE | WS_TABSTOP,45,171,26,11
+    CONTROL         "DA",IDC_MSX_DA,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | 
+                    WS_TABSTOP,45,185,26,11
+    PUSHBUTTON      "All Enable",IDC_ALL_ENABLE,3,202,64,14,WS_GROUP
+    PUSHBUTTON      "All Disable",IDC_ALL_DISABLE,69,202,64,14
+    PUSHBUTTON      "Close",IDCANCEL,231,202,50,14
+    PUSHBUTTON      "All Reverse",IDC_ALL_REVERSE,135,202,64,14
+END
+
+IDD_IOVIEW DIALOG DISCARDABLE  0, 0, 238, 176
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Device Viewer"
+FONT 9, "MS Gothic"
+BEGIN
+    GROUPBOX        "Device",IDC_STATIC,102,148,90,25
+    COMBOBOX        IDC_DEVICE,104,157,86,272,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_TABSTOP
+    SCROLLBAR       IDC_MEMSCR,223,4,11,142,SBS_TOPALIGN | SBS_VERT
+    CONTROL         "OFF",IDC_SPEED1,"Button",BS_AUTORADIOBUTTON | 
+                    BS_PUSHLIKE | WS_GROUP | WS_TABSTOP,7,158,17,11
+    CONTROL         "1",IDC_SPEED2,"Button",BS_AUTORADIOBUTTON | BS_PUSHLIKE,
+                    25,158,17,11
+    CONTROL         "2",IDC_SPEED3,"Button",BS_AUTORADIOBUTTON | BS_PUSHLIKE,
+                    43,158,17,11
+    CONTROL         "3",IDC_SPEED4,"Button",BS_AUTORADIOBUTTON | BS_PUSHLIKE,
+                    61,158,17,11
+    CONTROL         "4",IDC_SPEED5,"Button",BS_AUTORADIOBUTTON | BS_PUSHLIKE,
+                    79,158,17,11
+    PUSHBUTTON      "Close",IDCANCEL,194,158,40,15,WS_GROUP
+    GROUPBOX        "Reload Speed",IDC_STATIC,4,148,96,25
+    CONTROL         "",IDC_MEMORY2,"Static",SS_SIMPLE | WS_GROUP,8,24,214,8
+    CONTROL         "",IDC_MEMORY,"Static",SS_SIMPLE | WS_GROUP,8,16,214,8
+    CONTROL         "",IDC_MEMORY4,"Static",SS_SIMPLE | WS_GROUP,8,40,214,8
+    CONTROL         "",IDC_MEMORY5,"Static",SS_SIMPLE | WS_GROUP,8,48,214,8
+    CONTROL         "",IDC_MEMORY6,"Static",SS_SIMPLE | WS_GROUP,8,56,214,8
+    CONTROL         "",IDC_MEMORY7,"Static",SS_SIMPLE | WS_GROUP,8,64,214,8
+    CONTROL         "",IDC_MEMORY8,"Static",SS_SIMPLE | WS_GROUP,8,72,214,8
+    CONTROL         "",IDC_MEMORY9,"Static",SS_SIMPLE | WS_GROUP,8,80,214,8
+    CONTROL         "",IDC_MEMORY10,"Static",SS_SIMPLE | WS_GROUP,8,88,214,8
+    CONTROL         "",IDC_MEMORY11,"Static",SS_SIMPLE | WS_GROUP,8,96,214,8
+    CONTROL         "",IDC_MEMORY12,"Static",SS_SIMPLE | WS_GROUP,8,104,214,
+                    8
+    CONTROL         "",IDC_MEMORY13,"Static",SS_SIMPLE | WS_GROUP,8,112,214,
+                    8
+    CONTROL         "",IDC_MEMORY14,"Static",SS_SIMPLE | WS_GROUP,8,120,214,
+                    8
+    CONTROL         "",IDC_MEMORY15,"Static",SS_SIMPLE | WS_GROUP,8,128,214,
+                    8
+    CONTROL         "",IDC_MEMORY16,"Static",SS_SIMPLE | WS_GROUP,8,136,214,
+                    8
+    LTEXT           "ADDR| +0 +1 +2 +3 +4 +5 +6 +7 +8 +9 +A +B +C +D +E +F",
+                    IDC_STATIC,8,6,214,8
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME,25,4,198,142
+    CONTROL         "",IDC_STATIC,"Static",SS_BLACKFRAME,4,14,219,132
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,4,4,219,142
+    CONTROL         "",IDC_MEMORY3,"Static",SS_SIMPLE | WS_GROUP,8,32,214,8
+END
+
+IDD_DUMP DIALOG DISCARDABLE  0, 0, 327, 176
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dump"
+FONT 9, "MS Gothic"
+BEGIN
+    PUSHBUTTON      "1",IDC_DUMP1,4,4,82,14,WS_GROUP
+    PUSHBUTTON      "1",IDC_DUMP2,4,18,82,14,NOT WS_TABSTOP
+    PUSHBUTTON      "1",IDC_DUMP3,4,32,82,14,NOT WS_TABSTOP
+    PUSHBUTTON      "1",IDC_DUMP4,4,46,82,14,NOT WS_TABSTOP
+    PUSHBUTTON      "1",IDC_DUMP5,4,60,82,14,NOT WS_TABSTOP
+    PUSHBUTTON      "1",IDC_DUMP6,4,74,82,14,NOT WS_TABSTOP
+    PUSHBUTTON      "1",IDC_DUMP7,4,88,82,14,NOT WS_TABSTOP
+    PUSHBUTTON      "1",IDC_DUMP8,4,102,82,14,NOT WS_TABSTOP
+    PUSHBUTTON      "1",IDC_DUMP9,4,116,82,14,NOT WS_TABSTOP
+    PUSHBUTTON      "1",IDC_DUMP10,4,130,82,14,NOT WS_TABSTOP
+    EDITTEXT        IDC_DUMPTEXT,87,4,236,141,ES_MULTILINE | ES_READONLY | 
+                    ES_WANTRETURN | WS_VSCROLL | WS_GROUP
+    GROUPBOX        "Device",IDC_STATIC,4,147,83,25
+    COMBOBOX        IDC_DMPDEVICE,6,157,79,258,CBS_DROPDOWNLIST | WS_VSCROLL | 
+                    WS_GROUP | WS_TABSTOP
+    GROUPBOX        "Dump Format",IDC_STATIC,89,147,114,25
+    CONTROL         "Text",IDC_DUMPFORMAT1,"Button",BS_AUTORADIOBUTTON | 
+                    BS_PUSHLIKE | WS_GROUP | WS_TABSTOP,92,156,36,13
+    CONTROL         "Text+adr",IDC_DUMPFORMAT2,"Button",BS_AUTORADIOBUTTON | 
+                    BS_PUSHLIKE,128,156,36,13
+    CONTROL         "File",IDC_DUMPFORMAT3,"Button",BS_AUTORADIOBUTTON | 
+                    BS_PUSHLIKE,164,156,36,13
+    PUSHBUTTON      "Copy to Clipboard",IDC_COPY,206,158,78,14,WS_GROUP
+    PUSHBUTTON      "Close",IDCANCEL,286,158,37,14,WS_GROUP
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h¥0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS¥r¥n"
+    "#include ""windows.h""¥r¥n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS¥r¥n"
+    "¥0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "¥r¥n"
+    "¥0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_SONGINFO, DIALOG
+    BEGIN
+        HORZGUIDE, 158
+    END
+
+    IDD_MEMVIEW, DIALOG
+    BEGIN
+        LEFTMARGIN, 4
+        RIGHTMARGIN, 234
+        TOPMARGIN, 4
+        BOTTOMMARGIN, 172
+    END
+
+    IDD_CHMASK, DIALOG
+    BEGIN
+        LEFTMARGIN, 3
+        VERTGUIDE, 3
+        VERTGUIDE, 7
+        VERTGUIDE, 40
+        VERTGUIDE, 41
+        VERTGUIDE, 65
+        VERTGUIDE, 83
+        VERTGUIDE, 109
+        VERTGUIDE, 135
+        VERTGUIDE, 161
+        VERTGUIDE, 187
+        VERTGUIDE, 282
+        TOPMARGIN, 3
+        BOTTOMMARGIN, 216
+        HORZGUIDE, 10
+        HORZGUIDE, 24
+        HORZGUIDE, 38
+        HORZGUIDE, 52
+        HORZGUIDE, 66
+        HORZGUIDE, 80
+        HORZGUIDE, 95
+        HORZGUIDE, 109
+        HORZGUIDE, 123
+        HORZGUIDE, 137
+        HORZGUIDE, 151
+        HORZGUIDE, 163
+        HORZGUIDE, 184
+    END
+
+    IDD_IOVIEW, DIALOG
+    BEGIN
+        LEFTMARGIN, 4
+        RIGHTMARGIN, 234
+        TOPMARGIN, 4
+        BOTTOMMARGIN, 172
+    END
+
+    IDD_DUMP, DIALOG
+    BEGIN
+        LEFTMARGIN, 4
+        RIGHTMARGIN, 323
+        TOPMARGIN, 4
+        BOTTOMMARGIN, 172
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // 日本語 resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

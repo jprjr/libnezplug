@@ -13,5 +13,3 @@ EXPORTS
 	NSFSDK_GetSongStart
 	NSFSDK_GetSongMax
 	NSFSDK_GetChannel
-	NSFSDK_StartNSD
-	NSFSDK_OutputNSD
