@@ -168,6 +168,7 @@ struct NEZ_PLAY_ {
 	NEZ_SONG_INFO *song;
     NEZ_TRACKS *tracks;
 	uint32_t volume;
+	uint32_t gain;
 	uint32_t frequency;
 	uint32_t channel;
 	NEZ_NES_AUDIO_HANDLER *nah;
@@ -244,6 +245,7 @@ void NEZSetChannel(NEZ_PLAY*, uint32_t ch);
 void NEZReset(NEZ_PLAY*);
 void NEZSetFilter(NEZ_PLAY *, uint32_t filter);
 void NEZVolume(NEZ_PLAY*, uint32_t uVolume);
+void NEZGain(NEZ_PLAY*, uint32_t uGain);
 void NEZAPUVolume(NEZ_PLAY*, int32_t uVolume);
 void NEZDPCMVolume(NEZ_PLAY*, int32_t uVolume);
 void NEZRender(NEZ_PLAY*, void *bufp, uint32_t buflen);

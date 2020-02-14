@@ -107,7 +107,8 @@ PROTECTED void NESAudioRender(NEZ_PLAY *pNezPlay, int16_t *bufp, uint32_t buflen
 						break;
 				}
 				clamp = ((int32_t)output[ch]) - 0x8000;
-				clamp = clamp * 3;
+				clamp *= pNezPlay->gain;
+                clamp >>= 8;
 				if(clamp < -32767) clamp = -32767;
 				else if(clamp > 32767) clamp = 32767;
 				*bufp   = (int16_t)clamp;

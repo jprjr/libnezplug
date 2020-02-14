@@ -40,6 +40,7 @@ NEZ_PLAY* NEZNew()
         pNezPlay->default_fade = 8000;
         pNezPlay->default_length = 180000;
         pNezPlay->default_loops = 2;
+        pNezPlay->gain = 0x100;
 
 	    NESAudioFrequencySet(pNezPlay, 48000);
 	    NESAudioChannelSet(pNezPlay, 1);
@@ -141,6 +142,12 @@ void NEZSetFilter(NEZ_PLAY *pNezPlay, uint32_t filter)
 {
 	if (pNezPlay == 0) return;
 	NESAudioFilterSet(pNezPlay, filter);
+}
+
+void NEZGain(NEZ_PLAY *pNezPlay, uint32_t uGain) {
+    if(pNezPlay == 0) return;
+    if(uGain == 0) uGain = 0x100;
+    pNezPlay->gain = uGain;
 }
 
 void NEZVolume(NEZ_PLAY *pNezPlay, uint32_t uVolume)
