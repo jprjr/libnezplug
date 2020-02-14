@@ -1,11 +1,11 @@
 # libnezplug
 
 This is a fork of [nezplug++](http://offgao.net/program/nezplug++.html),
-converted into a library. I've removed all global variables (same for
+converted into a library. I've removed all global variables (save for
 some read-only `static const` variables), I'm still working to remove
 a few other quirks but it *should* be thread-safe.
 
-There's has decoders for:
+There's decoders for:
 
 * NSF
 * NSFE
