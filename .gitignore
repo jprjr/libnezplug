@@ -4,6 +4,7 @@
 *.so
 *.dylib
 *.pcm
+*.swp
 aux/make-tables
 /dist
 /decode-all

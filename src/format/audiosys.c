@@ -47,6 +47,7 @@ PROTECTED void NESAudioRender(NEZ_PLAY *pNezPlay, int16_t *bufp, uint32_t buflen
 			for (ch = 0; ch < maxch; ch++)
 			{
 				uint32_t output[2];
+				int32_t clamp;
 				accum[ch] += (0x10000 << SHIFT_BITS);
 				if (accum[ch] < 0)
 					output[ch] = 0;
@@ -105,7 +106,12 @@ PROTECTED void NESAudioRender(NEZ_PLAY *pNezPlay, int16_t *bufp, uint32_t buflen
 						}
 						break;
 				}
-				*bufp++ = (int16_t)(((int32_t)output[ch]) - 0x8000);
+				clamp = ((int32_t)output[ch]) - 0x8000;
+				clamp = clamp * 3;
+				if(clamp < -32767) clamp = -32767;
+				else if(clamp > 32767) clamp = 32767;
+				*bufp   = (int16_t)clamp;
+				bufp++;
 			}
 		}
 	}
